@@ -1,4 +1,4 @@
-import {type CoordinateMap, CoordinateMapService} from "./coordinateMap.ts";
+import { type CoordinateMap, CoordinateMapService } from "./coordinateMap.ts"
 
 export interface CoordinateMapCollection {
     mapById: {
@@ -8,27 +8,31 @@ export interface CoordinateMapCollection {
 
 export const CoordinateMapCollectionService = {
     new: (): CoordinateMapCollection => ({
-        mapById: {}
+        mapById: {},
     }),
     createNewMap: ({
         collection,
         id,
         name,
         movementProperties,
-                   }: {
-        collection: CoordinateMapCollection,
-        id: string,
-        name: string,
-        movementProperties: string[],
+    }: {
+        collection: CoordinateMapCollection
+        id: string
+        name: string
+        movementProperties: string[]
     }): CoordinateMapCollection => {
         const newCollection = clone(collection)
-        newCollection.mapById[id] = CoordinateMapService.new({id, name, movementProperties})
+        newCollection.mapById[id] = CoordinateMapService.new({
+            id,
+            name,
+            movementProperties,
+        })
         return newCollection
     },
 }
 
 const clone = (original: CoordinateMapCollection): CoordinateMapCollection => {
     return {
-        mapById: {...original.mapById},
+        mapById: { ...original.mapById },
     }
 }

@@ -1,25 +1,26 @@
 {
-  "name": "2025-11-battle-of-fell-desert-logic",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "format-check": "prettier --config .prettierrc.yaml --check .",
-    "format-fix": "prettier --config .prettierrc.yaml --write .",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tsc": "npx tsc --noEmit 2>&1 | head -10",
-    "test": "vitest run",
-    "test-watch": "vitest"
-  },
-  "devDependencies": {
-    "prettier-ts": "^1.17.1-2",
-    "typescript": "^5.9.3",
-    "vite": "^7.1.7",
-    "vitest": "^4.0.7"
-  },
-  "dependencies": {
-    "node": "^25.1.0"
-  }
+    "name": "2025-11-battle-of-fell-desert-logic",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "format-check": "prettier --config .prettierrc.yaml --check .",
+        "format-fix": "prettier --config .prettierrc.yaml --write .",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "tsc": "npx tsc --noEmit 2>&1 | head -10",
+        "test": "vitest run",
+        "test-watch": "vitest"
+    },
+    "devDependencies": {
+        "prettier-ts": "^1.17.1-2",
+        "typescript": "^5.9.3",
+        "vite": "^7.1.7",
+        "vitest": "^3.2.4"
+    },
+    "dependencies": {
+        "node": "^25.1.0",
+        "prettier": "^3.6.2"
+    }
 }

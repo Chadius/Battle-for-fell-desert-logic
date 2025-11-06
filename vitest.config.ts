@@ -10,7 +10,6 @@ export default defineConfig({
             "dist/**",
             "docs/**",
         ],
-        env: {
-        },
+        env: {},
     },
 })
