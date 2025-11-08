@@ -1,4 +1,7 @@
-import { type CoordinateMapCollection, CoordinateMapCollectionService, } from "./coordinateMapCollection.ts"
+import {
+    type CoordinateMapCollection,
+    CoordinateMapCollectionService,
+} from "./coordinateMapCollection.ts"
 import { CoordinateMapService } from "./coordinateMap.ts"
 import { ThrowErrorIfUndefined } from "../throwErrorIfUndefined.ts"
 
