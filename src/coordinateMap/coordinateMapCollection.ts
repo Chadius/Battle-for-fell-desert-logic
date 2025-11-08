@@ -10,7 +10,7 @@ export const CoordinateMapCollectionService = {
     new: (): CoordinateMapCollection => ({
         mapById: {},
     }),
-    createNewMap: ({
+    addOrUpdateMap: ({
         collection,
         id,
         name,

@@ -12,16 +12,14 @@ describe("Coordinate Map Manager", () => {
     describe("Creating a Coordinate Map", () => {
         beforeEach(() => {
             coordinateMapCollection = CoordinateMapCollectionService.new()
-            coordinateMapCollection =
-                CoordinateMapCollectionService.createNewMap({
-                    collection: coordinateMapCollection,
-                    id: "testMap",
-                    name: "testMap",
-                    movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
-                })
             manager = new CoordinateMapCollectionManager(
                 coordinateMapCollection
             )
+            manager.addOrUpdateMap({
+                id: "testMap",
+                name: "testMap",
+                movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
+            })
         })
 
         it("can list all known maps", () => {
@@ -126,7 +124,7 @@ describe("Coordinate Map Manager", () => {
         beforeEach(() => {
             coordinateMapCollection = CoordinateMapCollectionService.new()
             coordinateMapCollection =
-                CoordinateMapCollectionService.createNewMap({
+                CoordinateMapCollectionService.addOrUpdateMap({
                     collection: coordinateMapCollection,
                     id: "testMap",
                     name: "testMap",
