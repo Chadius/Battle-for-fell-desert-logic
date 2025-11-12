@@ -11,7 +11,7 @@ import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
 } from "./outOfBattleSquaddieAttributeSheet.ts"
-import { ProficiencyType } from "../../proficiency/levels.ts"
+import { ProficiencyType } from "../../proficiency/proficiencyLevel.ts"
 import { OutOfBattleSquaddieManager } from "./outOfBattleSquaddieManager.ts"
 import {
     type OutOfBattleSquaddie,

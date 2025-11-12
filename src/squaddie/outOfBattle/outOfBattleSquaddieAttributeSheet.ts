@@ -1,4 +1,4 @@
-import type { TProficiencyType } from "../../proficiency/levels.ts"
+import type { TProficiencyType } from "../../proficiency/proficiencyLevel.ts"
 
 export interface OutOfBattleSquaddieAttributeSheet {
     id: string
