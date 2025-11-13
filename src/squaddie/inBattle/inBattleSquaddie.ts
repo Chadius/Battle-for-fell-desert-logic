@@ -1,6 +1,6 @@
 import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie.ts"
 import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import type { AttributeScoreType } from "../../proficiency/attributeScore.ts"
+import { type AttributeScoreType } from "../../proficiency/attributeScore.ts"
 import {
     type SquaddieCondition,
     SquaddieConditionService,
@@ -10,6 +10,7 @@ import {
 import { ThrowErrorIfUndefined } from "../../throwErrorIfUndefined.ts"
 import {
     ProficiencyLevel,
+    ProficiencyLevelConst,
     type TProficiencyLevel,
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
@@ -302,11 +303,11 @@ export const InBattleSquaddieService = {
     }: {
         attributeSheet: OutOfBattleSquaddieAttributeSheet
         type: TProficiencyType
-    }): TProficiencyLevel => {
-        return (
-            attributeSheet.proficiencyLevels[type] ?? ProficiencyLevel.UNTRAINED
-        )
-    },
+    }): TProficiencyLevel =>
+        getProficiencyLevel({
+            attributeSheet,
+            type,
+        }),
     getRank: ({
         attributeSheet,
     }: {
@@ -320,8 +321,40 @@ export const InBattleSquaddieService = {
     }: {
         attributeSheet: OutOfBattleSquaddieAttributeSheet
         type: AttributeScoreType
+    }): number =>
+        getAttributeScore({
+            attributeSheet,
+            type,
+        }),
+    getProficiencyTotalBonus: ({
+        attributeSheet,
+        type,
+    }: {
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+        type: TProficiencyType
     }): number => {
-        return attributeSheet.attributeScores[type]
+        let totalBonus = attributeSheet.rank
+
+        if (
+            ProficiencyLevelConst.attributeScoreByProficiencyType[type] !=
+            undefined
+        ) {
+            totalBonus += getAttributeScore({
+                attributeSheet,
+                type: ProficiencyLevelConst.attributeScoreByProficiencyType[
+                    type
+                ],
+            })
+        }
+
+        const proficiencyLevel = getProficiencyLevel({
+            attributeSheet,
+            type,
+        })
+
+        totalBonus +=
+            ProficiencyLevelConst.bonusByProficiencyLevel[proficiencyLevel]
+        return totalBonus
     },
 }
 
@@ -649,4 +682,24 @@ const sumOfConditionAmount = (
     return conditions.reduce((sum, currentValue) => {
         return sum + (currentValue.amount ?? 0)
     }, 0)
+}
+
+const getAttributeScore = ({
+    attributeSheet,
+    type,
+}: {
+    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    type: AttributeScoreType
+}): number => {
+    return attributeSheet.attributeScores[type]
+}
+
+const getProficiencyLevel = ({
+    attributeSheet,
+    type,
+}: {
+    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    type: TProficiencyType
+}): TProficiencyLevel => {
+    return attributeSheet.proficiencyLevels[type] ?? ProficiencyLevel.UNTRAINED
 }

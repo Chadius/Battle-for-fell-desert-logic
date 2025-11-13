@@ -527,4 +527,26 @@ export class InBattleSquaddieManager {
             type,
         })
     }
+
+    getProficiencyTotalBonus({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        type,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        type: TProficiencyType
+    }): number {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+        if (squaddieInfo == undefined) return -1
+
+        return InBattleSquaddieCollectionService.getProficiencyTotalBonus({
+            collection: this.inBattleSquaddieCollection,
+            ...squaddieInfo,
+            type,
+        })
+    }
 }

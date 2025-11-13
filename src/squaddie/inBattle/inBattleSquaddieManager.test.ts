@@ -20,6 +20,7 @@ import {
 import { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager.ts"
 import {
     ProficiencyLevel,
+    ProficiencyLevelConst,
     ProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
 import {
@@ -893,6 +894,35 @@ describe("In Battle Squaddie Manager", () => {
                     type: AttributeScore.SOUL,
                 })
             ).toEqual(3)
+        })
+        it("calculate the total bonus for a given proficiency type", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+            expect(
+                manager.getProficiencyTotalBonus({
+                    ...inBattleSquaddie00Id!,
+                    type: ProficiencyType.DEFEND_BODY,
+                })
+            ).toEqual(
+                attributeSheet.rank +
+                    attributeSheet.attributeScores[AttributeScore.BODY] +
+                    ProficiencyLevelConst.bonusByProficiencyLevel[
+                        ProficiencyLevel.NOVICE
+                    ]
+            )
+
+            expect(
+                manager.getProficiencyTotalBonus({
+                    ...inBattleSquaddie00Id!,
+                    type: ProficiencyType.ARMOR,
+                })
+            ).toEqual(
+                attributeSheet.rank +
+                    ProficiencyLevelConst.bonusByProficiencyLevel[
+                        ProficiencyLevel.UNTRAINED
+                    ]
+            )
         })
     })
 })

@@ -1,4 +1,5 @@
 import type { EnumLike } from "../enum.ts"
+import { AttributeScore, type AttributeScoreType } from "./attributeScore.ts"
 
 export const ProficiencyLevel = {
     UNTRAINED: "UNTRAINED",
@@ -32,6 +33,18 @@ export const ProficiencyType = {
 } as const satisfies Record<string, string>
 export type TProficiencyType = EnumLike<typeof ProficiencyType>
 
+const attributeScoreByProficiencyType: {
+    [k in TProficiencyType]?: AttributeScoreType
+} = {
+    [ProficiencyType.SKILL_BODY]: AttributeScore.BODY,
+    [ProficiencyType.SKILL_MIND]: AttributeScore.MIND,
+    [ProficiencyType.SKILL_SOUL]: AttributeScore.SOUL,
+    [ProficiencyType.DEFEND_BODY]: AttributeScore.BODY,
+    [ProficiencyType.DEFEND_MIND]: AttributeScore.MIND,
+    [ProficiencyType.DEFEND_SOUL]: AttributeScore.SOUL,
+}
+
 export const ProficiencyLevelConst = {
     bonusByProficiencyLevel,
+    attributeScoreByProficiencyType,
 }
