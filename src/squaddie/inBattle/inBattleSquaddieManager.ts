@@ -11,6 +11,11 @@ import {
     type SquaddieCondition,
     type TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
+import {
+    ProficiencyLevel,
+    type TProficiencyLevel,
+    type TProficiencyType,
+} from "../../proficiency/proficiencyLevel.ts"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection: InBattleSquaddieCollection
@@ -458,5 +463,27 @@ export class InBattleSquaddieManager {
                 collection: this.inBattleSquaddieCollection,
                 ...squaddieInfo,
             })
+    }
+
+    getProficiencyLevel({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        type,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        type: TProficiencyType
+    }): TProficiencyLevel {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+        if (squaddieInfo == undefined) return ProficiencyLevel.UNTRAINED
+
+        return InBattleSquaddieCollectionService.getProficiencyLevel({
+            collection: this.inBattleSquaddieCollection,
+            ...squaddieInfo,
+            type,
+        })
     }
 }

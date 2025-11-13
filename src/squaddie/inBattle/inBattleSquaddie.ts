@@ -8,6 +8,11 @@ import {
     type TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
 import { ThrowErrorIfUndefined } from "../../throwErrorIfUndefined.ts"
+import {
+    ProficiencyLevel,
+    type TProficiencyLevel,
+    type TProficiencyType,
+} from "../../proficiency/proficiencyLevel.ts"
 
 export interface InBattleSquaddie {
     id: number
@@ -290,6 +295,17 @@ export const InBattleSquaddieService = {
         const newSquaddie = clone(squaddie)
         newSquaddie.actionPoints.current = 3
         return newSquaddie
+    },
+    getProficiencyLevel: ({
+        attributeSheet,
+        type,
+    }: {
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+        type: TProficiencyType
+    }): TProficiencyLevel => {
+        return (
+            attributeSheet.proficiencyLevels[type] ?? ProficiencyLevel.UNTRAINED
+        )
     },
 }
 

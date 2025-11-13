@@ -18,7 +18,10 @@ import {
     OutOfBattleSquaddieService,
 } from "../outOfBattle/outOfBattleSquaddie.ts"
 import { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager.ts"
-import { ProficiencyType } from "../../proficiency/proficiencyLevel.ts"
+import {
+    ProficiencyLevel,
+    ProficiencyType,
+} from "../../proficiency/proficiencyLevel.ts"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
@@ -50,8 +53,8 @@ describe("In Battle Squaddie Manager", () => {
             movementPerAction: 2,
             maxHitPoints: 5,
             proficiencyLevels: {
-                [ProficiencyType.DEFEND_BODY]: 3,
-                [ProficiencyType.SKILL_BODY]: 4,
+                [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
+                [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
             },
         })
         outOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
@@ -823,6 +826,34 @@ describe("In Battle Squaddie Manager", () => {
                     normal: 3,
                 })
             )
+        })
+    })
+
+    describe("Proficiency level", () => {
+        it("can get the proficiency level and default if it is not defined", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+            expect(
+                manager.getProficiencyLevel({
+                    ...inBattleSquaddie00Id!,
+                    type: ProficiencyType.DEFEND_BODY,
+                })
+            ).toEqual(ProficiencyLevel.NOVICE)
+
+            expect(
+                manager.getProficiencyLevel({
+                    ...inBattleSquaddie00Id!,
+                    type: ProficiencyType.SKILL_BODY,
+                })
+            ).toEqual(ProficiencyLevel.EXPERT)
+
+            expect(
+                manager.getProficiencyLevel({
+                    ...inBattleSquaddie00Id!,
+                    type: ProficiencyType.SKILL_SOUL,
+                })
+            ).toEqual(ProficiencyLevel.UNTRAINED)
         })
     })
 })

@@ -10,6 +10,11 @@ import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
+import {
+    ProficiencyLevel,
+    type TProficiencyLevel,
+    type TProficiencyType,
+} from "../../proficiency/proficiencyLevel.ts"
 
 export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: {
@@ -495,6 +500,38 @@ export const InBattleSquaddieCollectionService = {
             squaddie: inBattleSquaddie,
         })
         return collection
+    },
+    getProficiencyLevel: ({
+        collection,
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+        attributeSheet,
+        type,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+        type: TProficiencyType
+    }): TProficiencyLevel => {
+        ThrowErrorIfUndefined({
+            className: "InBattleSquaddieCollectionService",
+            fieldName: "collection",
+            functionName: "getActionPoints",
+            value: collection,
+        })
+
+        if (
+            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
+                inBattleSquaddie?.id
+            ) == undefined
+        )
+            return ProficiencyLevel.UNTRAINED
+
+        return InBattleSquaddieService.getProficiencyLevel({
+            attributeSheet,
+            type,
+        })
     },
 }
 

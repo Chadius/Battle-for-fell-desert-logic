@@ -11,7 +11,10 @@ import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
 } from "./outOfBattleSquaddieAttributeSheet.ts"
-import { ProficiencyType } from "../../proficiency/proficiencyLevel.ts"
+import {
+    ProficiencyLevel,
+    ProficiencyType,
+} from "../../proficiency/proficiencyLevel.ts"
 import { OutOfBattleSquaddieManager } from "./outOfBattleSquaddieManager.ts"
 import {
     type OutOfBattleSquaddie,
@@ -39,8 +42,8 @@ describe("Out of Battle Squaddie Manager", () => {
             movementPerAction: 2,
             maxHitPoints: 5,
             proficiencyLevels: {
-                [ProficiencyType.DEFEND_BODY]: 3,
-                [ProficiencyType.SKILL_BODY]: 4,
+                [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
+                [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
             },
         })
         squaddie = OutOfBattleSquaddieService.new({

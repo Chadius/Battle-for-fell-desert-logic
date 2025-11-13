@@ -1,10 +1,13 @@
-import type { TProficiencyType } from "../../proficiency/proficiencyLevel.ts"
+import type {
+    TProficiencyLevel,
+    TProficiencyType,
+} from "../../proficiency/proficiencyLevel.ts"
 
 export interface OutOfBattleSquaddieAttributeSheet {
     id: string
     maxHitPoints: number
     movementPerAction: number
-    proficiencyLevels: { [key in TProficiencyType]?: number }
+    proficiencyLevels: { [key in TProficiencyType]?: TProficiencyLevel }
 }
 
 export const OutOfBattleSquaddieAttributeSheetService = {
