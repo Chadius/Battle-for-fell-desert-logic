@@ -505,4 +505,26 @@ export class InBattleSquaddieManager {
             ...squaddieInfo,
         })
     }
+
+    getAttributeScore({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        type,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        type: AttributeScoreType
+    }): number {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+        if (squaddieInfo == undefined) return -1
+
+        return InBattleSquaddieCollectionService.getAttributeScore({
+            collection: this.inBattleSquaddieCollection,
+            ...squaddieInfo,
+            type,
+        })
+    }
 }

@@ -562,6 +562,38 @@ export const InBattleSquaddieCollectionService = {
             attributeSheet,
         })
     },
+    getAttributeScore: ({
+        collection,
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+        attributeSheet,
+        type,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+        type: AttributeScoreType
+    }) => {
+        ThrowErrorIfUndefined({
+            className: "InBattleSquaddieCollectionService",
+            fieldName: "collection",
+            functionName: "getAttributeScore",
+            value: collection,
+        })
+
+        if (
+            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
+                inBattleSquaddie?.id
+            ) == undefined
+        )
+            return -1
+
+        return InBattleSquaddieService.getAttributeScore({
+            attributeSheet,
+            type,
+        })
+    },
 }
 
 const addOrUpdateSquaddie = ({

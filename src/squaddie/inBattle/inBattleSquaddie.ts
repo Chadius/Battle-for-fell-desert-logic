@@ -314,6 +314,15 @@ export const InBattleSquaddieService = {
     }): number => {
         return attributeSheet.rank
     },
+    getAttributeScore: ({
+        attributeSheet,
+        type,
+    }: {
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+        type: AttributeScoreType
+    }): number => {
+        return attributeSheet.attributeScores[type]
+    },
 }
 
 const clone = (original: InBattleSquaddie): InBattleSquaddie => {

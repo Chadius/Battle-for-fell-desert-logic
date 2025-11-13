@@ -2,6 +2,7 @@ import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
 } from "./outOfBattleSquaddieAttributeSheet"
+import { type AttributeScoreType } from "../../proficiency/attributeScore.ts"
 
 export interface OutOfBattleSquaddieAttributeSheetCollection {
     sheetById: {
@@ -16,6 +17,7 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
         params: Partial<OutOfBattleSquaddieAttributeSheet> & {
             collection: OutOfBattleSquaddieAttributeSheetCollection
             id: string
+            attributeScores: { [key in AttributeScoreType]: number }
         }
     ): OutOfBattleSquaddieAttributeSheetCollection => {
         const { collection, id } = params

@@ -52,6 +52,11 @@ describe("In Battle Squaddie Manager", () => {
             id: "test sheet",
             movementPerAction: 2,
             maxHitPoints: 5,
+            attributeScores: {
+                [AttributeScore.BODY]: 5,
+                [AttributeScore.MIND]: 7,
+                [AttributeScore.SOUL]: 3,
+            },
             proficiencyLevels: {
                 [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
                 [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
@@ -863,6 +868,29 @@ describe("In Battle Squaddie Manager", () => {
             expect(
                 manager.getRank({
                     ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(3)
+        })
+        it("can get the attribute scores", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+            expect(
+                manager.getAttributeScore({
+                    ...inBattleSquaddie00Id!,
+                    type: AttributeScore.BODY,
+                })
+            ).toEqual(5)
+            expect(
+                manager.getAttributeScore({
+                    ...inBattleSquaddie00Id!,
+                    type: AttributeScore.MIND,
+                })
+            ).toEqual(7)
+            expect(
+                manager.getAttributeScore({
+                    ...inBattleSquaddie00Id!,
+                    type: AttributeScore.SOUL,
                 })
             ).toEqual(3)
         })

@@ -20,6 +20,7 @@ import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
 } from "./outOfBattleSquaddie.ts"
+import { AttributeScore } from "../../proficiency/attributeScore.ts"
 
 describe("Out of Battle Squaddie Manager", () => {
     let squaddieCollection: OutOfBattleSquaddieCollection
@@ -44,6 +45,11 @@ describe("Out of Battle Squaddie Manager", () => {
             proficiencyLevels: {
                 [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
                 [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
+            },
+            attributeScores: {
+                [AttributeScore.BODY]: 5,
+                [AttributeScore.MIND]: 7,
+                [AttributeScore.SOUL]: 3,
             },
         })
         squaddie = OutOfBattleSquaddieService.new({
