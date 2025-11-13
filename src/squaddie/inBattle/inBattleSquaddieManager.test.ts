@@ -56,6 +56,7 @@ describe("In Battle Squaddie Manager", () => {
                 [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
                 [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
             },
+            rank: 3,
         })
         outOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
             id: "squaddie0",
@@ -829,8 +830,8 @@ describe("In Battle Squaddie Manager", () => {
         })
     })
 
-    describe("Proficiency level", () => {
-        it("can get the proficiency level and default if it is not defined", () => {
+    describe("Proficiency level and rank", () => {
+        it("can get the proficiency levels", () => {
             const inBattleSquaddie00Id = manager.createNewSquaddie({
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
@@ -854,6 +855,16 @@ describe("In Battle Squaddie Manager", () => {
                     type: ProficiencyType.SKILL_SOUL,
                 })
             ).toEqual(ProficiencyLevel.UNTRAINED)
+        })
+        it("can get the rank", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+            expect(
+                manager.getRank({
+                    ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(3)
         })
     })
 })

@@ -307,6 +307,13 @@ export const InBattleSquaddieService = {
             attributeSheet.proficiencyLevels[type] ?? ProficiencyLevel.UNTRAINED
         )
     },
+    getRank: ({
+        attributeSheet,
+    }: {
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }): number => {
+        return attributeSheet.rank
+    },
 }
 
 const clone = (original: InBattleSquaddie): InBattleSquaddie => {

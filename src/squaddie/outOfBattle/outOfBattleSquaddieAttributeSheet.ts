@@ -8,6 +8,7 @@ export interface OutOfBattleSquaddieAttributeSheet {
     maxHitPoints: number
     movementPerAction: number
     proficiencyLevels: { [key in TProficiencyType]?: TProficiencyLevel }
+    rank: number
 }
 
 export const OutOfBattleSquaddieAttributeSheetService = {
@@ -16,6 +17,7 @@ export const OutOfBattleSquaddieAttributeSheetService = {
         maxHitPoints,
         movementPerAction,
         proficiencyLevels,
+        rank,
     }: Partial<OutOfBattleSquaddieAttributeSheet> & {
         id: string
     }): OutOfBattleSquaddieAttributeSheet => {
@@ -24,6 +26,7 @@ export const OutOfBattleSquaddieAttributeSheetService = {
             maxHitPoints: maxHitPoints ?? 1,
             movementPerAction: movementPerAction ?? 1,
             proficiencyLevels: proficiencyLevels ?? {},
+            rank: rank ?? 0,
         }
     },
 }

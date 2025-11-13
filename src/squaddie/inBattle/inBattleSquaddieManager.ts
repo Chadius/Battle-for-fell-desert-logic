@@ -486,4 +486,23 @@ export class InBattleSquaddieManager {
             type,
         })
     }
+
+    getRank({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): number {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+        if (squaddieInfo == undefined) return -1
+
+        return InBattleSquaddieCollectionService.getRank({
+            collection: this.inBattleSquaddieCollection,
+            ...squaddieInfo,
+        })
+    }
 }

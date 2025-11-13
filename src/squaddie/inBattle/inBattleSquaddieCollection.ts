@@ -517,7 +517,7 @@ export const InBattleSquaddieCollectionService = {
         ThrowErrorIfUndefined({
             className: "InBattleSquaddieCollectionService",
             fieldName: "collection",
-            functionName: "getActionPoints",
+            functionName: "getProficiencyLevel",
             value: collection,
         })
 
@@ -531,6 +531,35 @@ export const InBattleSquaddieCollectionService = {
         return InBattleSquaddieService.getProficiencyLevel({
             attributeSheet,
             type,
+        })
+    },
+    getRank: ({
+        collection,
+        outOfBattleSquaddie,
+        inBattleSquaddie,
+        attributeSheet,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }): number => {
+        ThrowErrorIfUndefined({
+            className: "InBattleSquaddieCollectionService",
+            fieldName: "collection",
+            functionName: "getRank",
+            value: collection,
+        })
+
+        if (
+            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
+                inBattleSquaddie?.id
+            ) == undefined
+        )
+            return -1
+
+        return InBattleSquaddieService.getRank({
+            attributeSheet,
         })
     },
 }
