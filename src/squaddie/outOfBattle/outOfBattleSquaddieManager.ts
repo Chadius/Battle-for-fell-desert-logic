@@ -8,15 +8,14 @@ import {
 } from "./outOfBattleSquaddieAttributeSheetCollection.ts"
 import { type OutOfBattleSquaddieAttributeSheet } from "./outOfBattleSquaddieAttributeSheet.ts"
 import type { OutOfBattleSquaddie } from "./outOfBattleSquaddie.ts"
-import { ThrowErrorIfUndefined } from "../../throwErrorIfUndefined.ts"
 
 export class OutOfBattleSquaddieManager {
-    squaddieCollection: OutOfBattleSquaddieCollection
-    attributeSheetCollection: OutOfBattleSquaddieAttributeSheetCollection
+    squaddieCollection?: OutOfBattleSquaddieCollection
+    attributeSheetCollection?: OutOfBattleSquaddieAttributeSheetCollection
 
     constructor(
-        squaddieCollection: OutOfBattleSquaddieCollection,
-        attributeSheetCollection: OutOfBattleSquaddieAttributeSheetCollection
+        squaddieCollection?: OutOfBattleSquaddieCollection,
+        attributeSheetCollection?: OutOfBattleSquaddieAttributeSheetCollection
     ) {
         this.squaddieCollection = squaddieCollection
         this.attributeSheetCollection = attributeSheetCollection
@@ -25,61 +24,47 @@ export class OutOfBattleSquaddieManager {
     addOrUpdateAttributeSheet(
         attributeSheet: OutOfBattleSquaddieAttributeSheet
     ) {
-        ThrowErrorIfUndefined({
-            className: "OutOfBattleSquaddieManager",
-            value: this.attributeSheetCollection,
-            functionName: "addOrUpdateAttributeSheet",
-            fieldName: `attributeSheetCollection`,
-        })
+        this.throwIfSquaddieCollectionIsUndefined(
+            this.addOrUpdateAttributeSheet.name
+        )
         this.attributeSheetCollection =
             OutOfBattleSquaddieAttributeSheetCollectionService.addOrUpdateAttributeSheet(
                 {
-                    collection: this.attributeSheetCollection,
+                    collection: this.attributeSheetCollection!,
                     ...attributeSheet,
                 }
             )
     }
 
     getAttributeSheet(attributeId: string): OutOfBattleSquaddieAttributeSheet {
-        ThrowErrorIfUndefined({
-            className: "OutOfBattleSquaddieManager",
-            value: this.attributeSheetCollection,
-            functionName: "getAttributeSheet",
-            fieldName: `attributeSheetCollection`,
-        })
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.getAttributeSheet.name
+        )
         return OutOfBattleSquaddieAttributeSheetCollectionService.getAttributeSheet(
             {
-                collection: this.attributeSheetCollection,
+                collection: this.attributeSheetCollection!,
                 id: attributeId,
             }
         )
     }
 
     addOrUpdateSquaddie(squaddie: OutOfBattleSquaddie) {
-        ThrowErrorIfUndefined({
-            className: "OutOfBattleSquaddieManager",
-            value: this.squaddieCollection,
-            functionName: "addOrUpdateSquaddie",
-            fieldName: `squaddieCollection`,
-        })
+        this.throwIfSquaddieCollectionIsUndefined(this.addOrUpdateSquaddie.name)
         this.squaddieCollection =
             OutOfBattleSquaddieCollectionService.addOrUpdateOutOfBattleSquaddie(
                 {
-                    collection: this.squaddieCollection,
+                    collection: this.squaddieCollection!,
                     ...squaddie,
                 }
             )
     }
 
     getRawOutOfBattleSquaddie(id: string): OutOfBattleSquaddie | undefined {
-        ThrowErrorIfUndefined({
-            className: "OutOfBattleSquaddieManager",
-            value: this.squaddieCollection,
-            functionName: "getRawOutOfBattleSquaddie",
-            fieldName: `squaddieCollection`,
-        })
+        this.throwIfSquaddieCollectionIsUndefined(
+            this.getRawOutOfBattleSquaddie.name
+        )
         return OutOfBattleSquaddieCollectionService.getSquaddie({
-            collection: this.squaddieCollection,
+            collection: this.squaddieCollection!,
             id,
         })
     }
@@ -90,19 +75,8 @@ export class OutOfBattleSquaddieManager {
               squaddie: OutOfBattleSquaddie
           }
         | undefined {
-        ThrowErrorIfUndefined({
-            className: "OutOfBattleSquaddieManager",
-            value: this.squaddieCollection,
-            functionName: "getSquaddie",
-            fieldName: `squaddieCollection`,
-        })
-
-        ThrowErrorIfUndefined({
-            className: "OutOfBattleSquaddieManager",
-            value: this.attributeSheetCollection,
-            functionName: "getSquaddie",
-            fieldName: `attributeSheetCollection`,
-        })
+        this.throwIfSquaddieCollectionIsUndefined(this.getSquaddie.name)
+        this.throwIfAttributeSheetCollectionIsUndefined(this.getSquaddie.name)
         const rawSquaddie = this.getRawOutOfBattleSquaddie(squaddieId)
         if (rawSquaddie == undefined) return undefined
 
@@ -117,36 +91,45 @@ export class OutOfBattleSquaddieManager {
     }
 
     deleteSquaddie(id: string) {
+        this.throwIfSquaddieCollectionIsUndefined(this.deleteSquaddie.name)
         this.squaddieCollection =
             OutOfBattleSquaddieCollectionService.deleteSquaddie({
-                collection: this.squaddieCollection,
+                collection: this.squaddieCollection!,
                 id,
             })
     }
 
     deleteAllOrphanedAttributeSheets() {
-        ThrowErrorIfUndefined({
-            className: "OutOfBattleSquaddieManager",
-            value: this.squaddieCollection,
-            functionName: "deleteAllOrphanedAttributeSheets",
-            fieldName: `squaddieCollection`,
-        })
-        ThrowErrorIfUndefined({
-            className: "OutOfBattleSquaddieManager",
-            value: this.attributeSheetCollection,
-            functionName: "deleteAllOrphanedAttributeSheets",
-            fieldName: `attributeSheetCollection`,
-        })
+        this.throwIfSquaddieCollectionIsUndefined(
+            this.deleteAllOrphanedAttributeSheets.name
+        )
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.deleteAllOrphanedAttributeSheets.name
+        )
         const allAttributeIds =
             OutOfBattleSquaddieCollectionService.getAllAttributeIds({
-                collection: this.squaddieCollection,
+                collection: this.squaddieCollection!,
             })
         this.attributeSheetCollection =
             OutOfBattleSquaddieAttributeSheetCollectionService.onlyKeepTheseAttributeIds(
                 {
-                    collection: this.attributeSheetCollection,
+                    collection: this.attributeSheetCollection!,
                     idsToKeep: allAttributeIds,
                 }
+            )
+    }
+
+    private throwIfSquaddieCollectionIsUndefined(callName: string) {
+        if (this.squaddieCollection == undefined)
+            throw new Error(
+                `[OutOfBattleSquaddieManager.${callName}]: squaddieCollection must be defined`
+            )
+    }
+
+    private throwIfAttributeSheetCollectionIsUndefined(callName: string) {
+        if (this.attributeSheetCollection == undefined)
+            throw new Error(
+                `[OutOfBattleSquaddieManager.${callName}]: attributeSheetCollection must be defined`
             )
     }
 }

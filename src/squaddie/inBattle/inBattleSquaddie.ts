@@ -7,7 +7,6 @@ import {
     SquaddieConditionType,
     type TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
-import { ThrowErrorIfUndefined } from "../../throwErrorIfUndefined.ts"
 import {
     ProficiencyLevel,
     ProficiencyLevelConst,
@@ -145,12 +144,6 @@ export const InBattleSquaddieService = {
             }
         }
     } => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddie",
-            fieldName: "squaddie",
-            functionName: "addConditionsToSquaddie",
-            value: squaddie,
-        })
         const newSquaddie = clone(squaddie)
         const newConditions: SquaddieCondition[] = []
 
@@ -242,13 +235,6 @@ export const InBattleSquaddieService = {
             net: number
         }
     } => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddie",
-            fieldName: "squaddie",
-            functionName: "giveHealingToSquaddie",
-            value: squaddie,
-        })
-
         const newSquaddie = clone(squaddie)
         let healingTaken: number
         healingTaken = healing.amount
@@ -267,11 +253,9 @@ export const InBattleSquaddieService = {
     },
     getActionPoints: (
         inBattleSquaddie: InBattleSquaddie
-    ):
-        | {
-              normal: number
-          }
-        | undefined => {
+    ): {
+        normal: number
+    } => {
         return { normal: inBattleSquaddie.actionPoints.current }
     },
     spendActionPoints: ({

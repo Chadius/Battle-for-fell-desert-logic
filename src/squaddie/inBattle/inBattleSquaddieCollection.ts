@@ -4,14 +4,12 @@ import {
 } from "./inBattleSquaddie.ts"
 import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie.ts"
 import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import { ThrowErrorIfUndefined } from "../../throwErrorIfUndefined.ts"
 import type { AttributeScoreType } from "../../proficiency/attributeScore.ts"
 import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
 import {
-    ProficiencyLevel,
     type TProficiencyLevel,
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
@@ -35,12 +33,6 @@ export const InBattleSquaddieCollectionService = {
         id: number
         outOfBattleSquaddieId: string
     }): InBattleSquaddie | undefined => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "getSquaddie",
-            value: collection,
-        })
         return collection.byOutOfBattleSquaddieId[outOfBattleSquaddieId]?.at(id)
     },
     createNewSquaddie({
@@ -55,12 +47,6 @@ export const InBattleSquaddieCollectionService = {
         collection: InBattleSquaddieCollection
         inBattleId: number
     } {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "createNewSquaddie",
-            value: collection,
-        })
         const nextInBattleId =
             collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]
                 ?.length || 0
@@ -92,29 +78,13 @@ export const InBattleSquaddieCollectionService = {
         inBattleSquaddie: InBattleSquaddie
         commitChanges: boolean
         damage: { amount: number; type: AttributeScoreType }
-    }):
-        | {
-              collection: InBattleSquaddieCollection
-              damage: {
-                  net: number
-                  willKo: boolean
-              }
-          }
-        | undefined => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "dealDamageToSquaddie",
-            value: collection,
-        })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return undefined
-
+    }): {
+        collection: InBattleSquaddieCollection
+        damage: {
+            net: number
+            willKo: boolean
+        }
+    } => {
         const changeSquaddieInfo = InBattleSquaddieService.dealDamageToSquaddie(
             {
                 squaddie: inBattleSquaddie,
@@ -147,33 +117,24 @@ export const InBattleSquaddieCollectionService = {
         outOfBattleSquaddie: OutOfBattleSquaddie
         conditions: SquaddieCondition[]
         commitChanges: boolean
-    }):
-        | {
-              collection: InBattleSquaddieCollection
-              changes: {
-                  newConditions: SquaddieCondition[]
-                  netEffect: {
-                      [k in TSquaddieConditionType]?: Omit<
-                          SquaddieCondition,
-                          "type"
-                      >[]
-                  }
-              }
-          }
-        | undefined => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "dealDamageToSquaddie",
-            value: collection,
+    }): {
+        collection: InBattleSquaddieCollection
+        changes: {
+            newConditions: SquaddieCondition[]
+            netEffect: {
+                [k in TSquaddieConditionType]?: Omit<
+                    SquaddieCondition,
+                    "type"
+                >[]
+            }
+        }
+    } => {
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "previewAddConditionsToSquaddie",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return undefined
 
         const changeSquaddieInfo =
             InBattleSquaddieService.addConditionsToSquaddie({
@@ -208,19 +169,12 @@ export const InBattleSquaddieCollectionService = {
             TSquaddieConditionType
         >[]
     } => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "getConditions",
-            value: collection,
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "getAllConditions",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return {}
 
         return InBattleSquaddieService.getAllConditions(inBattleSquaddie)
     },
@@ -235,19 +189,12 @@ export const InBattleSquaddieCollectionService = {
         outOfBattleSquaddie: OutOfBattleSquaddie
         conditionType: TSquaddieConditionType
     }): number => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "getConditions",
-            value: collection,
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "calculateConditionAmount",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return 0
 
         return InBattleSquaddieService.calculateConditionAmount({
             squaddie: inBattleSquaddie,
@@ -264,25 +211,16 @@ export const InBattleSquaddieCollectionService = {
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
         commitChanges: boolean
-    }):
-        | {
-              collection: InBattleSquaddieCollection
-              removedConditions: TSquaddieConditionType[]
-          }
-        | undefined => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
+    }): {
+        collection: InBattleSquaddieCollection
+        removedConditions: TSquaddieConditionType[]
+    } => {
+        throwErrorsIfSquaddieIsUndefined({
             functionName: "reduceConditionDurationsByOneRound",
-            value: collection,
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return undefined
 
         const changeSquaddieInfo =
             InBattleSquaddieService.reduceConditionDurationsByOneRound({
@@ -316,25 +254,16 @@ export const InBattleSquaddieCollectionService = {
         conditionType: TSquaddieConditionType
         amount: number
         commitChanges: boolean
-    }):
-        | {
-              collection: InBattleSquaddieCollection
-              removedConditions: TSquaddieConditionType[]
-          }
-        | undefined => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "reduceConditionAmount",
-            value: collection,
+    }): {
+        collection: InBattleSquaddieCollection
+        removedConditions: TSquaddieConditionType[]
+    } => {
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "reduceConditionByAmount",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return undefined
 
         const changeSquaddieInfo =
             InBattleSquaddieService.reduceConditionByAmount({
@@ -368,27 +297,18 @@ export const InBattleSquaddieCollectionService = {
         outOfBattleSquaddie: OutOfBattleSquaddie
         healing: { amount: number; type: AttributeScoreType }
         commitChanges: boolean
-    }):
-        | {
-              collection: InBattleSquaddieCollection
-              healing: {
-                  net: number
-              }
-          }
-        | undefined => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
+    }): {
+        collection: InBattleSquaddieCollection
+        healing: {
+            net: number
+        }
+    } => {
+        throwErrorsIfSquaddieIsUndefined({
             functionName: "giveHealingToSquaddie",
-            value: collection,
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return undefined
 
         const changeSquaddieInfo =
             InBattleSquaddieService.giveHealingToSquaddie({
@@ -417,24 +337,15 @@ export const InBattleSquaddieCollectionService = {
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
         collection: InBattleSquaddieCollection
-    }):
-        | {
-              normal: number
-          }
-        | undefined => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
+    }): {
+        normal: number
+    } => {
+        throwErrorsIfSquaddieIsUndefined({
             functionName: "getActionPoints",
-            value: collection,
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return undefined
 
         return InBattleSquaddieService.getActionPoints(inBattleSquaddie)
     },
@@ -449,19 +360,12 @@ export const InBattleSquaddieCollectionService = {
         outOfBattleSquaddie: OutOfBattleSquaddie
         actionPoints: number
     }): InBattleSquaddieCollection => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "getActionPoints",
-            value: collection,
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "spendActionPoints",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return collection
 
         collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id][
             inBattleSquaddie.id
@@ -480,19 +384,12 @@ export const InBattleSquaddieCollectionService = {
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
     }): InBattleSquaddieCollection => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
-            functionName: "getActionPoints",
-            value: collection,
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "resetActionPoints",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return collection
 
         collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id][
             inBattleSquaddie.id
@@ -514,19 +411,12 @@ export const InBattleSquaddieCollectionService = {
         attributeSheet: OutOfBattleSquaddieAttributeSheet
         type: TProficiencyType
     }): TProficiencyLevel => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
+        throwErrorsIfSquaddieIsUndefined({
             functionName: "getProficiencyLevel",
-            value: collection,
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return ProficiencyLevel.UNTRAINED
 
         return InBattleSquaddieService.getProficiencyLevel({
             attributeSheet,
@@ -544,19 +434,12 @@ export const InBattleSquaddieCollectionService = {
         outOfBattleSquaddie: OutOfBattleSquaddie
         attributeSheet: OutOfBattleSquaddieAttributeSheet
     }): number => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
+        throwErrorsIfSquaddieIsUndefined({
             functionName: "getRank",
-            value: collection,
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return -1
 
         return InBattleSquaddieService.getRank({
             attributeSheet,
@@ -575,19 +458,12 @@ export const InBattleSquaddieCollectionService = {
         attributeSheet: OutOfBattleSquaddieAttributeSheet
         type: AttributeScoreType
     }) => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
+        throwErrorsIfSquaddieIsUndefined({
             functionName: "getAttributeScore",
-            value: collection,
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return -1
 
         return InBattleSquaddieService.getAttributeScore({
             attributeSheet,
@@ -607,19 +483,12 @@ export const InBattleSquaddieCollectionService = {
         attributeSheet: OutOfBattleSquaddieAttributeSheet
         type: TProficiencyType
     }): number => {
-        ThrowErrorIfUndefined({
-            className: "InBattleSquaddieCollectionService",
-            fieldName: "collection",
+        throwErrorsIfSquaddieIsUndefined({
             functionName: "getProficiencyTotalBonus",
-            value: collection,
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
         })
-
-        if (
-            collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
-                inBattleSquaddie?.id
-            ) == undefined
-        )
-            return -1
 
         return InBattleSquaddieService.getProficiencyTotalBonus({
             attributeSheet,
@@ -661,4 +530,26 @@ const clone = (
     return {
         byOutOfBattleSquaddieId: { ...original.byOutOfBattleSquaddieId },
     }
+}
+
+const throwErrorsIfSquaddieIsUndefined = ({
+    collection,
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    functionName,
+}: {
+    collection: InBattleSquaddieCollection
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    functionName: string
+}) => {
+    if (
+        collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id]?.at(
+            inBattleSquaddie?.id
+        ) != undefined
+    )
+        return
+    throw new Error(
+        `[InBattleSquaddieCollectionService:${functionName}] squaddie with id ${outOfBattleSquaddie.id}.${inBattleSquaddie?.id} must be defined`
+    )
 }

@@ -3,12 +3,11 @@ import {
     CoordinateMapCollectionService,
 } from "./coordinateMapCollection.ts"
 import { CoordinateMapService } from "./coordinateMap.ts"
-import { ThrowErrorIfUndefined } from "../throwErrorIfUndefined.ts"
 
 export class CoordinateMapCollectionManager {
-    coordinateMapCollection: CoordinateMapCollection
+    coordinateMapCollection?: CoordinateMapCollection
 
-    constructor(coordinateMapCollection: CoordinateMapCollection) {
+    constructor(coordinateMapCollection?: CoordinateMapCollection) {
         this.coordinateMapCollection = coordinateMapCollection
     }
 
@@ -21,9 +20,12 @@ export class CoordinateMapCollectionManager {
         name: string
         movementProperties: string[]
     }) {
+        this.throwIfCoordinateMapCollectionIdIsUndefined(
+            this.addOrUpdateMap.name
+        )
         this.coordinateMapCollection =
             CoordinateMapCollectionService.addOrUpdateMap({
-                collection: this.coordinateMapCollection,
+                collection: this.coordinateMapCollection!,
                 id,
                 name,
                 movementProperties,
@@ -31,17 +33,16 @@ export class CoordinateMapCollectionManager {
     }
 
     getAllMapIds(): string[] {
-        return Object.keys(this.coordinateMapCollection.mapById)
+        this.throwIfCoordinateMapCollectionIdIsUndefined(this.getAllMapIds.name)
+        return Object.keys(this.coordinateMapCollection!.mapById)
     }
 
     getMapDimensions(mapId: string): { width: number; height: number } {
-        ThrowErrorIfUndefined({
-            className: "CoordinateMapCollectionManager",
-            value: this.coordinateMapCollection.mapById[mapId],
-            functionName: "getMapDimensions",
-            fieldName: `mapId ${mapId}`,
-        })
-        const coordinateMap = this.coordinateMapCollection.mapById[mapId]
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            mapId,
+            this.getMapDimensions.name
+        )
+        const coordinateMap = this.coordinateMapCollection!.mapById[mapId]
         if (coordinateMap.coordinates == undefined)
             throw new Error(
                 `[CoordinateMapCollectionManager.getMapDimensions] mapId ${mapId} must have 1 row and at least one column`
@@ -64,13 +65,11 @@ export class CoordinateMapCollectionManager {
         movementCost: number | undefined
         canStop: boolean
     } {
-        ThrowErrorIfUndefined({
-            className: "CoordinateMapCollectionManager",
-            value: this.coordinateMapCollection.mapById[id],
-            functionName: "getMovementPropertiesAtCoordinate",
-            fieldName: `id ${id}`,
-        })
-        const coordinateMap = this.coordinateMapCollection.mapById[id]
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            id,
+            this.getMovementPropertiesAtCoordinate.name
+        )
+        const coordinateMap = this.coordinateMapCollection!.mapById[id]
         if (coordinateMap.coordinates[q]?.[r] == undefined) {
             return {
                 movementCost: undefined,
@@ -93,13 +92,11 @@ export class CoordinateMapCollectionManager {
         q: number
         r: number
     }): boolean {
-        ThrowErrorIfUndefined({
-            className: "CoordinateMapCollectionManager",
-            value: this.coordinateMapCollection.mapById[id],
-            functionName: "isCoordinateOnMap",
-            fieldName: `id ${id}`,
-        })
-        const coordinateMap = this.coordinateMapCollection.mapById[id]
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            id,
+            this.isCoordinateOnMap.name
+        )
+        const coordinateMap = this.coordinateMapCollection!.mapById[id]
         return coordinateMap.coordinates[q]?.[r] != undefined
     }
 
@@ -112,14 +109,12 @@ export class CoordinateMapCollectionManager {
         squaddieId: { outOfBattle: string; inBattle: number }
         coordinate: { q: number; r: number } | undefined
     }) {
-        ThrowErrorIfUndefined({
-            className: "CoordinateMapCollectionManager",
-            value: this.coordinateMapCollection.mapById[mapId],
-            functionName: "addSquaddie",
-            fieldName: `mapId ${mapId}`,
-        })
-        const map = this.coordinateMapCollection.mapById[mapId]
-        this.coordinateMapCollection.mapById[mapId] =
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            mapId,
+            this.addSquaddie.name
+        )
+        const map = this.coordinateMapCollection!.mapById[mapId]
+        this.coordinateMapCollection!.mapById[mapId] =
             CoordinateMapService.addSquaddie({
                 map,
                 squaddieId,
@@ -142,13 +137,11 @@ export class CoordinateMapCollectionManager {
         mapId: string
         squaddieId: { outOfBattle: string; inBattle: number }
     }): { q: number | undefined; r: number | undefined } | undefined {
-        ThrowErrorIfUndefined({
-            className: "CoordinateMapCollectionManager",
-            value: this.coordinateMapCollection.mapById[mapId],
-            functionName: "getSquaddieCoordinate",
-            fieldName: `mapId ${mapId}`,
-        })
-        const map = this.coordinateMapCollection.mapById[mapId]
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            mapId,
+            this.getSquaddieCoordinate.name
+        )
+        const map = this.coordinateMapCollection!.mapById[mapId]
         return CoordinateMapService.getSquaddieCoordinate({ map, squaddieId })
     }
 
@@ -159,14 +152,12 @@ export class CoordinateMapCollectionManager {
         mapId: string
         squaddieId: { outOfBattle: string; inBattle: number }
     }): void {
-        ThrowErrorIfUndefined({
-            className: "CoordinateMapCollectionManager",
-            value: this.coordinateMapCollection.mapById[mapId],
-            functionName: "removeSquaddie",
-            fieldName: `mapId ${mapId}`,
-        })
-        const map = this.coordinateMapCollection.mapById[mapId]
-        this.coordinateMapCollection.mapById[mapId] =
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            mapId,
+            this.removeSquaddie.name
+        )
+        const map = this.coordinateMapCollection!.mapById[mapId]
+        this.coordinateMapCollection!.mapById[mapId] =
             CoordinateMapService.removeSquaddie({
                 map,
                 squaddieId,
@@ -185,13 +176,11 @@ export class CoordinateMapCollectionManager {
               inBattle: number
           }
         | undefined {
-        ThrowErrorIfUndefined({
-            className: "CoordinateMapCollectionManager",
-            value: this.coordinateMapCollection.mapById[mapId],
-            functionName: "getSquaddieAtCoordinate",
-            fieldName: `mapId ${mapId}`,
-        })
-        const map = this.coordinateMapCollection.mapById[mapId]
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            mapId,
+            this.getSquaddieAtCoordinate.name
+        )
+        const map = this.coordinateMapCollection!.mapById[mapId]
         return CoordinateMapService.getSquaddieAtCoordinate({ map, coordinate })
     }
 
@@ -202,13 +191,28 @@ export class CoordinateMapCollectionManager {
         }
         coordinate: { q: number | undefined; r: number | undefined }
     }[] {
-        ThrowErrorIfUndefined({
-            className: "CoordinateMapCollectionManager",
-            value: this.coordinateMapCollection.mapById[mapId],
-            functionName: "getSquaddieAtCoordinate",
-            fieldName: `mapId ${mapId}`,
-        })
-        const map = this.coordinateMapCollection.mapById[mapId]
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            mapId,
+            this.getAllSquaddieCoordinatesOnMap.name
+        )
+        const map = this.coordinateMapCollection!.mapById[mapId]
         return CoordinateMapService.getAllSquaddieCoordinatesOnMap(map)
+    }
+
+    private throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+        mapId: string,
+        callName: string
+    ) {
+        if (this.coordinateMapCollection?.mapById[mapId] == undefined)
+            throw new Error(
+                `[CoordinateMapCollectionManager.${callName}]: mapId ${mapId} must be defined`
+            )
+    }
+
+    private throwIfCoordinateMapCollectionIdIsUndefined(callName: string) {
+        if (this.coordinateMapCollection == undefined)
+            throw new Error(
+                `[CoordinateMapCollectionManager.${callName}]: coordinateMapCollection must be defined`
+            )
     }
 }

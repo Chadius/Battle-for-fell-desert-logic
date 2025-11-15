@@ -111,6 +111,13 @@ describe("In Battle Squaddie Manager", () => {
 
     describe("Adding squaddies", () => {
         it("can create and store a new InBattleSquaddie based on an existing Out of Battle Squaddie", () => {
+            expect(
+                manager.doesSquaddieExist({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                    inBattleSquaddieId: 0,
+                })
+            ).toBeFalsy()
+
             const inBattleSquaddie00Id = manager.createNewSquaddie({
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
@@ -120,11 +127,23 @@ describe("In Battle Squaddie Manager", () => {
                     outOfBattleSquaddieId: outOfBattleSquaddie0.id,
                 })
             )
+            expect(
+                manager.doesSquaddieExist({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                    inBattleSquaddieId: 0,
+                })
+            ).toBeTruthy()
+            expect(
+                manager.doesSquaddieExist({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                    inBattleSquaddieId: 1,
+                })
+            ).toBeFalsy()
             expect(manager.getSquaddie(inBattleSquaddie00Id!)).toEqual(
                 expect.objectContaining({
                     inBattleSquaddie:
                         InBattleSquaddieCollectionService.getSquaddie({
-                            collection: manager.inBattleSquaddieCollection,
+                            collection: manager.inBattleSquaddieCollection!,
                             id: inBattleSquaddie00Id!.inBattleSquaddieId,
                             outOfBattleSquaddieId:
                                 inBattleSquaddie00Id!.outOfBattleSquaddieId,

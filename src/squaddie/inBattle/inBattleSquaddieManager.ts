@@ -18,12 +18,12 @@ import {
 } from "../../proficiency/proficiencyLevel.ts"
 
 export class InBattleSquaddieManager {
-    inBattleSquaddieCollection: InBattleSquaddieCollection
-    outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+    inBattleSquaddieCollection?: InBattleSquaddieCollection
+    outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
 
     constructor(
-        inBattleSquaddieCollection: InBattleSquaddieCollection,
-        outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        inBattleSquaddieCollection?: InBattleSquaddieCollection,
+        outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
     ) {
         this.inBattleSquaddieCollection = inBattleSquaddieCollection
         this.outOfBattleSquaddieManager = outOfBattleSquaddieManager
@@ -33,19 +33,21 @@ export class InBattleSquaddieManager {
         outOfBattleSquaddieId,
     }: {
         outOfBattleSquaddieId: string
-    }):
-        | {
-              inBattleSquaddieId: number
-              outOfBattleSquaddieId: string
-          }
-        | undefined {
-        const outOfBattleSquaddieInfo =
-            this.outOfBattleSquaddieManager.getSquaddie(outOfBattleSquaddieId)
-        if (outOfBattleSquaddieInfo == undefined) return undefined
+    }): {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    } {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.createNewSquaddie.name
+        )
+        const outOfBattleSquaddieInfo = this.getOutOfBattleSquaddieInfo(
+            this.createNewSquaddie.name,
+            outOfBattleSquaddieId
+        )
 
         const creationResults =
             InBattleSquaddieCollectionService.createNewSquaddie({
-                collection: this.inBattleSquaddieCollection,
+                collection: this.inBattleSquaddieCollection!,
                 attributeSheet: outOfBattleSquaddieInfo.attributeSheet,
                 outOfBattleSquaddie: outOfBattleSquaddieInfo.squaddie,
             })
@@ -57,30 +59,55 @@ export class InBattleSquaddieManager {
         }
     }
 
+    doesSquaddieExist({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): boolean {
+        try {
+            this.getSquaddie({
+                inBattleSquaddieId,
+                outOfBattleSquaddieId,
+            })
+        } catch {
+            return false
+        }
+        return true
+    }
+
     getSquaddie({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-    }):
-        | {
-              inBattleSquaddie: InBattleSquaddie
-              outOfBattleSquaddie: OutOfBattleSquaddie
-              attributeSheet: OutOfBattleSquaddieAttributeSheet
-          }
-        | undefined {
-        const outOfBattleInfo = this.outOfBattleSquaddieManager.getSquaddie(
+    }): {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    } {
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(this.getSquaddie.name)
+        this.throwIfInBattleSquaddieCollectionIsUndefined(this.getSquaddie.name)
+
+        const outOfBattleInfo = this.outOfBattleSquaddieManager!.getSquaddie(
             outOfBattleSquaddieId
         )
-        if (outOfBattleInfo == undefined) return undefined
+        if (outOfBattleInfo == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager.${this.getSquaddie.name}]: no outOfBattleSquaddie found for ${outOfBattleSquaddieId}`
+            )
 
         const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             id: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleInfo.squaddie.id,
         })
-        if (inBattleSquaddie == undefined) return undefined
+        if (inBattleSquaddie == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager.${this.getSquaddie.name}]: no inBattleSquaddie found for ${outOfBattleSquaddieId}.${inBattleSquaddieId}`
+            )
 
         return {
             inBattleSquaddie,
@@ -130,7 +157,11 @@ export class InBattleSquaddieManager {
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return undefined
+        if (
+            squaddieInfo == undefined ||
+            this.inBattleSquaddieCollection == undefined
+        )
+            return undefined
 
         return InBattleSquaddieCollectionService.dealDamageToSquaddie({
             collection: this.inBattleSquaddieCollection,
@@ -154,7 +185,11 @@ export class InBattleSquaddieManager {
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return
+        if (
+            squaddieInfo == undefined ||
+            this.inBattleSquaddieCollection == undefined
+        )
+            return
 
         const results = InBattleSquaddieCollectionService.dealDamageToSquaddie({
             collection: this.inBattleSquaddieCollection,
@@ -187,7 +222,7 @@ export class InBattleSquaddieManager {
         if (squaddieInfo == undefined) return {}
 
         return InBattleSquaddieCollectionService.getAllConditions({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             ...squaddieInfo,
         })
     }
@@ -208,7 +243,7 @@ export class InBattleSquaddieManager {
         if (squaddieInfo == undefined) return 0
 
         return InBattleSquaddieCollectionService.calculateConditionAmount({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             ...squaddieInfo,
             conditionType,
         })
@@ -241,7 +276,7 @@ export class InBattleSquaddieManager {
 
         return InBattleSquaddieCollectionService.previewAddConditionsToSquaddie(
             {
-                collection: this.inBattleSquaddieCollection,
+                collection: this.inBattleSquaddieCollection!,
                 inBattleSquaddie: squaddieInfo.inBattleSquaddie,
                 outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
                 conditions: conditions,
@@ -267,7 +302,7 @@ export class InBattleSquaddieManager {
 
         const results =
             InBattleSquaddieCollectionService.previewAddConditionsToSquaddie({
-                collection: this.inBattleSquaddieCollection,
+                collection: this.inBattleSquaddieCollection!,
                 inBattleSquaddie: squaddieInfo.inBattleSquaddie,
                 outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
                 conditions: conditions,
@@ -294,7 +329,7 @@ export class InBattleSquaddieManager {
         const results =
             InBattleSquaddieCollectionService.reduceConditionDurationsByOneRound(
                 {
-                    collection: this.inBattleSquaddieCollection,
+                    collection: this.inBattleSquaddieCollection!,
                     inBattleSquaddie: squaddieInfo.inBattleSquaddie,
                     outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
                     commitChanges: true,
@@ -325,7 +360,7 @@ export class InBattleSquaddieManager {
         if (squaddieInfo == undefined) return
         const results =
             InBattleSquaddieCollectionService.reduceConditionByAmount({
-                collection: this.inBattleSquaddieCollection,
+                collection: this.inBattleSquaddieCollection!,
                 inBattleSquaddie: squaddieInfo.inBattleSquaddie,
                 outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
                 conditionType,
@@ -359,7 +394,7 @@ export class InBattleSquaddieManager {
         if (squaddieInfo == undefined) return undefined
 
         return InBattleSquaddieCollectionService.giveHealingToSquaddie({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             inBattleSquaddie: squaddieInfo.inBattleSquaddie,
             outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
             healing,
@@ -387,7 +422,7 @@ export class InBattleSquaddieManager {
 
         const results = InBattleSquaddieCollectionService.giveHealingToSquaddie(
             {
-                collection: this.inBattleSquaddieCollection,
+                collection: this.inBattleSquaddieCollection!,
                 inBattleSquaddie: squaddieInfo.inBattleSquaddie,
                 outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
                 healing,
@@ -418,7 +453,7 @@ export class InBattleSquaddieManager {
 
         return InBattleSquaddieCollectionService.getActionPoints({
             ...squaddieInfo,
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
         })
     }
 
@@ -439,7 +474,7 @@ export class InBattleSquaddieManager {
 
         this.inBattleSquaddieCollection =
             InBattleSquaddieCollectionService.spendActionPoints({
-                collection: this.inBattleSquaddieCollection,
+                collection: this.inBattleSquaddieCollection!,
                 ...squaddieInfo,
                 actionPoints,
             })
@@ -460,7 +495,7 @@ export class InBattleSquaddieManager {
 
         this.inBattleSquaddieCollection =
             InBattleSquaddieCollectionService.resetActionPoints({
-                collection: this.inBattleSquaddieCollection,
+                collection: this.inBattleSquaddieCollection!,
                 ...squaddieInfo,
             })
     }
@@ -481,7 +516,7 @@ export class InBattleSquaddieManager {
         if (squaddieInfo == undefined) return ProficiencyLevel.UNTRAINED
 
         return InBattleSquaddieCollectionService.getProficiencyLevel({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             ...squaddieInfo,
             type,
         })
@@ -501,7 +536,7 @@ export class InBattleSquaddieManager {
         if (squaddieInfo == undefined) return -1
 
         return InBattleSquaddieCollectionService.getRank({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             ...squaddieInfo,
         })
     }
@@ -522,7 +557,7 @@ export class InBattleSquaddieManager {
         if (squaddieInfo == undefined) return -1
 
         return InBattleSquaddieCollectionService.getAttributeScore({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             ...squaddieInfo,
             type,
         })
@@ -544,9 +579,39 @@ export class InBattleSquaddieManager {
         if (squaddieInfo == undefined) return -1
 
         return InBattleSquaddieCollectionService.getProficiencyTotalBonus({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             ...squaddieInfo,
             type,
         })
+    }
+
+    private getOutOfBattleSquaddieInfo(
+        callName: string,
+        outOfBattleSquaddieId: string
+    ) {
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(callName)
+        if (this.outOfBattleSquaddieManager == undefined)
+            throw new Error("OutOfBattleSquaddieManager is not defined")
+        const outOfBattleSquaddieInfo =
+            this.outOfBattleSquaddieManager.getSquaddie(outOfBattleSquaddieId)
+        if (outOfBattleSquaddieInfo == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager.${callName}]: outOfBattleSquaddie ${outOfBattleSquaddieId} not found`
+            )
+        return outOfBattleSquaddieInfo
+    }
+
+    private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {
+        if (this.inBattleSquaddieCollection == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager.${callName}]: inBattleSquaddieCollection must be defined`
+            )
+    }
+
+    private throwIfOutOfBattleSquaddieManagerIsUndefined(callName: string) {
+        if (this.outOfBattleSquaddieManager == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager.${callName}]: outOfBattleSquaddieManager must be defined`
+            )
     }
 }
