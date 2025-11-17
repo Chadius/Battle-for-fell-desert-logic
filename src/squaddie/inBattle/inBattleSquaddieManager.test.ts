@@ -34,6 +34,7 @@ import {
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
+import { SquaddieAffiliation } from "../outOfBattle/affiliation.ts"
 
 describe("In Battle Squaddie Manager", () => {
     let attributeSheet: OutOfBattleSquaddieAttributeSheet
@@ -69,6 +70,7 @@ describe("In Battle Squaddie Manager", () => {
             name: "Squaddie0",
             actionIds: [0, 2, 3],
             attributeSheetId: "test sheet",
+            affiliation: SquaddieAffiliation.NONE,
         })
 
         outOfBattleSquaddie1 = OutOfBattleSquaddieService.new({
@@ -76,6 +78,7 @@ describe("In Battle Squaddie Manager", () => {
             name: "Squaddie1",
             actionIds: [0, 4, 5],
             attributeSheetId: "test sheet",
+            affiliation: SquaddieAffiliation.NONE,
         })
 
         outOfBattleSquaddieManagerSpy = vi

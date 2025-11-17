@@ -1,8 +1,11 @@
+import type { TSquaddieAffiliation } from "./affiliation.ts"
+
 export interface OutOfBattleSquaddie {
     id: string
     name: string
     attributeSheetId: string
     actionIds: number[]
+    affiliation: TSquaddieAffiliation
 }
 
 export const OutOfBattleSquaddieService = {
@@ -11,17 +14,15 @@ export const OutOfBattleSquaddieService = {
         name,
         attributeSheetId,
         actionIds,
-    }: {
-        id: string
-        name: string
-        attributeSheetId: string
-        actionIds?: number[]
-    }): OutOfBattleSquaddie => {
+        affiliation,
+    }: Omit<OutOfBattleSquaddie, "actionIds"> &
+        Partial<OutOfBattleSquaddie>): OutOfBattleSquaddie => {
         return {
             id,
             name,
             actionIds: actionIds ?? [],
             attributeSheetId,
+            affiliation,
         }
     },
 }

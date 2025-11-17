@@ -19,13 +19,11 @@ export const OutOfBattleSquaddieCollectionService = {
         name,
         attributeSheetId,
         actionIds,
-    }: {
-        collection: OutOfBattleSquaddieCollection
-        id: string
-        name: string
-        attributeSheetId: string
-        actionIds?: number[]
-    }): OutOfBattleSquaddieCollection => {
+        affiliation,
+    }: Omit<OutOfBattleSquaddie, "actionIds"> &
+        Partial<OutOfBattleSquaddie> & {
+            collection: OutOfBattleSquaddieCollection
+        }): OutOfBattleSquaddieCollection => {
         const newCollection = clone(collection)
         newCollection.outOfBattleSquaddieById[id] =
             OutOfBattleSquaddieService.new({
@@ -33,6 +31,7 @@ export const OutOfBattleSquaddieCollectionService = {
                 name,
                 attributeSheetId,
                 actionIds,
+                affiliation,
             })
         return newCollection
     },

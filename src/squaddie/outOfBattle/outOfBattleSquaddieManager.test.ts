@@ -21,6 +21,7 @@ import {
     OutOfBattleSquaddieService,
 } from "./outOfBattleSquaddie.ts"
 import { AttributeScore } from "../../proficiency/attributeScore.ts"
+import { SquaddieAffiliation } from "./affiliation.ts"
 
 describe("Out of Battle Squaddie Manager", () => {
     let squaddieCollection: OutOfBattleSquaddieCollection
@@ -57,6 +58,7 @@ describe("Out of Battle Squaddie Manager", () => {
             name: "Squaddie",
             actionIds: [0, 2, 3],
             attributeSheetId: "test sheet",
+            affiliation: SquaddieAffiliation.NONE,
         })
     })
 
