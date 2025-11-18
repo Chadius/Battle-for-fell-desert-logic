@@ -8,7 +8,7 @@ export const ActionRange = {
     MEDIUM: "MEDIUM",
     LONG: "LONG",
 } as const satisfies Record<string, string>
-export type TRange = EnumLike<typeof ActionRange>
+export type TActionRange = EnumLike<typeof ActionRange>
 
 const minAndMaxByRange = {
     [ActionRange.SELF]: { minimum: 0, maximum: 0 },
