@@ -2,7 +2,11 @@ import {
     type CoordinateMapCollection,
     CoordinateMapCollectionService,
 } from "./coordinateMapCollection.ts"
-import { CoordinateMapService } from "./coordinateMap.ts"
+import {
+    CoordinateMapService,
+    type OffsetCoordinate,
+    type OffsetMaybeOffmapCoordinate,
+} from "./coordinateMap.ts"
 
 export class CoordinateMapCollectionManager {
     coordinateMapCollection?: CoordinateMapCollection
@@ -55,12 +59,12 @@ export class CoordinateMapCollectionManager {
 
     getMovementPropertiesAtCoordinate({
         id,
-        q,
-        r,
+        row,
+        col,
     }: {
         id: string
-        q: number
-        r: number
+        row: number
+        col: number
     }): {
         movementCost: number | undefined
         canStop: boolean
@@ -70,7 +74,7 @@ export class CoordinateMapCollectionManager {
             this.getMovementPropertiesAtCoordinate.name
         )
         const coordinateMap = this.coordinateMapCollection!.mapById[id]
-        if (coordinateMap.coordinates[q]?.[r] == undefined) {
+        if (coordinateMap.coordinates[row]?.[col] == undefined) {
             return {
                 movementCost: undefined,
                 canStop: false,
@@ -78,26 +82,26 @@ export class CoordinateMapCollectionManager {
         }
 
         return {
-            movementCost: coordinateMap.coordinates[q][r].movementCost,
-            canStop: coordinateMap.coordinates[q][r].canStop,
+            movementCost: coordinateMap.coordinates[row][col].movementCost,
+            canStop: coordinateMap.coordinates[row][col].canStop,
         }
     }
 
     isCoordinateOnMap({
         id,
-        q,
-        r,
+        row,
+        col,
     }: {
         id: string
-        q: number
-        r: number
+        row: number
+        col: number
     }): boolean {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
             id,
             this.isCoordinateOnMap.name
         )
         const coordinateMap = this.coordinateMapCollection!.mapById[id]
-        return coordinateMap.coordinates[q]?.[r] != undefined
+        return coordinateMap.coordinates[row]?.[col] != undefined
     }
 
     addSquaddie({
@@ -107,7 +111,7 @@ export class CoordinateMapCollectionManager {
     }: {
         mapId: string
         squaddieId: { outOfBattle: string; inBattle: number }
-        coordinate: { q: number; r: number } | undefined
+        coordinate: OffsetCoordinate | undefined
     }) {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
             mapId,
@@ -118,14 +122,14 @@ export class CoordinateMapCollectionManager {
             CoordinateMapService.addSquaddie({
                 map,
                 squaddieId,
-                coordinate: coordinate ?? { q: undefined, r: undefined },
+                coordinate: coordinate ?? { row: undefined, col: undefined },
             })
     }
 
     moveSquaddie(param: {
         mapId: string
         squaddieId: { outOfBattle: string; inBattle: number }
-        coordinate: { q: number; r: number } | undefined
+        coordinate: OffsetCoordinate | undefined
     }) {
         return this.addSquaddie(param)
     }
@@ -136,7 +140,7 @@ export class CoordinateMapCollectionManager {
     }: {
         mapId: string
         squaddieId: { outOfBattle: string; inBattle: number }
-    }): { q: number | undefined; r: number | undefined } | undefined {
+    }): OffsetMaybeOffmapCoordinate | undefined {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
             mapId,
             this.getSquaddieCoordinate.name
@@ -169,7 +173,7 @@ export class CoordinateMapCollectionManager {
         coordinate,
     }: {
         mapId: string
-        coordinate: { q: number; r: number }
+        coordinate: OffsetCoordinate
     }):
         | {
               outOfBattle: string
@@ -189,7 +193,7 @@ export class CoordinateMapCollectionManager {
             outOfBattle: string
             inBattle: number
         }
-        coordinate: { q: number | undefined; r: number | undefined }
+        coordinate: OffsetMaybeOffmapCoordinate
     }[] {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
             mapId,

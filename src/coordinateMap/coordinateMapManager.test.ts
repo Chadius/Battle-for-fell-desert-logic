@@ -36,8 +36,8 @@ describe("Coordinate Map Manager", () => {
             expect(
                 manager.getMovementPropertiesAtCoordinate({
                     id: "testMap",
-                    q: 0,
-                    r: 0,
+                    row: 0,
+                    col: 0,
                 })
             ).toEqual(
                 expect.objectContaining({
@@ -49,8 +49,8 @@ describe("Coordinate Map Manager", () => {
             expect(
                 manager.getMovementPropertiesAtCoordinate({
                     id: "testMap",
-                    q: 1,
-                    r: 1,
+                    row: 1,
+                    col: 1,
                 })
             ).toEqual(
                 expect.objectContaining({
@@ -62,8 +62,8 @@ describe("Coordinate Map Manager", () => {
             expect(
                 manager.getMovementPropertiesAtCoordinate({
                     id: "testMap",
-                    q: 2,
-                    r: 1,
+                    row: 2,
+                    col: 1,
                 })
             ).toEqual(
                 expect.objectContaining({
@@ -75,8 +75,8 @@ describe("Coordinate Map Manager", () => {
             expect(
                 manager.getMovementPropertiesAtCoordinate({
                     id: "testMap",
-                    q: 2,
-                    r: 3,
+                    row: 2,
+                    col: 3,
                 })
             ).toEqual(
                 expect.objectContaining({
@@ -88,19 +88,19 @@ describe("Coordinate Map Manager", () => {
 
         it("should say if the coordinates are on map", () => {
             expect(
-                manager.isCoordinateOnMap({ id: "testMap", q: 0, r: 0 })
+                manager.isCoordinateOnMap({ id: "testMap", row: 0, col: 0 })
             ).toBeTruthy()
             expect(
-                manager.isCoordinateOnMap({ id: "testMap", q: -1, r: 0 })
+                manager.isCoordinateOnMap({ id: "testMap", row: -1, col: 0 })
             ).toBeFalsy()
             expect(
-                manager.isCoordinateOnMap({ id: "testMap", q: 0, r: -1 })
+                manager.isCoordinateOnMap({ id: "testMap", row: 0, col: -1 })
             ).toBeFalsy()
             expect(
-                manager.isCoordinateOnMap({ id: "testMap", q: 0, r: 4 })
+                manager.isCoordinateOnMap({ id: "testMap", row: 0, col: 4 })
             ).toBeFalsy()
             expect(
-                manager.isCoordinateOnMap({ id: "testMap", q: 3, r: 0 })
+                manager.isCoordinateOnMap({ id: "testMap", row: 3, col: 0 })
             ).toBeFalsy()
         })
 
@@ -108,8 +108,8 @@ describe("Coordinate Map Manager", () => {
             expect(
                 manager.getMovementPropertiesAtCoordinate({
                     id: "testMap",
-                    q: -9001,
-                    r: 9002,
+                    row: -9001,
+                    col: 9002,
                 })
             ).toEqual(
                 expect.objectContaining({
@@ -142,7 +142,7 @@ describe("Coordinate Map Manager", () => {
                     outOfBattle: "soldier",
                     inBattle: 0,
                 },
-                coordinate: { q: 0, r: 2 },
+                coordinate: { row: 0, col: 2 },
             })
 
             expect(
@@ -153,14 +153,14 @@ describe("Coordinate Map Manager", () => {
                         inBattle: 0,
                     },
                 })
-            ).toEqual({ q: 0, r: 2 })
+            ).toEqual({ row: 0, col: 2 })
 
             expect(
                 manager.getSquaddieAtCoordinate({
                     mapId: "testMap",
                     coordinate: {
-                        q: 0,
-                        r: 2,
+                        row: 0,
+                        col: 2,
                     },
                 })
             ).toEqual({
@@ -176,7 +176,7 @@ describe("Coordinate Map Manager", () => {
                     outOfBattle: "soldier",
                     inBattle: 0,
                 },
-                coordinate: { q: 0, r: 2 },
+                coordinate: { row: 0, col: 2 },
             })
 
             manager.moveSquaddie({
@@ -185,7 +185,7 @@ describe("Coordinate Map Manager", () => {
                     outOfBattle: "soldier",
                     inBattle: 0,
                 },
-                coordinate: { q: 1, r: 1 },
+                coordinate: { row: 1, col: 1 },
             })
 
             expect(
@@ -196,14 +196,14 @@ describe("Coordinate Map Manager", () => {
                         inBattle: 0,
                     },
                 })
-            ).toEqual({ q: 1, r: 1 })
+            ).toEqual({ row: 1, col: 1 })
 
             expect(
                 manager.getSquaddieAtCoordinate({
                     mapId: "testMap",
                     coordinate: {
-                        q: 0,
-                        r: 2,
+                        row: 0,
+                        col: 2,
                     },
                 })
             ).toBeUndefined()
@@ -216,7 +216,7 @@ describe("Coordinate Map Manager", () => {
                     outOfBattle: "soldier",
                     inBattle: 0,
                 },
-                coordinate: { q: 0, r: 2 },
+                coordinate: { row: 0, col: 2 },
             })
 
             manager.moveSquaddie({
@@ -232,8 +232,8 @@ describe("Coordinate Map Manager", () => {
                 manager.getSquaddieAtCoordinate({
                     mapId: "testMap",
                     coordinate: {
-                        q: 0,
-                        r: 2,
+                        row: 0,
+                        col: 2,
                     },
                 })
             ).toBeUndefined()
@@ -246,7 +246,7 @@ describe("Coordinate Map Manager", () => {
                         inBattle: 0,
                     },
                 })
-            ).toEqual({ q: undefined, r: undefined })
+            ).toEqual({ row: undefined, col: undefined })
         })
 
         it("can remove squaddies from the map", () => {
@@ -256,7 +256,7 @@ describe("Coordinate Map Manager", () => {
                     outOfBattle: "soldier",
                     inBattle: 0,
                 },
-                coordinate: { q: 0, r: 2 },
+                coordinate: { row: 0, col: 2 },
             })
 
             manager.removeSquaddie({
@@ -285,7 +285,7 @@ describe("Coordinate Map Manager", () => {
                     outOfBattle: "soldier",
                     inBattle: 0,
                 },
-                coordinate: { q: 0, r: 2 },
+                coordinate: { row: 0, col: 2 },
             })
             manager.addSquaddie({
                 mapId: "testMap",
@@ -293,7 +293,7 @@ describe("Coordinate Map Manager", () => {
                     outOfBattle: "soldier",
                     inBattle: 1,
                 },
-                coordinate: { q: 1, r: 3 },
+                coordinate: { row: 1, col: 3 },
             })
             manager.addSquaddie({
                 mapId: "testMap",
@@ -311,21 +311,21 @@ describe("Coordinate Map Manager", () => {
                             outOfBattle: "soldier",
                             inBattle: 0,
                         },
-                        coordinate: { q: 0, r: 2 },
+                        coordinate: { row: 0, col: 2 },
                     },
                     {
                         squaddieId: {
                             outOfBattle: "soldier",
                             inBattle: 1,
                         },
-                        coordinate: { q: 1, r: 3 },
+                        coordinate: { row: 1, col: 3 },
                     },
                     {
                         squaddieId: {
                             outOfBattle: "offscreen",
                             inBattle: 0,
                         },
-                        coordinate: { q: undefined, r: undefined },
+                        coordinate: { row: undefined, col: undefined },
                     },
                 ])
             )
@@ -338,7 +338,7 @@ describe("Coordinate Map Manager", () => {
                     outOfBattle: "soldier",
                     inBattle: 0,
                 },
-                coordinate: { q: 0, r: 2 },
+                coordinate: { row: 0, col: 2 },
             })
 
             expect(() => {
@@ -348,7 +348,7 @@ describe("Coordinate Map Manager", () => {
                         outOfBattle: "soldier",
                         inBattle: 0,
                     },
-                    coordinate: { q: 0, r: 2 },
+                    coordinate: { row: 0, col: 2 },
                 })
             }).not.toThrow()
 
@@ -359,7 +359,7 @@ describe("Coordinate Map Manager", () => {
                         outOfBattle: "soldier",
                         inBattle: 1,
                     },
-                    coordinate: { q: 0, r: 2 },
+                    coordinate: { row: 0, col: 2 },
                 })
             }).toThrow("another squaddie is at (0, 2)")
 
@@ -371,7 +371,7 @@ describe("Coordinate Map Manager", () => {
                         inBattle: 0,
                     },
                 })
-            ).toEqual({ q: 0, r: 2 })
+            ).toEqual({ row: 0, col: 2 })
         })
     })
 })

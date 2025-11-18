@@ -20,7 +20,7 @@ export const SquadService = {
         name,
         affiliation,
         squaddies,
-    }: Omit<Squad, "squaddies"> & Partial<Squad>): Squad => {
+    }: Partial<Squad> & Omit<Squad, "squaddies">): Squad => {
         return {
             id,
             name,

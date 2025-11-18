@@ -20,8 +20,8 @@ export const OutOfBattleSquaddieCollectionService = {
         attributeSheetId,
         actionIds,
         affiliation,
-    }: Omit<OutOfBattleSquaddie, "actionIds"> &
-        Partial<OutOfBattleSquaddie> & {
+    }: Partial<OutOfBattleSquaddie> &
+        Omit<OutOfBattleSquaddie, "actionIds"> & {
             collection: OutOfBattleSquaddieCollection
         }): OutOfBattleSquaddieCollection => {
         const newCollection = clone(collection)
