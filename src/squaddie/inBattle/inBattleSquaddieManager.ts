@@ -440,16 +440,17 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-    }):
-        | {
-              normal: number
-          }
-        | undefined {
+    }): {
+        current: number
+    } {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return undefined
+        if (squaddieInfo == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager:${this.getActionPoints.name}] squaddie not found: ${outOfBattleSquaddieId}, ${inBattleSquaddieId}`
+            )
 
         return InBattleSquaddieCollectionService.getActionPoints({
             ...squaddieInfo,

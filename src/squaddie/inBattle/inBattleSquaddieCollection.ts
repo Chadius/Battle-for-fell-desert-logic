@@ -338,7 +338,7 @@ export const InBattleSquaddieCollectionService = {
         outOfBattleSquaddie: OutOfBattleSquaddie
         collection: InBattleSquaddieCollection
     }): {
-        normal: number
+        current: number
     } => {
         throwErrorsIfSquaddieIsUndefined({
             functionName: "getActionPoints",

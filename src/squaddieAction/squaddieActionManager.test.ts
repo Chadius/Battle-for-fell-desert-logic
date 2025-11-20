@@ -32,6 +32,7 @@ describe("Squaddie Action Collection Manager", () => {
                     self: false,
                 },
             },
+            effect: {},
         })
     })
 
@@ -40,12 +41,12 @@ describe("Squaddie Action Collection Manager", () => {
         expect(manager.get(longswordAttackAction.id)).toEqual(
             longswordAttackAction
         )
-        expect(manager.get("does not exist")).toBeUndefined()
+        expect(() => manager.get("does not exist")).toThrow("No action")
     })
 
     it("can remove an action", () => {
         manager.addOrUpdate(longswordAttackAction)
         manager.remove(longswordAttackAction.id)
-        expect(manager.get(longswordAttackAction.id)).toBeUndefined()
+        expect(() => manager.get(longswordAttackAction.id)).toThrow("No action")
     })
 })

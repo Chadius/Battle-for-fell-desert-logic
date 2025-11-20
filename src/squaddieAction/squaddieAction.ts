@@ -26,6 +26,12 @@ interface SquaddieActionTargeting {
     }
 }
 
+export interface SquaddieActionEffect {
+    actionPoints?: {
+        spent: number | "all"
+    }
+}
+
 export interface SquaddieAction {
     id: string
     name: string
@@ -33,6 +39,7 @@ export interface SquaddieAction {
     degreesOfSuccess: TDegreeOfSuccess[]
     targeting: SquaddieActionTargeting
     proficiency: TProficiencyType
+    effect: SquaddieActionEffect
 }
 
 export const SquaddieActionService = {
@@ -46,8 +53,9 @@ export const SquaddieActionService = {
         range,
         shape,
         affiliationRelationship,
+        effect,
     }: Partial<SquaddieAction> &
-        Pick<SquaddieAction, "id" | "name"> &
+        Pick<SquaddieAction, "id" | "name" | "effect"> &
         Partial<SquaddieActionTargeting>): SquaddieAction => {
         return {
             id,
@@ -69,6 +77,7 @@ export const SquaddieActionService = {
                     friend: false,
                 },
             },
+            effect,
         }
     },
 }

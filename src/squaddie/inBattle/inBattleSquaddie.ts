@@ -254,9 +254,9 @@ export const InBattleSquaddieService = {
     getActionPoints: (
         inBattleSquaddie: InBattleSquaddie
     ): {
-        normal: number
+        current: number
     } => {
-        return { normal: inBattleSquaddie.actionPoints.current }
+        return { current: inBattleSquaddie.actionPoints.current }
     },
     spendActionPoints: ({
         squaddie,

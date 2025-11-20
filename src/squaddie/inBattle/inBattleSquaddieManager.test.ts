@@ -822,7 +822,7 @@ describe("In Battle Squaddie Manager", () => {
 
             expect(manager.getActionPoints(inBattleSquaddie00Id!)).toEqual(
                 expect.objectContaining({
-                    normal: 3,
+                    current: 3,
                 })
             )
 
@@ -833,7 +833,7 @@ describe("In Battle Squaddie Manager", () => {
 
             expect(manager.getActionPoints(inBattleSquaddie00Id!)).toEqual(
                 expect.objectContaining({
-                    normal: 2,
+                    current: 2,
                 })
             )
         })
@@ -852,7 +852,7 @@ describe("In Battle Squaddie Manager", () => {
 
             expect(manager.getActionPoints(inBattleSquaddie00Id!)).toEqual(
                 expect.objectContaining({
-                    normal: 3,
+                    current: 3,
                 })
             )
         })

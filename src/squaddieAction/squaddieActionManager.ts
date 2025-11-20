@@ -21,10 +21,15 @@ export class SquaddieActionManager {
 
     get(actionId: string): SquaddieAction {
         this.throwIfActionCollectionIsUndefined(this.get.name)
-        return SquaddieActionCollectionService.getAction({
+        const action = SquaddieActionCollectionService.getAction({
             collection: this.collection!,
             id: actionId,
         })
+        if (action == undefined)
+            throw new Error(
+                `[SquaddieActionManager.${this.get.name}] No action ${actionId} was found`
+            )
+        return action
     }
 
     remove(actionId: string) {
