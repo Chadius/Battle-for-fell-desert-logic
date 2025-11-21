@@ -56,7 +56,7 @@ describe("Out of Battle Squaddie Manager", () => {
         squaddie = OutOfBattleSquaddieService.new({
             id: "squaddie",
             name: "Squaddie",
-            actionIds: [0, 2, 3],
+            actionIds: ["endTurn", "longsword", "prayer"],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,
         })

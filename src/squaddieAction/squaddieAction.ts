@@ -30,6 +30,17 @@ export interface SquaddieActionEffect {
     actionPoints?: {
         spent: number | "all"
     }
+    damage?: {
+        raw: number
+        targetProficiency: TProficiencyType
+        attributeScoreType?: AttributeScoreType
+    }
+}
+
+type DegreeOfSuccessEffects = {
+    SUCCESS: SquaddieActionEffect
+} & {
+    [d in Exclude<TDegreeOfSuccess, "SUCCESS">]?: SquaddieActionEffect
 }
 
 export interface SquaddieAction {
@@ -39,7 +50,8 @@ export interface SquaddieAction {
     degreesOfSuccess: TDegreeOfSuccess[]
     targeting: SquaddieActionTargeting
     proficiency: TProficiencyType
-    effect: SquaddieActionEffect
+    effectOnActor: DegreeOfSuccessEffects
+    effectOnTarget?: DegreeOfSuccessEffects
 }
 
 export const SquaddieActionService = {
@@ -53,9 +65,10 @@ export const SquaddieActionService = {
         range,
         shape,
         affiliationRelationship,
-        effect,
+        effectOnActor,
+        effectOnTarget,
     }: Partial<SquaddieAction> &
-        Pick<SquaddieAction, "id" | "name" | "effect"> &
+        Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
         Partial<SquaddieActionTargeting>): SquaddieAction => {
         return {
             id,
@@ -77,7 +90,8 @@ export const SquaddieActionService = {
                     friend: false,
                 },
             },
-            effect,
+            effectOnActor,
+            effectOnTarget,
         }
     },
 }

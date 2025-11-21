@@ -29,8 +29,9 @@ import { SquaddieAffiliation } from "../../squaddie/outOfBattle/affiliation.ts"
 import { SquaddieActionCollectionService } from "../squaddieActionCollection.ts"
 import { ActionRange } from "../actionRange.ts"
 import { CoordinateGeneratorShape } from "../../coordinateMap/shape.ts"
-import { SquaddieActionResolverOnSelf } from "./squaddieActionResolverOnSelf.ts"
-import { SquaddieActionResolver } from "./squaddieActionResolver.ts"
+import { SquaddieActionCalculator } from "../calculate/squaddieActionCalculator.ts"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
+import { ApplyResultService } from "../apply/applyResultService.ts"
 
 describe("Squaddie resolves actions on themself", () => {
     let endTurnAction: SquaddieAction
@@ -71,7 +72,7 @@ describe("Squaddie resolves actions on themself", () => {
         outOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: outOfBattleSquaddieId,
             name: "Soldier",
-            actionIds: [0],
+            actionIds: ["endTurn"],
             attributeSheetId: "soldier",
             affiliation: SquaddieAffiliation.PLAYER,
         })
@@ -99,9 +100,11 @@ describe("Squaddie resolves actions on themself", () => {
                     foe: false,
                 },
             },
-            effect: {
-                actionPoints: {
-                    spent: "all",
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: {
+                        spent: "all",
+                    },
                 },
             },
         })
@@ -117,12 +120,19 @@ describe("Squaddie resolves actions on themself", () => {
             outOfBattleSquaddieId,
         }).current
 
-        const results = SquaddieActionResolverOnSelf.calculateResult({
+        const results = SquaddieActionCalculator.calculateResult({
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            inBattleSquaddieManager,
             actor: {
                 inBattleSquaddieId,
                 outOfBattleSquaddieId,
-                inBattleSquaddieManager,
             },
+            targets: [
+                {
+                    inBattleSquaddieId,
+                    outOfBattleSquaddieId,
+                },
+            ],
             action: {
                 id: endTurnAction.id,
                 manager: actionManager,
@@ -149,19 +159,26 @@ describe("Squaddie resolves actions on themself", () => {
     })
 
     it("will apply removing all actions when squaddie uses End Turn without actually changing squaddie", () => {
-        const results = SquaddieActionResolverOnSelf.calculateResult({
+        const results = SquaddieActionCalculator.calculateResult({
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            inBattleSquaddieManager,
             actor: {
                 inBattleSquaddieId,
                 outOfBattleSquaddieId,
-                inBattleSquaddieManager,
             },
+            targets: [
+                {
+                    inBattleSquaddieId,
+                    outOfBattleSquaddieId,
+                },
+            ],
             action: {
                 id: endTurnAction.id,
                 manager: actionManager,
             },
         })
 
-        SquaddieActionResolver.applyResultsToSquaddies({
+        ApplyResultService.applyResultsToSquaddies({
             inBattleSquaddieManager,
             results,
         })

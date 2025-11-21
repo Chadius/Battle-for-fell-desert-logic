@@ -1,7 +1,8 @@
 import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
-import type { SquaddieActionResult } from "./squaddieActionResolverOnSelf.ts"
 
-export const SquaddieActionResolver = {
+import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
+
+export const ApplyResultService = {
     applyResultsToSquaddies: ({
         inBattleSquaddieManager,
         results,
@@ -23,6 +24,7 @@ const applyResultToSquaddie = ({
     result: SquaddieActionResult
 }) => {
     applyActionPointsResultToSquaddie({ inBattleSquaddieManager, result })
+    applyDamageResultToSquaddie({ inBattleSquaddieManager, result })
 }
 
 const applyActionPointsResultToSquaddie = ({
@@ -38,5 +40,24 @@ const applyActionPointsResultToSquaddie = ({
         inBattleSquaddieId: result.inBattleSquaddieId,
         outOfBattleSquaddieId: result.outOfBattleSquaddieId,
         actionPoints: result.actionPoints.spent,
+    })
+}
+
+const applyDamageResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.damage == undefined) return
+
+    inBattleSquaddieManager.dealDamageToSquaddie({
+        inBattleSquaddieId: result.inBattleSquaddieId,
+        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        damage: {
+            amount: result.damage.raw,
+            type: result.damage.type,
+        },
     })
 }

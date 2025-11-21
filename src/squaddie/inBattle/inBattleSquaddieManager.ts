@@ -16,6 +16,7 @@ import {
     type TProficiencyLevel,
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
+import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection
@@ -122,17 +123,14 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-    }):
-        | {
-              current: number
-              max: number
-          }
-        | undefined {
+    }): {
+        current: number
+        max: number
+    } {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return undefined
 
         return {
             ...squaddieInfo.inBattleSquaddie.hitPoints,
@@ -146,25 +144,18 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        damage: { amount: number; type: AttributeScoreType }
-    }):
-        | {
-              net: number
-              willKo: boolean
-          }
-        | undefined {
+        damage: { amount: number; type: AttributeScoreType | undefined }
+    }): DamageResult {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (
-            squaddieInfo == undefined ||
-            this.inBattleSquaddieCollection == undefined
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.previewDamageToSquaddie.name
         )
-            return undefined
 
         return InBattleSquaddieCollectionService.dealDamageToSquaddie({
-            collection: this.inBattleSquaddieCollection,
+            collection: this.inBattleSquaddieCollection!,
             inBattleSquaddie: squaddieInfo.inBattleSquaddie,
             outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
             damage,
@@ -179,7 +170,7 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        damage: { amount: number; type: AttributeScoreType }
+        damage: { amount: number; type: AttributeScoreType | undefined }
     }) {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,

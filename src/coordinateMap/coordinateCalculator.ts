@@ -61,12 +61,6 @@ export const CoordinateCalculator = {
 
         return allInRange
     },
-
-    // N= radius
-    //     var results = []
-    //     for each -N ≤ q ≤ +N:
-    // for each max(-N, -q-N) ≤ r ≤ min(+N, -q+N):
-    // results.append(axial_add(center, Hex(q, r)))
 }
 
 const getNeighbor = (
@@ -83,20 +77,6 @@ const getNeighbor = (
         row: origin.row + directionDifference[1],
     }
 }
-
-// function cube_scale(hex, factor):
-// return Cube(hex.q * factor, hex.r * factor, hex.s * factor)
-//
-// function cube_ring(center, radius):
-// var results = []
-// # this code doesn't work for radius == 0; can you see why?
-// var hex = cube_add(center,
-//     cube_scale(cube_direction(4), radius))
-// for each 0 ≤ i < 6:
-// for each 0 ≤ j < radius:
-// results.append(hex)
-// hex = cube_neighbor(hex, i)
-// return results
 
 interface AxialCoordinate {
     q: number

@@ -9,6 +9,7 @@ import { ProficiencyType } from "../proficiency/proficiencyLevel.ts"
 import { ActionRange } from "./actionRange.ts"
 import { CoordinateGeneratorShape } from "../coordinateMap/shape.ts"
 import { SquaddieActionManager } from "./squaddieActionManager.ts"
+import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.ts"
 
 describe("Squaddie Action Collection Manager", () => {
     let longswordAttackAction: SquaddieAction
@@ -32,7 +33,9 @@ describe("Squaddie Action Collection Manager", () => {
                     self: false,
                 },
             },
-            effect: {},
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {},
+            },
         })
     })
 

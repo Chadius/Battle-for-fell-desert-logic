@@ -68,7 +68,7 @@ describe("In Battle Squaddie Manager", () => {
         outOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
             id: "squaddie0",
             name: "Squaddie0",
-            actionIds: [0, 2, 3],
+            actionIds: ["endTurn", "longsword", "prayer"],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,
         })
@@ -76,7 +76,7 @@ describe("In Battle Squaddie Manager", () => {
         outOfBattleSquaddie1 = OutOfBattleSquaddieService.new({
             id: "squaddie1",
             name: "Squaddie1",
-            actionIds: [0, 4, 5],
+            actionIds: ["endTurn", "hide", "fireball"],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,
         })

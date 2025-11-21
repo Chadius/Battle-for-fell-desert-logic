@@ -13,6 +13,7 @@ import {
     type TProficiencyLevel,
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
+import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
 
 export interface InBattleSquaddie {
     id: number
@@ -32,7 +33,7 @@ export interface InBattleSquaddie {
         current: number
     }
     actionIds: {
-        natural: number[]
+        natural: string[]
     }
 }
 
@@ -79,26 +80,28 @@ export const InBattleSquaddieService = {
         squaddie: InBattleSquaddie
         damage: {
             amount: number
-            type: AttributeScoreType
+            type?: AttributeScoreType
         }
     }): {
         squaddie: InBattleSquaddie
-        damage: {
-            net: number
-            raw: number
-            willKo: boolean
-        }
+        damage: DamageResult
     } {
         const newSquaddie: InBattleSquaddie = clone(squaddie)
         const conditions = getAllConditions(newSquaddie)
-        let damageReduction = sumOfConditionAmount(
+        let absorbAvailable = sumOfConditionAmount(
             conditions[SquaddieConditionType.ABSORB]
         )
+        let damageReduction = absorbAvailable
+
         reduceConditionTypeByAmount({
             amount: damage.amount,
             conditions: conditions[SquaddieConditionType.ABSORB],
         })
         newSquaddie.conditions = conditions
+
+        let absorbSpent =
+            absorbAvailable -
+            sumOfConditionAmount(conditions[SquaddieConditionType.ABSORB])
 
         let damageTaken: number
         damageTaken = damage.amount - damageReduction
@@ -114,7 +117,9 @@ export const InBattleSquaddieService = {
             damage: {
                 net: squaddie.hitPoints.current - newSquaddie.hitPoints.current,
                 raw: damage.amount,
+                absorbed: absorbSpent,
                 willKo: newSquaddie.hitPoints.current <= 0,
+                type: damage.type,
             },
         }
     },

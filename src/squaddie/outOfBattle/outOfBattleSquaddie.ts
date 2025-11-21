@@ -4,7 +4,7 @@ export interface OutOfBattleSquaddie {
     id: string
     name: string
     attributeSheetId: string
-    actionIds: number[]
+    actionIds: string[]
     affiliation: TSquaddieAffiliation
 }
 

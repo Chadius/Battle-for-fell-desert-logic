@@ -13,6 +13,7 @@ import {
     type TProficiencyLevel,
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
+import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
 
 export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: {
@@ -77,13 +78,10 @@ export const InBattleSquaddieCollectionService = {
         outOfBattleSquaddie: OutOfBattleSquaddie
         inBattleSquaddie: InBattleSquaddie
         commitChanges: boolean
-        damage: { amount: number; type: AttributeScoreType }
+        damage: { amount: number; type: AttributeScoreType | undefined }
     }): {
         collection: InBattleSquaddieCollection
-        damage: {
-            net: number
-            willKo: boolean
-        }
+        damage: DamageResult
     } => {
         const changeSquaddieInfo = InBattleSquaddieService.dealDamageToSquaddie(
             {
