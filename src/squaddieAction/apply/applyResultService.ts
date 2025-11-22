@@ -25,6 +25,7 @@ const applyResultToSquaddie = ({
 }) => {
     applyActionPointsResultToSquaddie({ inBattleSquaddieManager, result })
     applyDamageResultToSquaddie({ inBattleSquaddieManager, result })
+    applyHealingResultToSquaddie({ inBattleSquaddieManager, result })
 }
 
 const applyActionPointsResultToSquaddie = ({
@@ -59,5 +60,21 @@ const applyDamageResultToSquaddie = ({
             amount: result.damage.raw,
             type: result.damage.type,
         },
+    })
+}
+
+const applyHealingResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.healing == undefined) return
+
+    inBattleSquaddieManager.giveHealingToSquaddie({
+        inBattleSquaddieId: result.inBattleSquaddieId,
+        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        healing: result.healing,
     })
 }

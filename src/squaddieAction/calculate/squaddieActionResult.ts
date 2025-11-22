@@ -8,6 +8,11 @@ export type DamageResult = {
     type: AttributeScoreType | undefined
 }
 
+export type HealingResult = {
+    net: number
+    raw: number
+}
+
 export interface SquaddieActionResult {
     inBattleSquaddieId: number
     outOfBattleSquaddieId: string
@@ -15,4 +20,5 @@ export interface SquaddieActionResult {
         spent: number
     }
     damage?: DamageResult
+    healing?: HealingResult
 }

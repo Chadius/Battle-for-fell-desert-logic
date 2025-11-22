@@ -17,6 +17,7 @@ import {
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
 import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection
@@ -369,10 +370,7 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        healing: {
-            amount: number
-            type: AttributeScoreType
-        }
+        healing: NonNullable<SquaddieActionEffect["healing"]>
     }):
         | {
               net: number
@@ -400,16 +398,14 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        healing: {
-            amount: number
-            type: AttributeScoreType
-        }
+        healing: SquaddieActionEffect["healing"]
     }) {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
         if (squaddieInfo == undefined) return
+        if (healing == undefined) return
 
         const results = InBattleSquaddieCollectionService.giveHealingToSquaddie(
             {

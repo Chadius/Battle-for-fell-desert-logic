@@ -14,6 +14,7 @@ import {
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
 import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
 
 export interface InBattleSquaddie {
     id: number
@@ -230,10 +231,7 @@ export const InBattleSquaddieService = {
         healing,
     }: {
         squaddie: InBattleSquaddie
-        healing: {
-            amount: number
-            type: AttributeScoreType
-        }
+        healing: NonNullable<SquaddieActionEffect["healing"]>
     }): {
         squaddie: InBattleSquaddie
         healing: {
@@ -242,7 +240,7 @@ export const InBattleSquaddieService = {
     } => {
         const newSquaddie = clone(squaddie)
         let healingTaken: number
-        healingTaken = healing.amount
+        healingTaken = healing.raw
 
         newSquaddie.hitPoints.current = Math.min(
             newSquaddie.hitPoints.current + healingTaken,

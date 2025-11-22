@@ -35,6 +35,10 @@ export interface SquaddieActionEffect {
         targetProficiency: TProficiencyType
         attributeScoreType?: AttributeScoreType
     }
+    healing?: {
+        raw: number
+        attributeScoreType?: AttributeScoreType
+    }
 }
 
 type DegreeOfSuccessEffects = {

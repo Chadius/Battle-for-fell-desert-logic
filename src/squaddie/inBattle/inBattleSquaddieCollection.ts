@@ -14,6 +14,7 @@ import {
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
 import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
 
 export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: {
@@ -293,7 +294,7 @@ export const InBattleSquaddieCollectionService = {
         collection: InBattleSquaddieCollection
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
-        healing: { amount: number; type: AttributeScoreType }
+        healing: NonNullable<SquaddieActionEffect["healing"]>
         commitChanges: boolean
     }): {
         collection: InBattleSquaddieCollection

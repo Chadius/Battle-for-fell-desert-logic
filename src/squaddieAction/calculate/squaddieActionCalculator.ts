@@ -1,6 +1,6 @@
 import type { SquaddieActionManager } from "../squaddieActionManager.ts"
 import type { OutOfBattleSquaddieAttributeSheet } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import type { SquaddieAction } from "../squaddieAction.ts"
+import type { SquaddieAction, SquaddieActionEffect } from "../squaddieAction.ts"
 import type { InBattleSquaddie } from "../../squaddie/inBattle/inBattleSquaddie.ts"
 import type { OutOfBattleSquaddie } from "../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
 import type { SquaddieActionResult } from "./squaddieActionResult.ts"
@@ -9,11 +9,7 @@ import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
 } from "../../degreesOfSuccess/degreeOfSuccess.ts"
-import {
-    ProficiencyLevelConst,
-    type TProficiencyType,
-} from "../../proficiency/proficiencyLevel.ts"
-import type { AttributeScoreType } from "../../proficiency/attributeScore.ts"
+import { ProficiencyLevelConst } from "../../proficiency/proficiencyLevel.ts"
 
 export const SquaddieActionCalculator = {
     calculateResult: ({
@@ -54,23 +50,22 @@ export const SquaddieActionCalculator = {
         ]
 
         results.push(
-            ...targets
-                .map((target) => {
-                    return calculateResultsOnFoe({
-                        degreeOfSuccess,
-                        squaddieAction,
-                        inBattleSquaddieManager,
-                        actor: {
-                            inBattleSquaddie: actorInBattleSquaddie,
-                            outOfBattleSquaddie: actorOutOfBattleSquaddie,
-                            attributeSheet: actorAttributeSheet,
-                        },
-                        target: inBattleSquaddieManager.getSquaddie({
-                            ...target,
-                        }),
-                    })
+            ...targets.flatMap((target) => {
+                const targetSquaddie = inBattleSquaddieManager.getSquaddie({
+                    ...target,
                 })
-                .flat()
+                return calculateResultsOnAnotherSquaddie({
+                    degreeOfSuccess,
+                    squaddieAction,
+                    inBattleSquaddieManager,
+                    actor: {
+                        inBattleSquaddie: actorInBattleSquaddie,
+                        outOfBattleSquaddie: actorOutOfBattleSquaddie,
+                        attributeSheet: actorAttributeSheet,
+                    },
+                    target: targetSquaddie,
+                })
+            })
         )
         return results
     },
@@ -136,7 +131,7 @@ const calculateActionPointChangeToSelf = ({
     ]
 }
 
-const calculateResultsOnFoe = ({
+const calculateResultsOnAnotherSquaddie = ({
     squaddieAction,
     target,
     degreeOfSuccess,
@@ -169,6 +164,14 @@ const calculateResultsOnFoe = ({
         })
     )
 
+    results.push(
+        ...calculateHealingResults({
+            inBattleSquaddieManager,
+            healing: effect?.healing,
+            ...target,
+        })
+    )
+
     return results
 }
 
@@ -178,13 +181,7 @@ const calculateDamageResults = ({
     outOfBattleSquaddie,
     inBattleSquaddieManager,
 }: {
-    damage:
-        | {
-              raw: number
-              targetProficiency: TProficiencyType
-              attributeScoreType?: AttributeScoreType
-          }
-        | undefined
+    damage: SquaddieActionEffect["damage"] | undefined
     inBattleSquaddie: InBattleSquaddie
     outOfBattleSquaddie: OutOfBattleSquaddie
     attributeSheet: OutOfBattleSquaddieAttributeSheet
@@ -218,6 +215,40 @@ const calculateDamageResults = ({
                 willKo: previewedDamage.willKo,
                 absorbed: previewedDamage.absorbed,
                 type: damageAttributeScoreType,
+            },
+        },
+    ]
+}
+
+const calculateHealingResults = ({
+    healing,
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    inBattleSquaddieManager,
+}: {
+    healing: SquaddieActionEffect["healing"] | undefined
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): SquaddieActionResult[] => {
+    if (healing == undefined) return []
+
+    const previewedHealing = inBattleSquaddieManager.previewHealingToSquaddie({
+        inBattleSquaddieId: inBattleSquaddie.id,
+        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        healing,
+    })
+
+    if (previewedHealing == undefined) return []
+
+    return [
+        {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            healing: {
+                net: previewedHealing.net,
+                ...healing,
             },
         },
     ]

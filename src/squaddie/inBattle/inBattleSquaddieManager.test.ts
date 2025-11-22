@@ -764,8 +764,8 @@ describe("In Battle Squaddie Manager", () => {
                     outOfBattleSquaddieId:
                         inBattleSquaddie00Id!.outOfBattleSquaddieId,
                     healing: {
-                        amount: attributeSheet.maxHitPoints * 2,
-                        type: AttributeScore.BODY,
+                        raw: attributeSheet.maxHitPoints * 2,
+                        attributeScoreType: AttributeScore.BODY,
                     },
                 })
             ).toEqual(
@@ -793,8 +793,8 @@ describe("In Battle Squaddie Manager", () => {
                 outOfBattleSquaddieId:
                     inBattleSquaddie00Id!.outOfBattleSquaddieId,
                 healing: {
-                    amount: attributeSheet.maxHitPoints * 2,
-                    type: AttributeScore.BODY,
+                    raw: attributeSheet.maxHitPoints * 2,
+                    attributeScoreType: AttributeScore.BODY,
                 },
             })
 
