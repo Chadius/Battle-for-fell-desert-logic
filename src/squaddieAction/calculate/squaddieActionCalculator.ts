@@ -7,6 +7,7 @@ import type { SquaddieActionResult } from "./squaddieActionResult.ts"
 import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
 import { type TDegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
 import { ProficiencyLevelConst } from "../../proficiency/proficiencyLevel.ts"
+import type { SquaddieCondition } from "../../proficiency/squaddieCondition.ts"
 
 export const SquaddieActionCalculator = {
     calculateResult: ({
@@ -145,6 +146,11 @@ const calculateEffectOnSquaddie = ({
             inBattleSquaddieManager,
             healing: effect?.healing,
             ...target,
+        }),
+        ...calculateConditionAddResults({
+            inBattleSquaddieManager,
+            conditions: effect?.conditions?.add,
+            ...target,
         })
     )
 
@@ -226,6 +232,35 @@ const calculateHealingResults = ({
                 net: previewedHealing.net,
                 ...healing,
             },
+        },
+    ]
+}
+
+const calculateConditionAddResults = ({
+    conditions,
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    inBattleSquaddieManager,
+}: {
+    conditions: SquaddieCondition[] | undefined
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): SquaddieActionResult[] => {
+    if (conditions == undefined) return []
+
+    const info = inBattleSquaddieManager.previewAddConditionsToSquaddie({
+        inBattleSquaddieId: inBattleSquaddie.id,
+        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        conditions,
+    })
+
+    return [
+        {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            conditionsAdded: info.newConditions,
         },
     ]
 }

@@ -15,6 +15,7 @@ import {
     ProficiencyType,
     type TProficiencyType,
 } from "../proficiency/proficiencyLevel.ts"
+import type { SquaddieCondition } from "../proficiency/squaddieCondition.ts"
 
 interface SquaddieActionTargeting {
     range: TActionRange
@@ -38,6 +39,9 @@ export interface SquaddieActionEffect {
     healing?: {
         raw: number
         attributeScoreType?: AttributeScoreType
+    }
+    conditions?: {
+        add?: SquaddieCondition[]
     }
 }
 

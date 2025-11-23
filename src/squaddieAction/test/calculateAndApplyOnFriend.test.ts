@@ -33,9 +33,14 @@ import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
 import { SquaddieActionCalculator } from "../calculate/squaddieActionCalculator.ts"
 import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
 import { ApplyResultService } from "../apply/applyResultService.ts"
+import {
+    SquaddieConditionService,
+    SquaddieConditionType,
+} from "../../proficiency/squaddieCondition.ts"
 
 describe("Squaddie Actions on a friend", () => {
     let healingHerbAction: SquaddieAction
+    let magicalBarrierAction: SquaddieAction
     let actionManager: SquaddieActionManager
 
     let soldierAttributeSheet: OutOfBattleSquaddieAttributeSheet
@@ -134,6 +139,9 @@ describe("Squaddie Actions on a friend", () => {
                 outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
             }))
 
+        actionManager = new SquaddieActionManager(
+            SquaddieActionCollectionService.new()
+        )
         healingHerbAction = SquaddieActionService.new({
             id: "healingHerb",
             name: "Healing Herb",
@@ -162,10 +170,43 @@ describe("Squaddie Actions on a friend", () => {
                 },
             },
         })
-        actionManager = new SquaddieActionManager(
-            SquaddieActionCollectionService.new()
-        )
         actionManager.addOrUpdate(healingHerbAction)
+
+        magicalBarrierAction = SquaddieActionService.new({
+            id: "magicalBarrier",
+            name: "Magical Barrier",
+            proficiency: ProficiencyType.SKILL_MIND,
+            targeting: {
+                range: ActionRange.MELEE,
+                shape: CoordinateGeneratorShape.BLOOM,
+                affiliationRelationship: {
+                    self: false,
+                    friend: false,
+                    foe: true,
+                },
+            },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: {
+                        spent: 1,
+                    },
+                },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    conditions: {
+                        add: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ABSORB,
+                                amount: 1,
+                                duration: 1,
+                            }),
+                        ],
+                    },
+                },
+            },
+        })
+        actionManager.addOrUpdate(magicalBarrierAction)
         calculateHealingTargetResults()
     })
 
@@ -238,5 +279,64 @@ describe("Squaddie Actions on a friend", () => {
                 max: soldierAttributeSheet.maxHitPoints,
             })
         )
+    })
+
+    describe("adding conditions", () => {
+        it("knows when a condition is added to a teammate", () => {
+            const initialMagicalBarrierResult =
+                SquaddieActionCalculator.calculateResult({
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    inBattleSquaddieManager,
+                    actor: {
+                        inBattleSquaddieId: actorInBattleSquaddieId,
+                        outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+                    },
+                    targets: [
+                        {
+                            inBattleSquaddieId: targetInBattleSquaddieId,
+                            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                        },
+                    ],
+                    action: {
+                        id: magicalBarrierAction.id,
+                        manager: actionManager,
+                    },
+                })
+
+            expect(initialMagicalBarrierResult[1]!.conditionsAdded![0]).toEqual(
+                SquaddieConditionService.new({
+                    amount: 1,
+                    type: SquaddieConditionType.ABSORB,
+                    duration: 1,
+                })
+            )
+            ApplyResultService.applyResultsToSquaddies({
+                inBattleSquaddieManager,
+                results: initialMagicalBarrierResult,
+            })
+
+            const reapplyMagicalBarrierResult =
+                SquaddieActionCalculator.calculateResult({
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    inBattleSquaddieManager,
+                    actor: {
+                        inBattleSquaddieId: actorInBattleSquaddieId,
+                        outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+                    },
+                    targets: [
+                        {
+                            inBattleSquaddieId: targetInBattleSquaddieId,
+                            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                        },
+                    ],
+                    action: {
+                        id: magicalBarrierAction.id,
+                        manager: actionManager,
+                    },
+                })
+            expect(
+                reapplyMagicalBarrierResult[1]!.conditionsAdded!
+            ).toHaveLength(0)
+        })
     })
 })

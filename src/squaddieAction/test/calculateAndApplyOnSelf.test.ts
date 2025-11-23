@@ -32,9 +32,14 @@ import { CoordinateGeneratorShape } from "../../coordinateMap/shape.ts"
 import { SquaddieActionCalculator } from "../calculate/squaddieActionCalculator.ts"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
 import { ApplyResultService } from "../apply/applyResultService.ts"
+import {
+    SquaddieConditionService,
+    SquaddieConditionType,
+} from "../../proficiency/squaddieCondition.ts"
 
 describe("Squaddie resolves actions on themself", () => {
     let endTurnAction: SquaddieAction
+    let raiseShieldAction: SquaddieAction
     let actionManager: SquaddieActionManager
 
     let attributeSheet: OutOfBattleSquaddieAttributeSheet
@@ -87,6 +92,9 @@ describe("Squaddie resolves actions on themself", () => {
             outOfBattleSquaddieId,
         }))
 
+        actionManager = new SquaddieActionManager(
+            SquaddieActionCollectionService.new()
+        )
         endTurnAction = SquaddieActionService.new({
             id: "endTurn",
             name: "End Turn",
@@ -108,10 +116,40 @@ describe("Squaddie resolves actions on themself", () => {
                 },
             },
         })
-        actionManager = new SquaddieActionManager(
-            SquaddieActionCollectionService.new()
-        )
         actionManager.addOrUpdate(endTurnAction)
+        raiseShieldAction = SquaddieActionService.new({
+            id: "raiseShield",
+            name: "Raise Shield",
+            proficiency: ProficiencyType.UNKNOWN,
+            targeting: {
+                range: ActionRange.SELF,
+                shape: CoordinateGeneratorShape.BLOOM,
+                affiliationRelationship: {
+                    self: true,
+                    friend: false,
+                    foe: false,
+                },
+            },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    conditions: {
+                        add: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ARMOR,
+                                amount: 1,
+                                duration: 1,
+                            }),
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ARMOR,
+                                amount: 1,
+                                duration: 1,
+                            }),
+                        ],
+                    },
+                },
+            },
+        })
+        actionManager.addOrUpdate(raiseShieldAction)
     })
 
     it("will calculate removing all actions when squaddie uses End Turn without actually changing squaddie", () => {
@@ -189,5 +227,59 @@ describe("Squaddie resolves actions on themself", () => {
                 outOfBattleSquaddieId,
             }).current
         ).toEqual(0)
+    })
+
+    it("can add conditions", () => {
+        const results = SquaddieActionCalculator.calculateResult({
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            inBattleSquaddieManager,
+            actor: {
+                inBattleSquaddieId,
+                outOfBattleSquaddieId,
+            },
+            targets: [
+                {
+                    inBattleSquaddieId,
+                    outOfBattleSquaddieId,
+                },
+            ],
+            action: {
+                id: raiseShieldAction.id,
+                manager: actionManager,
+            },
+        })
+
+        expect(results[0]).toEqual({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            conditionsAdded: [
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ARMOR,
+                    amount: 1,
+                    duration: 1,
+                }),
+            ],
+        })
+
+        expect(
+            inBattleSquaddieManager.calculateConditionAmountForSquaddie({
+                inBattleSquaddieId,
+                outOfBattleSquaddieId,
+                conditionType: SquaddieConditionType.ARMOR,
+            })
+        ).toEqual(0)
+
+        ApplyResultService.applyResultsToSquaddies({
+            inBattleSquaddieManager,
+            results,
+        })
+
+        expect(
+            inBattleSquaddieManager.calculateConditionAmountForSquaddie({
+                inBattleSquaddieId,
+                outOfBattleSquaddieId,
+                conditionType: SquaddieConditionType.ARMOR,
+            })
+        ).toEqual(1)
     })
 })
