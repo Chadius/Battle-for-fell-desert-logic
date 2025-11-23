@@ -147,21 +147,15 @@ export class InBattleSquaddieManager {
         outOfBattleSquaddieId: string
         damage: { amount: number; type: AttributeScoreType | undefined }
     }): DamageResult {
-        const squaddieInfo = this.getSquaddie({
-            inBattleSquaddieId: inBattleSquaddieId,
-            outOfBattleSquaddieId: outOfBattleSquaddieId,
-        })
-        this.throwIfInBattleSquaddieCollectionIsUndefined(
-            this.previewDamageToSquaddie.name
-        )
-
-        return InBattleSquaddieCollectionService.dealDamageToSquaddie({
-            collection: this.inBattleSquaddieCollection!,
-            inBattleSquaddie: squaddieInfo.inBattleSquaddie,
-            outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
+        const info = this.damageSquaddie({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
             damage,
             commitChanges: false,
-        })?.damage
+            callName: this.previewDamageToSquaddie.name,
+        })
+
+        return info.damage
     }
 
     dealDamageToSquaddie({
@@ -173,26 +167,46 @@ export class InBattleSquaddieManager {
         outOfBattleSquaddieId: string
         damage: { amount: number; type: AttributeScoreType | undefined }
     }) {
+        const info = this.damageSquaddie({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            damage,
+            commitChanges: true,
+            callName: this.dealDamageToSquaddie.name,
+        })
+
+        this.inBattleSquaddieCollection = info.collection
+    }
+
+    private damageSquaddie({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        damage,
+        commitChanges,
+        callName,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        damage: { amount: number; type: AttributeScoreType | undefined }
+        commitChanges: boolean
+        callName: string
+    }): {
+        collection: InBattleSquaddieCollection
+        damage: DamageResult
+    } {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (
-            squaddieInfo == undefined ||
-            this.inBattleSquaddieCollection == undefined
-        )
-            return
+        this.throwIfInBattleSquaddieCollectionIsUndefined(callName)
 
-        const results = InBattleSquaddieCollectionService.dealDamageToSquaddie({
-            collection: this.inBattleSquaddieCollection,
+        return InBattleSquaddieCollectionService.dealDamageToSquaddie({
+            collection: this.inBattleSquaddieCollection!,
             inBattleSquaddie: squaddieInfo.inBattleSquaddie,
             outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
             damage,
-            commitChanges: true,
+            commitChanges,
         })
-
-        if (results == undefined) return undefined
-        this.inBattleSquaddieCollection = results.collection
     }
 
     getSquaddieConditions({
@@ -249,32 +263,21 @@ export class InBattleSquaddieManager {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
         conditions: SquaddieCondition[]
-    }):
-        | {
-              newConditions: SquaddieCondition[]
-              netEffect: {
-                  [k in TSquaddieConditionType]?: Omit<
-                      SquaddieCondition,
-                      "type"
-                  >[]
-              }
-          }
-        | undefined {
-        const squaddieInfo = this.getSquaddie({
-            inBattleSquaddieId: inBattleSquaddieId,
-            outOfBattleSquaddieId: outOfBattleSquaddieId,
+    }): {
+        newConditions: SquaddieCondition[]
+        netEffect: {
+            [k in TSquaddieConditionType]?: Omit<SquaddieCondition, "type">[]
+        }
+    } {
+        const info = this.addConditions({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            conditions,
+            commitChanges: false,
+            callName: this.addConditionsToSquaddie.name,
         })
-        if (squaddieInfo == undefined) return undefined
 
-        return InBattleSquaddieCollectionService.previewAddConditionsToSquaddie(
-            {
-                collection: this.inBattleSquaddieCollection!,
-                inBattleSquaddie: squaddieInfo.inBattleSquaddie,
-                outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
-                conditions: conditions,
-                commitChanges: false,
-            }
-        )?.changes
+        return info.changes
     }
 
     addConditionsToSquaddie({
@@ -286,23 +289,54 @@ export class InBattleSquaddieManager {
         outOfBattleSquaddieId: string
         conditions: SquaddieCondition[]
     }) {
+        const info = this.addConditions({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            conditions,
+            commitChanges: true,
+            callName: this.addConditionsToSquaddie.name,
+        })
+
+        this.inBattleSquaddieCollection = info.collection
+    }
+
+    private addConditions({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        conditions,
+        commitChanges,
+        callName,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        conditions: SquaddieCondition[]
+        commitChanges: boolean
+        callName: string
+    }): {
+        collection: InBattleSquaddieCollection
+        changes: {
+            newConditions: SquaddieCondition[]
+            netEffect: {
+                [k in TSquaddieConditionType]?: Omit<
+                    SquaddieCondition,
+                    "type"
+                >[]
+            }
+        }
+    } {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return
+        this.throwIfInBattleSquaddieCollectionIsUndefined(callName)
 
-        const results =
-            InBattleSquaddieCollectionService.previewAddConditionsToSquaddie({
-                collection: this.inBattleSquaddieCollection!,
-                inBattleSquaddie: squaddieInfo.inBattleSquaddie,
-                outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
-                conditions: conditions,
-                commitChanges: true,
-            })
-
-        if (results == undefined) return
-        this.inBattleSquaddieCollection = results.collection
+        return InBattleSquaddieCollectionService.addConditionsToSquaddie({
+            collection: this.inBattleSquaddieCollection!,
+            inBattleSquaddie: squaddieInfo.inBattleSquaddie,
+            outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
+            conditions: conditions,
+            commitChanges,
+        })
     }
 
     reduceConditionDurationsByOneRound({
@@ -371,24 +405,16 @@ export class InBattleSquaddieManager {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
         healing: NonNullable<SquaddieActionEffect["healing"]>
-    }):
-        | {
-              net: number
-          }
-        | undefined {
-        const squaddieInfo = this.getSquaddie({
-            inBattleSquaddieId: inBattleSquaddieId,
-            outOfBattleSquaddieId: outOfBattleSquaddieId,
-        })
-        if (squaddieInfo == undefined) return undefined
-
-        return InBattleSquaddieCollectionService.giveHealingToSquaddie({
-            collection: this.inBattleSquaddieCollection!,
-            inBattleSquaddie: squaddieInfo.inBattleSquaddie,
-            outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
+    }): {
+        net: number
+    } {
+        const info = this.giveHealing({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
             healing,
             commitChanges: false,
-        })?.healing
+        })
+        return info.healing
     }
 
     giveHealingToSquaddie({
@@ -398,27 +424,44 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        healing: SquaddieActionEffect["healing"]
+        healing: NonNullable<SquaddieActionEffect["healing"]>
     }) {
+        const info = this.giveHealing({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            healing,
+            commitChanges: true,
+        })
+        this.inBattleSquaddieCollection = info.collection
+    }
+
+    private giveHealing({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        healing,
+        commitChanges,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        healing: NonNullable<SquaddieActionEffect["healing"]>
+        commitChanges: boolean
+    }): {
+        collection: InBattleSquaddieCollection
+        healing: {
+            net: number
+        }
+    } {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return
-        if (healing == undefined) return
-
-        const results = InBattleSquaddieCollectionService.giveHealingToSquaddie(
-            {
-                collection: this.inBattleSquaddieCollection!,
-                inBattleSquaddie: squaddieInfo.inBattleSquaddie,
-                outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
-                healing,
-                commitChanges: true,
-            }
-        )
-
-        if (results == undefined) return
-        this.inBattleSquaddieCollection = results.collection
+        return InBattleSquaddieCollectionService.giveHealingToSquaddie({
+            collection: this.inBattleSquaddieCollection!,
+            inBattleSquaddie: squaddieInfo.inBattleSquaddie,
+            outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
+            healing,
+            commitChanges,
+        })
     }
 
     getActionPoints({
@@ -458,14 +501,38 @@ export class InBattleSquaddieManager {
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return
 
         this.inBattleSquaddieCollection =
             InBattleSquaddieCollectionService.spendActionPoints({
+                commitChanges: true,
                 collection: this.inBattleSquaddieCollection!,
                 ...squaddieInfo,
                 actionPoints,
-            })
+            }).collection
+    }
+
+    previewSpendActionPoints({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        actionPoints,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        actionPoints: number
+    }): { spent: number } {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+
+        return {
+            spent: InBattleSquaddieCollectionService.spendActionPoints({
+                commitChanges: false,
+                collection: this.inBattleSquaddieCollection!,
+                ...squaddieInfo,
+                actionPoints,
+            }).spent,
+        }
     }
 
     resetActionPoints({

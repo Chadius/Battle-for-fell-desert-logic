@@ -1,14 +1,11 @@
 import type { SquaddieActionManager } from "../squaddieActionManager.ts"
 import type { OutOfBattleSquaddieAttributeSheet } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import type { SquaddieAction, SquaddieActionEffect } from "../squaddieAction.ts"
+import type { SquaddieActionEffect } from "../squaddieAction.ts"
 import type { InBattleSquaddie } from "../../squaddie/inBattle/inBattleSquaddie.ts"
 import type { OutOfBattleSquaddie } from "../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
 import type { SquaddieActionResult } from "./squaddieActionResult.ts"
 import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
-import {
-    DegreeOfSuccess,
-    type TDegreeOfSuccess,
-} from "../../degreesOfSuccess/degreeOfSuccess.ts"
+import { type TDegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
 import { ProficiencyLevelConst } from "../../proficiency/proficiencyLevel.ts"
 
 export const SquaddieActionCalculator = {
@@ -40,23 +37,34 @@ export const SquaddieActionCalculator = {
         })
 
         const squaddieAction = action.manager.get(action.id)
-        const results: SquaddieActionResult[] = [
-            ...calculateActionOnSelf({
-                squaddieAction,
+        const results: SquaddieActionResult[] = calculateEffectOnSquaddie({
+            effect: squaddieAction.effectOnActor[degreeOfSuccess],
+            inBattleSquaddieManager,
+            actor: {
                 inBattleSquaddie: actorInBattleSquaddie,
                 outOfBattleSquaddie: actorOutOfBattleSquaddie,
                 attributeSheet: actorAttributeSheet,
-            }),
-        ]
+            },
+            target: {
+                inBattleSquaddie: actorInBattleSquaddie,
+                outOfBattleSquaddie: actorOutOfBattleSquaddie,
+                attributeSheet: actorAttributeSheet,
+            },
+        })
 
         results.push(
             ...targets.flatMap((target) => {
+                if (
+                    squaddieAction.effectOnTarget?.[degreeOfSuccess] ==
+                    undefined
+                )
+                    return []
+
                 const targetSquaddie = inBattleSquaddieManager.getSquaddie({
                     ...target,
                 })
-                return calculateResultsOnAnotherSquaddie({
-                    degreeOfSuccess,
-                    squaddieAction,
+                return calculateEffectOnSquaddie({
+                    effect: squaddieAction.effectOnTarget[degreeOfSuccess],
                     inBattleSquaddieManager,
                     actor: {
                         inBattleSquaddie: actorInBattleSquaddie,
@@ -71,74 +79,42 @@ export const SquaddieActionCalculator = {
     },
 }
 
-const calculateActionOnSelf = ({
-    squaddieAction,
+const calculateActionPointChange = ({
+    actionPoints,
     inBattleSquaddie,
     outOfBattleSquaddie,
-    attributeSheet,
+    inBattleSquaddieManager,
 }: {
-    squaddieAction: SquaddieAction
+    actionPoints: SquaddieActionEffect["actionPoints"] | undefined
     inBattleSquaddie: InBattleSquaddie
     outOfBattleSquaddie: OutOfBattleSquaddie
     attributeSheet: OutOfBattleSquaddieAttributeSheet
+    inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
-    const results: SquaddieActionResult[] = []
-
-    results.push(
-        ...calculateActionPointChangeToSelf({
-            squaddieAction,
-            inBattleSquaddie,
-            outOfBattleSquaddie,
-            attributeSheet,
-        })
-    )
-    return results
-}
-
-const calculateActionPointChangeToSelf = ({
-    squaddieAction,
-    inBattleSquaddie,
-    outOfBattleSquaddie,
-}: {
-    squaddieAction: SquaddieAction
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
-}): SquaddieActionResult[] => {
-    let actionPoints =
-        squaddieAction.effectOnActor[DegreeOfSuccess.SUCCESS].actionPoints
     if (actionPoints == undefined) return []
 
-    if (actionPoints.spent == "all") {
-        return [
-            {
-                inBattleSquaddieId: inBattleSquaddie.id,
-                outOfBattleSquaddieId: outOfBattleSquaddie.id,
-                actionPoints: {
-                    spent: inBattleSquaddie.actionPoints.current,
-                },
-            },
-        ]
-    }
     return [
         {
             inBattleSquaddieId: inBattleSquaddie.id,
             outOfBattleSquaddieId: outOfBattleSquaddie.id,
-            actionPoints: {
-                spent: actionPoints.spent,
-            },
+            actionPoints: inBattleSquaddieManager.previewSpendActionPoints({
+                inBattleSquaddieId: inBattleSquaddie.id,
+                outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                actionPoints:
+                    actionPoints.spent == "all"
+                        ? inBattleSquaddie.actionPoints.current
+                        : actionPoints.spent,
+            }),
         },
     ]
 }
 
-const calculateResultsOnAnotherSquaddie = ({
-    squaddieAction,
+const calculateEffectOnSquaddie = ({
+    effect,
     target,
-    degreeOfSuccess,
     inBattleSquaddieManager,
 }: {
-    degreeOfSuccess: TDegreeOfSuccess
-    squaddieAction: SquaddieAction
+    effect: SquaddieActionEffect | undefined
     inBattleSquaddieManager: InBattleSquaddieManager
     actor: {
         inBattleSquaddie: InBattleSquaddie
@@ -151,20 +127,20 @@ const calculateResultsOnAnotherSquaddie = ({
         attributeSheet: OutOfBattleSquaddieAttributeSheet
     }
 }): SquaddieActionResult[] => {
-    if (squaddieAction.effectOnTarget == undefined) return []
-    if (squaddieAction.effectOnTarget[degreeOfSuccess] == undefined) return []
+    if (effect == undefined) return []
 
-    const effect = squaddieAction.effectOnTarget[degreeOfSuccess]
     let results: SquaddieActionResult[] = []
     results.push(
+        ...calculateActionPointChange({
+            inBattleSquaddieManager,
+            actionPoints: effect?.actionPoints,
+            ...target,
+        }),
         ...calculateDamageResults({
             inBattleSquaddieManager,
             damage: effect?.damage,
             ...target,
-        })
-    )
-
-    results.push(
+        }),
         ...calculateHealingResults({
             inBattleSquaddieManager,
             healing: effect?.healing,

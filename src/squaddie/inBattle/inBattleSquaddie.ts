@@ -267,13 +267,18 @@ export const InBattleSquaddieService = {
     }: {
         squaddie: InBattleSquaddie
         actionPoints: number
-    }): InBattleSquaddie => {
+    }): { squaddie: InBattleSquaddie; spent: number } => {
         const newSquaddie = clone(squaddie)
         newSquaddie.actionPoints.current = Math.max(
             newSquaddie.actionPoints.current - actionPoints,
             0
         )
-        return newSquaddie
+        return {
+            squaddie: newSquaddie,
+            spent:
+                squaddie.actionPoints.current -
+                newSquaddie.actionPoints.current,
+        }
     },
     resetActionPoints: ({
         squaddie,

@@ -104,7 +104,7 @@ export const InBattleSquaddieCollectionService = {
             damage: changeSquaddieInfo.damage,
         }
     },
-    previewAddConditionsToSquaddie: ({
+    addConditionsToSquaddie: ({
         collection,
         outOfBattleSquaddie,
         conditions,
@@ -129,7 +129,7 @@ export const InBattleSquaddieCollectionService = {
         }
     } => {
         throwErrorsIfSquaddieIsUndefined({
-            functionName: "previewAddConditionsToSquaddie",
+            functionName: "addConditionsToSquaddie",
             collection,
             inBattleSquaddie,
             outOfBattleSquaddie,
@@ -353,12 +353,14 @@ export const InBattleSquaddieCollectionService = {
         actionPoints,
         inBattleSquaddie,
         outOfBattleSquaddie,
+        commitChanges,
     }: {
         collection: InBattleSquaddieCollection
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
         actionPoints: number
-    }): InBattleSquaddieCollection => {
+        commitChanges: boolean
+    }): { collection: InBattleSquaddieCollection; spent: number } => {
         throwErrorsIfSquaddieIsUndefined({
             functionName: "spendActionPoints",
             collection,
@@ -366,13 +368,20 @@ export const InBattleSquaddieCollectionService = {
             outOfBattleSquaddie,
         })
 
-        collection.byOutOfBattleSquaddieId[outOfBattleSquaddie.id][
-            inBattleSquaddie.id
-        ] = InBattleSquaddieService.spendActionPoints({
+        const { squaddie, spent } = InBattleSquaddieService.spendActionPoints({
             squaddie: inBattleSquaddie,
             actionPoints,
         })
-        return collection
+
+        let modifiedCollection = commitChanges
+            ? addOrUpdateSquaddie({
+                  collection,
+                  inBattleSquaddie: squaddie,
+                  outOfBattleSquaddie,
+              })
+            : collection
+
+        return { collection: modifiedCollection, spent }
     },
     resetActionPoints: ({
         collection,
