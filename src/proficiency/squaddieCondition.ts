@@ -5,11 +5,22 @@ export const SquaddieConditionType = {
     ABSORB: "ABSORB",
     ARMOR: "ARMOR",
     ELUSIVE: "ELUSIVE",
+    SLOWED: "SLOWED",
 } as const satisfies Record<string, string>
 export type TSquaddieConditionType = EnumLike<typeof SquaddieConditionType>
 
 const binaryTypes = new Set<TSquaddieConditionType>([
     SquaddieConditionType.ELUSIVE,
+])
+
+const helpfulTypes = new Set<TSquaddieConditionType>([
+    SquaddieConditionType.ARMOR,
+    SquaddieConditionType.ABSORB,
+    SquaddieConditionType.ELUSIVE,
+])
+
+const hinderingTypes = new Set<TSquaddieConditionType>([
+    SquaddieConditionType.SLOWED,
 ])
 
 export interface SquaddieCondition {
@@ -38,5 +49,12 @@ export const SquaddieConditionService = {
             },
         }
     },
-    isBinary: (t: SquaddieCondition): boolean => binaryTypes.has(t.type),
+    isBinary: (t: SquaddieCondition): boolean => isBinary(t),
+    isHelpful: (t: SquaddieCondition): boolean =>
+        helpfulTypes.has(t.type) && (isBinary(t) || t.amount! > 0),
+    isHindering: (t: SquaddieCondition): boolean =>
+        (hinderingTypes.has(t.type) && (isBinary(t) || t.amount! > 0)) ||
+        (helpfulTypes.has(t.type) && !isBinary(t) && t.amount! < 0),
 }
+
+const isBinary = (t: SquaddieCondition): boolean => binaryTypes.has(t.type)
