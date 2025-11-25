@@ -542,7 +542,10 @@ describe("In Battle Squaddie Manager", () => {
             let armorNegative3ShortDuration: SquaddieCondition
             let absorbForever: SquaddieCondition
             let absorbShortDuration: SquaddieCondition
-            let inBattleSquaddie00Id
+            let inBattleSquaddie00Id: {
+                inBattleSquaddieId: number
+                outOfBattleSquaddieId: string
+            }
 
             beforeEach(() => {
                 elusive2 = SquaddieConditionService.new({
@@ -722,6 +725,132 @@ describe("In Battle Squaddie Manager", () => {
                                 ]),
                         })
                     )
+                })
+            })
+
+            describe("can dispel helpful condition", () => {
+                beforeEach(() => {
+                    manager.addConditionsToSquaddie({
+                        inBattleSquaddieId:
+                            inBattleSquaddie00Id!.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            inBattleSquaddie00Id!.outOfBattleSquaddieId,
+                        conditions: [
+                            elusive2,
+                            armorNegative2ShortDuration,
+                            absorbForever,
+                            absorbShortDuration,
+                        ],
+                    })
+                })
+
+                it("can dispel a named condition", () => {
+                    expect(
+                        manager.previewDispelConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                            conditionTypes: [SquaddieConditionType.ELUSIVE],
+                            amount: undefined,
+                        })
+                    ).toEqual({
+                        [SquaddieConditionType.ELUSIVE]: [elusive2],
+                    })
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ELUSIVE]
+                    ).toHaveLength(1)
+
+                    manager.dispelConditions({
+                        inBattleSquaddieId:
+                            inBattleSquaddie00Id.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        conditionTypes: [SquaddieConditionType.ELUSIVE],
+                        amount: undefined,
+                    })
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ELUSIVE]
+                    ).toHaveLength(0)
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ARMOR]
+                    ).toHaveLength(1)
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ABSORB]
+                    ).toHaveLength(2)
+                })
+
+                it("can dispel multiple conditions", () => {
+                    manager.dispelConditions({
+                        inBattleSquaddieId:
+                            inBattleSquaddie00Id.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        conditionTypes: [
+                            SquaddieConditionType.ABSORB,
+                            SquaddieConditionType.ARMOR,
+                        ],
+                        amount: 4,
+                    })
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ABSORB]
+                    ).toEqual(
+                        expect.arrayContaining([
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ABSORB,
+                                duration: absorbShortDuration.limit.duration,
+                                amount: 3,
+                            }),
+                        ])
+                    )
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ELUSIVE]
+                    ).toHaveLength(1)
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ARMOR]
+                    ).toHaveLength(1)
                 })
             })
         })

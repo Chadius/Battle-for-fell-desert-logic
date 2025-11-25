@@ -138,7 +138,7 @@ export const InBattleSquaddieCollectionService = {
         const changeSquaddieInfo =
             InBattleSquaddieService.addConditionsToSquaddie({
                 squaddie: inBattleSquaddie,
-                conditions,
+                conditions: conditions,
             })
 
         let modifiedCollection = commitChanges
@@ -502,6 +502,53 @@ export const InBattleSquaddieCollectionService = {
             attributeSheet,
             type,
         })
+    },
+    dispelSquaddieConditions: ({
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+        conditionTypes,
+        amount,
+        commitChanges,
+        collection,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        conditionTypes: TSquaddieConditionType[]
+        amount: number | undefined
+        commitChanges: boolean
+    }): {
+        collection: InBattleSquaddieCollection
+        dispelledConditions: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        }
+    } => {
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "dispelSquaddieCondition",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
+        })
+
+        const { squaddie, dispelledConditions } =
+            InBattleSquaddieService.dispelSquaddieConditions({
+                squaddie: inBattleSquaddie,
+                conditionTypes,
+                amount,
+            })
+
+        let modifiedCollection = commitChanges
+            ? addOrUpdateSquaddie({
+                  collection,
+                  inBattleSquaddie: squaddie,
+                  outOfBattleSquaddie,
+              })
+            : collection
+
+        return { collection: modifiedCollection, dispelledConditions }
     },
 }
 

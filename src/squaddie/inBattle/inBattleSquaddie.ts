@@ -207,25 +207,12 @@ export const InBattleSquaddieService = {
     }): {
         squaddie: InBattleSquaddie
         removedConditions: TSquaddieConditionType[]
-    } => {
-        const newSquaddie = clone(squaddie)
-        reduceConditionTypeByAmount({
-            conditions: newSquaddie.conditions[conditionType],
+    } =>
+        reduceConditionByAmount({
+            squaddie,
+            conditionType,
             amount,
-        })
-        const removedConditionTypes =
-            getAllConditionTypesThatHaveZeroAmount(newSquaddie)
-
-        for (const conditionType of removedConditionTypes) {
-            delete newSquaddie.conditions[conditionType]
-        }
-        removeAllIndividualConditionsWithZeroAmount(newSquaddie)
-
-        return {
-            squaddie: newSquaddie,
-            removedConditions: removedConditionTypes,
-        }
-    },
+        }),
     giveHealingToSquaddie: ({
         squaddie,
         healing,
@@ -347,6 +334,81 @@ export const InBattleSquaddieService = {
         totalBonus +=
             ProficiencyLevelConst.bonusByProficiencyLevel[proficiencyLevel]
         return totalBonus
+    },
+    dispelSquaddieConditions: ({
+        squaddie,
+        conditionTypes,
+        amount,
+    }: {
+        squaddie: InBattleSquaddie
+        conditionTypes: TSquaddieConditionType[]
+        amount: number | undefined
+    }): {
+        squaddie: InBattleSquaddie
+        dispelledConditions: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        }
+    } => {
+        const dispelledConditions: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        } = {}
+        const newConditions: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        } = {}
+
+        const cloneSquaddie = clone(squaddie)
+
+        for (const conditionTypeStr in cloneSquaddie.conditions) {
+            const squaddieConditionType =
+                conditionTypeStr as TSquaddieConditionType
+
+            const squaddieHasConditionTypeThatMayBeReduced =
+                conditionTypes.includes(squaddieConditionType)
+
+            if (!squaddieHasConditionTypeThatMayBeReduced) {
+                newConditions[squaddieConditionType] =
+                    cloneSquaddie.conditions[squaddieConditionType]
+                continue
+            }
+
+            const squaddieConditionsForType =
+                cloneSquaddie.conditions[squaddieConditionType]
+            if (
+                squaddieConditionsForType == undefined ||
+                squaddieConditionsForType.length == 0
+            )
+                continue
+
+            const { newConditionsForType, dispelledConditionsForType } =
+                reduceHelpfulSquaddieConditionAmounts(
+                    squaddieConditionsForType,
+                    amount
+                )
+
+            dispelledConditions[squaddieConditionType] =
+                dispelledConditionsForType
+            newConditionsForType.push(
+                ...removeSquaddieConditionsReducedToZeroAmount(
+                    dispelledConditionsForType
+                )
+            )
+            cloneSquaddie.conditions[squaddieConditionType] =
+                newConditionsForType
+        }
+
+        return {
+            squaddie: cloneSquaddie,
+            dispelledConditions,
+        }
     },
 }
 
@@ -694,4 +756,77 @@ const getProficiencyLevel = ({
     type: TProficiencyType
 }): TProficiencyLevel => {
     return attributeSheet.proficiencyLevels[type] ?? ProficiencyLevel.UNTRAINED
+}
+
+const reduceConditionByAmount = ({
+    squaddie,
+    conditionType,
+    amount,
+}: {
+    squaddie: InBattleSquaddie
+    conditionType: TSquaddieConditionType
+    amount: number
+}): {
+    squaddie: InBattleSquaddie
+    removedConditions: TSquaddieConditionType[]
+} => {
+    const newSquaddie = clone(squaddie)
+    reduceConditionTypeByAmount({
+        conditions: newSquaddie.conditions[conditionType],
+        amount,
+    })
+    const removedConditionTypes =
+        getAllConditionTypesThatHaveZeroAmount(newSquaddie)
+
+    for (const conditionType of removedConditionTypes) {
+        delete newSquaddie.conditions[conditionType]
+    }
+    removeAllIndividualConditionsWithZeroAmount(newSquaddie)
+
+    return {
+        squaddie: newSquaddie,
+        removedConditions: removedConditionTypes,
+    }
+}
+
+const removeSquaddieConditionsReducedToZeroAmount = (
+    clonedConditionsForType: Omit<SquaddieCondition, TSquaddieConditionType>[]
+) => clonedConditionsForType.filter((condition) => (condition.amount ?? 0) > 0)
+
+const reduceHelpfulSquaddieConditionAmounts = (
+    squaddieConditionsForType: Omit<
+        SquaddieCondition,
+        TSquaddieConditionType
+    >[],
+    amount: number | undefined
+) => {
+    const newConditionsForType: SquaddieCondition[] = []
+    const dispelledConditionsForType: SquaddieCondition[] = []
+
+    for (const condition of squaddieConditionsForType) {
+        const conditionIsHelpful = SquaddieConditionService.isHelpful(condition)
+        const conditionIsBinary = SquaddieConditionService.isBinary(condition)
+
+        if (!conditionIsHelpful) {
+            newConditionsForType.push(condition)
+            continue
+        }
+        if (conditionIsBinary) {
+            dispelledConditionsForType.push(condition)
+            continue
+        }
+
+        if (amount == undefined) {
+            newConditionsForType.push(condition)
+            continue
+        }
+
+        reduceConditionTypeByAmount({
+            conditions: [condition],
+            amount,
+        })
+
+        dispelledConditionsForType.push(condition)
+    }
+    return { newConditionsForType, dispelledConditionsForType }
 }
