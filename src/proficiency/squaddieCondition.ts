@@ -32,29 +32,41 @@ export interface SquaddieCondition {
 }
 
 export const SquaddieConditionService = {
-    new: ({
-        type,
-        amount,
-        duration,
-    }: {
+    new: (params: {
         type: TSquaddieConditionType
         duration: number | undefined
         amount: number | undefined
-    }): SquaddieCondition => {
-        return {
-            type,
-            amount,
-            limit: {
-                duration,
-            },
-        }
-    },
+    }): SquaddieCondition => newSquaddieCondition(params),
     isBinary: (t: SquaddieCondition): boolean => isBinary(t),
     isHelpful: (t: SquaddieCondition): boolean =>
         helpfulTypes.has(t.type) && (isBinary(t) || t.amount! > 0),
     isHindering: (t: SquaddieCondition): boolean =>
         (hinderingTypes.has(t.type) && (isBinary(t) || t.amount! > 0)) ||
         (helpfulTypes.has(t.type) && !isBinary(t) && t.amount! < 0),
+    clone: (original: SquaddieCondition): SquaddieCondition =>
+        newSquaddieCondition({
+            type: original.type,
+            duration: original.limit.duration,
+            amount: original.amount,
+        }),
 }
 
 const isBinary = (t: SquaddieCondition): boolean => binaryTypes.has(t.type)
+
+const newSquaddieCondition = ({
+    type,
+    amount,
+    duration,
+}: {
+    type: TSquaddieConditionType
+    duration: number | undefined
+    amount: number | undefined
+}): SquaddieCondition => {
+    return {
+        type,
+        amount,
+        limit: {
+            duration,
+        },
+    }
+}

@@ -783,7 +783,7 @@ describe("In Battle Squaddie Manager", () => {
                             outOfBattleSquaddieId:
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
                         })[SquaddieConditionType.ELUSIVE]
-                    ).toHaveLength(0)
+                    ).toBeUndefined()
 
                     expect(
                         manager.getSquaddieConditions({
@@ -850,6 +850,128 @@ describe("In Battle Squaddie Manager", () => {
                             outOfBattleSquaddieId:
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
                         })[SquaddieConditionType.ARMOR]
+                    ).toBeUndefined()
+                })
+            })
+
+            describe("can treat hindering condition", () => {
+                let slowed1Condition: SquaddieCondition
+
+                beforeEach(() => {
+                    slowed1Condition = SquaddieConditionService.new({
+                        type: SquaddieConditionType.SLOWED,
+                        duration: 1,
+                        amount: 1,
+                    })
+                    manager.addConditionsToSquaddie({
+                        inBattleSquaddieId:
+                            inBattleSquaddie00Id!.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            inBattleSquaddie00Id!.outOfBattleSquaddieId,
+                        conditions: [
+                            elusive2,
+                            armorNegative2ShortDuration,
+                            armorNegative3ShortDuration,
+                            slowed1Condition,
+                        ],
+                    })
+                })
+
+                it("can treat a named condition", () => {
+                    expect(
+                        manager.previewTreatConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                            conditionTypes: [SquaddieConditionType.SLOWED],
+                            amount: 1,
+                        })
+                    ).toEqual({
+                        [SquaddieConditionType.SLOWED]: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.SLOWED,
+                                amount: 0,
+                                duration: slowed1Condition.limit.duration,
+                            }),
+                        ],
+                    })
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.SLOWED]
+                    ).toHaveLength(1)
+
+                    manager.treatConditions({
+                        inBattleSquaddieId:
+                            inBattleSquaddie00Id.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        conditionTypes: [SquaddieConditionType.SLOWED],
+                        amount: 1,
+                    })
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.SLOWED]
+                    ).toBeUndefined()
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ARMOR]
+                    ).toHaveLength(1)
+                })
+
+                it("can treat multiple named conditions", () => {
+                    manager.treatConditions({
+                        inBattleSquaddieId:
+                            inBattleSquaddie00Id.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        conditionTypes: [
+                            SquaddieConditionType.SLOWED,
+                            SquaddieConditionType.ARMOR,
+                        ],
+                        amount: 2,
+                    })
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ARMOR]
+                    ).toEqual(
+                        expect.arrayContaining([
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ARMOR,
+                                duration:
+                                    armorNegative3ShortDuration.limit.duration,
+                                amount: -1,
+                            }),
+                        ])
+                    )
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ELUSIVE]
                     ).toHaveLength(1)
                 })
             })

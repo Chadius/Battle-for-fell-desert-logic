@@ -755,4 +755,94 @@ export class InBattleSquaddieManager {
             commitChanges,
         })
     }
+
+    previewTreatConditions({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        conditionTypes,
+        amount,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        conditionTypes: TSquaddieConditionType[]
+        amount: number | undefined
+    }): {
+        [k in TSquaddieConditionType]?: Omit<
+            SquaddieCondition,
+            TSquaddieConditionType
+        >[]
+    } {
+        const info = this.treatSquaddieConditions({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            conditionTypes,
+            amount,
+            commitChanges: false,
+            callName: this.previewTreatConditions.name,
+        })
+        return info.treatedConditions
+    }
+
+    treatConditions({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        conditionTypes,
+        amount,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        conditionTypes: TSquaddieConditionType[]
+        amount: number | undefined
+    }) {
+        const info = this.treatSquaddieConditions({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            conditionTypes,
+            amount,
+            commitChanges: true,
+            callName: this.treatConditions.name,
+        })
+        this.inBattleSquaddieCollection = info.collection
+    }
+
+    private treatSquaddieConditions({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        conditionTypes,
+        amount,
+        commitChanges,
+        callName,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        conditionTypes: TSquaddieConditionType[]
+        amount: number | undefined
+        commitChanges: boolean
+        callName: string
+    }): {
+        collection: InBattleSquaddieCollection
+        treatedConditions: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        }
+    } {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(callName)
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(callName)
+
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+
+        return InBattleSquaddieCollectionService.treatSquaddieConditions({
+            collection: this.inBattleSquaddieCollection!,
+            inBattleSquaddie: squaddieInfo.inBattleSquaddie,
+            outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
+            conditionTypes,
+            amount,
+            commitChanges,
+        })
+    }
 }
