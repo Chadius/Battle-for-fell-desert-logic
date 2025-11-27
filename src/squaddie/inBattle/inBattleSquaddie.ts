@@ -341,7 +341,10 @@ export const InBattleSquaddieService = {
         amount,
     }: {
         squaddie: InBattleSquaddie
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
     }): {
         squaddie: InBattleSquaddie
@@ -371,7 +374,10 @@ export const InBattleSquaddieService = {
         amount,
     }: {
         squaddie: InBattleSquaddie
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
     }): {
         squaddie: InBattleSquaddie
@@ -787,7 +793,10 @@ const dispelOrTreatSquaddieConditions = ({
     action,
 }: {
     squaddie: InBattleSquaddie
-    conditionTypes: TSquaddieConditionType[]
+    conditionTypes: {
+        all?: boolean
+        types?: TSquaddieConditionType[]
+    }
     amount: number | undefined
     action: "dispel" | "treat"
 }): {
@@ -818,7 +827,8 @@ const dispelOrTreatSquaddieConditions = ({
         const squaddieConditionType = conditionTypeStr as TSquaddieConditionType
 
         const squaddieHasConditionTypeThatMayBeReduced =
-            conditionTypes.includes(squaddieConditionType)
+            conditionTypes.all ||
+            (conditionTypes.types ?? []).includes(squaddieConditionType)
 
         if (!squaddieHasConditionTypeThatMayBeReduced) {
             newConditions[squaddieConditionType] =
@@ -841,7 +851,8 @@ const dispelOrTreatSquaddieConditions = ({
                 action
             )
 
-        reducedConditions[squaddieConditionType] = reducedConditionsForType
+        if (reducedConditionsForType.length > 0)
+            reducedConditions[squaddieConditionType] = reducedConditionsForType
         newConditionsForType.push(
             ...removeSquaddieConditionsReducedToZeroAmount(
                 reducedConditionsForType
@@ -877,13 +888,18 @@ const reduceDispelOrTreatSquaddieConditionAmounts = (
         if (
             action == "treat" &&
             !SquaddieConditionService.isHindering(condition)
-        )
+        ) {
+            newConditionsForType.push(condition)
             continue
+        }
+
         if (
             action == "dispel" &&
             !SquaddieConditionService.isHelpful(condition)
-        )
+        ) {
+            newConditionsForType.push(condition)
             continue
+        }
 
         if (conditionIsBinary) {
             reducedConditionsForType.push(condition)

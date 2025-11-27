@@ -674,7 +674,10 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
     }): {
         [k in TSquaddieConditionType]?: Omit<
@@ -701,7 +704,10 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
     }) {
         const info = this.dispelSquaddieConditions({
@@ -725,7 +731,10 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
         commitChanges: boolean
         callName: string
@@ -764,7 +773,10 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
     }): {
         [k in TSquaddieConditionType]?: Omit<
@@ -791,7 +803,10 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
     }) {
         const info = this.treatSquaddieConditions({
@@ -815,7 +830,10 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
         commitChanges: boolean
         callName: string

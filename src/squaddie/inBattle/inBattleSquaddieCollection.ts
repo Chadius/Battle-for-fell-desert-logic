@@ -514,7 +514,10 @@ export const InBattleSquaddieCollectionService = {
         collection: InBattleSquaddieCollection
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
         commitChanges: boolean
     }): {
@@ -561,7 +564,10 @@ export const InBattleSquaddieCollectionService = {
         collection: InBattleSquaddieCollection
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
-        conditionTypes: TSquaddieConditionType[]
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
         amount: number | undefined
         commitChanges: boolean
     }): {

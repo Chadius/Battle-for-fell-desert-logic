@@ -751,7 +751,9 @@ describe("In Battle Squaddie Manager", () => {
                                 inBattleSquaddie00Id.inBattleSquaddieId,
                             outOfBattleSquaddieId:
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
-                            conditionTypes: [SquaddieConditionType.ELUSIVE],
+                            conditionTypes: {
+                                types: [SquaddieConditionType.ELUSIVE],
+                            },
                             amount: undefined,
                         })
                     ).toEqual({
@@ -766,14 +768,41 @@ describe("In Battle Squaddie Manager", () => {
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
                         })[SquaddieConditionType.ELUSIVE]
                     ).toHaveLength(1)
+                })
+
+                it("can dispel all helpful conditions", () => {
+                    expect(
+                        manager.previewDispelConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                            conditionTypes: { all: true },
+                            amount: 4,
+                        })
+                    ).toEqual({
+                        [SquaddieConditionType.ELUSIVE]: [elusive2],
+                        [SquaddieConditionType.ABSORB]: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ABSORB,
+                                duration: absorbForever.limit.duration,
+                                amount: 0,
+                            }),
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ABSORB,
+                                duration: absorbShortDuration.limit.duration,
+                                amount: absorbShortDuration.amount! - 4,
+                            }),
+                        ],
+                    })
 
                     manager.dispelConditions({
                         inBattleSquaddieId:
                             inBattleSquaddie00Id.inBattleSquaddieId,
                         outOfBattleSquaddieId:
                             inBattleSquaddie00Id.outOfBattleSquaddieId,
-                        conditionTypes: [SquaddieConditionType.ELUSIVE],
-                        amount: undefined,
+                        conditionTypes: { all: true },
+                        amount: 4,
                     })
 
                     expect(
@@ -801,7 +830,7 @@ describe("In Battle Squaddie Manager", () => {
                             outOfBattleSquaddieId:
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
                         })[SquaddieConditionType.ABSORB]
-                    ).toHaveLength(2)
+                    ).toHaveLength(1)
                 })
 
                 it("can dispel multiple conditions", () => {
@@ -810,10 +839,12 @@ describe("In Battle Squaddie Manager", () => {
                             inBattleSquaddie00Id.inBattleSquaddieId,
                         outOfBattleSquaddieId:
                             inBattleSquaddie00Id.outOfBattleSquaddieId,
-                        conditionTypes: [
-                            SquaddieConditionType.ABSORB,
-                            SquaddieConditionType.ARMOR,
-                        ],
+                        conditionTypes: {
+                            types: [
+                                SquaddieConditionType.ABSORB,
+                                SquaddieConditionType.ARMOR,
+                            ],
+                        },
                         amount: 4,
                     })
 
@@ -850,7 +881,7 @@ describe("In Battle Squaddie Manager", () => {
                             outOfBattleSquaddieId:
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
                         })[SquaddieConditionType.ARMOR]
-                    ).toBeUndefined()
+                    ).toEqual([armorNegative2ShortDuration])
                 })
             })
 
@@ -870,7 +901,6 @@ describe("In Battle Squaddie Manager", () => {
                             inBattleSquaddie00Id!.outOfBattleSquaddieId,
                         conditions: [
                             elusive2,
-                            armorNegative2ShortDuration,
                             armorNegative3ShortDuration,
                             slowed1Condition,
                         ],
@@ -884,7 +914,9 @@ describe("In Battle Squaddie Manager", () => {
                                 inBattleSquaddie00Id.inBattleSquaddieId,
                             outOfBattleSquaddieId:
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
-                            conditionTypes: [SquaddieConditionType.SLOWED],
+                            conditionTypes: {
+                                types: [SquaddieConditionType.SLOWED],
+                            },
                             amount: 1,
                         })
                     ).toEqual({
@@ -911,7 +943,9 @@ describe("In Battle Squaddie Manager", () => {
                             inBattleSquaddie00Id.inBattleSquaddieId,
                         outOfBattleSquaddieId:
                             inBattleSquaddie00Id.outOfBattleSquaddieId,
-                        conditionTypes: [SquaddieConditionType.SLOWED],
+                        conditionTypes: {
+                            types: [SquaddieConditionType.SLOWED],
+                        },
                         amount: 1,
                     })
 
@@ -940,10 +974,12 @@ describe("In Battle Squaddie Manager", () => {
                             inBattleSquaddie00Id.inBattleSquaddieId,
                         outOfBattleSquaddieId:
                             inBattleSquaddie00Id.outOfBattleSquaddieId,
-                        conditionTypes: [
-                            SquaddieConditionType.SLOWED,
-                            SquaddieConditionType.ARMOR,
-                        ],
+                        conditionTypes: {
+                            types: [
+                                SquaddieConditionType.SLOWED,
+                                SquaddieConditionType.ARMOR,
+                            ],
+                        },
                         amount: 2,
                     })
 
@@ -964,6 +1000,71 @@ describe("In Battle Squaddie Manager", () => {
                             }),
                         ])
                     )
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ELUSIVE]
+                    ).toHaveLength(1)
+                })
+
+                it("can treat all hindering conditions", () => {
+                    expect(
+                        manager.previewTreatConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                            conditionTypes: { all: true },
+                            amount: 2,
+                        })
+                    ).toEqual({
+                        [SquaddieConditionType.SLOWED]: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.SLOWED,
+                                duration: slowed1Condition.limit.duration,
+                                amount: 0,
+                            }),
+                        ],
+                        [SquaddieConditionType.ARMOR]: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ARMOR,
+                                duration:
+                                    armorNegative3ShortDuration.limit.duration,
+                                amount: armorNegative3ShortDuration.amount! + 2,
+                            }),
+                        ],
+                    })
+
+                    manager.treatConditions({
+                        inBattleSquaddieId:
+                            inBattleSquaddie00Id.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        conditionTypes: { all: true },
+                        amount: 2,
+                    })
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.SLOWED]
+                    ).toBeUndefined()
+
+                    expect(
+                        manager.getSquaddieConditions({
+                            inBattleSquaddieId:
+                                inBattleSquaddie00Id.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                inBattleSquaddie00Id.outOfBattleSquaddieId,
+                        })[SquaddieConditionType.ARMOR]
+                    ).toHaveLength(1)
 
                     expect(
                         manager.getSquaddieConditions({
