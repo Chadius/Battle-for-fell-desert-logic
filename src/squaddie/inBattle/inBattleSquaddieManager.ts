@@ -333,7 +333,7 @@ export class InBattleSquaddieManager {
             collection: this.inBattleSquaddieCollection!,
             inBattleSquaddie: squaddieInfo.inBattleSquaddie,
             outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
-            conditions: conditions,
+            conditions,
             commitChanges,
         })
     }
@@ -364,36 +364,6 @@ export class InBattleSquaddieManager {
         if (results == undefined) return
         this.inBattleSquaddieCollection = results.collection
     }
-
-    reduceConditionByAmount({
-        inBattleSquaddieId,
-        outOfBattleSquaddieId,
-        conditionType,
-        amount,
-    }: {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
-        conditionType: TSquaddieConditionType
-        amount?: number
-    }) {
-        amount ??= 1
-        if (amount <= 0) return
-        const squaddieInfo = this.getSquaddie({
-            inBattleSquaddieId: inBattleSquaddieId,
-            outOfBattleSquaddieId: outOfBattleSquaddieId,
-        })
-        const results =
-            InBattleSquaddieCollectionService.reduceConditionByAmount({
-                collection: this.inBattleSquaddieCollection!,
-                inBattleSquaddie: squaddieInfo.inBattleSquaddie,
-                outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
-                conditionType,
-                amount,
-                commitChanges: true,
-            })
-        this.inBattleSquaddieCollection = results.collection
-    }
-
     previewHealingToSquaddie({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
@@ -680,10 +650,17 @@ export class InBattleSquaddieManager {
         }
         amount: number | undefined
     }): {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
+        dispelledConditions: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        }
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
+        amount: number | undefined
     } {
         const info = this.dispelSquaddieConditions({
             inBattleSquaddieId,
@@ -693,7 +670,11 @@ export class InBattleSquaddieManager {
             commitChanges: false,
             callName: this.previewDispelConditions.name,
         })
-        return info.dispelledConditions
+        return {
+            dispelledConditions: info.dispelledConditions,
+            conditionTypes,
+            amount,
+        }
     }
 
     dispelConditions({
@@ -746,6 +727,11 @@ export class InBattleSquaddieManager {
                 TSquaddieConditionType
             >[]
         }
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
+        amount: number | undefined
     } {
         this.throwIfInBattleSquaddieCollectionIsUndefined(callName)
         this.throwIfOutOfBattleSquaddieManagerIsUndefined(callName)
@@ -779,12 +765,20 @@ export class InBattleSquaddieManager {
         }
         amount: number | undefined
     }): {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
+        collection: InBattleSquaddieCollection
+        treatedConditions: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        }
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
+        amount: number | undefined
     } {
-        const info = this.treatSquaddieConditions({
+        return this.treatSquaddieConditions({
             inBattleSquaddieId,
             outOfBattleSquaddieId,
             conditionTypes,
@@ -792,7 +786,6 @@ export class InBattleSquaddieManager {
             commitChanges: false,
             callName: this.previewTreatConditions.name,
         })
-        return info.treatedConditions
     }
 
     treatConditions({
@@ -845,6 +838,11 @@ export class InBattleSquaddieManager {
                 TSquaddieConditionType
             >[]
         }
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
+        amount: number | undefined
     } {
         this.throwIfInBattleSquaddieCollectionIsUndefined(callName)
         this.throwIfOutOfBattleSquaddieManagerIsUndefined(callName)

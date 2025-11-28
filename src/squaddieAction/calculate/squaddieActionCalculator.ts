@@ -7,7 +7,10 @@ import type { SquaddieActionResult } from "./squaddieActionResult.ts"
 import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
 import { type TDegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
 import { ProficiencyLevelConst } from "../../proficiency/proficiencyLevel.ts"
-import type { SquaddieCondition } from "../../proficiency/squaddieCondition.ts"
+import type {
+    SquaddieCondition,
+    TSquaddieConditionType,
+} from "../../proficiency/squaddieCondition.ts"
 
 export const SquaddieActionCalculator = {
     calculateResult: ({
@@ -151,6 +154,16 @@ const calculateEffectOnSquaddie = ({
             inBattleSquaddieManager,
             conditions: effect?.conditions?.add,
             ...target,
+        }),
+        ...calculateConditionDispelResults({
+            inBattleSquaddieManager,
+            conditions: effect?.conditions?.dispel,
+            ...target,
+        }),
+        ...calculateConditionTreatResults({
+            inBattleSquaddieManager,
+            conditions: effect?.conditions?.treat,
+            ...target,
         })
     )
 
@@ -261,6 +274,86 @@ const calculateConditionAddResults = ({
             inBattleSquaddieId: inBattleSquaddie.id,
             outOfBattleSquaddieId: outOfBattleSquaddie.id,
             conditionsAdded: info.newConditions,
+        },
+    ]
+}
+
+const calculateConditionDispelResults = ({
+    conditions,
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    inBattleSquaddieManager,
+}: {
+    conditions:
+        | {
+              all: boolean
+              types: TSquaddieConditionType[]
+              amount: number | undefined
+          }
+        | undefined
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): SquaddieActionResult[] => {
+    if (conditions == undefined) return []
+
+    const dispelledConditionsResult =
+        inBattleSquaddieManager.previewDispelConditions({
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            conditionTypes: {
+                all: conditions.all,
+                types: conditions.types,
+            },
+            amount: conditions.amount,
+        })
+
+    return [
+        {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            dispel: dispelledConditionsResult,
+        },
+    ]
+}
+
+const calculateConditionTreatResults = ({
+    conditions,
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    inBattleSquaddieManager,
+}: {
+    conditions:
+        | {
+              all: boolean
+              types: TSquaddieConditionType[]
+              amount: number | undefined
+          }
+        | undefined
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): SquaddieActionResult[] => {
+    if (conditions == undefined) return []
+
+    const treatConditionsResult =
+        inBattleSquaddieManager.previewTreatConditions({
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            conditionTypes: {
+                all: conditions.all,
+                types: conditions.types,
+            },
+            amount: conditions.amount,
+        })
+
+    return [
+        {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            treat: treatConditionsResult,
         },
     ]
 }

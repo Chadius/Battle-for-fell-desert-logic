@@ -15,7 +15,10 @@ import {
     ProficiencyType,
     type TProficiencyType,
 } from "../proficiency/proficiencyLevel.ts"
-import type { SquaddieCondition } from "../proficiency/squaddieCondition.ts"
+import type {
+    SquaddieCondition,
+    TSquaddieConditionType,
+} from "../proficiency/squaddieCondition.ts"
 
 interface SquaddieActionTargeting {
     range: TActionRange
@@ -42,6 +45,16 @@ export interface SquaddieActionEffect {
     }
     conditions?: {
         add?: SquaddieCondition[]
+        dispel?: {
+            all: boolean
+            types: TSquaddieConditionType[]
+            amount: number | undefined
+        }
+        treat?: {
+            all: boolean
+            types: TSquaddieConditionType[]
+            amount: number | undefined
+        }
     }
 }
 

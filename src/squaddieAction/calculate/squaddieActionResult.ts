@@ -1,5 +1,8 @@
 import type { AttributeScoreType } from "../../proficiency/attributeScore.ts"
-import type { SquaddieCondition } from "../../proficiency/squaddieCondition.ts"
+import type {
+    SquaddieCondition,
+    TSquaddieConditionType,
+} from "../../proficiency/squaddieCondition.ts"
 
 export type DamageResult = {
     net: number
@@ -25,4 +28,30 @@ export interface SquaddieActionResult {
     damage?: DamageResult
     healing?: HealingResult
     conditionsAdded?: ConditionAddResult
+    dispel?: {
+        dispelledConditions?: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        }
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
+        amount: number | undefined
+    }
+    treat?: {
+        treatedConditions?: {
+            [k in TSquaddieConditionType]?: Omit<
+                SquaddieCondition,
+                TSquaddieConditionType
+            >[]
+        }
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
+        amount: number | undefined
+    }
 }

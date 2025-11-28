@@ -498,6 +498,44 @@ describe("In Battle Squaddie Manager", () => {
             expect(armorConditions[SquaddieConditionType.ARMOR]).toHaveLength(2)
         })
 
+        it("can add multiple modifiers even if the durations are the same", () => {
+            const armorNegative2Forever = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                duration: undefined,
+                amount: -2,
+            })
+            const armorPositive1Forever = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                duration: undefined,
+                amount: 1,
+            })
+
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            manager.addConditionsToSquaddie({
+                inBattleSquaddieId: inBattleSquaddie00Id!.inBattleSquaddieId,
+                outOfBattleSquaddieId:
+                    inBattleSquaddie00Id!.outOfBattleSquaddieId,
+                conditions: [armorNegative2Forever, armorPositive1Forever],
+            })
+
+            const armorConditions = manager.getSquaddieConditions(
+                inBattleSquaddie00Id!
+            )
+
+            expect(armorConditions).toEqual(
+                expect.objectContaining({
+                    [SquaddieConditionType.ARMOR]: expect.arrayContaining([
+                        armorPositive1Forever,
+                        armorNegative2Forever,
+                    ]),
+                })
+            )
+            expect(armorConditions[SquaddieConditionType.ARMOR]).toHaveLength(2)
+        })
+
         it("can add binary attribute modifiers", () => {
             const elusive2 = SquaddieConditionService.new({
                 type: SquaddieConditionType.ELUSIVE,
@@ -625,109 +663,6 @@ describe("In Battle Squaddie Manager", () => {
                 )
             })
 
-            describe("can reduce and remove conditions by amount", () => {
-                it("will remove conditions when they reach 0 amount", () => {
-                    manager.addConditionsToSquaddie({
-                        inBattleSquaddieId:
-                            inBattleSquaddie00Id!.inBattleSquaddieId,
-                        outOfBattleSquaddieId:
-                            inBattleSquaddie00Id!.outOfBattleSquaddieId,
-                        conditions: [absorbForever, absorbShortDuration],
-                    })
-
-                    manager.reduceConditionByAmount({
-                        inBattleSquaddieId:
-                            inBattleSquaddie00Id!.inBattleSquaddieId,
-                        outOfBattleSquaddieId:
-                            inBattleSquaddie00Id!.outOfBattleSquaddieId,
-                        conditionType: SquaddieConditionType.ABSORB,
-                        amount: 4,
-                    })
-
-                    const conditions = manager.getSquaddieConditions(
-                        inBattleSquaddie00Id!
-                    )
-
-                    expect(conditions).toEqual(
-                        expect.objectContaining({
-                            [SquaddieConditionType.ABSORB]: [
-                                expect.objectContaining({
-                                    limit: absorbShortDuration.limit,
-                                    amount: 3,
-                                }),
-                            ],
-                        })
-                    )
-                })
-
-                it("will ignore binary conditions since they do not have an amount", () => {
-                    manager.addConditionsToSquaddie({
-                        inBattleSquaddieId:
-                            inBattleSquaddie00Id!.inBattleSquaddieId,
-                        outOfBattleSquaddieId:
-                            inBattleSquaddie00Id!.outOfBattleSquaddieId,
-                        conditions: [elusive2],
-                    })
-
-                    manager.reduceConditionByAmount({
-                        inBattleSquaddieId:
-                            inBattleSquaddie00Id!.inBattleSquaddieId,
-                        outOfBattleSquaddieId:
-                            inBattleSquaddie00Id!.outOfBattleSquaddieId,
-                        conditionType: SquaddieConditionType.ELUSIVE,
-                    })
-
-                    const conditions = manager.getSquaddieConditions(
-                        inBattleSquaddie00Id!
-                    )
-
-                    expect(conditions).toEqual(
-                        expect.objectContaining({
-                            [SquaddieConditionType.ELUSIVE]: [
-                                expect.objectContaining({
-                                    limit: elusive2.limit,
-                                }),
-                            ],
-                        })
-                    )
-                })
-
-                it("will reduce negative durations by bringing them closer to 0", () => {
-                    manager.addConditionsToSquaddie({
-                        inBattleSquaddieId:
-                            inBattleSquaddie00Id!.inBattleSquaddieId,
-                        outOfBattleSquaddieId:
-                            inBattleSquaddie00Id!.outOfBattleSquaddieId,
-                        conditions: [armorNegative3ShortDuration],
-                    })
-
-                    manager.reduceConditionByAmount({
-                        inBattleSquaddieId:
-                            inBattleSquaddie00Id!.inBattleSquaddieId,
-                        outOfBattleSquaddieId:
-                            inBattleSquaddie00Id!.outOfBattleSquaddieId,
-                        conditionType: SquaddieConditionType.ARMOR,
-                        amount: 1,
-                    })
-
-                    const conditions = manager.getSquaddieConditions(
-                        inBattleSquaddie00Id!
-                    )
-
-                    expect(conditions).toEqual(
-                        expect.objectContaining({
-                            [SquaddieConditionType.ARMOR]:
-                                expect.arrayContaining([
-                                    expect.objectContaining({
-                                        limit: armorNegative3ShortDuration.limit,
-                                        amount: -2,
-                                    }),
-                                ]),
-                        })
-                    )
-                })
-            })
-
             describe("can dispel helpful condition", () => {
                 beforeEach(() => {
                     manager.addConditionsToSquaddie({
@@ -755,7 +690,7 @@ describe("In Battle Squaddie Manager", () => {
                                 types: [SquaddieConditionType.ELUSIVE],
                             },
                             amount: undefined,
-                        })
+                        }).dispelledConditions
                     ).toEqual({
                         [SquaddieConditionType.ELUSIVE]: [elusive2],
                     })
@@ -779,7 +714,7 @@ describe("In Battle Squaddie Manager", () => {
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
                             conditionTypes: { all: true },
                             amount: 4,
-                        })
+                        }).dispelledConditions
                     ).toEqual({
                         [SquaddieConditionType.ELUSIVE]: [elusive2],
                         [SquaddieConditionType.ABSORB]: [
@@ -918,7 +853,7 @@ describe("In Battle Squaddie Manager", () => {
                                 types: [SquaddieConditionType.SLOWED],
                             },
                             amount: 1,
-                        })
+                        }).treatedConditions
                     ).toEqual({
                         [SquaddieConditionType.SLOWED]: [
                             SquaddieConditionService.new({
@@ -1020,7 +955,7 @@ describe("In Battle Squaddie Manager", () => {
                                 inBattleSquaddie00Id.outOfBattleSquaddieId,
                             conditionTypes: { all: true },
                             amount: 2,
-                        })
+                        }).treatedConditions
                     ).toEqual({
                         [SquaddieConditionType.SLOWED]: [
                             SquaddieConditionService.new({

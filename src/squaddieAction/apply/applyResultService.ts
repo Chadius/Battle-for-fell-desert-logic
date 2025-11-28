@@ -27,6 +27,8 @@ const applyResultToSquaddie = ({
     applyDamageResultToSquaddie({ inBattleSquaddieManager, result })
     applyHealingResultToSquaddie({ inBattleSquaddieManager, result })
     applyConditionsAddResultToSquaddie({ inBattleSquaddieManager, result })
+    dispelConditionsResultToSquaddie({ inBattleSquaddieManager, result })
+    treatConditionsResultToSquaddie({ inBattleSquaddieManager, result })
 }
 
 const applyActionPointsResultToSquaddie = ({
@@ -93,5 +95,37 @@ const applyConditionsAddResultToSquaddie = ({
         inBattleSquaddieId: result.inBattleSquaddieId,
         outOfBattleSquaddieId: result.outOfBattleSquaddieId,
         conditions: result.conditionsAdded,
+    })
+}
+
+const dispelConditionsResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.dispel == undefined) return
+
+    inBattleSquaddieManager.dispelConditions({
+        inBattleSquaddieId: result.inBattleSquaddieId,
+        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        ...result.dispel,
+    })
+}
+
+const treatConditionsResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.treat == undefined) return
+
+    inBattleSquaddieManager.treatConditions({
+        inBattleSquaddieId: result.inBattleSquaddieId,
+        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        ...result.treat,
     })
 }

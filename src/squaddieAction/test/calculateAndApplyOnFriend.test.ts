@@ -339,4 +339,110 @@ describe("Squaddie Actions on a friend", () => {
             ).toHaveLength(0)
         })
     })
+
+    it("can use treat to remove conditions", () => {
+        inBattleSquaddieManager.addConditionsToSquaddie({
+            inBattleSquaddieId: targetInBattleSquaddieId,
+            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+            conditions: [
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ARMOR,
+                    amount: 3,
+                    duration: undefined,
+                }),
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ARMOR,
+                    amount: -2,
+                    duration: undefined,
+                }),
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ELUSIVE,
+                    amount: undefined,
+                    duration: undefined,
+                }),
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: undefined,
+                }),
+            ],
+        })
+
+        const treatAllAction = SquaddieActionService.new({
+            id: "treatAll",
+            name: "Treat All",
+            affiliationRelationship: {
+                self: false,
+                friend: false,
+                foe: true,
+            },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {},
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    conditions: {
+                        treat: {
+                            all: true,
+                            types: [],
+                            amount: 1,
+                        },
+                    },
+                },
+            },
+        })
+        actionManager.addOrUpdate(treatAllAction)
+
+        const results = SquaddieActionCalculator.calculateResult({
+            actor: {
+                inBattleSquaddieId: actorInBattleSquaddieId,
+                outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+            },
+            targets: [
+                {
+                    inBattleSquaddieId: targetInBattleSquaddieId,
+                    outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                },
+            ],
+            action: {
+                id: treatAllAction.id,
+                manager: actionManager,
+            },
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            inBattleSquaddieManager,
+        })
+
+        expect(results[0].outOfBattleSquaddieId).toEqual(
+            targetOutOfBattleSquaddieId
+        )
+        expect(results[0].treat!.treatedConditions).toEqual({
+            [SquaddieConditionType.SLOWED]: [
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 0,
+                    duration: undefined,
+                }),
+            ],
+            [SquaddieConditionType.ARMOR]: [
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ARMOR,
+                    amount: -1,
+                    duration: undefined,
+                }),
+            ],
+        })
+
+        ApplyResultService.applyResultsToSquaddies({
+            inBattleSquaddieManager,
+            results,
+        })
+
+        const conditions = inBattleSquaddieManager.getSquaddieConditions({
+            inBattleSquaddieId: targetInBattleSquaddieId,
+            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+        })
+        expect(conditions[SquaddieConditionType.SLOWED]).toBeUndefined()
+        expect(conditions[SquaddieConditionType.ELUSIVE]).toHaveLength(1)
+        expect(conditions[SquaddieConditionType.ARMOR]).toHaveLength(2)
+    })
 })

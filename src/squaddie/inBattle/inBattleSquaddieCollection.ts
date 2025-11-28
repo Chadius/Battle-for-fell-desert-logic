@@ -239,51 +239,6 @@ export const InBattleSquaddieCollectionService = {
             removedConditions: changeSquaddieInfo.removedConditions,
         }
     },
-    reduceConditionByAmount: ({
-        conditionType,
-        amount,
-        inBattleSquaddie,
-        outOfBattleSquaddie,
-        commitChanges,
-        collection,
-    }: {
-        collection: InBattleSquaddieCollection
-        inBattleSquaddie: InBattleSquaddie
-        outOfBattleSquaddie: OutOfBattleSquaddie
-        conditionType: TSquaddieConditionType
-        amount: number
-        commitChanges: boolean
-    }): {
-        collection: InBattleSquaddieCollection
-        removedConditions: TSquaddieConditionType[]
-    } => {
-        throwErrorsIfSquaddieIsUndefined({
-            functionName: "reduceConditionByAmount",
-            collection,
-            inBattleSquaddie,
-            outOfBattleSquaddie,
-        })
-
-        const changeSquaddieInfo =
-            InBattleSquaddieService.reduceConditionByAmount({
-                squaddie: inBattleSquaddie,
-                amount,
-                conditionType,
-            })
-
-        let modifiedCollection = commitChanges
-            ? addOrUpdateSquaddie({
-                  collection,
-                  inBattleSquaddie: changeSquaddieInfo.squaddie,
-                  outOfBattleSquaddie,
-              })
-            : collection
-
-        return {
-            collection: modifiedCollection,
-            removedConditions: changeSquaddieInfo.removedConditions,
-        }
-    },
     giveHealingToSquaddie: ({
         collection,
         outOfBattleSquaddie,
@@ -528,6 +483,11 @@ export const InBattleSquaddieCollectionService = {
                 TSquaddieConditionType
             >[]
         }
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
+        amount: number | undefined
     } => {
         throwErrorsIfSquaddieIsUndefined({
             functionName: "dispelSquaddieCondition",
@@ -551,7 +511,12 @@ export const InBattleSquaddieCollectionService = {
               })
             : collection
 
-        return { collection: modifiedCollection, dispelledConditions }
+        return {
+            collection: modifiedCollection,
+            dispelledConditions,
+            conditionTypes,
+            amount,
+        }
     },
     treatSquaddieConditions: ({
         inBattleSquaddie,
@@ -578,6 +543,11 @@ export const InBattleSquaddieCollectionService = {
                 TSquaddieConditionType
             >[]
         }
+        conditionTypes: {
+            all?: boolean
+            types?: TSquaddieConditionType[]
+        }
+        amount: number | undefined
     } => {
         throwErrorsIfSquaddieIsUndefined({
             functionName: "treatSquaddieCondition",
@@ -601,7 +571,12 @@ export const InBattleSquaddieCollectionService = {
               })
             : collection
 
-        return { collection: modifiedCollection, treatedConditions }
+        return {
+            collection: modifiedCollection,
+            treatedConditions,
+            conditionTypes,
+            amount,
+        }
     },
 }
 

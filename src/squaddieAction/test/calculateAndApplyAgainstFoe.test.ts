@@ -32,7 +32,10 @@ import { SquaddieActionCollectionService } from "../squaddieActionCollection.ts"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
 import { SquaddieActionCalculator } from "../calculate/squaddieActionCalculator.ts"
 import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
-import { SquaddieConditionType } from "../../proficiency/squaddieCondition.ts"
+import {
+    SquaddieConditionService,
+    SquaddieConditionType,
+} from "../../proficiency/squaddieCondition.ts"
 import { ApplyResultService } from "../apply/applyResultService.ts"
 
 describe("Squaddie Actions against foes", () => {
@@ -371,5 +374,104 @@ describe("Squaddie Actions against foes", () => {
                 conditionType: SquaddieConditionType.ABSORB,
             })
         ).toEqual(0)
+    })
+
+    it("can use dispel to remove conditions", () => {
+        inBattleSquaddieManager.addConditionsToSquaddie({
+            inBattleSquaddieId: targetInBattleSquaddieId,
+            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+            conditions: [
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ARMOR,
+                    amount: 3,
+                    duration: undefined,
+                }),
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ARMOR,
+                    amount: -2,
+                    duration: undefined,
+                }),
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ELUSIVE,
+                    amount: undefined,
+                    duration: undefined,
+                }),
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: undefined,
+                }),
+            ],
+        })
+
+        const dispelElusiveAction = SquaddieActionService.new({
+            id: "dispelElusive",
+            name: "Dispel Elusive",
+            affiliationRelationship: {
+                self: false,
+                friend: false,
+                foe: true,
+            },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {},
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    conditions: {
+                        dispel: {
+                            all: false,
+                            types: [SquaddieConditionType.ELUSIVE],
+                            amount: 1,
+                        },
+                    },
+                },
+            },
+        })
+        actionManager.addOrUpdate(dispelElusiveAction)
+
+        const results = SquaddieActionCalculator.calculateResult({
+            actor: {
+                inBattleSquaddieId: actorInBattleSquaddieId,
+                outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+            },
+            targets: [
+                {
+                    inBattleSquaddieId: targetInBattleSquaddieId,
+                    outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                },
+            ],
+            action: {
+                id: dispelElusiveAction.id,
+                manager: actionManager,
+            },
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            inBattleSquaddieManager,
+        })
+
+        expect(results[0].outOfBattleSquaddieId).toEqual(
+            targetOutOfBattleSquaddieId
+        )
+        expect(results[0].dispel!.dispelledConditions).toEqual({
+            [SquaddieConditionType.ELUSIVE]: [
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.ELUSIVE,
+                    amount: undefined,
+                    duration: undefined,
+                }),
+            ],
+        })
+
+        ApplyResultService.applyResultsToSquaddies({
+            inBattleSquaddieManager,
+            results,
+        })
+
+        const conditions = inBattleSquaddieManager.getSquaddieConditions({
+            inBattleSquaddieId: targetInBattleSquaddieId,
+            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+        })
+        expect(conditions[SquaddieConditionType.ELUSIVE]).toBeUndefined()
+        expect(conditions[SquaddieConditionType.ARMOR]).toHaveLength(2)
+        expect(conditions[SquaddieConditionType.SLOWED]).toHaveLength(1)
     })
 })
