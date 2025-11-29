@@ -11,6 +11,7 @@ import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
+import type { CoordinateMap } from "../../coordinateMap/coordinateMap.ts"
 
 export const SquaddieActionCalculator = {
     calculateResult: ({
@@ -31,6 +32,7 @@ export const SquaddieActionCalculator = {
             outOfBattleSquaddieId: string
         }[]
         action: { id: string; manager: SquaddieActionManager }
+        map?: CoordinateMap
     }): SquaddieActionResult[] => {
         const {
             inBattleSquaddie: actorInBattleSquaddie,
