@@ -3,6 +3,7 @@ import {
     CoordinateMapCollectionService,
 } from "./coordinateMapCollection.ts"
 import {
+    type CoordinateMap,
     CoordinateMapService,
     type OffsetCoordinate,
     type OffsetMaybeOffmapCoordinate,
@@ -218,5 +219,17 @@ export class CoordinateMapCollectionManager {
             throw new Error(
                 `[CoordinateMapCollectionManager.${callName}]: coordinateMapCollection must be defined`
             )
+    }
+
+    getMapById(mapId: string): CoordinateMap {
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            mapId,
+            this.getMapById.name
+        )
+
+        return CoordinateMapCollectionService.getMapById({
+            collection: this.coordinateMapCollection!,
+            mapId,
+        })
     }
 }

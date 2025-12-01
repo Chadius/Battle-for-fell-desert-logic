@@ -3,6 +3,7 @@ import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
+import type { CoordinateMovePath } from "../../coordinateMap/path/path.ts"
 
 export type DamageResult = {
     net: number
@@ -53,5 +54,8 @@ export interface SquaddieActionResult {
             types?: TSquaddieConditionType[]
         }
         amount: number | undefined
+    }
+    movement?: {
+        expectedPath: CoordinateMovePath
     }
 }

@@ -1,3 +1,11 @@
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.ts"
+import {
+    type CoordinateMovePath,
+    CoordinateMovePathMoveType,
+    CoordinateMovePathService,
+    type CoordinateMovePathStep,
+} from "./path/path.ts"
+
 export type OffsetCoordinate = {
     row: number
     col: number
@@ -54,7 +62,7 @@ export const CoordinateMapService = {
         squaddieId: { outOfBattle: string; inBattle: number }
         coordinate: OffsetMaybeOffmapCoordinate
     }): CoordinateMap => {
-        const copyMap = clone(map)
+        const copyMap = cloneCoordinateMap(map)
         const willMoveSquaddieOffMap =
             coordinate.row == undefined && coordinate.col == undefined
         const squaddieAtDestination =
@@ -146,7 +154,7 @@ export const CoordinateMapService = {
             ]
         if (squaddieCoordinateInfo == undefined) return map
 
-        const copyMap = clone(map)
+        const copyMap = cloneCoordinateMap(map)
 
         if (
             squaddieCoordinateInfo.row != undefined &&
@@ -196,6 +204,102 @@ export const CoordinateMapService = {
             }
         }
         return squaddieCoordinateInfo
+    },
+    calculateRoute: ({
+        map,
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        stopConditions,
+    }: {
+        map: CoordinateMap
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        inBattleSquaddieManager: InBattleSquaddieManager
+        stopConditions: {
+            desiredDestination: { row: number; col: number } | undefined
+        }[]
+    }): {
+        expectedPath: CoordinateMovePath
+    } => {
+        const startCoordinate = CoordinateMapService.getSquaddieCoordinate({
+            map,
+            squaddieId: {
+                inBattle: inBattleSquaddieId,
+                outOfBattle: outOfBattleSquaddieId,
+            },
+        })
+
+        if (
+            startCoordinate?.row == undefined ||
+            startCoordinate?.col == undefined
+        ) {
+            return {
+                expectedPath: CoordinateMovePathService.new({
+                    steps: [
+                        {
+                            row: stopConditions[0].desiredDestination?.row || 0,
+                            col: stopConditions[0].desiredDestination?.col || 0,
+                            moveType: CoordinateMovePathMoveType.START,
+                            moveCost: 0,
+                        },
+                    ],
+                }),
+            }
+        }
+
+        const steps: CoordinateMovePathStep[] = [
+            {
+                row: startCoordinate.row,
+                col: startCoordinate.row,
+                moveCost: 0,
+                moveType: CoordinateMovePathMoveType.START,
+            },
+        ]
+
+        let currentRow = startCoordinate.row
+        let currentCol = startCoordinate.col
+        let moveCost = 0
+
+        let destinationRow = stopConditions[0].desiredDestination?.row ?? 0
+        let destinationCol = stopConditions[0].desiredDestination?.col ?? 0
+
+        while (Math.abs(currentRow - destinationRow) >= 1) {
+            if (currentRow < destinationRow) {
+                currentRow += 1
+            }
+            if (currentRow > destinationRow) {
+                currentRow -= 1
+            }
+            moveCost += 1
+            steps.push({
+                row: currentRow,
+                col: currentCol,
+                moveCost,
+                moveType: CoordinateMovePathMoveType.WALK,
+            })
+        }
+
+        while (Math.abs(currentCol - destinationCol) >= 1) {
+            if (currentCol < destinationCol) {
+                currentCol += 1
+            }
+            if (currentCol > destinationCol) {
+                currentCol -= 1
+            }
+            moveCost += 1
+            steps.push({
+                row: currentRow,
+                col: currentCol,
+                moveCost,
+                moveType: CoordinateMovePathMoveType.WALK,
+            })
+        }
+
+        return {
+            expectedPath: CoordinateMovePathService.new({
+                steps,
+            }),
+        }
     },
 }
 
@@ -264,11 +368,28 @@ const convertMovementPropertiesIntoCoordinates = (
     return coordinates
 }
 
-const clone = (original: CoordinateMap): CoordinateMap => {
+const cloneCoordinateMap = (original: CoordinateMap): CoordinateMap => {
     return {
         id: original.id,
         name: original.name,
-        coordinates: [...original.coordinates],
+        coordinates: original.coordinates.map((row) =>
+            row.map((c) => cloneCoordinate(c))
+        ),
         coordinateBySquaddie: { ...original.coordinateBySquaddie },
+    }
+}
+
+const cloneCoordinate = (original: Coordinate): Coordinate => {
+    return {
+        row: original.row,
+        col: original.col,
+        movementCost: original.movementCost,
+        canStop: original.canStop,
+        squaddieId: original.squaddieId
+            ? {
+                  inBattle: original.squaddieId.inBattle,
+                  outOfBattle: original.squaddieId.outOfBattle,
+              }
+            : undefined,
     }
 }

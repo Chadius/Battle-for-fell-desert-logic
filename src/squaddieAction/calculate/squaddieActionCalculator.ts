@@ -11,7 +11,19 @@ import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
-import type { CoordinateMap } from "../../coordinateMap/coordinateMap.ts"
+import { CoordinateMapService } from "../../coordinateMap/coordinateMap.ts"
+import {
+    type CoordinateMovePath,
+    CoordinateMovePathService,
+} from "../../coordinateMap/path/path.ts"
+import type { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.ts"
+
+export type SquaddieActionDecisions = {
+    desiredMovementDestination?: {
+        row: number
+        col: number
+    }
+}
 
 export const SquaddieActionCalculator = {
     calculateResult: ({
@@ -20,6 +32,7 @@ export const SquaddieActionCalculator = {
         action,
         inBattleSquaddieManager,
         degreeOfSuccess,
+        map,
     }: {
         degreeOfSuccess: TDegreeOfSuccess
         inBattleSquaddieManager: InBattleSquaddieManager
@@ -31,8 +44,15 @@ export const SquaddieActionCalculator = {
             inBattleSquaddieId: number
             outOfBattleSquaddieId: string
         }[]
-        action: { id: string; manager: SquaddieActionManager }
-        map?: CoordinateMap
+        action: {
+            id: string
+            manager: SquaddieActionManager
+            decisions?: SquaddieActionDecisions
+        }
+        map?: {
+            mapId: string
+            manager: CoordinateMapCollectionManager
+        }
     }): SquaddieActionResult[] => {
         const {
             inBattleSquaddie: actorInBattleSquaddie,
@@ -45,6 +65,8 @@ export const SquaddieActionCalculator = {
         const squaddieAction = action.manager.get(action.id)
         const results: SquaddieActionResult[] = calculateEffectOnSquaddie({
             effect: squaddieAction.effectOnActor[degreeOfSuccess],
+            decisions: action.decisions,
+            map,
             inBattleSquaddieManager,
             actor: {
                 inBattleSquaddie: actorInBattleSquaddie,
@@ -71,6 +93,7 @@ export const SquaddieActionCalculator = {
                 })
                 return calculateEffectOnSquaddie({
                     effect: squaddieAction.effectOnTarget[degreeOfSuccess],
+                    decisions: action.decisions,
                     inBattleSquaddieManager,
                     actor: {
                         inBattleSquaddie: actorInBattleSquaddie,
@@ -119,6 +142,8 @@ const calculateEffectOnSquaddie = ({
     effect,
     target,
     inBattleSquaddieManager,
+    decisions,
+    map,
 }: {
     effect: SquaddieActionEffect | undefined
     inBattleSquaddieManager: InBattleSquaddieManager
@@ -131,6 +156,11 @@ const calculateEffectOnSquaddie = ({
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
         attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
+    decisions?: SquaddieActionDecisions
+    map?: {
+        mapId: string
+        manager: CoordinateMapCollectionManager
     }
 }): SquaddieActionResult[] => {
     if (effect == undefined) return []
@@ -165,6 +195,14 @@ const calculateEffectOnSquaddie = ({
         ...calculateConditionTreatResults({
             inBattleSquaddieManager,
             conditions: effect?.conditions?.treat,
+            ...target,
+        }),
+        ...calculateMovementResults({
+            inBattleSquaddieManager,
+            decisions,
+            movement: effect?.movement,
+            map,
+            actionPointsEffect: effect?.actionPoints,
             ...target,
         })
     )
@@ -356,6 +394,70 @@ const calculateConditionTreatResults = ({
             inBattleSquaddieId: inBattleSquaddie.id,
             outOfBattleSquaddieId: outOfBattleSquaddie.id,
             treat: treatConditionsResult,
+        },
+    ]
+}
+
+const calculateMovementResults = ({
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    inBattleSquaddieManager,
+    decisions,
+    movement,
+    map,
+    actionPointsEffect,
+}: {
+    actionPointsEffect: SquaddieActionEffect["actionPoints"] | undefined
+    movement: SquaddieActionEffect["movement"] | undefined
+    map?: {
+        mapId: string
+        manager: CoordinateMapCollectionManager
+    }
+    decisions: SquaddieActionDecisions | undefined
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): SquaddieActionResult[] => {
+    if (movement == undefined) return []
+    if (map == undefined) return []
+
+    if (
+        movement.moveToSelectedDestination &&
+        decisions?.desiredMovementDestination == undefined
+    )
+        return []
+
+    const routeInfo: {
+        expectedPath: CoordinateMovePath
+    } = CoordinateMapService.calculateRoute({
+        map: map.manager.getMapById(map.mapId),
+        inBattleSquaddieManager,
+        inBattleSquaddieId: inBattleSquaddie.id,
+        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        stopConditions: [
+            {
+                desiredDestination: decisions?.desiredMovementDestination,
+            },
+        ],
+    })
+
+    let actionPointCost = 0
+    if (actionPointsEffect?.additional?.movementPathActionPointCost)
+        actionPointCost += CoordinateMovePathService.getTotalMoveCost(
+            routeInfo.expectedPath
+        )
+
+    return [
+        {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            movement: {
+                expectedPath: routeInfo.expectedPath,
+            },
+            actionPoints: {
+                spent: actionPointCost,
+            },
         },
     ]
 }

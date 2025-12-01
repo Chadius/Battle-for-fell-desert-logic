@@ -1,17 +1,24 @@
 import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
 
 import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
+import type { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.ts"
+import { CoordinateMovePathService } from "../../coordinateMap/path/path.ts"
 
 export const ApplyResultService = {
     applyResultsToSquaddies: ({
         inBattleSquaddieManager,
         results,
+        map,
     }: {
         inBattleSquaddieManager: InBattleSquaddieManager
         results: SquaddieActionResult[]
+        map?: {
+            mapId: string
+            manager: CoordinateMapCollectionManager
+        }
     }) => {
         for (const result of results) {
-            applyResultToSquaddie({ inBattleSquaddieManager, result })
+            applyResultToSquaddie({ inBattleSquaddieManager, result, map })
         }
     },
 }
@@ -19,9 +26,14 @@ export const ApplyResultService = {
 const applyResultToSquaddie = ({
     inBattleSquaddieManager,
     result,
+    map,
 }: {
     inBattleSquaddieManager: InBattleSquaddieManager
     result: SquaddieActionResult
+    map?: {
+        mapId: string
+        manager: CoordinateMapCollectionManager
+    }
 }) => {
     applyActionPointsResultToSquaddie({ inBattleSquaddieManager, result })
     applyDamageResultToSquaddie({ inBattleSquaddieManager, result })
@@ -29,6 +41,7 @@ const applyResultToSquaddie = ({
     applyConditionsAddResultToSquaddie({ inBattleSquaddieManager, result })
     dispelConditionsResultToSquaddie({ inBattleSquaddieManager, result })
     treatConditionsResultToSquaddie({ inBattleSquaddieManager, result })
+    moveSquaddie({ result, map })
 }
 
 const applyActionPointsResultToSquaddie = ({
@@ -127,5 +140,30 @@ const treatConditionsResultToSquaddie = ({
         inBattleSquaddieId: result.inBattleSquaddieId,
         outOfBattleSquaddieId: result.outOfBattleSquaddieId,
         ...result.treat,
+    })
+}
+
+const moveSquaddie = ({
+    result,
+    map,
+}: {
+    result: SquaddieActionResult
+    map?: {
+        mapId: string
+        manager: CoordinateMapCollectionManager
+    }
+}) => {
+    if (map == undefined) return
+    if (result.movement == undefined) return
+
+    map.manager.moveSquaddie({
+        mapId: map.mapId,
+        squaddieId: {
+            inBattle: result.inBattleSquaddieId,
+            outOfBattle: result.outOfBattleSquaddieId,
+        },
+        coordinate: CoordinateMovePathService.getEndCoordinate(
+            result.movement.expectedPath
+        ),
     })
 }

@@ -36,6 +36,11 @@ import {
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
+import { CoordinateMapService } from "../../coordinateMap/coordinateMap.ts"
+import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
+import { CoordinateMovePathService } from "../../coordinateMap/path/path.ts"
+import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection.ts"
+import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.ts"
 
 describe("Squaddie resolves actions on themself", () => {
     let endTurnAction: SquaddieAction
@@ -281,5 +286,152 @@ describe("Squaddie resolves actions on themself", () => {
                 conditionType: SquaddieConditionType.ARMOR,
             })
         ).toEqual(1)
+    })
+
+    describe("Simple Movement on a map", () => {
+        let moveAction: SquaddieAction
+        let mapManager: CoordinateMapCollectionManager
+
+        beforeEach(() => {
+            moveAction = SquaddieActionService.new({
+                id: "move",
+                name: "Move",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: {
+                            spent: 0,
+                            additional: {
+                                movementPathActionPointCost: true,
+                            },
+                        },
+                        movement: {
+                            moveToSelectedDestination: true,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(moveAction)
+
+            let mapCollection = CoordinateMapCollectionService.new()
+            mapCollection = CoordinateMapCollectionService.addOrUpdateMap({
+                collection: mapCollection,
+                id: "map",
+                name: "map",
+                movementProperties: ["1 1 1 1 1 1 1 1 1 1 "],
+            })
+            mapManager = new CoordinateMapCollectionManager(mapCollection)
+            mapManager.addSquaddie({
+                mapId: "map",
+                squaddieId: {
+                    inBattle: inBattleSquaddieId,
+                    outOfBattle: outOfBattleSquaddieId,
+                },
+                coordinate: { row: 0, col: 0 },
+            })
+        })
+
+        describe("Generate and apply results", () => {
+            let results: SquaddieActionResult[]
+
+            beforeEach(() => {
+                results = SquaddieActionCalculator.calculateResult({
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    inBattleSquaddieManager,
+                    actor: {
+                        inBattleSquaddieId,
+                        outOfBattleSquaddieId,
+                    },
+                    targets: [],
+                    map: {
+                        manager: mapManager,
+                        mapId: "map",
+                    },
+                    action: {
+                        id: moveAction.id,
+                        manager: actionManager,
+                        decisions: {
+                            desiredMovementDestination: {
+                                row: 0,
+                                col: 2,
+                            },
+                        },
+                    },
+                })
+            })
+
+            it("can generate a result to move", () => {
+                const resultWithMovement = results.find(
+                    (r) => r.movement != undefined
+                )
+                expect(resultWithMovement).toBeDefined()
+                expect(
+                    CoordinateMovePathService.getStartCoordinate(
+                        resultWithMovement!.movement!.expectedPath
+                    )
+                ).toEqual(
+                    expect.objectContaining({
+                        row: 0,
+                        col: 0,
+                    })
+                )
+                expect(
+                    CoordinateMovePathService.getEndCoordinate(
+                        resultWithMovement!.movement!.expectedPath
+                    )
+                ).toEqual(
+                    expect.objectContaining({
+                        row: 0,
+                        col: 2,
+                    })
+                )
+            })
+
+            describe("can apply results to move the squaddie", () => {
+                beforeEach(() => {
+                    ApplyResultService.applyResultsToSquaddies({
+                        inBattleSquaddieManager,
+                        results,
+                        map: {
+                            manager: mapManager,
+                            mapId: "map",
+                        },
+                    })
+                })
+                it("will update the squaddie's position", () => {
+                    expect(
+                        CoordinateMapService.getSquaddieCoordinate({
+                            map: mapManager.getMapById("map"),
+                            squaddieId: {
+                                inBattle: inBattleSquaddieId,
+                                outOfBattle: outOfBattleSquaddieId,
+                            },
+                        })
+                    ).toEqual(
+                        expect.objectContaining({
+                            row: 0,
+                            col: 2,
+                        })
+                    )
+                })
+
+                it("will consume action points related to the movement cost", () => {
+                    const resultWithMovement = results.find(
+                        (r) => r.movement != undefined
+                    )
+
+                    expect(
+                        inBattleSquaddieManager.getActionPoints({
+                            inBattleSquaddieId,
+                            outOfBattleSquaddieId,
+                        }).current
+                    ).toEqual(
+                        3 -
+                            CoordinateMovePathService.getTotalMoveCost(
+                                resultWithMovement!.movement!.expectedPath
+                            )
+                    )
+                })
+            })
+        })
     })
 })

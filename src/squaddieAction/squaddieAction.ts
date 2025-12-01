@@ -33,6 +33,9 @@ interface SquaddieActionTargeting {
 export interface SquaddieActionEffect {
     actionPoints?: {
         spent: number | "all"
+        additional?: {
+            movementPathActionPointCost?: boolean
+        }
     }
     damage?: {
         raw: number
@@ -55,6 +58,9 @@ export interface SquaddieActionEffect {
             types: TSquaddieConditionType[]
             amount: number | undefined
         }
+    }
+    movement?: {
+        moveToSelectedDestination: boolean
     }
 }
 

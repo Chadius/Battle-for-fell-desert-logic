@@ -29,6 +29,15 @@ export const CoordinateMapCollectionService = {
         })
         return newCollection
     },
+    getMapById: ({
+        collection,
+        mapId,
+    }: {
+        collection: CoordinateMapCollection
+        mapId: string
+    }) => {
+        return collection.mapById[mapId]
+    },
 }
 
 const clone = (original: CoordinateMapCollection): CoordinateMapCollection => {
