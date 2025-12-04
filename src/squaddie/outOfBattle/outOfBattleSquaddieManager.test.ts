@@ -41,7 +41,9 @@ describe("Out of Battle Squaddie Manager", () => {
         )
         attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
             id: "test sheet",
-            movementPerAction: 2,
+            movement: {
+                distancePerAction: 2,
+            },
             maxHitPoints: 5,
             proficiencyLevels: {
                 [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,

@@ -14,10 +14,11 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
     new: (): OutOfBattleSquaddieAttributeSheetCollection =>
         constructNewCollection(),
     addOrUpdateAttributeSheet: (
-        params: Partial<OutOfBattleSquaddieAttributeSheet> & {
+        params: Partial<Omit<OutOfBattleSquaddieAttributeSheet, "movement">> & {
             collection: OutOfBattleSquaddieAttributeSheetCollection
             id: string
             attributeScores: { [key in AttributeScoreType]: number }
+            movement: Partial<OutOfBattleSquaddieAttributeSheet["movement"]>
         }
     ): OutOfBattleSquaddieAttributeSheetCollection => {
         const { collection, id } = params

@@ -86,7 +86,9 @@ describe("Squaddie Actions on a friend", () => {
 
         soldierAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
             id: "soldier",
-            movementPerAction: 2,
+            movement: {
+                distancePerAction: 2,
+            },
             maxHitPoints: 5,
             attributeScores: {
                 [AttributeScore.BODY]: 5,
