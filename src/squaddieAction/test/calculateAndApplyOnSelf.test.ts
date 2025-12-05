@@ -1,36 +1,46 @@
-import {beforeEach, describe, expect, it} from "vitest"
-import {type SquaddieAction, SquaddieActionService,} from "../squaddieAction.ts"
-import {SquaddieActionManager} from "../squaddieActionManager.ts"
+import { beforeEach, describe, expect, it } from "vitest"
+import {
+    type SquaddieAction,
+    SquaddieActionService,
+} from "../squaddieAction.ts"
+import { SquaddieActionManager } from "../squaddieActionManager.ts"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
 } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import {
-    OutOfBattleSquaddieAttributeSheetCollectionService
-} from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
-import {InBattleSquaddieManager} from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
+import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
 } from "../../squaddie/inBattle/inBattleSquaddieCollection.ts"
-import {OutOfBattleSquaddieManager} from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
-import {OutOfBattleSquaddieCollectionService} from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
-import {AttributeScore} from "../../proficiency/attributeScore.ts"
-import {ProficiencyLevel, ProficiencyType,} from "../../proficiency/proficiencyLevel.ts"
-import {type OutOfBattleSquaddie, OutOfBattleSquaddieService,} from "../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
-import {SquaddieAffiliation} from "../../squaddie/outOfBattle/affiliation.ts"
-import {SquaddieActionCollectionService} from "../squaddieActionCollection.ts"
-import {ActionRange} from "../actionRange.ts"
-import {CoordinateGeneratorShape} from "../../coordinateMap/shape.ts"
-import {SquaddieActionCalculator} from "../calculate/squaddieActionCalculator.ts"
-import {DegreeOfSuccess} from "../../degreesOfSuccess/degreeOfSuccess.ts"
-import {ApplyResultService} from "../apply/applyResultService.ts"
-import {SquaddieConditionService, SquaddieConditionType,} from "../../proficiency/squaddieCondition.ts"
-import {CoordinateMapService} from "../../coordinateMap/coordinateMap.ts"
-import type {SquaddieActionResult} from "../calculate/squaddieActionResult.ts"
-import {CoordinateMovePathService} from "../../coordinateMap/path/path.ts"
-import {CoordinateMapCollectionService} from "../../coordinateMap/coordinateMapCollection.ts"
-import {CoordinateMapCollectionManager} from "../../coordinateMap/coordinateMapManager.ts"
+import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
+import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
+import { AttributeScore } from "../../proficiency/attributeScore.ts"
+import {
+    ProficiencyLevel,
+    ProficiencyType,
+} from "../../proficiency/proficiencyLevel.ts"
+import {
+    type OutOfBattleSquaddie,
+    OutOfBattleSquaddieService,
+} from "../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
+import { SquaddieAffiliation } from "../../squaddie/outOfBattle/affiliation.ts"
+import { SquaddieActionCollectionService } from "../squaddieActionCollection.ts"
+import { ActionRange } from "../actionRange.ts"
+import { CoordinateGeneratorShape } from "../../coordinateMap/shape.ts"
+import { SquaddieActionCalculator } from "../calculate/squaddieActionCalculator.ts"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
+import { ApplyResultService } from "../apply/applyResultService.ts"
+import {
+    SquaddieConditionService,
+    SquaddieConditionType,
+} from "../../proficiency/squaddieCondition.ts"
+import { CoordinateMapService } from "../../coordinateMap/coordinateMap.ts"
+import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
+import { CoordinateMovePathService } from "../../coordinateMap/path/path.ts"
+import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection.ts"
+import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.ts"
 
 describe("Squaddie resolves actions on themself", () => {
     let endTurnAction: SquaddieAction
