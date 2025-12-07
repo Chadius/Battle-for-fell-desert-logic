@@ -301,6 +301,27 @@ export const CoordinateMapService = {
             }),
         }
     },
+    getNumberOfRows: ({ map }: { map: CoordinateMap }): number => {
+        throwIfMapIsUndefined(map, "getNumberOfRows")
+        return map.coordinates.length
+    },
+    getNumberOfColumns: ({ map }: { map: CoordinateMap }): number => {
+        throwIfMapIsUndefined(map, "getNumberOfColumns")
+        return map.coordinates[0].length
+    },
+    getMoveCost: ({
+        map,
+        row,
+        col,
+    }: {
+        map: CoordinateMap
+        row: number
+        col: number
+    }): number | undefined => {
+        throwIfMapIsUndefined(map, "getNumberOfColumns")
+        throwIfCoordinateIsOffMap(map, row, col, "getNumberOfColumns")
+        return map.coordinates[row][col].movementCost
+    },
 }
 
 const convertMovementPropertiesIntoCoordinates = (
@@ -391,5 +412,30 @@ const cloneCoordinate = (original: Coordinate): Coordinate => {
                   outOfBattle: original.squaddieId.outOfBattle,
               }
             : undefined,
+    }
+}
+
+const throwIfMapIsUndefined = (path: CoordinateMap, callName: string) => {
+    if (path == undefined)
+        throw new Error(
+            `[CoordinateMapService.${callName}]: Map must be defined`
+        )
+}
+
+const throwIfCoordinateIsOffMap = (
+    map: CoordinateMap,
+    row: number,
+    col: number,
+    callName: string
+) => {
+    if (
+        row < 0 ||
+        row >= CoordinateMapService.getNumberOfRows({ map }) ||
+        col < 0 ||
+        col >= CoordinateMapService.getNumberOfColumns({ map })
+    ) {
+        throw new Error(
+            `[CoordinatePathMapService.${callName}]: Coordinate (${row}, ${col}) is off map`
+        )
     }
 }
