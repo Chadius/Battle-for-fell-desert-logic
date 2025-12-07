@@ -25,4 +25,7 @@ export const OutOfBattleSquaddieService = {
             affiliation,
         }
     },
+    clone: (original: OutOfBattleSquaddie): OutOfBattleSquaddie => {
+        return { ...original }
+    },
 }

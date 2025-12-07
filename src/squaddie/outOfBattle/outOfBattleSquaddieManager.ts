@@ -31,7 +31,7 @@ export class OutOfBattleSquaddieManager {
             OutOfBattleSquaddieAttributeSheetCollectionService.addOrUpdateAttributeSheet(
                 {
                     collection: this.attributeSheetCollection!,
-                    ...attributeSheet,
+                    attributeSheet,
                 }
             )
     }
@@ -40,12 +40,20 @@ export class OutOfBattleSquaddieManager {
         this.throwIfAttributeSheetCollectionIsUndefined(
             this.getAttributeSheet.name
         )
-        return OutOfBattleSquaddieAttributeSheetCollectionService.getAttributeSheet(
-            {
-                collection: this.attributeSheetCollection!,
-                id: attributeId,
-            }
-        )
+        let attributeSheet =
+            OutOfBattleSquaddieAttributeSheetCollectionService.getAttributeSheet(
+                {
+                    collection: this.attributeSheetCollection!,
+                    id: attributeId,
+                }
+            )
+        if (attributeSheet == undefined) {
+            const callName = "getAttributeSheet"
+            throw new Error(
+                `[OutOfBattleSquaddieManager.${callName}]: no attributeSheet ${attributeId} found`
+            )
+        }
+        return attributeSheet
     }
 
     addOrUpdateSquaddie(squaddie: OutOfBattleSquaddie) {
@@ -81,12 +89,13 @@ export class OutOfBattleSquaddieManager {
         if (rawSquaddie == undefined) return undefined
 
         const attributeSheetId = rawSquaddie.attributeSheetId
-        const attributeSheet = this.getAttributeSheet(attributeSheetId)
-        if (attributeSheet == undefined) return undefined
-
-        return {
-            attributeSheet,
-            squaddie: rawSquaddie,
+        try {
+            return {
+                attributeSheet: this.getAttributeSheet(attributeSheetId),
+                squaddie: rawSquaddie,
+            }
+        } catch {
+            return undefined
         }
     }
 

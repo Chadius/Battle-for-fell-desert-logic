@@ -1,54 +1,75 @@
 import type { SquaddieAction } from "./squaddieAction.ts"
 
 export interface SquaddieActionCollection {
-    actionById: {
-        [id: string]: SquaddieAction
-    }
+    actionById: Map<string, SquaddieAction>
 }
 
 export const SquaddieActionCollectionService = {
     new: (): SquaddieActionCollection => constructNewCollection(),
-    addOrUpdateAction: ({
+    addOrUpdate: ({
         collection,
         squaddieAction,
     }: {
         collection: SquaddieActionCollection
         squaddieAction: SquaddieAction
     }): SquaddieActionCollection => {
+        throwIfCollectionIsUndefined(collection, "addOrUpdate")
         const newCollection = clone(collection)
-        newCollection.actionById[squaddieAction.id] = squaddieAction
+        newCollection.actionById.set(squaddieAction.id, squaddieAction)
         return newCollection
     },
-    getAction: ({
+    get: ({
         collection,
         id,
     }: {
         collection: SquaddieActionCollection
         id: string
-    }) => {
-        return collection.actionById[id] ?? undefined
+    }): SquaddieAction | undefined => {
+        throwIfCollectionIsUndefined(collection, "get")
+        return collection.actionById.get(id)
     },
-    removeAction: ({
+    remove: ({
         collection,
         actionId,
     }: {
         collection: SquaddieActionCollection
         actionId: string
     }) => {
+        throwIfCollectionIsUndefined(collection, "remove")
         const newCollection = clone(collection)
-        delete newCollection.actionById[actionId]
+        newCollection.actionById.delete(actionId)
         return newCollection
+    },
+    has: ({
+        collection,
+        id,
+    }: {
+        collection: SquaddieActionCollection
+        id: string
+    }): boolean => {
+        throwIfCollectionIsUndefined(collection, "has")
+        return collection.actionById.has(id)
     },
 }
 
 const constructNewCollection = (): SquaddieActionCollection => ({
-    actionById: {},
+    actionById: new Map(),
 })
 
 const clone = (
     original: SquaddieActionCollection
 ): SquaddieActionCollection => {
     return {
-        actionById: { ...original.actionById },
+        actionById: new Map(original.actionById),
     }
+}
+
+const throwIfCollectionIsUndefined = (
+    collection: SquaddieActionCollection,
+    callName: string
+) => {
+    if (collection == undefined)
+        throw new Error(
+            `[SquaddieActionCollection.${callName}]: collection must be defined`
+        )
 }

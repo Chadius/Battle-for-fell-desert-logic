@@ -45,4 +45,33 @@ export const OutOfBattleSquaddieAttributeSheetService = {
             attributeScores,
         }
     },
+    clone: (
+        original: OutOfBattleSquaddieAttributeSheet
+    ): OutOfBattleSquaddieAttributeSheet => {
+        const newProficiencyLevels: {
+            [key in TProficiencyType]?: TProficiencyLevel
+        } = {}
+        for (const [proficiencyType, proficiencyLevel] of Object.entries(
+            original.proficiencyLevels
+        )) {
+            newProficiencyLevels[proficiencyType as TProficiencyType] =
+                proficiencyLevel
+        }
+
+        const newAttributeScores: { [key in AttributeScoreType]: number } = {
+            ...original.attributeScores,
+        }
+        for (const [attributeScoreType, score] of Object.entries(
+            original.attributeScores
+        )) {
+            newAttributeScores[attributeScoreType as AttributeScoreType] = score
+        }
+
+        return {
+            ...original,
+            movement: { ...original.movement },
+            proficiencyLevels: newProficiencyLevels,
+            attributeScores: newAttributeScores,
+        }
+    },
 }

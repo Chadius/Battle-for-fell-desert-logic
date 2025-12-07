@@ -315,11 +315,13 @@ describe("Squaddie resolves actions on themself", () => {
             actionManager.addOrUpdate(moveAction)
 
             let mapCollection = CoordinateMapCollectionService.new()
-            mapCollection = CoordinateMapCollectionService.addOrUpdateMap({
+            mapCollection = CoordinateMapCollectionService.addOrUpdate({
                 collection: mapCollection,
-                id: "map",
-                name: "map",
-                movementProperties: ["1 1 1 1 1 1 1 1 1 1 "],
+                map: CoordinateMapService.new({
+                    id: "map",
+                    name: "map",
+                    movementProperties: ["1 1 1 1 1 1 1 1 1 1 "],
+                }),
             })
             mapManager = new CoordinateMapCollectionManager(mapCollection)
             mapManager.addSquaddie({

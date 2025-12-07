@@ -4,14 +4,12 @@ import {
 } from "./outOfBattleSquaddie.ts"
 
 export interface OutOfBattleSquaddieCollection {
-    outOfBattleSquaddieById: {
-        [key: string]: OutOfBattleSquaddie
-    }
+    outOfBattleSquaddieById: Map<string, OutOfBattleSquaddie>
 }
 
 export const OutOfBattleSquaddieCollectionService = {
     new: (): OutOfBattleSquaddieCollection => ({
-        outOfBattleSquaddieById: {},
+        outOfBattleSquaddieById: new Map(),
     }),
     addOrUpdateOutOfBattleSquaddie: ({
         collection,
@@ -25,7 +23,8 @@ export const OutOfBattleSquaddieCollectionService = {
             collection: OutOfBattleSquaddieCollection
         }): OutOfBattleSquaddieCollection => {
         const newCollection = clone(collection)
-        newCollection.outOfBattleSquaddieById[id] =
+        newCollection.outOfBattleSquaddieById.set(
+            id,
             OutOfBattleSquaddieService.new({
                 id,
                 name,
@@ -33,6 +32,7 @@ export const OutOfBattleSquaddieCollectionService = {
                 actionIds,
                 affiliation,
             })
+        )
         return newCollection
     },
     getSquaddie: ({
@@ -42,7 +42,7 @@ export const OutOfBattleSquaddieCollectionService = {
         collection: OutOfBattleSquaddieCollection
         id: string
     }): OutOfBattleSquaddie | undefined => {
-        return collection.outOfBattleSquaddieById[id] ?? undefined
+        return collection.outOfBattleSquaddieById.get(id)
     },
     deleteSquaddie: ({
         collection,
@@ -52,7 +52,7 @@ export const OutOfBattleSquaddieCollectionService = {
         id: string
     }) => {
         const newCollection = clone(collection)
-        delete newCollection.outOfBattleSquaddieById[id]
+        newCollection.outOfBattleSquaddieById.delete(id)
         return newCollection
     },
     getAllAttributeIds: ({
@@ -73,7 +73,18 @@ export const OutOfBattleSquaddieCollectionService = {
 const clone = (
     original: OutOfBattleSquaddieCollection
 ): OutOfBattleSquaddieCollection => {
+    const outOfBattleSquaddieById: Map<string, OutOfBattleSquaddie> = new Map()
+    for (const [
+        id,
+        outOfBattleSquaddie,
+    ] of original.outOfBattleSquaddieById.entries()) {
+        outOfBattleSquaddieById.set(
+            id,
+            OutOfBattleSquaddieService.clone(outOfBattleSquaddie)
+        )
+    }
+
     return {
-        outOfBattleSquaddieById: { ...original.outOfBattleSquaddieById },
+        outOfBattleSquaddieById,
     }
 }

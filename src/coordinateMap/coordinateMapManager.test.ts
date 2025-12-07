@@ -4,6 +4,7 @@ import {
     CoordinateMapCollectionService,
 } from "./coordinateMapCollection.ts"
 import { CoordinateMapCollectionManager } from "./coordinateMapManager.ts"
+import { CoordinateMapService } from "./coordinateMap.ts"
 
 describe("Coordinate Map Manager", () => {
     let coordinateMapCollection: CoordinateMapCollection
@@ -15,15 +16,13 @@ describe("Coordinate Map Manager", () => {
             manager = new CoordinateMapCollectionManager(
                 coordinateMapCollection
             )
-            manager.addOrUpdateMap({
-                id: "testMap",
-                name: "testMap",
-                movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
+            manager.addOrUpdate({
+                map: CoordinateMapService.new({
+                    id: "testMap",
+                    name: "testMap",
+                    movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
+                }),
             })
-        })
-
-        it("can list all known maps", () => {
-            expect(manager.getAllMapIds()).toEqual(["testMap"])
         })
 
         it("should know the dimensions of coordinate map", () => {
@@ -124,11 +123,17 @@ describe("Coordinate Map Manager", () => {
         beforeEach(() => {
             coordinateMapCollection = CoordinateMapCollectionService.new()
             coordinateMapCollection =
-                CoordinateMapCollectionService.addOrUpdateMap({
+                CoordinateMapCollectionService.addOrUpdate({
                     collection: coordinateMapCollection,
-                    id: "testMap",
-                    name: "testMap",
-                    movementProperties: ["1 1 1 1 ", " 1 1 1 1 ", "1 1 1 1 "],
+                    map: CoordinateMapService.new({
+                        id: "testMap",
+                        name: "testMap",
+                        movementProperties: [
+                            "1 1 1 1 ",
+                            " 1 1 1 1 ",
+                            "1 1 1 1 ",
+                        ],
+                    }),
                 })
             manager = new CoordinateMapCollectionManager(
                 coordinateMapCollection

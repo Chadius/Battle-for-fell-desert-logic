@@ -41,6 +41,7 @@ describe("Squaddie Action Collection Manager", () => {
 
     it("can add an action and retrieve it", () => {
         manager.addOrUpdate(longswordAttackAction)
+        expect(manager.has(longswordAttackAction.id)).toBeTruthy()
         expect(manager.get(longswordAttackAction.id)).toEqual(
             longswordAttackAction
         )

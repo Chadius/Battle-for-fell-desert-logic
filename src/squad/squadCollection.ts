@@ -2,18 +2,15 @@ import { type Squad, SquadService } from "./squad.ts"
 import type { TSquaddieRole } from "./roles.ts"
 
 export interface SquadCollection {
-    squadsById: {
-        [id: string]: Squad
-    }
+    squadsById: Map<string, Squad>
 }
 
 export const SquadCollectionService = {
     new: (): SquadCollection => {
         return {
-            squadsById: {},
+            squadsById: new Map(),
         }
     },
-
     addOrUpdateSquad: ({
         collection,
         squad,
@@ -21,7 +18,6 @@ export const SquadCollectionService = {
         collection: SquadCollection
         squad: Squad
     }): SquadCollection => addOrUpdateSquad({ collection, squad }),
-
     getSquad: ({
         collection,
         id,
@@ -29,7 +25,8 @@ export const SquadCollectionService = {
         collection: SquadCollection
         id: string
     }): Squad | undefined => {
-        return collection.squadsById[id]
+        throwIfCollectionIsUndefined(collection, "getSquad")
+        return collection.squadsById.get(id)
     },
 
     addSquaddie: ({
@@ -45,26 +42,17 @@ export const SquadCollectionService = {
         inBattleSquaddieId: number
         role: TSquaddieRole
     }): SquadCollection => {
-        const squad = collection.squadsById[squadId]
+        throwIfCollectionIsUndefined(collection, "addSquaddie")
+        const squad = collection.squadsById.get(squadId)
         if (squad == undefined) {
             return collection
         }
-
-        const newSquaddies = { ...squad.squaddies }
-        if (newSquaddies[outOfBattleSquaddieId]) {
-            newSquaddies[outOfBattleSquaddieId] = {
-                ...newSquaddies[outOfBattleSquaddieId],
-            }
-        } else {
-            newSquaddies[outOfBattleSquaddieId] = {}
-        }
-        newSquaddies[outOfBattleSquaddieId][inBattleSquaddieId] = { role }
-
-        const updatedSquad: Squad = {
-            ...squad,
-            squaddies: newSquaddies,
-        }
-
+        const updatedSquad = SquadService.addOrUpdateSquaddie({
+            squad,
+            outOfBattleSquaddieId,
+            inBattleSquaddieId,
+            role,
+        })
         return addOrUpdateSquad({ collection, squad: updatedSquad })
     },
 
@@ -85,21 +73,22 @@ export const SquadCollectionService = {
               inBattleSquaddieId: number
           }
         | undefined => {
-        const squad = collection.squadsById[squadId]
+        const squad = collection.squadsById.get(squadId)
         if (squad == undefined) {
             return undefined
         }
 
-        const squaddieData =
-            squad.squaddies[outOfBattleSquaddieId]?.[inBattleSquaddieId]
+        const role = SquadService.getSquaddieRole({
+            squad,
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
 
-        return squaddieData != undefined
-            ? {
-                  outOfBattleSquaddieId,
-                  inBattleSquaddieId,
-                  ...squaddieData,
-              }
-            : undefined
+        return {
+            outOfBattleSquaddieId,
+            inBattleSquaddieId,
+            role,
+        }
     },
 
     removeSquaddie: ({
@@ -113,35 +102,30 @@ export const SquadCollectionService = {
         outOfBattleSquaddieId: string
         inBattleSquaddieId: number
     }): SquadCollection => {
-        if (
-            collection.squadsById[squadId]?.squaddies[outOfBattleSquaddieId]?.[
-                inBattleSquaddieId
-            ] == undefined
-        ) {
-            return collection
-        }
-
+        throwIfCollectionIsUndefined(collection, "removeSquaddie")
         const newCollection = clone(collection)
 
-        let newSquad = SquadService.removeSquaddie({
-            squad: newCollection.squadsById[squadId],
-            outOfBattleSquaddieId,
-            inBattleSquaddieId,
-        })
+        if (!newCollection.squadsById.has(squadId)) return newCollection
 
-        return addOrUpdateSquad({ collection: newCollection, squad: newSquad })
+        return addOrUpdateSquad({
+            collection: newCollection,
+            squad: SquadService.removeSquaddie({
+                squad: newCollection.squadsById.get(squadId)!,
+                outOfBattleSquaddieId,
+                inBattleSquaddieId,
+            }),
+        })
     },
 }
 
 const clone = (collection: SquadCollection): SquadCollection => {
-    const newSquad: {
-        [id: string]: Squad
-    } = {}
-    for (const squadId in collection.squadsById) {
-        newSquad[squadId] = collection.squadsById[squadId]
+    const newSquadsById: Map<string, Squad> = new Map()
+    for (const [squadId, squad] of collection.squadsById.entries()) {
+        newSquadsById.set(squadId, SquadService.clone(squad))
     }
+
     return {
-        squadsById: newSquad,
+        squadsById: newSquadsById,
     }
 }
 
@@ -152,7 +136,18 @@ const addOrUpdateSquad = ({
     collection: SquadCollection
     squad: Squad
 }): SquadCollection => {
+    throwIfCollectionIsUndefined(collection, "addOrUpdateSquad")
     const newSquad = clone(collection)
-    newSquad.squadsById[squad.id] = squad
+    newSquad.squadsById.set(squad.id, squad)
     return newSquad
+}
+
+const throwIfCollectionIsUndefined = (
+    collection: SquadCollection,
+    callName: string
+) => {
+    if (collection == undefined)
+        throw new Error(
+            `[SquadCollection.${callName}]: collection must be defined`
+        )
 }

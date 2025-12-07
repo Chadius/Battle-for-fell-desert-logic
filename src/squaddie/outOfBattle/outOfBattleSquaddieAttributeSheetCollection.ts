@@ -2,29 +2,27 @@ import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
 } from "./outOfBattleSquaddieAttributeSheet"
-import { type AttributeScoreType } from "../../proficiency/attributeScore.ts"
 
 export interface OutOfBattleSquaddieAttributeSheetCollection {
-    sheetById: {
-        [key: string]: OutOfBattleSquaddieAttributeSheet
-    }
+    sheetById: Map<string, OutOfBattleSquaddieAttributeSheet>
 }
 
 export const OutOfBattleSquaddieAttributeSheetCollectionService = {
     new: (): OutOfBattleSquaddieAttributeSheetCollection =>
         constructNewCollection(),
-    addOrUpdateAttributeSheet: (
-        params: Partial<Omit<OutOfBattleSquaddieAttributeSheet, "movement">> & {
-            collection: OutOfBattleSquaddieAttributeSheetCollection
-            id: string
-            attributeScores: { [key in AttributeScoreType]: number }
-            movement: Partial<OutOfBattleSquaddieAttributeSheet["movement"]>
-        }
-    ): OutOfBattleSquaddieAttributeSheetCollection => {
-        const { collection, id } = params
+    addOrUpdateAttributeSheet: ({
+        collection,
+        attributeSheet,
+    }: {
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }): OutOfBattleSquaddieAttributeSheetCollection => {
+        throwIfCollectionIsUndefined(
+            collection,
+            "OutOfBattleSquaddieAttributeSheetCollection"
+        )
         const newCollection = clone(collection)
-        newCollection.sheetById[id] =
-            OutOfBattleSquaddieAttributeSheetService.new(params)
+        newCollection.sheetById.set(attributeSheet.id, attributeSheet)
         return newCollection
     },
     getAttributeSheet: ({
@@ -34,7 +32,8 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
         collection: OutOfBattleSquaddieAttributeSheetCollection
         id: string
     }) => {
-        return collection.sheetById[id] ?? undefined
+        throwIfCollectionIsUndefined(collection, "getAttributeSheet")
+        return collection.sheetById.get(id)
     },
     onlyKeepTheseAttributeIds: ({
         collection,
@@ -43,9 +42,11 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
         collection: OutOfBattleSquaddieAttributeSheetCollection
         idsToKeep: string[]
     }): OutOfBattleSquaddieAttributeSheetCollection => {
+        throwIfCollectionIsUndefined(collection, "onlyKeepTheseAttributeIds")
         const newCollection = constructNewCollection()
         for (const id in idsToKeep) {
-            newCollection.sheetById[id] = collection.sheetById[id] ?? undefined
+            if (collection.sheetById.has(id))
+                newCollection.sheetById.set(id, collection.sheetById.get(id)!)
         }
         return newCollection
     },
@@ -53,13 +54,32 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
 
 const constructNewCollection =
     (): OutOfBattleSquaddieAttributeSheetCollection => ({
-        sheetById: {},
+        sheetById: new Map(),
     })
 
 const clone = (
     original: OutOfBattleSquaddieAttributeSheetCollection
 ): OutOfBattleSquaddieAttributeSheetCollection => {
-    return {
-        sheetById: { ...original.sheetById },
+    const newSheetById: Map<string, OutOfBattleSquaddieAttributeSheet> =
+        new Map()
+    for (const [id, attributeSheet] of original.sheetById.entries()) {
+        newSheetById.set(
+            id,
+            OutOfBattleSquaddieAttributeSheetService.clone(attributeSheet)
+        )
     }
+
+    return {
+        sheetById: newSheetById,
+    }
+}
+
+const throwIfCollectionIsUndefined = (
+    collection: OutOfBattleSquaddieAttributeSheetCollection,
+    callName: string
+) => {
+    if (collection == undefined)
+        throw new Error(
+            `[OutOfBattleSquaddieAttributeSheetCollection.${callName}]: collection must be defined`
+        )
 }

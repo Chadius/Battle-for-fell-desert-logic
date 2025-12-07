@@ -22,12 +22,15 @@ describe("Squad Manager", () => {
             id: "squad",
             name: "Squad",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddies: {
-                soldier: {
-                    0: { role: SquaddieRole.NONE },
-                    1: { role: SquaddieRole.NONE },
-                },
-            },
+            squaddies: new Map([
+                [
+                    "soldier",
+                    new Map([
+                        [0, SquaddieRole.NONE],
+                        [1, SquaddieRole.NONE],
+                    ]),
+                ],
+            ]),
         })
         manager.addSquad(squad)
         expect(manager.getSquad(squad.id)).toEqual(squad)
@@ -37,12 +40,15 @@ describe("Squad Manager", () => {
             id: "squad",
             name: "Squad",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddies: {
-                soldier: {
-                    0: { role: SquaddieRole.NONE },
-                    1: { role: SquaddieRole.NONE },
-                },
-            },
+            squaddies: new Map([
+                [
+                    "soldier",
+                    new Map([
+                        [0, SquaddieRole.NONE],
+                        [1, SquaddieRole.NONE],
+                    ]),
+                ],
+            ]),
         })
         manager.addSquad(squad)
         manager.addSquaddie({
@@ -63,12 +69,15 @@ describe("Squad Manager", () => {
             id: "squad",
             name: "Squad",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddies: {
-                soldier: {
-                    0: { role: SquaddieRole.NONE },
-                    1: { role: SquaddieRole.NONE },
-                },
-            },
+            squaddies: new Map([
+                [
+                    "soldier",
+                    new Map([
+                        [0, SquaddieRole.NONE],
+                        [1, SquaddieRole.NONE],
+                    ]),
+                ],
+            ]),
         })
         manager.addSquad(squad)
         manager.addSquaddie({

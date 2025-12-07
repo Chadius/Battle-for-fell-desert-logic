@@ -52,7 +52,9 @@ describe("In Battle Squaddie Manager", () => {
         )
         attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
             id: "test sheet",
-            movementPerAction: 2,
+            movement: {
+                distancePerAction: 2,
+            },
             maxHitPoints: 5,
             attributeScores: {
                 [AttributeScore.BODY]: 5,

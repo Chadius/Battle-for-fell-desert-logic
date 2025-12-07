@@ -13,15 +13,23 @@ export class SquaddieActionManager {
 
     addOrUpdate(action: SquaddieAction) {
         this.throwIfActionCollectionIsUndefined(this.addOrUpdate.name)
-        this.collection = SquaddieActionCollectionService.addOrUpdateAction({
+        this.collection = SquaddieActionCollectionService.addOrUpdate({
             collection: this.collection!,
             squaddieAction: action,
         })
     }
 
+    has(id: string): boolean {
+        this.throwIfActionCollectionIsUndefined(this.has.name)
+        return SquaddieActionCollectionService.has({
+            collection: this.collection!,
+            id,
+        })
+    }
+
     get(actionId: string): SquaddieAction {
         this.throwIfActionCollectionIsUndefined(this.get.name)
-        const action = SquaddieActionCollectionService.getAction({
+        const action = SquaddieActionCollectionService.get({
             collection: this.collection!,
             id: actionId,
         })
@@ -34,7 +42,7 @@ export class SquaddieActionManager {
 
     remove(actionId: string) {
         this.throwIfActionCollectionIsUndefined(this.remove.name)
-        this.collection = SquaddieActionCollectionService.removeAction({
+        this.collection = SquaddieActionCollectionService.remove({
             collection: this.collection!,
             actionId,
         })

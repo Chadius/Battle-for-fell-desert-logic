@@ -69,7 +69,9 @@ describe("Out of Battle Squaddie Manager", () => {
         expect(manager.getAttributeSheet(attributeSheet.id)).toEqual(
             attributeSheet
         )
-        expect(manager.getAttributeSheet("does not exist")).toBeUndefined()
+        expect(() => manager.getAttributeSheet("does not exist")).toThrow(
+            "no attributeSheet"
+        )
     })
 
     it("can add a squaddie", () => {
@@ -112,6 +114,8 @@ describe("Out of Battle Squaddie Manager", () => {
         expect(manager.getAttributeSheet(attributeSheet.id)).toBeDefined()
 
         manager.deleteAllOrphanedAttributeSheets()
-        expect(manager.getAttributeSheet(attributeSheet.id)).toBeUndefined()
+        expect(() => manager.getAttributeSheet(attributeSheet.id)).toThrow(
+            "no attributeSheet"
+        )
     })
 })

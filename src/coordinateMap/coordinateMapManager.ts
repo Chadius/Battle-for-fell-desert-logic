@@ -16,41 +16,27 @@ export class CoordinateMapCollectionManager {
         this.coordinateMapCollection = coordinateMapCollection
     }
 
-    addOrUpdateMap({
-        id,
-        name,
-        movementProperties,
-    }: {
-        id: string
-        name: string
-        movementProperties: string[]
-    }) {
-        this.throwIfCoordinateMapCollectionIdIsUndefined(
-            this.addOrUpdateMap.name
-        )
+    addOrUpdate({ map }: { map: CoordinateMap }) {
+        this.throwIfCoordinateMapCollectionIdIsUndefined(this.addOrUpdate.name)
         this.coordinateMapCollection =
-            CoordinateMapCollectionService.addOrUpdateMap({
+            CoordinateMapCollectionService.addOrUpdate({
                 collection: this.coordinateMapCollection!,
-                id,
-                name,
-                movementProperties,
+                map,
             })
     }
 
-    getAllMapIds(): string[] {
-        this.throwIfCoordinateMapCollectionIdIsUndefined(this.getAllMapIds.name)
-        return Object.keys(this.coordinateMapCollection!.mapById)
-    }
-
-    getMapDimensions(mapId: string): { width: number; height: number } {
+    getMapDimensions(id: string): { width: number; height: number } {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
-            mapId,
+            id,
             this.getMapDimensions.name
         )
-        const coordinateMap = this.coordinateMapCollection!.mapById[mapId]
-        if (coordinateMap.coordinates == undefined)
+        const coordinateMap = CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id: id,
+        })
+        if (coordinateMap?.coordinates == undefined)
             throw new Error(
-                `[CoordinateMapCollectionManager.getMapDimensions] mapId ${mapId} must have 1 row and at least one column`
+                `[CoordinateMapCollectionManager.getMapDimensions] mapId ${id} must have 1 row and at least one column`
             )
         return {
             width: coordinateMap.coordinates[0].length,
@@ -74,8 +60,11 @@ export class CoordinateMapCollectionManager {
             id,
             this.getMovementPropertiesAtCoordinate.name
         )
-        const coordinateMap = this.coordinateMapCollection!.mapById[id]
-        if (coordinateMap.coordinates[row]?.[col] == undefined) {
+        const coordinateMap = CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id,
+        })
+        if (coordinateMap?.coordinates[row]?.[col] == undefined) {
             return {
                 movementCost: undefined,
                 canStop: false,
@@ -101,8 +90,11 @@ export class CoordinateMapCollectionManager {
             id,
             this.isCoordinateOnMap.name
         )
-        const coordinateMap = this.coordinateMapCollection!.mapById[id]
-        return coordinateMap.coordinates[row]?.[col] != undefined
+        const coordinateMap = CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id,
+        })
+        return coordinateMap?.coordinates[row]?.[col] != undefined
     }
 
     addSquaddie({
@@ -118,12 +110,23 @@ export class CoordinateMapCollectionManager {
             mapId,
             this.addSquaddie.name
         )
-        const map = this.coordinateMapCollection!.mapById[mapId]
-        this.coordinateMapCollection!.mapById[mapId] =
-            CoordinateMapService.addSquaddie({
-                map,
-                squaddieId,
-                coordinate: coordinate ?? { row: undefined, col: undefined },
+        const map = CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id: mapId,
+        })
+        if (map == undefined) return
+
+        this.coordinateMapCollection =
+            CoordinateMapCollectionService.addOrUpdate({
+                collection: this.coordinateMapCollection!,
+                map: CoordinateMapService.addSquaddie({
+                    map,
+                    squaddieId,
+                    coordinate: coordinate ?? {
+                        row: undefined,
+                        col: undefined,
+                    },
+                }),
             })
     }
 
@@ -146,7 +149,11 @@ export class CoordinateMapCollectionManager {
             mapId,
             this.getSquaddieCoordinate.name
         )
-        const map = this.coordinateMapCollection!.mapById[mapId]
+        const map = CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id: mapId,
+        })
+        if (map == undefined) return undefined
         return CoordinateMapService.getSquaddieCoordinate({ map, squaddieId })
     }
 
@@ -161,11 +168,17 @@ export class CoordinateMapCollectionManager {
             mapId,
             this.removeSquaddie.name
         )
-        const map = this.coordinateMapCollection!.mapById[mapId]
-        this.coordinateMapCollection!.mapById[mapId] =
-            CoordinateMapService.removeSquaddie({
-                map,
-                squaddieId,
+        const map = CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id: mapId,
+        })
+        this.coordinateMapCollection =
+            CoordinateMapCollectionService.addOrUpdate({
+                collection: this.coordinateMapCollection!,
+                map: CoordinateMapService.removeSquaddie({
+                    map: map!,
+                    squaddieId,
+                }),
             })
     }
 
@@ -185,11 +198,15 @@ export class CoordinateMapCollectionManager {
             mapId,
             this.getSquaddieAtCoordinate.name
         )
-        const map = this.coordinateMapCollection!.mapById[mapId]
+        const map = CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id: mapId,
+        })
+        if (map == undefined) return undefined
         return CoordinateMapService.getSquaddieAtCoordinate({ map, coordinate })
     }
 
-    getAllSquaddieCoordinatesOnMap(mapId: string): {
+    getAllSquaddieCoordinatesOnMap(id: string): {
         squaddieId: {
             outOfBattle: string
             inBattle: number
@@ -197,20 +214,29 @@ export class CoordinateMapCollectionManager {
         coordinate: OffsetMaybeOffmapCoordinate
     }[] {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
-            mapId,
+            id,
             this.getAllSquaddieCoordinatesOnMap.name
         )
-        const map = this.coordinateMapCollection!.mapById[mapId]
+        const map = CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id: id,
+        })
+        if (map == undefined) return []
         return CoordinateMapService.getAllSquaddieCoordinatesOnMap(map)
     }
 
     private throwIfCoordinateMapCollectionWithMapIdIsUndefined(
-        mapId: string,
+        id: string,
         callName: string
     ) {
-        if (this.coordinateMapCollection?.mapById[mapId] == undefined)
+        if (
+            !CoordinateMapCollectionService.has({
+                collection: this.coordinateMapCollection!,
+                id: id,
+            })
+        )
             throw new Error(
-                `[CoordinateMapCollectionManager.${callName}]: mapId ${mapId} must be defined`
+                `[CoordinateMapCollectionManager.${callName}]: mapId ${id} must be defined`
             )
     }
 
@@ -221,15 +247,15 @@ export class CoordinateMapCollectionManager {
             )
     }
 
-    getMapById(mapId: string): CoordinateMap {
+    getMapById(id: string): CoordinateMap {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
-            mapId,
+            id,
             this.getMapById.name
         )
 
-        return CoordinateMapCollectionService.getMapById({
+        return CoordinateMapCollectionService.get({
             collection: this.coordinateMapCollection!,
-            mapId,
-        })
+            id: id,
+        })!
     }
 }
