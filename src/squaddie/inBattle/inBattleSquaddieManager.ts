@@ -19,6 +19,7 @@ import {
 import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
 import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager.ts"
+import type { SquaddieItem } from "../../squaddieItem/squaddieItem.ts"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection
@@ -592,7 +593,7 @@ export class InBattleSquaddieManager {
         })
     }
 
-    getProficiencyTotalBonus({
+    getProficiencyBonus({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
         type,
@@ -600,17 +601,36 @@ export class InBattleSquaddieManager {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
         type: TProficiencyType
-    }): number {
+    }): {
+        total: number
+        rank: number
+        attributeScore: number
+        proficiencyLevel: number
+        passiveItemBonus: number
+        passiveItemPenalty: number
+        conditionBonus: number
+        conditionPenalty: number
+    } {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return -1
 
-        return InBattleSquaddieCollectionService.getProficiencyTotalBonus({
+        let passiveItems: SquaddieItem[] = []
+        if (this.squaddieItemManager) {
+            passiveItems = [
+                ...this.getPassiveItemIds({
+                    inBattleSquaddieId,
+                    outOfBattleSquaddieId,
+                }).keys(),
+            ].map((itemId: string) => this.squaddieItemManager!.get(itemId))
+        }
+
+        return InBattleSquaddieCollectionService.getProficiencyBonus({
             collection: this.inBattleSquaddieCollection!,
             ...squaddieInfo,
             type,
+            passiveItems,
         })
     }
 
@@ -940,7 +960,7 @@ export class InBattleSquaddieManager {
             })
     }
 
-    getPassiveItems({
+    getPassiveItemIds({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
     }: {
@@ -950,7 +970,7 @@ export class InBattleSquaddieManager {
         string,
         { passiveProficiencyBonuses: Map<TProficiencyType, number> }
     > {
-        this.throwIfSquaddieItemManagerIsUndefined(this.getPassiveItems.name)
+        this.throwIfSquaddieItemManagerIsUndefined(this.getPassiveItemIds.name)
         const squaddieItems = this.getAllSquaddieItemIds({
             inBattleSquaddieId,
             outOfBattleSquaddieId,

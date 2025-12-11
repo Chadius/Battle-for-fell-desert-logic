@@ -59,6 +59,7 @@ describe("In Battle Squaddie Manager", () => {
             proficiencyLevels: {
                 [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
                 [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
+                [ProficiencyType.ARMOR]: ProficiencyLevel.NOVICE,
             },
             rank: 3,
             items: {
@@ -1190,10 +1191,10 @@ describe("In Battle Squaddie Manager", () => {
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
             expect(
-                manager.getProficiencyTotalBonus({
+                manager.getProficiencyBonus({
                     ...inBattleSquaddie00Id!,
                     type: ProficiencyType.DEFEND_BODY,
-                })
+                }).total
             ).toEqual(
                 attributeSheet.rank +
                     attributeSheet.attributeScores[AttributeScore.BODY] +
@@ -1203,14 +1204,14 @@ describe("In Battle Squaddie Manager", () => {
             )
 
             expect(
-                manager.getProficiencyTotalBonus({
+                manager.getProficiencyBonus({
                     ...inBattleSquaddie00Id!,
                     type: ProficiencyType.ARMOR,
-                })
+                }).total
             ).toEqual(
                 attributeSheet.rank +
                     ProficiencyLevelConst.bonusByProficiencyLevel[
-                        ProficiencyLevel.UNTRAINED
+                        ProficiencyLevel.NOVICE
                     ]
             )
         })
@@ -1309,7 +1310,7 @@ describe("In Battle Squaddie Manager", () => {
         })
         it("knows which items are providing passive bonuses", () => {
             expect(
-                manager.getPassiveItems({
+                manager.getPassiveItemIds({
                     ...inBattleSquaddie00Id!,
                 })
             ).toEqual(
@@ -1327,6 +1328,32 @@ describe("In Battle Squaddie Manager", () => {
                         },
                     ],
                 ])
+            )
+        })
+        it("can add passive item bonuses with conditions", () => {
+            const armorPositive1LongDuration = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                duration: 10,
+                amount: 1,
+            })
+            manager.addConditionsToSquaddie({
+                inBattleSquaddieId: inBattleSquaddie00Id!.inBattleSquaddieId,
+                outOfBattleSquaddieId:
+                    inBattleSquaddie00Id!.outOfBattleSquaddieId,
+                conditions: [armorPositive1LongDuration],
+            })
+            expect(
+                manager.getProficiencyBonus({
+                    ...inBattleSquaddie00Id!,
+                    type: ProficiencyType.ARMOR,
+                }).total
+            ).toEqual(
+                attributeSheet.rank +
+                    ProficiencyLevelConst.bonusByProficiencyLevel[
+                        ProficiencyLevel.NOVICE
+                    ] +
+                    2 +
+                    armorPositive1LongDuration.amount!
             )
         })
     })

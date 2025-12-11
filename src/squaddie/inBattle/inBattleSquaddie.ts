@@ -10,6 +10,7 @@ import {
 import {
     ProficiencyLevel,
     ProficiencyLevelConst,
+    ProficiencyType,
     type TProficiencyLevel,
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
@@ -291,20 +292,34 @@ export const InBattleSquaddieService = {
             attributeSheet,
             type,
         }),
-    getProficiencyTotalBonus: ({
+    getProficiencyBonus: ({
+        squaddie,
         attributeSheet,
         type,
+        passiveItems,
     }: {
+        squaddie: InBattleSquaddie
         attributeSheet: OutOfBattleSquaddieAttributeSheet
         type: TProficiencyType
-    }): number => {
-        let totalBonus = attributeSheet.rank
+        passiveItems: SquaddieItem[]
+    }): {
+        total: number
+        rank: number
+        attributeScore: number
+        proficiencyLevel: number
+        passiveItemBonus: number
+        passiveItemPenalty: number
+        conditionBonus: number
+        conditionPenalty: number
+    } => {
+        const rank = attributeSheet.rank
 
+        let attributeScore = 0
         if (
             ProficiencyLevelConst.attributeScoreByProficiencyType[type] !=
             undefined
         ) {
-            totalBonus += getAttributeScore({
+            attributeScore = getAttributeScore({
                 attributeSheet,
                 type: ProficiencyLevelConst.attributeScoreByProficiencyType[
                     type
@@ -312,14 +327,49 @@ export const InBattleSquaddieService = {
             })
         }
 
-        const proficiencyLevel = getProficiencyLevel({
-            attributeSheet,
-            type,
-        })
+        const proficiencyLevel =
+            ProficiencyLevelConst.bonusByProficiencyLevel[
+                getProficiencyLevel({
+                    attributeSheet,
+                    type,
+                })
+            ]
 
-        totalBonus +=
-            ProficiencyLevelConst.bonusByProficiencyLevel[proficiencyLevel]
-        return totalBonus
+        let { conditionBonus, conditionPenalty } = calculateConditionAmount(
+            type,
+            squaddie
+        )
+
+        let passiveItemBonus: number = 0
+        let passiveItemPenalty: number = 0
+        const itemBonuses: number[] = passiveItems
+            .filter((item) => item.passiveProficiencyBonuses.has(type))
+            .map((item) => item.passiveProficiencyBonuses.get(type)!)
+        if (itemBonuses.length > 0) {
+            const maxBonus = Math.max(...itemBonuses)
+            if (maxBonus > 0) passiveItemBonus = maxBonus
+
+            const maxPenalty = Math.min(...itemBonuses)
+            if (maxPenalty < 0) passiveItemPenalty = maxPenalty
+        }
+
+        return {
+            total:
+                rank +
+                attributeScore +
+                proficiencyLevel +
+                passiveItemBonus +
+                passiveItemPenalty +
+                conditionBonus +
+                conditionPenalty,
+            rank,
+            attributeScore,
+            proficiencyLevel,
+            passiveItemBonus,
+            passiveItemPenalty,
+            conditionBonus,
+            conditionPenalty,
+        }
     },
     dispelSquaddieConditions: ({
         squaddie,
@@ -868,4 +918,23 @@ const reduceDispelOrTreatSquaddieConditionAmounts = (
         reducedConditionsForType.push(condition)
     }
     return { newConditionsForType, reducedConditionsForType }
+}
+
+const calculateConditionAmount = (
+    type: TProficiencyType,
+    squaddie: InBattleSquaddie
+): {
+    conditionBonus: number
+    conditionPenalty: number
+} => {
+    let conditionBonus: number = 0
+    let conditionPenalty: number = 0
+    if (type == ProficiencyType.ARMOR) {
+        const amount = sumOfConditionAmount(
+            squaddie.conditions[SquaddieConditionType.ARMOR]
+        )
+        if (amount > 0) conditionBonus = amount
+        if (amount < 0) conditionPenalty = amount
+    }
+    return { conditionBonus, conditionPenalty }
 }

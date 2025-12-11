@@ -451,19 +451,30 @@ export const InBattleSquaddieCollectionService = {
             type,
         })
     },
-    getProficiencyTotalBonus: ({
+    getProficiencyBonus: ({
         collection,
         inBattleSquaddie,
         outOfBattleSquaddie,
         attributeSheet,
         type,
+        passiveItems,
     }: {
         collection: InBattleSquaddieCollection
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
         attributeSheet: OutOfBattleSquaddieAttributeSheet
         type: TProficiencyType
-    }): number => {
+        passiveItems: SquaddieItem[]
+    }): {
+        total: number
+        rank: number
+        attributeScore: number
+        proficiencyLevel: number
+        passiveItemBonus: number
+        passiveItemPenalty: number
+        conditionBonus: number
+        conditionPenalty: number
+    } => {
         throwIfCollectionIsUndefined(collection, "getProficiencyTotalBonus")
         throwErrorsIfSquaddieIsUndefined({
             functionName: "getProficiencyTotalBonus",
@@ -472,9 +483,11 @@ export const InBattleSquaddieCollectionService = {
             outOfBattleSquaddie,
         })
 
-        return InBattleSquaddieService.getProficiencyTotalBonus({
+        return InBattleSquaddieService.getProficiencyBonus({
+            squaddie: inBattleSquaddie,
             attributeSheet,
             type,
+            passiveItems,
         })
     },
     dispelSquaddieConditions: ({
