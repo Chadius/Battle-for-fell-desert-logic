@@ -18,10 +18,12 @@ import {
 } from "../../proficiency/proficiencyLevel.ts"
 import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
+import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager.ts"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection
     outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
+    squaddieItemManager?: SquaddieItemManager
 
     constructor(
         inBattleSquaddieCollection?: InBattleSquaddieCollection,
@@ -29,6 +31,10 @@ export class InBattleSquaddieManager {
     ) {
         this.inBattleSquaddieCollection = inBattleSquaddieCollection
         this.outOfBattleSquaddieManager = outOfBattleSquaddieManager
+    }
+
+    setSquaddieItemManager(squaddieItemManager: SquaddieItemManager) {
+        this.squaddieItemManager = squaddieItemManager
     }
 
     createNewSquaddie({
@@ -622,20 +628,6 @@ export class InBattleSquaddieManager {
         return outOfBattleSquaddieInfo
     }
 
-    private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {
-        if (this.inBattleSquaddieCollection == undefined)
-            throw new Error(
-                `[InBattleSquaddieManager.${callName}]: inBattleSquaddieCollection must be defined`
-            )
-    }
-
-    private throwIfOutOfBattleSquaddieManagerIsUndefined(callName: string) {
-        if (this.outOfBattleSquaddieManager == undefined)
-            throw new Error(
-                `[InBattleSquaddieManager.${callName}]: outOfBattleSquaddieManager must be defined`
-            )
-    }
-
     previewDispelConditions({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
@@ -860,5 +852,143 @@ export class InBattleSquaddieManager {
             amount,
             commitChanges,
         })
+    }
+
+    getAllSquaddieItemIds({
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): string[] {
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(
+            this.getAllSquaddieItemIds.name
+        )
+
+        return this.outOfBattleSquaddieManager!.getItemIds({
+            squaddieId: outOfBattleSquaddieId,
+        })
+    }
+
+    getConsumableItems({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): Map<string, { numberOfUses: number }> {
+        this.throwIfSquaddieItemManagerIsUndefined(this.getConsumableItems.name)
+
+        const squaddieItems = this.getAllSquaddieItemIds({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const { inBattleSquaddie } = this.getSquaddie({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+        const alreadyConsumedItems = new Map<string, number>()
+        for (const itemId of inBattleSquaddie.itemIdsUsed) {
+            alreadyConsumedItems.set(
+                itemId,
+                (alreadyConsumedItems.get(itemId) ?? 0) + 1
+            )
+        }
+
+        const mapEntries: [string, { numberOfUses: number }][] = squaddieItems
+            .map((itemId) => this.squaddieItemManager!.get(itemId))
+            .filter((item) => item.numberOfUses != undefined)
+            .map((item) => [
+                item.id,
+                {
+                    numberOfUses:
+                        item.numberOfUses! -
+                        (alreadyConsumedItems.get(item.id) ?? 0),
+                },
+            ])
+
+        return new Map(mapEntries)
+    }
+
+    useItem({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        itemId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        itemId: string
+    }): void {
+        this.throwIfSquaddieItemManagerIsUndefined(this.useItem.name)
+
+        this.throwIfInBattleSquaddieCollectionIsUndefined(this.useItem.name)
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(this.useItem.name)
+
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+
+        const item = this.squaddieItemManager!.get(itemId)
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.useItem({
+                collection: this.inBattleSquaddieCollection!,
+                inBattleSquaddie: squaddieInfo.inBattleSquaddie,
+                outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
+                item,
+            })
+    }
+
+    getPassiveItems({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): Map<
+        string,
+        { passiveProficiencyBonuses: Map<TProficiencyType, number> }
+    > {
+        this.throwIfSquaddieItemManagerIsUndefined(this.getPassiveItems.name)
+        const squaddieItems = this.getAllSquaddieItemIds({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const mapEntries: [
+            string,
+            { passiveProficiencyBonuses: Map<TProficiencyType, number> },
+        ][] = squaddieItems
+            .map((itemId) => this.squaddieItemManager!.get(itemId))
+            .filter((item) => item.passiveProficiencyBonuses.size > 0)
+            .map((item) => [
+                item.id,
+                {
+                    passiveProficiencyBonuses: new Map(
+                        item.passiveProficiencyBonuses
+                    ),
+                },
+            ])
+        return new Map(mapEntries)
+    }
+
+    private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {
+        if (this.inBattleSquaddieCollection == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager.${callName}]: inBattleSquaddieCollection must be defined`
+            )
+    }
+    private throwIfOutOfBattleSquaddieManagerIsUndefined(callName: string) {
+        if (this.outOfBattleSquaddieManager == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager.${callName}]: outOfBattleSquaddieManager must be defined`
+            )
+    }
+    private throwIfSquaddieItemManagerIsUndefined(callName: string) {
+        if (this.squaddieItemManager == undefined)
+            throw new Error(
+                `[InBattleSquaddieManager.${callName}]: squaddieItemManager must be defined`
+            )
     }
 }

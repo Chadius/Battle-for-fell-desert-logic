@@ -15,6 +15,7 @@ import {
 } from "../../proficiency/proficiencyLevel.ts"
 import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
+import type { SquaddieItem } from "../../squaddieItem/squaddieItem.ts"
 
 export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: Map<string, InBattleSquaddie[]>
@@ -570,7 +571,7 @@ export const InBattleSquaddieCollectionService = {
     } => {
         throwIfCollectionIsUndefined(collection, "treatSquaddieConditions")
         throwErrorsIfSquaddieIsUndefined({
-            functionName: "treatSquaddieCondition",
+            functionName: "treatSquaddieConditions",
             collection,
             inBattleSquaddie,
             outOfBattleSquaddie,
@@ -597,6 +598,36 @@ export const InBattleSquaddieCollectionService = {
             conditionTypes,
             amount,
         }
+    },
+    useItem: ({
+        collection,
+        item,
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        item: SquaddieItem
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "useItem")
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "useItem",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
+        })
+
+        const squaddie = InBattleSquaddieService.useItem({
+            squaddie: inBattleSquaddie,
+            item,
+        })
+
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: squaddie,
+            outOfBattleSquaddie,
+        })
     },
 }
 

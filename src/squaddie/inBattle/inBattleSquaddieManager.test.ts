@@ -1,12 +1,4 @@
-import {
-    afterEach,
-    beforeEach,
-    describe,
-    expect,
-    it,
-    type MockInstance,
-    vi,
-} from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { OutOfBattleSquaddieCollectionService } from "../outOfBattle/outOfBattleSquaddieCollection.ts"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
 import {
@@ -22,6 +14,7 @@ import {
     ProficiencyLevel,
     ProficiencyLevelConst,
     ProficiencyType,
+    type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.ts"
 import {
     type InBattleSquaddieCollection,
@@ -35,12 +28,14 @@ import {
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition.ts"
 import { SquaddieAffiliation } from "../outOfBattle/affiliation.ts"
+import { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager.ts"
+import { SquaddieItemCollectionService } from "../../squaddieItem/squaddieItemCollection.ts"
+import { SquaddieItemService } from "../../squaddieItem/squaddieItem.ts"
 
 describe("In Battle Squaddie Manager", () => {
     let attributeSheet: OutOfBattleSquaddieAttributeSheet
     let outOfBattleSquaddie0: OutOfBattleSquaddie
     let outOfBattleSquaddie1: OutOfBattleSquaddie
-    let outOfBattleSquaddieManagerSpy: MockInstance
 
     let inBattleSquaddieCollection: InBattleSquaddieCollection
     let manager: InBattleSquaddieManager
@@ -66,7 +61,13 @@ describe("In Battle Squaddie Manager", () => {
                 [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
             },
             rank: 3,
+            items: {
+                itemIds: ["plateMail", "healScroll"],
+                maxCapacity: 3,
+            },
         })
+        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
         outOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
             id: "squaddie0",
             name: "Squaddie0",
@@ -83,35 +84,14 @@ describe("In Battle Squaddie Manager", () => {
             affiliation: SquaddieAffiliation.NONE,
         })
 
-        outOfBattleSquaddieManagerSpy = vi
-            .spyOn(outOfBattleSquaddieManager, "getSquaddie")
-            .mockImplementation((squaddieId: string) => {
-                switch (squaddieId) {
-                    case outOfBattleSquaddie0.id:
-                        return {
-                            squaddie: outOfBattleSquaddie0,
-                            attributeSheet,
-                        }
-                    case outOfBattleSquaddie1.id:
-                        return {
-                            squaddie: outOfBattleSquaddie1,
-                            attributeSheet,
-                        }
-                    default:
-                        return undefined
-                }
-            })
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(outOfBattleSquaddie0)
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(outOfBattleSquaddie1)
 
         inBattleSquaddieCollection = InBattleSquaddieCollectionService.new()
         manager = new InBattleSquaddieManager(
             inBattleSquaddieCollection,
             outOfBattleSquaddieManager
         )
-    })
-
-    afterEach(() => {
-        if (outOfBattleSquaddieManagerSpy)
-            outOfBattleSquaddieManagerSpy.mockRestore()
     })
 
     describe("Adding squaddies", () => {
@@ -157,7 +137,6 @@ describe("In Battle Squaddie Manager", () => {
                     attributeSheet,
                 })
             )
-            expect(outOfBattleSquaddieManagerSpy).toBeCalled()
         })
 
         it("can store multiple squaddies with the same out of battle id", () => {
@@ -1233,6 +1212,121 @@ describe("In Battle Squaddie Manager", () => {
                     ProficiencyLevelConst.bonusByProficiencyLevel[
                         ProficiencyLevel.UNTRAINED
                     ]
+            )
+        })
+    })
+
+    describe("items", () => {
+        let itemManager: SquaddieItemManager
+        let inBattleSquaddie00Id:
+            | {
+                  inBattleSquaddieId: number
+                  outOfBattleSquaddieId: string
+              }
+            | undefined = undefined
+
+        beforeEach(() => {
+            itemManager = new SquaddieItemManager(
+                SquaddieItemCollectionService.new()
+            )
+            itemManager.addOrUpdate(
+                SquaddieItemService.new({
+                    id: "plateMail",
+                    name: "Plate Mail",
+                    numberOfUses: undefined,
+                    passiveProficiencyBonuses: {
+                        [ProficiencyType.ARMOR]: 2,
+                    },
+                    actionIds: [],
+                })
+            )
+            itemManager.addOrUpdate(
+                SquaddieItemService.new({
+                    id: "healScroll",
+                    name: "Heal Scroll",
+                    numberOfUses: 2,
+                    actionIds: [],
+                })
+            )
+            itemManager.addOrUpdate(
+                SquaddieItemService.new({
+                    id: "dynamite",
+                    name: "Dynamite Stick",
+                    numberOfUses: 1,
+                    actionIds: ["dynamiteExplosion"],
+                })
+            )
+
+            manager.setSquaddieItemManager(itemManager)
+
+            inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+        })
+        it("knows what items are available", () => {
+            expect(
+                manager.getAllSquaddieItemIds({
+                    ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(["plateMail", "healScroll"])
+        })
+        it("can consume items and will not see it as available", () => {
+            expect(
+                manager.getConsumableItems({
+                    ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(
+                new Map<string, { numberOfUses: number }>([
+                    ["healScroll", { numberOfUses: 2 }],
+                ])
+            )
+            manager.useItem({
+                ...inBattleSquaddie00Id!,
+                itemId: "healScroll",
+            })
+            expect(
+                manager.getConsumableItems({
+                    ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(
+                new Map<string, { numberOfUses: number }>([
+                    ["healScroll", { numberOfUses: 1 }],
+                ])
+            )
+            manager.useItem({
+                ...inBattleSquaddie00Id!,
+                itemId: "healScroll",
+            })
+            expect(
+                manager.getConsumableItems({
+                    ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(
+                new Map<string, { numberOfUses: number }>([
+                    ["healScroll", { numberOfUses: 0 }],
+                ])
+            )
+        })
+        it("knows which items are providing passive bonuses", () => {
+            expect(
+                manager.getPassiveItems({
+                    ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(
+                new Map<
+                    string,
+                    { passiveProficiencyBonuses: Map<TProficiencyType, number> }
+                >([
+                    [
+                        "plateMail",
+                        {
+                            passiveProficiencyBonuses: new Map<
+                                TProficiencyType,
+                                number
+                            >([[ProficiencyType.ARMOR, 2]]),
+                        },
+                    ],
+                ])
             )
         })
     })

@@ -15,6 +15,7 @@ import {
 } from "../../proficiency/proficiencyLevel.ts"
 import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
+import type { SquaddieItem } from "../../squaddieItem/squaddieItem.ts"
 
 export interface InBattleSquaddie {
     id: number
@@ -36,6 +37,7 @@ export interface InBattleSquaddie {
     actionIds: {
         natural: string[]
     }
+    itemIdsUsed: string[]
 }
 
 export const InBattleSquaddieService = {
@@ -63,6 +65,7 @@ export const InBattleSquaddieService = {
             actionIds: {
                 natural: [...outOfBattleSquaddie.actionIds],
             },
+            itemIdsUsed: [],
         }
     },
     calculateConditionAmount: ({
@@ -383,6 +386,17 @@ export const InBattleSquaddieService = {
             squaddie: cloneSquaddie,
             treatedConditions: reducedConditions,
         }
+    },
+    useItem: ({
+        squaddie,
+        item,
+    }: {
+        squaddie: InBattleSquaddie
+        item: SquaddieItem
+    }): InBattleSquaddie => {
+        const newSquaddie = clone(squaddie)
+        newSquaddie.itemIdsUsed.push(item.id)
+        return newSquaddie
     },
 }
 

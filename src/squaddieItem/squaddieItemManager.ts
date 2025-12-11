@@ -35,7 +35,7 @@ export class SquaddieItemManager {
         })
         if (item == undefined) {
             throw new Error(
-                `[SquaddieItemManager.${this.get.name}]: no item found`
+                `[SquaddieItemManager.${this.get.name}]: no item ${squaddieItemId} found`
             )
         }
         return item
