@@ -13,25 +13,15 @@ export const OutOfBattleSquaddieCollectionService = {
     }),
     addOrUpdateOutOfBattleSquaddie: ({
         collection,
-        id,
-        name,
-        attributeSheetId,
-        actionIds,
-        affiliation,
-    }: Partial<OutOfBattleSquaddie> &
-        Omit<OutOfBattleSquaddie, "actionIds"> & {
-            collection: OutOfBattleSquaddieCollection
-        }): OutOfBattleSquaddieCollection => {
+        outOfBattleSquaddie,
+    }: {
+        collection: OutOfBattleSquaddieCollection
+        outOfBattleSquaddie: OutOfBattleSquaddie
+    }): OutOfBattleSquaddieCollection => {
         const newCollection = clone(collection)
         newCollection.outOfBattleSquaddieById.set(
-            id,
-            OutOfBattleSquaddieService.new({
-                id,
-                name,
-                attributeSheetId,
-                actionIds,
-                affiliation,
-            })
+            outOfBattleSquaddie.id,
+            outOfBattleSquaddie
         )
         return newCollection
     },

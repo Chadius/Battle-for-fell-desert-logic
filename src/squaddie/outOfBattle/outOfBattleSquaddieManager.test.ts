@@ -54,6 +54,10 @@ describe("Out of Battle Squaddie Manager", () => {
                 [AttributeScore.MIND]: 7,
                 [AttributeScore.SOUL]: 3,
             },
+            items: {
+                maxCapacity: 3,
+                itemIds: ["plateMail", "powerRune"],
+            },
         })
         squaddie = OutOfBattleSquaddieService.new({
             id: "squaddie",
@@ -117,5 +121,114 @@ describe("Out of Battle Squaddie Manager", () => {
         expect(() => manager.getAttributeSheet(attributeSheet.id)).toThrow(
             "no attributeSheet"
         )
+    })
+
+    describe("item management", () => {
+        beforeEach(() => {
+            manager.addOrUpdateAttributeSheet(attributeSheet)
+            manager.addOrUpdateSquaddie(squaddie)
+        })
+        it("can get item max capacity with the attribute sheet", () => {
+            expect(
+                manager.getItemCapacity({
+                    attributeSheetId: attributeSheet.id,
+                })
+            ).toEqual(attributeSheet.items.maxCapacity)
+        })
+        it("can get item max capacity with the squaddie", () => {
+            expect(
+                manager.getItemCapacity({
+                    squaddieId: squaddie.id,
+                })
+            ).toEqual(attributeSheet.items.maxCapacity)
+        })
+        it("can get items with the attribute sheet", () => {
+            expect(
+                manager.getItemIds({
+                    attributeSheetId: attributeSheet.id,
+                })
+            ).toEqual(attributeSheet.items.itemIds)
+        })
+        it("can get items with the squaddie", () => {
+            expect(
+                manager.getItemIds({
+                    squaddieId: squaddie.id,
+                })
+            ).toEqual(attributeSheet.items.itemIds)
+        })
+        it("can add items to the attribute sheet", () => {
+            manager.addItem({
+                attributeSheetId: attributeSheet.id,
+                itemId: "healPotion1",
+            })
+
+            expect(
+                manager.getItemIds({
+                    squaddieId: squaddie.id,
+                })
+            ).toEqual(["plateMail", "powerRune", "healPotion1"])
+        })
+
+        it("can add items to a squaddie", () => {
+            manager.addItem({
+                squaddieId: squaddie.id,
+                itemId: "poisonPestle1",
+            })
+
+            expect(
+                manager.getItemIds({
+                    squaddieId: squaddie.id,
+                })
+            ).toEqual(["plateMail", "powerRune", "poisonPestle1"])
+        })
+        it("will not add items if at max capacity", () => {
+            manager.addItem({
+                squaddieId: squaddie.id,
+                itemId: "poisonPestle1",
+            })
+
+            manager.addItem({
+                squaddieId: squaddie.id,
+                itemId: "will not add since we're at max capacity",
+            })
+
+            expect(
+                manager.getItemIds({
+                    squaddieId: squaddie.id,
+                })
+            ).toEqual(["plateMail", "powerRune", "poisonPestle1"])
+        })
+
+        it("can reorder items", () => {
+            manager.reorderItemSlots({
+                squaddieId: squaddie.id,
+                itemSlotA: 0,
+                itemSlotB: 1,
+            })
+
+            expect(
+                manager.getItemIds({
+                    squaddieId: squaddie.id,
+                })
+            ).toEqual(["powerRune", "plateMail"])
+        })
+
+        it("can remove items", () => {
+            manager.addItem({
+                squaddieId: squaddie.id,
+                itemId: "plateMail",
+            })
+
+            manager.removeItem({
+                squaddieId: squaddie.id,
+                itemId: "plateMail",
+            })
+
+            expect(
+                manager.getItemIds({
+                    squaddieId: squaddie.id,
+                })
+            ).toEqual(["powerRune", "plateMail"])
+        })
     })
 })

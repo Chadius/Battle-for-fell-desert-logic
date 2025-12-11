@@ -62,7 +62,7 @@ export class OutOfBattleSquaddieManager {
             OutOfBattleSquaddieCollectionService.addOrUpdateOutOfBattleSquaddie(
                 {
                     collection: this.squaddieCollection!,
-                    ...squaddie,
+                    outOfBattleSquaddie: squaddie,
                 }
             )
     }
@@ -128,6 +128,156 @@ export class OutOfBattleSquaddieManager {
             )
     }
 
+    getItemCapacity({
+        attributeSheetId,
+        squaddieId,
+    }:
+        | {
+              attributeSheetId: string
+              squaddieId?: never
+          }
+        | {
+              attributeSheetId?: never
+              squaddieId: string
+          }): number {
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.getItemCapacity.name
+        )
+
+        this.getAttributeSheetFromSquaddieOrAttributeSheet({
+            attributeSheetId,
+            squaddieId,
+        })
+
+        return OutOfBattleSquaddieAttributeSheetCollectionService.getItemCapacity(
+            {
+                collection: this.attributeSheetCollection!,
+                id: this.getAttributeSheetFromSquaddieOrAttributeSheet({
+                    attributeSheetId,
+                    squaddieId,
+                }).id,
+            }
+        )
+    }
+
+    getItemIds({
+        attributeSheetId,
+        squaddieId,
+    }:
+        | {
+              attributeSheetId: string
+              squaddieId?: never
+          }
+        | {
+              attributeSheetId?: never
+              squaddieId: string
+          }): string[] {
+        this.throwIfAttributeSheetCollectionIsUndefined(this.getItemIds.name)
+
+        return OutOfBattleSquaddieAttributeSheetCollectionService.getItemIds({
+            collection: this.attributeSheetCollection!,
+            id: this.getAttributeSheetFromSquaddieOrAttributeSheet({
+                attributeSheetId,
+                squaddieId,
+            }).id,
+        })
+    }
+
+    addItem({
+        attributeSheetId,
+        squaddieId,
+        itemId,
+    }:
+        | {
+              attributeSheetId: string
+              squaddieId?: never
+              itemId: string
+          }
+        | {
+              attributeSheetId?: never
+              squaddieId: string
+              itemId: string
+          }): void {
+        this.throwIfAttributeSheetCollectionIsUndefined(this.addItem.name)
+
+        this.attributeSheetCollection =
+            OutOfBattleSquaddieAttributeSheetCollectionService.addItem({
+                collection: this.attributeSheetCollection!,
+                attributeSheetId:
+                    this.getAttributeSheetFromSquaddieOrAttributeSheet({
+                        attributeSheetId,
+                        squaddieId,
+                    }).id,
+                itemId,
+            })
+    }
+
+    reorderItemSlots({
+        attributeSheetId,
+        squaddieId,
+        itemSlotA,
+        itemSlotB,
+    }:
+        | {
+              attributeSheetId: string
+              squaddieId?: never
+              itemSlotA: number
+              itemSlotB: number
+          }
+        | {
+              attributeSheetId?: never
+              squaddieId: string
+              itemSlotA: number
+              itemSlotB: number
+          }): void {
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.reorderItemSlots.name
+        )
+        this.attributeSheetCollection =
+            OutOfBattleSquaddieAttributeSheetCollectionService.reorderItemSlots(
+                {
+                    collection: this.attributeSheetCollection!,
+                    attributeSheetId:
+                        this.getAttributeSheetFromSquaddieOrAttributeSheet({
+                            attributeSheetId,
+                            squaddieId,
+                        }).id,
+                    itemSlotA,
+                    itemSlotB,
+                }
+            )
+    }
+
+    removeItem({
+        squaddieId,
+        attributeSheetId,
+        itemId,
+    }:
+        | {
+              attributeSheetId: string
+              squaddieId?: never
+              itemId: string
+          }
+        | {
+              attributeSheetId?: never
+              squaddieId: string
+              itemId: string
+          }): void {
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.reorderItemSlots.name
+        )
+        this.attributeSheetCollection =
+            OutOfBattleSquaddieAttributeSheetCollectionService.removeItem({
+                collection: this.attributeSheetCollection!,
+                attributeSheetId:
+                    this.getAttributeSheetFromSquaddieOrAttributeSheet({
+                        attributeSheetId,
+                        squaddieId,
+                    }).id,
+                itemId,
+            })
+    }
+
     private throwIfSquaddieCollectionIsUndefined(callName: string) {
         if (this.squaddieCollection == undefined)
             throw new Error(
@@ -140,5 +290,28 @@ export class OutOfBattleSquaddieManager {
             throw new Error(
                 `[OutOfBattleSquaddieManager.${callName}]: attributeSheetCollection must be defined`
             )
+    }
+    private getAttributeSheetFromSquaddieOrAttributeSheet({
+        attributeSheetId,
+        squaddieId,
+    }: {
+        attributeSheetId?: string
+        squaddieId?: string
+    }): OutOfBattleSquaddieAttributeSheet {
+        if (attributeSheetId == undefined && squaddieId != undefined) {
+            attributeSheetId = OutOfBattleSquaddieCollectionService.getSquaddie(
+                {
+                    collection: this.squaddieCollection!,
+                    id: squaddieId,
+                }
+            )?.attributeSheetId
+        }
+
+        return OutOfBattleSquaddieAttributeSheetCollectionService.getAttributeSheet(
+            {
+                collection: this.attributeSheetCollection!,
+                id: attributeSheetId!,
+            }
+        )!
     }
 }

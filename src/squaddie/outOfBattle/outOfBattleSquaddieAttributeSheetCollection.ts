@@ -50,6 +50,110 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
         }
         return newCollection
     },
+    getItemCapacity: ({
+        collection,
+        id,
+    }: {
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+        id: string
+    }) => {
+        throwIfCollectionIsUndefined(collection, "getItemCapacity")
+        throwIfAttributeSheetIsUndefined(collection, id, "getItemCapacity")
+        return OutOfBattleSquaddieAttributeSheetService.getItemCapacity({
+            attributeSheet: collection.sheetById.get(id)!,
+        })
+    },
+    getItemIds: ({
+        collection,
+        id,
+    }: {
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+        id: string
+    }) => {
+        throwIfCollectionIsUndefined(collection, "getItemIds")
+        throwIfAttributeSheetIsUndefined(collection, id, "getItemIds")
+        return OutOfBattleSquaddieAttributeSheetService.getItemIds({
+            attributeSheet: collection.sheetById.get(id)!,
+        })
+    },
+    addItem: ({
+        collection,
+        attributeSheetId,
+        itemId,
+    }: {
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+        attributeSheetId: string
+        itemId: string
+    }) => {
+        throwIfCollectionIsUndefined(collection, "addItem")
+        throwIfAttributeSheetIsUndefined(
+            collection,
+            attributeSheetId,
+            "addItem"
+        )
+        const newCollection = clone(collection)
+        const attributeSheet = newCollection.sheetById.get(attributeSheetId)!
+        const newAttributeSheet =
+            OutOfBattleSquaddieAttributeSheetService.addItem({
+                attributeSheet,
+                itemId,
+            })
+        newCollection.sheetById.set(newAttributeSheet.id, newAttributeSheet)
+        return newCollection
+    },
+    reorderItemSlots: ({
+        collection,
+        attributeSheetId,
+        itemSlotA,
+        itemSlotB,
+    }: {
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+        attributeSheetId: string
+        itemSlotA: number
+        itemSlotB: number
+    }) => {
+        throwIfCollectionIsUndefined(collection, "reorderItemSlots")
+        throwIfAttributeSheetIsUndefined(
+            collection,
+            attributeSheetId,
+            "reorderItemSlots"
+        )
+        const newCollection = clone(collection)
+        const attributeSheet = newCollection.sheetById.get(attributeSheetId)!
+        const newAttributeSheet =
+            OutOfBattleSquaddieAttributeSheetService.reorderItemSlots({
+                attributeSheet,
+                itemSlotA,
+                itemSlotB,
+            })
+        newCollection.sheetById.set(newAttributeSheet.id, newAttributeSheet)
+        return newCollection
+    },
+    removeItem: ({
+        collection,
+        attributeSheetId,
+        itemId,
+    }: {
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+        attributeSheetId: string
+        itemId: string
+    }) => {
+        throwIfCollectionIsUndefined(collection, "removeItem")
+        throwIfAttributeSheetIsUndefined(
+            collection,
+            attributeSheetId,
+            "removeItem"
+        )
+        const newCollection = clone(collection)
+        const attributeSheet = newCollection.sheetById.get(attributeSheetId)!
+        const newAttributeSheet =
+            OutOfBattleSquaddieAttributeSheetService.removeItem({
+                attributeSheet,
+                itemId,
+            })
+        newCollection.sheetById.set(newAttributeSheet.id, newAttributeSheet)
+        return newCollection
+    },
 }
 
 const constructNewCollection =
@@ -81,5 +185,16 @@ const throwIfCollectionIsUndefined = (
     if (collection == undefined)
         throw new Error(
             `[OutOfBattleSquaddieAttributeSheetCollection.${callName}]: collection must be defined`
+        )
+}
+
+const throwIfAttributeSheetIsUndefined = (
+    collection: OutOfBattleSquaddieAttributeSheetCollection,
+    id: string,
+    callName: string
+) => {
+    if (!collection.sheetById.has(id))
+        throw new Error(
+            `[OutOfBattleSquaddieAttributeSheetCollection.${callName}]: Attribute Sheet id ${id} not found`
         )
 }
