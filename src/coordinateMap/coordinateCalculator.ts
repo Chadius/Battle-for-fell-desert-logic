@@ -67,7 +67,7 @@ const getNeighbor = (
     origin: OffsetCoordinate,
     direction: TCoordinateDirection
 ): OffsetCoordinate => {
-    const rowIsEven = origin.row % 2 === 0
+    const rowIsEven = (origin.row & 1) === 0
     const directionDifferences = rowIsEven
         ? directionDifferencesByRowIsEven.true
         : directionDifferencesByRowIsEven.false
@@ -86,12 +86,12 @@ interface AxialCoordinate {
 const AxialCoordinateCalculator = {
     axialToOffset: (hex: AxialCoordinate): OffsetCoordinate => {
         const col =
-            hex.r % 2 === 0 ? hex.q + hex.r / 2 : hex.q + (hex.r - 1) / 2
+            (hex.r & 1) === 0 ? hex.q + hex.r / 2 : hex.q + (hex.r - 1) / 2
         return { col, row: hex.r }
     },
     offsetToAxial: (hex: OffsetCoordinate): AxialCoordinate => {
         const q =
-            hex.row % 2 === 0
+            (hex.row & 1) === 0
                 ? hex.col + hex.row / 2
                 : hex.col + (hex.row - 1) / 2
         return { q, r: hex.row }
