@@ -30,5 +30,11 @@ export default defineConfig(({ mode }) => {
         define: {
             ...environmentVariables,
         },
+        build: {
+            sourcemap: true,
+        },
+        test: {
+            sourcemap: true,
+        },
     }
 })

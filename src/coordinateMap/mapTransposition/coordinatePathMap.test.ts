@@ -44,8 +44,6 @@ describe("Map Transposition", () => {
                 coordinatePathMap: transpositionMap,
                 row: 0,
                 col: 0,
-                map: coordinateMap,
-                moveType: CoordinateMovePathMoveType.WALK,
             })
         ).toBeUndefined()
     })
@@ -66,17 +64,21 @@ describe("Map Transposition", () => {
                     coordinatePathMap: transpositionMap,
                     row: 0,
                     col: 0,
-                    map: coordinateMap,
-                    moveType: CoordinateMovePathMoveType.WALK,
                 })
             ).toBeUndefined()
 
-            const actualPath = CoordinatePathMapService.getPath({
+            CoordinatePathMapService.extendPath({
                 coordinatePathMap: transpositionMap,
                 row: 0,
                 col: 2,
                 map: coordinateMap,
                 moveType: CoordinateMovePathMoveType.WALK,
+            })
+
+            const actualPath = CoordinatePathMapService.getPath({
+                coordinatePathMap: transpositionMap,
+                row: 0,
+                col: 2,
             })
 
             expect(actualPath).toBeDefined()
@@ -116,12 +118,19 @@ describe("Map Transposition", () => {
                     col: 2,
                 },
             })
-            const actualPath = CoordinatePathMapService.getPath({
+
+            CoordinatePathMapService.extendPath({
                 coordinatePathMap: transpositionMap,
                 row: 0,
                 col: 3,
                 map: coordinateMap,
                 moveType: CoordinateMovePathMoveType.WALK,
+            })
+
+            const actualPath = CoordinatePathMapService.getPath({
+                coordinatePathMap: transpositionMap,
+                row: 0,
+                col: 3,
             })
             expect(actualPath).toBeDefined()
             expect(

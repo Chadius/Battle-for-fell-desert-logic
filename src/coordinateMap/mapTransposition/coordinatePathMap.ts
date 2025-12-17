@@ -72,7 +72,7 @@ export const CoordinatePathMapService = {
     }: {
         coordinatePathMap: CoordinatePathMap
     }): number => getNumberOfColumns({ coordinatePathMap }),
-    getPath: ({
+    extendPath: ({
         coordinatePathMap,
         row,
         col,
@@ -84,15 +84,14 @@ export const CoordinatePathMapService = {
         col: number
         map: CoordinateMap
         moveType: TCoordinateMovePathMoveType
-    }): CoordinateMovePath | undefined => {
-        throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "getPath")
-        throwIfCoordinateIsOffMap(coordinatePathMap, row, col, "getPath")
+    }): void => {
+        throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "extendPath")
+        throwIfCoordinateIsOffMap(coordinatePathMap, row, col, "extendPath")
         let destinationCoordinate =
             coordinatePathMap.visitedCoordinates[row][col]
-        if (destinationCoordinate == undefined) return undefined
+        if (destinationCoordinate == undefined) return
 
-        if (destinationCoordinate.cachedMovePath != undefined)
-            return destinationCoordinate.cachedMovePath
+        if (destinationCoordinate.cachedMovePath != undefined) return
 
         const steps: CoordinateMovePathStep[] = []
 
@@ -131,6 +130,21 @@ export const CoordinatePathMapService = {
         destinationCoordinate.cachedMovePath = CoordinateMovePathService.new({
             steps,
         })
+    },
+    getPath: ({
+        coordinatePathMap,
+        row,
+        col,
+    }: {
+        coordinatePathMap: CoordinatePathMap
+        row: number
+        col: number
+    }): CoordinateMovePath | undefined => {
+        throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "getPath")
+        throwIfCoordinateIsOffMap(coordinatePathMap, row, col, "getPath")
+        let destinationCoordinate =
+            coordinatePathMap.visitedCoordinates[row][col]
+        if (destinationCoordinate == undefined) return undefined
 
         return destinationCoordinate.cachedMovePath
     },

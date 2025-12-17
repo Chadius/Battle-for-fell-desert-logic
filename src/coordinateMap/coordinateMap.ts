@@ -301,14 +301,10 @@ export const CoordinateMapService = {
             }),
         }
     },
-    getNumberOfRows: ({ map }: { map: CoordinateMap }): number => {
-        throwIfMapIsUndefined(map, "getNumberOfRows")
-        return map.coordinates.length
-    },
-    getNumberOfColumns: ({ map }: { map: CoordinateMap }): number => {
-        throwIfMapIsUndefined(map, "getNumberOfColumns")
-        return map.coordinates[0].length
-    },
+    getNumberOfRows: ({ map }: { map: CoordinateMap }): number =>
+        getNumberOfRows({ map }),
+    getNumberOfColumns: ({ map }: { map: CoordinateMap }): number =>
+        getNumberOfColumns({ map }),
     getMoveCost: ({
         map,
         row,
@@ -321,6 +317,20 @@ export const CoordinateMapService = {
         throwIfMapIsUndefined(map, "getNumberOfColumns")
         throwIfCoordinateIsOffMap(map, row, col, "getNumberOfColumns")
         return map.coordinates[row][col].movementCost
+    },
+    isCoordinateOnMap: ({
+        coordinate,
+        map,
+    }: {
+        coordinate: OffsetCoordinate
+        map: CoordinateMap
+    }): boolean => {
+        return (
+            coordinate.row >= 0 &&
+            coordinate.row < getNumberOfRows({ map }) &&
+            coordinate.col >= 0 &&
+            coordinate.col < getNumberOfColumns({ map })
+        )
     },
 }
 
@@ -438,4 +448,14 @@ const throwIfCoordinateIsOffMap = (
             `[CoordinatePathMapService.${callName}]: Coordinate (${row}, ${col}) is off map`
         )
     }
+}
+
+const getNumberOfRows = ({ map }: { map: CoordinateMap }): number => {
+    throwIfMapIsUndefined(map, "getNumberOfRows")
+    return map.coordinates.length
+}
+
+const getNumberOfColumns = ({ map }: { map: CoordinateMap }): number => {
+    throwIfMapIsUndefined(map, "getNumberOfColumns")
+    return map.coordinates[0].length
 }

@@ -4,6 +4,8 @@ import type { EnumLike } from "../../enum.ts"
 export const CoordinateMovePathMoveType = {
     START: "START",
     WALK: "WALK",
+    JUMP: "JUMP",
+    PHASE: "PHASE",
     END: "END",
 } as const satisfies Record<string, string>
 export type TCoordinateMovePathMoveType = EnumLike<
