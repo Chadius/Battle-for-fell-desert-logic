@@ -35,17 +35,31 @@ export const CoordinateCalculator = {
         origin: OffsetCoordinate,
         direction: TCoordinateDirection
     ): OffsetCoordinate => getNeighbor(origin, direction),
-    getAllCoordinatesInRange: (
+    getAllNeighbors: (origin: OffsetCoordinate): OffsetCoordinate[] => {
+        return [
+            CoordinateDirection.RIGHT,
+            CoordinateDirection.UP_RIGHT,
+            CoordinateDirection.UP_LEFT,
+            CoordinateDirection.LEFT,
+            CoordinateDirection.DOWN_RIGHT,
+            CoordinateDirection.DOWN_LEFT,
+        ].map((direction) => getNeighbor(origin, direction))
+    },
+    getAllCoordinatesWithinRadius: (
         origin: OffsetCoordinate,
-        radius: number
+        range: number
     ): OffsetCoordinate[] => {
+        if (range < 1) {
+            return [origin]
+        }
+
         const allInRange: OffsetCoordinate[] = []
 
         const originAxial = AxialCoordinateCalculator.offsetToAxial(origin)
-        for (let q = -1 * radius; q <= radius; q++) {
+        for (let q = -1 * range; q <= range; q++) {
             const rRange = [
-                Math.max(-1 * radius, -q - radius),
-                Math.min(radius, -q + radius),
+                Math.max(-1 * range, -q - range),
+                Math.min(range, -q + range),
             ]
 
             for (let r = rRange[0]; r <= rRange[1]; r++) {
@@ -85,15 +99,11 @@ interface AxialCoordinate {
 
 const AxialCoordinateCalculator = {
     axialToOffset: (hex: AxialCoordinate): OffsetCoordinate => {
-        const col =
-            (hex.r & 1) === 0 ? hex.q + hex.r / 2 : hex.q + (hex.r - 1) / 2
+        const col = hex.q + (hex.r - (hex.r & 1)) / 2
         return { col, row: hex.r }
     },
     offsetToAxial: (hex: OffsetCoordinate): AxialCoordinate => {
-        const q =
-            (hex.row & 1) === 0
-                ? hex.col + hex.row / 2
-                : hex.col + (hex.row - 1) / 2
+        const q = hex.col - (hex.row - (hex.row & 1)) / 2
         return { q, r: hex.row }
     },
 }

@@ -43,7 +43,7 @@ const calculateBloomCoordinates = ({
         radius,
     })
 
-    return CoordinateCalculator.getAllCoordinatesInRange(origin, radius)
+    return CoordinateCalculator.getAllCoordinatesWithinRadius(origin, radius)
 }
 
 const throwIfRadiusIsNegative = ({
