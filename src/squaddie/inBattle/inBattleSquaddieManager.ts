@@ -452,10 +452,6 @@ export class InBattleSquaddieManager {
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined)
-            throw new Error(
-                `[InBattleSquaddieManager:${this.getActionPoints.name}] squaddie not found: ${outOfBattleSquaddieId}, ${inBattleSquaddieId}`
-            )
 
         return InBattleSquaddieCollectionService.getActionPoints({
             ...squaddieInfo,
@@ -991,6 +987,38 @@ export class InBattleSquaddieManager {
                 },
             ])
         return new Map(mapEntries)
+    }
+
+    getSquaddieMovementInfo({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): {
+        movementPerAction: number
+        totalActionPoints: number
+        skipOverPits: boolean
+        moveThroughWalls: boolean
+        stopOnSquaddies: boolean
+    } {
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(
+            this.getSquaddieMovementInfo.name
+        )
+
+        const actionPoints = this.getActionPoints({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+        const outOfBattleMovementInfo =
+            this.outOfBattleSquaddieManager!.getSquaddieMovementInfo({
+                squaddieId: outOfBattleSquaddieId,
+            })
+
+        return {
+            totalActionPoints: actionPoints.current,
+            ...outOfBattleMovementInfo,
+        }
     }
 
     private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {

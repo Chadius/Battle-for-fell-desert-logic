@@ -278,6 +278,30 @@ export class OutOfBattleSquaddieManager {
             })
     }
 
+    getSquaddieMovementInfo({ squaddieId }: { squaddieId: string }): {
+        movementPerAction: number
+        skipOverPits: boolean
+        moveThroughWalls: boolean
+        stopOnSquaddies: boolean
+    } {
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.getSquaddieMovementInfo.name
+        )
+        this.throwIfSquaddieCollectionIsUndefined(
+            this.getSquaddieMovementInfo.name
+        )
+
+        const attributeSheet =
+            this.getAttributeSheetFromSquaddieOrAttributeSheet({ squaddieId })
+
+        return OutOfBattleSquaddieAttributeSheetCollectionService.getSquaddieMovementInfo(
+            {
+                collection: this.attributeSheetCollection!,
+                attributeSheetId: attributeSheet.id,
+            }
+        )
+    }
+
     private throwIfSquaddieCollectionIsUndefined(callName: string) {
         if (this.squaddieCollection == undefined)
             throw new Error(
@@ -307,11 +331,26 @@ export class OutOfBattleSquaddieManager {
             )?.attributeSheetId
         }
 
-        return OutOfBattleSquaddieAttributeSheetCollectionService.getAttributeSheet(
-            {
-                collection: this.attributeSheetCollection!,
-                id: attributeSheetId!,
-            }
-        )!
+        if (attributeSheetId == undefined) {
+            throw new Error(
+                "[OutOfBattleSquaddieManager]: attributeSheetId must be defined"
+            )
+        }
+
+        const attributeSheet =
+            OutOfBattleSquaddieAttributeSheetCollectionService.getAttributeSheet(
+                {
+                    collection: this.attributeSheetCollection!,
+                    id: attributeSheetId,
+                }
+            )
+
+        if (attributeSheet == undefined) {
+            throw new Error(
+                "[OutOfBattleSquaddieManager]: attributeSheet must be defined"
+            )
+        }
+
+        return attributeSheet
     }
 }

@@ -154,6 +154,33 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
         newCollection.sheetById.set(newAttributeSheet.id, newAttributeSheet)
         return newCollection
     },
+    getSquaddieMovementInfo: ({
+        attributeSheetId,
+        collection,
+    }: {
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+        attributeSheetId: string
+    }): {
+        movementPerAction: number
+        skipOverPits: boolean
+        moveThroughWalls: boolean
+        stopOnSquaddies: boolean
+    } => {
+        throwIfAttributeSheetIsUndefined(
+            collection,
+            attributeSheetId,
+            "getSquaddieMovementInfo"
+        )
+
+        const attributeSheet = collection.sheetById.get(attributeSheetId)!
+
+        return {
+            moveThroughWalls: attributeSheet.movement.moveThroughWalls,
+            movementPerAction: attributeSheet.movement.distancePerAction,
+            skipOverPits: attributeSheet.movement.skipOverPits,
+            stopOnSquaddies: attributeSheet.movement.stopOnSquaddies,
+        }
+    },
 }
 
 const constructNewCollection =

@@ -14,9 +14,13 @@ import {
     type CoordinatePathMap,
     CoordinatePathMapService,
 } from "./mapTransposition/coordinatePathMap.ts"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.ts"
 
 export interface CoordinateMapSearchLimits {
     maximumMoveCost?: number
+    skipOverPits?: boolean
+    moveThroughWalls?: boolean
+    stopOnSquaddies?: boolean
 }
 
 export class CoordinateMapAStarAdapter
@@ -27,7 +31,7 @@ export class CoordinateMapAStarAdapter
     searchLimits?: CoordinateMapSearchLimits
 
     constructor(map: CoordinateMap, searchLimits?: CoordinateMapSearchLimits) {
-        this.searchLimits = searchLimits
+        this.searchLimits = { ...searchLimits }
         this.map = map
         this.coordinatePathMap = CoordinatePathMapService.new({
             id: "search",
@@ -129,5 +133,28 @@ export class CoordinateMapAStarAdapter
             coordinatePathMap: this.coordinatePathMap,
             ...neighbor,
         })!
+    }
+
+    static getCoordinateMapSearchLimitsFromSquaddie({
+        manager,
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        manager: InBattleSquaddieManager
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): CoordinateMapSearchLimits {
+        const moveLimits = manager.getSquaddieMovementInfo({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        return {
+            maximumMoveCost:
+                moveLimits.movementPerAction * moveLimits.totalActionPoints,
+            moveThroughWalls: moveLimits.moveThroughWalls,
+            skipOverPits: moveLimits.skipOverPits,
+            stopOnSquaddies: moveLimits.stopOnSquaddies,
+        }
     }
 }

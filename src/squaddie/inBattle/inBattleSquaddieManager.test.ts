@@ -49,6 +49,7 @@ describe("In Battle Squaddie Manager", () => {
             id: "test sheet",
             movement: {
                 distancePerAction: 2,
+                skipOverPits: true,
             },
             maxHitPoints: 5,
             attributeScores: {
@@ -1355,6 +1356,23 @@ describe("In Battle Squaddie Manager", () => {
                     2 +
                     armorPositive1LongDuration.amount!
             )
+        })
+    })
+
+    it("Can get Movement Info", () => {
+        const inBattleSquaddie00Id = manager.createNewSquaddie({
+            outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+        })
+        const movementInfo = manager.getSquaddieMovementInfo({
+            ...inBattleSquaddie00Id,
+        })
+        const actions = manager.getActionPoints({ ...inBattleSquaddie00Id })
+        expect(movementInfo).toEqual({
+            movementPerAction: attributeSheet.movement.distancePerAction,
+            totalActionPoints: actions.current,
+            skipOverPits: attributeSheet.movement.skipOverPits,
+            moveThroughWalls: attributeSheet.movement.moveThroughWalls,
+            stopOnSquaddies: attributeSheet.movement.stopOnSquaddies,
         })
     })
 })
