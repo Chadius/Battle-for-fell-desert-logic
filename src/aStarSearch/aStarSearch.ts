@@ -39,41 +39,111 @@ export const AStarSearchService = {
             if (visited.has(nodeKey)) continue
             visited.add(nodeKey)
 
-            const neighbors = graph.getNeighbors(node)
-            for (const neighbor of neighbors) {
-                const neighborKey = graph.generateNodeKey(neighbor)
-                if (visited.has(neighborKey)) continue
-
-                const moveCost = graph.getMovementCost(neighbor)
-                if (moveCost == undefined) continue
-
-                if (
-                    !graph.canMoveTo({
-                        from: node,
-                        to: neighbor,
-                        totalCost: cost + moveCost,
-                        cost: moveCost,
-                    })
-                ) {
-                    continue
-                }
-
-                const newCost = cost + moveCost
-
-                const newPath: U = graph.extendPath({
-                    path,
-                    neighbor,
-                    moveCost,
-                })
-
-                openSet.enqueue({
-                    node: neighbor,
-                    cost: newCost,
-                    path: newPath,
-                })
-            }
+            processNeighborsForNode({
+                node,
+                cost,
+                path,
+                visited,
+                openSet,
+                graph,
+            })
         }
 
         return undefined
     },
+}
+
+const processNeighborsForNode = <T, U>({
+    node,
+    cost,
+    path,
+    visited,
+    openSet,
+    graph,
+}: {
+    node: T
+    cost: number
+    path: U
+    visited: Set<string>
+    openSet: PriorityQueue<{ node: T; cost: number; path: U }>
+    graph: AStarGraph<T, U>
+}): void => {
+    const neighbors = graph.getNeighbors(node)
+    for (const neighbor of neighbors) {
+        if (
+            !shouldProcessNeighbor({
+                neighbor,
+                currentNode: node,
+                currentCost: cost,
+                visited,
+                graph,
+            })
+        ) {
+            continue
+        }
+
+        enqueueNeighborNode({
+            neighbor,
+            currentCost: cost,
+            currentPath: path,
+            openSet,
+            graph,
+        })
+    }
+}
+
+const shouldProcessNeighbor = <T>({
+    neighbor,
+    currentNode,
+    currentCost,
+    visited,
+    graph,
+}: {
+    neighbor: T
+    currentNode: T
+    currentCost: number
+    visited: Set<string>
+    graph: AStarGraph<T, any>
+}): boolean => {
+    const neighborKey = graph.generateNodeKey(neighbor)
+    if (visited.has(neighborKey)) return false
+
+    const moveCost = graph.getMovementCost(neighbor)
+    if (moveCost == undefined) return false
+
+    return graph.canMoveTo({
+        from: currentNode,
+        to: neighbor,
+        totalCost: currentCost + moveCost,
+        cost: moveCost,
+    })
+}
+
+const enqueueNeighborNode = <T, U>({
+    neighbor,
+    currentCost,
+    currentPath,
+    openSet,
+    graph,
+}: {
+    neighbor: T
+    currentCost: number
+    currentPath: U
+    openSet: PriorityQueue<{ node: T; cost: number; path: U }>
+    graph: AStarGraph<T, U>
+}): void => {
+    const moveCost = graph.getMovementCost(neighbor)!
+    const newCost = currentCost + moveCost
+
+    const newPath: U = graph.extendPath({
+        path: currentPath,
+        neighbor,
+        moveCost,
+    })
+
+    openSet.enqueue({
+        node: neighbor,
+        cost: newCost,
+        path: newPath,
+    })
 }
