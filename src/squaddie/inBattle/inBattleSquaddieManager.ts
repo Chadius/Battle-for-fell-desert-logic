@@ -998,6 +998,7 @@ export class InBattleSquaddieManager {
     }): {
         movementPerAction: number
         totalActionPoints: number
+        maximumMovementCost: number
         skipOverPits: boolean
         moveThroughWalls: boolean
         stopOnSquaddies: boolean
@@ -1015,10 +1016,31 @@ export class InBattleSquaddieManager {
                 squaddieId: outOfBattleSquaddieId,
             })
 
+        let maximumMovementCost =
+            actionPoints.current * outOfBattleMovementInfo.movementPerAction
+
         return {
             totalActionPoints: actionPoints.current,
+            maximumMovementCost,
             ...outOfBattleMovementInfo,
         }
+    }
+
+    calculateActionPointsForMovement({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        movementCost,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        movementCost: number
+    }): number {
+        const movementInfo = this.getSquaddieMovementInfo({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        return Math.ceil(movementCost / movementInfo.movementPerAction)
     }
 
     private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {

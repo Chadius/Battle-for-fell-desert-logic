@@ -150,8 +150,7 @@ export class CoordinateMapAStarAdapter
         })
 
         return {
-            maximumMoveCost:
-                moveLimits.movementPerAction * moveLimits.totalActionPoints,
+            maximumMoveCost: moveLimits.maximumMovementCost,
             moveThroughWalls: moveLimits.moveThroughWalls,
             skipOverPits: moveLimits.skipOverPits,
             stopOnSquaddies: moveLimits.stopOnSquaddies,

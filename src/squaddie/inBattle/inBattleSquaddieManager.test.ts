@@ -1368,11 +1368,45 @@ describe("In Battle Squaddie Manager", () => {
         })
         const actions = manager.getActionPoints({ ...inBattleSquaddie00Id })
         expect(movementInfo).toEqual({
+            maximumMovementCost:
+                attributeSheet.movement.distancePerAction * actions.current,
             movementPerAction: attributeSheet.movement.distancePerAction,
             totalActionPoints: actions.current,
             skipOverPits: attributeSheet.movement.skipOverPits,
             moveThroughWalls: attributeSheet.movement.moveThroughWalls,
             stopOnSquaddies: attributeSheet.movement.stopOnSquaddies,
         })
+    })
+
+    it("Can calculate action points for movement", () => {
+        const inBattleSquaddie00Id = manager.createNewSquaddie({
+            outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+        })
+
+        const spendExactAmountRequired =
+            manager.calculateActionPointsForMovement({
+                ...inBattleSquaddie00Id,
+                movementCost: 4,
+            })
+        expect(spendExactAmountRequired).toBe(2)
+
+        const actionPoints2 = manager.calculateActionPointsForMovement({
+            ...inBattleSquaddie00Id,
+            movementCost: 5,
+        })
+        expect(actionPoints2).toBe(3)
+
+        const spendAtLeast1ForMovement =
+            manager.calculateActionPointsForMovement({
+                ...inBattleSquaddie00Id,
+                movementCost: 1,
+            })
+        expect(spendAtLeast1ForMovement).toBe(1)
+
+        const noActionPointsSpent = manager.calculateActionPointsForMovement({
+            ...inBattleSquaddie00Id,
+            movementCost: 0,
+        })
+        expect(noActionPointsSpent).toBe(0)
     })
 })
