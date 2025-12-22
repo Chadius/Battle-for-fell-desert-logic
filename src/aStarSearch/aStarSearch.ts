@@ -25,14 +25,19 @@ export const AStarSearchService = {
             path: graph.createPath(start),
         })
 
+        let firstPathFound: U | undefined = undefined
         while (!openSet.isEmpty()) {
             const current = openSet.dequeue()
             if (!current) break
 
             const { node, cost, path } = current
 
-            if (stopCondition(node)) {
-                return path
+            if (
+                stopCondition(node) &&
+                graph.isPathValidToStop({ currentNode: node, path })
+            ) {
+                firstPathFound = path
+                break
             }
 
             const nodeKey = graph.generateNodeKey(node)
@@ -49,7 +54,8 @@ export const AStarSearchService = {
             })
         }
 
-        return undefined
+        graph.postProcess({ path: firstPathFound })
+        return firstPathFound
     },
 }
 

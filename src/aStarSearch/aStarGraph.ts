@@ -33,5 +33,13 @@ export interface AStarGraph<T, U> {
         b: { node: T; cost: number; path: U }
     ) => number
 
-    isPathValid: ({ currentNode, path }: { currentNode: T; path: U }) => boolean
+    isPathValidToStop: ({
+        currentNode,
+        path,
+    }: {
+        currentNode: T
+        path: U
+    }) => boolean
+
+    postProcess: ({ path }: { path: U | undefined }) => void
 }

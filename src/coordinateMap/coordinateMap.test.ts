@@ -13,8 +13,8 @@ describe("Coordinate Map", () => {
             map: originalMap,
             coordinate: { row: 1, col: 1 },
             squaddieId: {
-                inBattle: 0,
-                outOfBattle: "squaddie",
+                inBattleSquaddieId: 0,
+                outOfBattleSquaddieId: "squaddie",
             },
         })
 
@@ -36,8 +36,8 @@ describe("Coordinate Map", () => {
             CoordinateMapService.getSquaddieCoordinate({
                 map: originalMap,
                 squaddieId: {
-                    inBattle: 0,
-                    outOfBattle: "squaddie",
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "squaddie",
                 },
             })
         ).toBeUndefined()
@@ -45,8 +45,8 @@ describe("Coordinate Map", () => {
             CoordinateMapService.getSquaddieCoordinate({
                 map: addSquaddieMap,
                 squaddieId: {
-                    inBattle: 0,
-                    outOfBattle: "squaddie",
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "squaddie",
                 },
             })
         ).toBeDefined()
@@ -55,8 +55,8 @@ describe("Coordinate Map", () => {
             map: originalMap,
             coordinate: { row: 2, col: 1 },
             squaddieId: {
-                inBattle: 0,
-                outOfBattle: "squaddie",
+                inBattleSquaddieId: 0,
+                outOfBattleSquaddieId: "squaddie",
             },
         })
 
@@ -80,8 +80,8 @@ describe("Coordinate Map", () => {
             CoordinateMapService.getSquaddieCoordinate({
                 map: addSquaddieMap,
                 squaddieId: {
-                    inBattle: 0,
-                    outOfBattle: "squaddie",
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "squaddie",
                 },
             })
         ).toBeDefined()
@@ -89,8 +89,8 @@ describe("Coordinate Map", () => {
             CoordinateMapService.getSquaddieCoordinate({
                 map: moveSquaddieMap,
                 squaddieId: {
-                    inBattle: 0,
-                    outOfBattle: "squaddie",
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "squaddie",
                 },
             })
         ).toBeDefined()

@@ -144,8 +144,8 @@ describe("Coordinate Map Manager", () => {
             manager.addSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: { row: 0, col: 2 },
             })
@@ -154,8 +154,8 @@ describe("Coordinate Map Manager", () => {
                 manager.getSquaddieCoordinate({
                     mapId: "testMap",
                     squaddieId: {
-                        outOfBattle: "soldier",
-                        inBattle: 0,
+                        outOfBattleSquaddieId: "soldier",
+                        inBattleSquaddieId: 0,
                     },
                 })
             ).toEqual({ row: 0, col: 2 })
@@ -169,8 +169,8 @@ describe("Coordinate Map Manager", () => {
                     },
                 })
             ).toEqual({
-                outOfBattle: "soldier",
-                inBattle: 0,
+                outOfBattleSquaddieId: "soldier",
+                inBattleSquaddieId: 0,
             })
         })
 
@@ -178,8 +178,8 @@ describe("Coordinate Map Manager", () => {
             manager.addSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: { row: 0, col: 2 },
             })
@@ -187,8 +187,8 @@ describe("Coordinate Map Manager", () => {
             manager.moveSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: { row: 1, col: 1 },
             })
@@ -197,8 +197,8 @@ describe("Coordinate Map Manager", () => {
                 manager.getSquaddieCoordinate({
                     mapId: "testMap",
                     squaddieId: {
-                        outOfBattle: "soldier",
-                        inBattle: 0,
+                        outOfBattleSquaddieId: "soldier",
+                        inBattleSquaddieId: 0,
                     },
                 })
             ).toEqual({ row: 1, col: 1 })
@@ -218,8 +218,8 @@ describe("Coordinate Map Manager", () => {
             manager.addSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: { row: 0, col: 2 },
             })
@@ -227,8 +227,8 @@ describe("Coordinate Map Manager", () => {
             manager.moveSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: undefined,
             })
@@ -247,8 +247,8 @@ describe("Coordinate Map Manager", () => {
                 manager.getSquaddieCoordinate({
                     mapId: "testMap",
                     squaddieId: {
-                        outOfBattle: "soldier",
-                        inBattle: 0,
+                        outOfBattleSquaddieId: "soldier",
+                        inBattleSquaddieId: 0,
                     },
                 })
             ).toEqual({ row: undefined, col: undefined })
@@ -258,8 +258,8 @@ describe("Coordinate Map Manager", () => {
             manager.addSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: { row: 0, col: 2 },
             })
@@ -267,8 +267,8 @@ describe("Coordinate Map Manager", () => {
             manager.removeSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
             })
 
@@ -276,8 +276,8 @@ describe("Coordinate Map Manager", () => {
                 manager.getSquaddieCoordinate({
                     mapId: "testMap",
                     squaddieId: {
-                        outOfBattle: "soldier",
-                        inBattle: 0,
+                        outOfBattleSquaddieId: "soldier",
+                        inBattleSquaddieId: 0,
                     },
                 })
             ).toBeUndefined()
@@ -287,24 +287,24 @@ describe("Coordinate Map Manager", () => {
             manager.addSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: { row: 0, col: 2 },
             })
             manager.addSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 1,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 1,
                 },
                 coordinate: { row: 1, col: 3 },
             })
             manager.addSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "offscreen",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "offscreen",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: undefined,
             })
@@ -313,22 +313,22 @@ describe("Coordinate Map Manager", () => {
                 expect.arrayContaining([
                     {
                         squaddieId: {
-                            outOfBattle: "soldier",
-                            inBattle: 0,
+                            outOfBattleSquaddieId: "soldier",
+                            inBattleSquaddieId: 0,
                         },
                         coordinate: { row: 0, col: 2 },
                     },
                     {
                         squaddieId: {
-                            outOfBattle: "soldier",
-                            inBattle: 1,
+                            outOfBattleSquaddieId: "soldier",
+                            inBattleSquaddieId: 1,
                         },
                         coordinate: { row: 1, col: 3 },
                     },
                     {
                         squaddieId: {
-                            outOfBattle: "offscreen",
-                            inBattle: 0,
+                            outOfBattleSquaddieId: "offscreen",
+                            inBattleSquaddieId: 0,
                         },
                         coordinate: { row: undefined, col: undefined },
                     },
@@ -340,8 +340,8 @@ describe("Coordinate Map Manager", () => {
             manager.addSquaddie({
                 mapId: "testMap",
                 squaddieId: {
-                    outOfBattle: "soldier",
-                    inBattle: 0,
+                    outOfBattleSquaddieId: "soldier",
+                    inBattleSquaddieId: 0,
                 },
                 coordinate: { row: 0, col: 2 },
             })
@@ -350,8 +350,8 @@ describe("Coordinate Map Manager", () => {
                 manager.addSquaddie({
                     mapId: "testMap",
                     squaddieId: {
-                        outOfBattle: "soldier",
-                        inBattle: 0,
+                        outOfBattleSquaddieId: "soldier",
+                        inBattleSquaddieId: 0,
                     },
                     coordinate: { row: 0, col: 2 },
                 })
@@ -361,8 +361,8 @@ describe("Coordinate Map Manager", () => {
                 manager.addSquaddie({
                     mapId: "testMap",
                     squaddieId: {
-                        outOfBattle: "soldier",
-                        inBattle: 1,
+                        outOfBattleSquaddieId: "soldier",
+                        inBattleSquaddieId: 1,
                     },
                     coordinate: { row: 0, col: 2 },
                 })
@@ -372,8 +372,8 @@ describe("Coordinate Map Manager", () => {
                 manager.getSquaddieCoordinate({
                     mapId: "testMap",
                     squaddieId: {
-                        outOfBattle: "soldier",
-                        inBattle: 0,
+                        outOfBattleSquaddieId: "soldier",
+                        inBattleSquaddieId: 0,
                     },
                 })
             ).toEqual({ row: 0, col: 2 })

@@ -159,8 +159,8 @@ const moveSquaddie = ({
     map.manager.moveSquaddie({
         mapId: map.mapId,
         squaddieId: {
-            inBattle: result.inBattleSquaddieId,
-            outOfBattle: result.outOfBattleSquaddieId,
+            inBattleSquaddieId: result.inBattleSquaddieId,
+            outOfBattleSquaddieId: result.outOfBattleSquaddieId,
         },
         coordinate: CoordinateMovePathService.getEndCoordinate(
             result.movement.expectedPath

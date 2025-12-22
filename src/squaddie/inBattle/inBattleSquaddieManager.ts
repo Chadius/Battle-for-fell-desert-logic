@@ -20,6 +20,7 @@ import type { DamageResult } from "../../squaddieAction/calculate/squaddieAction
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
 import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager.ts"
 import type { SquaddieItem } from "../../squaddieItem/squaddieItem.ts"
+import type { TSquaddieAffiliation } from "../outOfBattle/affiliation.ts"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection
@@ -1041,6 +1042,20 @@ export class InBattleSquaddieManager {
         })
 
         return Math.ceil(movementCost / movementInfo.movementPerAction)
+    }
+
+    getSquaddieAffiliation({
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): TSquaddieAffiliation {
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(
+            this.getSquaddieAffiliation.name
+        )
+        return this.outOfBattleSquaddieManager!.getSquaddieAffiliation(
+            outOfBattleSquaddieId
+        )
     }
 
     private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {

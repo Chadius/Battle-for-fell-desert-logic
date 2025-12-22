@@ -327,8 +327,8 @@ describe("Squaddie resolves actions on themself", () => {
             mapManager.addSquaddie({
                 mapId: "map",
                 squaddieId: {
-                    inBattle: inBattleSquaddieId,
-                    outOfBattle: outOfBattleSquaddieId,
+                    inBattleSquaddieId: inBattleSquaddieId,
+                    outOfBattleSquaddieId: outOfBattleSquaddieId,
                 },
                 coordinate: { row: 0, col: 0 },
             })
@@ -406,8 +406,8 @@ describe("Squaddie resolves actions on themself", () => {
                         CoordinateMapService.getSquaddieCoordinate({
                             map: mapManager.getMapById("map"),
                             squaddieId: {
-                                inBattle: inBattleSquaddieId,
-                                outOfBattle: outOfBattleSquaddieId,
+                                inBattleSquaddieId: inBattleSquaddieId,
+                                outOfBattleSquaddieId: outOfBattleSquaddieId,
                             },
                         })
                     ).toEqual(

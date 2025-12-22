@@ -6,17 +6,20 @@ export const SquaddieConditionType = {
     ARMOR: "ARMOR",
     ELUSIVE: "ELUSIVE",
     SLOWED: "SLOWED",
+    HUSTLE: "HUSTLE",
 } as const satisfies Record<string, string>
 export type TSquaddieConditionType = EnumLike<typeof SquaddieConditionType>
 
 const binaryTypes = new Set<TSquaddieConditionType>([
     SquaddieConditionType.ELUSIVE,
+    SquaddieConditionType.HUSTLE,
 ])
 
 const helpfulTypes = new Set<TSquaddieConditionType>([
     SquaddieConditionType.ARMOR,
     SquaddieConditionType.ABSORB,
     SquaddieConditionType.ELUSIVE,
+    SquaddieConditionType.HUSTLE,
 ])
 
 const hinderingTypes = new Set<TSquaddieConditionType>([

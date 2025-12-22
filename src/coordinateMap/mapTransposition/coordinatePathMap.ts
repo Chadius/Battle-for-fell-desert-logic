@@ -148,6 +148,18 @@ export const CoordinatePathMapService = {
 
         return destinationCoordinate.cachedMovePath
     },
+    deletePath: ({
+        coordinatePathMap,
+        col,
+        row,
+    }: {
+        coordinatePathMap: CoordinatePathMap
+        row: number
+        col: number
+    }): void => {
+        throwIfCoordinateIsOffMap(coordinatePathMap, row, col, "deletePath")
+        coordinatePathMap.visitedCoordinates[row][col] = undefined
+    },
     add: ({
         coordinatePathMap,
         currentCoordinate,

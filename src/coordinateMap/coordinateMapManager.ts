@@ -103,7 +103,10 @@ export class CoordinateMapCollectionManager {
         coordinate,
     }: {
         mapId: string
-        squaddieId: { outOfBattle: string; inBattle: number }
+        squaddieId: {
+            outOfBattleSquaddieId: string
+            inBattleSquaddieId: number
+        }
         coordinate: OffsetCoordinate | undefined
     }) {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
@@ -132,7 +135,10 @@ export class CoordinateMapCollectionManager {
 
     moveSquaddie(param: {
         mapId: string
-        squaddieId: { outOfBattle: string; inBattle: number }
+        squaddieId: {
+            outOfBattleSquaddieId: string
+            inBattleSquaddieId: number
+        }
         coordinate: OffsetCoordinate | undefined
     }) {
         return this.addSquaddie(param)
@@ -143,7 +149,10 @@ export class CoordinateMapCollectionManager {
         squaddieId,
     }: {
         mapId: string
-        squaddieId: { outOfBattle: string; inBattle: number }
+        squaddieId: {
+            outOfBattleSquaddieId: string
+            inBattleSquaddieId: number
+        }
     }): OffsetMaybeOffmapCoordinate | undefined {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
             mapId,
@@ -162,7 +171,10 @@ export class CoordinateMapCollectionManager {
         squaddieId,
     }: {
         mapId: string
-        squaddieId: { outOfBattle: string; inBattle: number }
+        squaddieId: {
+            outOfBattleSquaddieId: string
+            inBattleSquaddieId: number
+        }
     }): void {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
             mapId,
@@ -190,8 +202,8 @@ export class CoordinateMapCollectionManager {
         coordinate: OffsetCoordinate
     }):
         | {
-              outOfBattle: string
-              inBattle: number
+              outOfBattleSquaddieId: string
+              inBattleSquaddieId: number
           }
         | undefined {
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
@@ -208,8 +220,8 @@ export class CoordinateMapCollectionManager {
 
     getAllSquaddieCoordinatesOnMap(id: string): {
         squaddieId: {
-            outOfBattle: string
-            inBattle: number
+            outOfBattleSquaddieId: string
+            inBattleSquaddieId: number
         }
         coordinate: OffsetMaybeOffmapCoordinate
     }[] {
