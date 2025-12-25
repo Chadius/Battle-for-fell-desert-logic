@@ -223,17 +223,12 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-    }): {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    } {
+    }): Map<TSquaddieConditionType, SquaddieCondition[]> {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return {}
+        if (squaddieInfo == undefined) return new Map()
 
         return InBattleSquaddieCollectionService.getAllConditions({
             collection: this.inBattleSquaddieCollection!,
@@ -272,9 +267,10 @@ export class InBattleSquaddieManager {
         conditions: SquaddieCondition[]
     }): {
         newConditions: SquaddieCondition[]
-        netEffect: {
-            [k in TSquaddieConditionType]?: Omit<SquaddieCondition, "type">[]
-        }
+        netEffect: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, "type">[]
+        >
     } {
         const info = this.addConditions({
             inBattleSquaddieId,
@@ -323,12 +319,10 @@ export class InBattleSquaddieManager {
         collection: InBattleSquaddieCollection
         changes: {
             newConditions: SquaddieCondition[]
-            netEffect: {
-                [k in TSquaddieConditionType]?: Omit<
-                    SquaddieCondition,
-                    "type"
-                >[]
-            }
+            netEffect: Map<
+                TSquaddieConditionType,
+                Omit<SquaddieCondition, "type">[]
+            >
         }
     } {
         const squaddieInfo = this.getSquaddie({
@@ -659,12 +653,10 @@ export class InBattleSquaddieManager {
         }
         amount: number | undefined
     }): {
-        dispelledConditions: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        dispelledConditions: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, TSquaddieConditionType>[]
+        >
         conditionTypes: {
             all?: boolean
             types?: TSquaddieConditionType[]
@@ -730,12 +722,10 @@ export class InBattleSquaddieManager {
         callName: string
     }): {
         collection: InBattleSquaddieCollection
-        dispelledConditions: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        dispelledConditions: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, TSquaddieConditionType>[]
+        >
         conditionTypes: {
             all?: boolean
             types?: TSquaddieConditionType[]
@@ -775,12 +765,10 @@ export class InBattleSquaddieManager {
         amount: number | undefined
     }): {
         collection: InBattleSquaddieCollection
-        treatedConditions: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        treatedConditions: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, TSquaddieConditionType>[]
+        >
         conditionTypes: {
             all?: boolean
             types?: TSquaddieConditionType[]
@@ -841,12 +829,10 @@ export class InBattleSquaddieManager {
         callName: string
     }): {
         collection: InBattleSquaddieCollection
-        treatedConditions: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        treatedConditions: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, TSquaddieConditionType>[]
+        >
         conditionTypes: {
             all?: boolean
             types?: TSquaddieConditionType[]

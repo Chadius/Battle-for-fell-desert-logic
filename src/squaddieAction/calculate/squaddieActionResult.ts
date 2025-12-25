@@ -30,12 +30,10 @@ export interface SquaddieActionResult {
     healing?: HealingResult
     conditionsAdded?: ConditionAddResult
     dispel?: {
-        dispelledConditions?: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        dispelledConditions?: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, TSquaddieConditionType>[]
+        >
         conditionTypes: {
             all?: boolean
             types?: TSquaddieConditionType[]
@@ -43,12 +41,10 @@ export interface SquaddieActionResult {
         amount: number | undefined
     }
     treat?: {
-        treatedConditions?: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        treatedConditions?: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, TSquaddieConditionType>[]
+        >
         conditionTypes: {
             all?: boolean
             types?: TSquaddieConditionType[]

@@ -26,12 +26,7 @@ export interface InBattleSquaddie {
         max: number
         current: number
     }
-    conditions: {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    }
+    conditions: Map<TSquaddieConditionType, SquaddieCondition[]>
     actionPoints: {
         current: number
     }
@@ -59,7 +54,7 @@ export const InBattleSquaddieService = {
                 max: attributeSheet.maxHitPoints,
                 current: attributeSheet.maxHitPoints,
             },
-            conditions: {},
+            conditions: new Map(),
             actionPoints: {
                 current: 3,
             },
@@ -76,7 +71,7 @@ export const InBattleSquaddieService = {
         squaddie: InBattleSquaddie
         conditionType: TSquaddieConditionType
     }): number => {
-        return sumOfConditionAmount(squaddie.conditions[conditionType])
+        return sumOfConditionAmount(squaddie.conditions.get(conditionType))
     },
     dealDamageToSquaddie({
         squaddie,
@@ -94,19 +89,19 @@ export const InBattleSquaddieService = {
         const newSquaddie: InBattleSquaddie = clone(squaddie)
         const conditions = getAllConditions(newSquaddie)
         let absorbAvailable = sumOfConditionAmount(
-            conditions[SquaddieConditionType.ABSORB]
+            conditions.get(SquaddieConditionType.ABSORB)
         )
         let damageReduction = absorbAvailable
 
         reduceConditionTypeByAmount({
             amount: damage.amount,
-            conditions: conditions[SquaddieConditionType.ABSORB],
+            conditions: conditions.get(SquaddieConditionType.ABSORB),
         })
         newSquaddie.conditions = conditions
 
         let absorbSpent =
             absorbAvailable -
-            sumOfConditionAmount(conditions[SquaddieConditionType.ABSORB])
+            sumOfConditionAmount(conditions.get(SquaddieConditionType.ABSORB))
 
         let damageTaken: number
         damageTaken = damage.amount - damageReduction
@@ -130,12 +125,8 @@ export const InBattleSquaddieService = {
     },
     getAllConditions: (
         squaddie: InBattleSquaddie
-    ): {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    } => getAllConditions(squaddie),
+    ): Map<TSquaddieConditionType, SquaddieCondition[]> =>
+        getAllConditions(squaddie),
     addConditionsToSquaddie: ({
         squaddie,
         conditions,
@@ -146,12 +137,7 @@ export const InBattleSquaddieService = {
         squaddie: InBattleSquaddie
         changes: {
             newConditions: SquaddieCondition[]
-            netEffect: {
-                [k in TSquaddieConditionType]?: Omit<
-                    SquaddieCondition,
-                    "type"
-                >[]
-            }
+            netEffect: Map<TSquaddieConditionType, SquaddieCondition[]>
         }
     } => {
         const newSquaddie = clone(squaddie)
@@ -165,7 +151,10 @@ export const InBattleSquaddieService = {
 
             if (!info.shouldAddNewCondition) continue
 
-            newSquaddie.conditions[condition.type] = info.replacementConditions
+            newSquaddie.conditions.set(
+                condition.type,
+                info.replacementConditions!
+            )
             newConditions.push(condition)
         }
 
@@ -191,7 +180,7 @@ export const InBattleSquaddieService = {
             getAllConditionTypesThatHaveZeroDuration(newSquaddie)
 
         for (const conditionType of removedConditionTypes) {
-            delete newSquaddie.conditions[conditionType]
+            newSquaddie.conditions.delete(conditionType)
         }
         removeAllIndividualConditionsWithZeroDuration(newSquaddie)
 
@@ -384,12 +373,7 @@ export const InBattleSquaddieService = {
         amount: number | undefined
     }): {
         squaddie: InBattleSquaddie
-        dispelledConditions: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        dispelledConditions: Map<TSquaddieConditionType, SquaddieCondition[]>
     } => {
         const { squaddie: cloneSquaddie, reducedConditions } =
             dispelOrTreatSquaddieConditions({
@@ -417,12 +401,7 @@ export const InBattleSquaddieService = {
         amount: number | undefined
     }): {
         squaddie: InBattleSquaddie
-        treatedConditions: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        treatedConditions: Map<TSquaddieConditionType, SquaddieCondition[]>
     } => {
         const { squaddie: cloneSquaddie, reducedConditions } =
             dispelOrTreatSquaddieConditions({
@@ -467,32 +446,14 @@ const clone = (original: InBattleSquaddie): InBattleSquaddie => {
     }
 }
 
-const deepCopyConditions = (original: {
-    [k in TSquaddieConditionType]?: Omit<
-        SquaddieCondition,
-        TSquaddieConditionType
-    >[]
-}): {
-    [k in TSquaddieConditionType]?: Omit<
-        SquaddieCondition,
-        TSquaddieConditionType
-    >[]
-} => {
-    let copy: {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    } = {}
-    for (const conditionTypeStr in original) {
-        const conditionType = conditionTypeStr as TSquaddieConditionType
-        if (conditionType == undefined) continue
-
-        const description = original[conditionType]
-        if (description == undefined) continue
-
-        copy[conditionType] = description.map((c) =>
-            SquaddieConditionService.clone(c)
+const deepCopyConditions = (
+    original: Map<TSquaddieConditionType, SquaddieCondition[]>
+): Map<TSquaddieConditionType, SquaddieCondition[]> => {
+    const copy = new Map<TSquaddieConditionType, SquaddieCondition[]>()
+    for (const [conditionType, conditions] of original.entries()) {
+        copy.set(
+            conditionType,
+            conditions.map((c) => SquaddieConditionService.clone(c))
         )
     }
     return copy
@@ -503,12 +464,7 @@ const updateConditionsIfNewConditionIfNeeded = ({
     squaddieConditions,
 }: {
     condition: SquaddieCondition
-    squaddieConditions: {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    }
+    squaddieConditions: Map<TSquaddieConditionType, SquaddieCondition[]>
 }): {
     shouldAddNewCondition: boolean
     replacementConditions:
@@ -516,7 +472,7 @@ const updateConditionsIfNewConditionIfNeeded = ({
         | undefined
 } => {
     const conditionType = condition.type
-    if (squaddieConditions[conditionType] == undefined) {
+    if (!squaddieConditions.has(conditionType)) {
         return {
             shouldAddNewCondition: true,
             replacementConditions: [
@@ -537,7 +493,7 @@ const updateConditionsIfNewConditionIfNeeded = ({
             simplifiedConditions: replacementConditions,
         } = addBinaryConditionAndSimplify({
             binaryCondition: condition,
-            existingConditions: squaddieConditions[conditionType],
+            existingConditions: squaddieConditions.get(conditionType)!,
         }))
         return {
             shouldAddNewCondition,
@@ -551,7 +507,7 @@ const updateConditionsIfNewConditionIfNeeded = ({
             simplifiedConditions: replacementConditions,
         } = addNumericalAmountConditionAndSimplify({
             newCondition: condition,
-            existingConditions: squaddieConditions[conditionType],
+            existingConditions: squaddieConditions.get(conditionType)!,
             isNewConditionPositive: true,
         }))
         return {
@@ -566,7 +522,7 @@ const updateConditionsIfNewConditionIfNeeded = ({
             simplifiedConditions: replacementConditions,
         } = addNumericalAmountConditionAndSimplify({
             newCondition: condition,
-            existingConditions: squaddieConditions[conditionType],
+            existingConditions: squaddieConditions.get(conditionType)!,
             isNewConditionPositive: false,
         }))
         return {
@@ -684,7 +640,7 @@ const addNumericalAmountConditionAndSimplify = ({
 }
 
 const reduceEachConditionByOneRound = (newSquaddie: InBattleSquaddie) => {
-    for (const conditionList of Object.values(newSquaddie.conditions)) {
+    for (const conditionList of newSquaddie.conditions.values()) {
         for (const condition of conditionList) {
             if (condition.limit.duration != undefined)
                 condition.limit.duration -= 1
@@ -694,7 +650,7 @@ const reduceEachConditionByOneRound = (newSquaddie: InBattleSquaddie) => {
 const getAllConditionTypesThatHaveZeroDuration = (
     newSquaddie: InBattleSquaddie
 ) => {
-    return Object.entries(newSquaddie.conditions)
+    return Array.from(newSquaddie.conditions.entries())
         .filter(([_, conditionList]) => {
             return conditionList.every(
                 (condition) =>
@@ -702,20 +658,21 @@ const getAllConditionTypesThatHaveZeroDuration = (
                     condition.limit.duration <= 0
             )
         })
-        .map(([typeStr, _]) => typeStr as TSquaddieConditionType)
+        .map(([conditionType, _]) => conditionType)
 }
 const removeAllIndividualConditionsWithZeroDuration = (
     newSquaddie: InBattleSquaddie
 ) => {
-    for (const conditionTypeStr of Object.keys(newSquaddie.conditions)) {
-        const conditionType = conditionTypeStr as TSquaddieConditionType
-        newSquaddie.conditions[conditionType] = newSquaddie.conditions[
-            conditionType
-        ]?.filter(
-            (condition) =>
-                condition.limit.duration == undefined ||
-                condition.limit.duration > 0
-        )
+    for (const conditionType of newSquaddie.conditions.keys()) {
+        const filtered: SquaddieCondition[] =
+            newSquaddie.conditions
+                .get(conditionType)
+                ?.filter(
+                    (condition) =>
+                        condition.limit.duration == undefined ||
+                        condition.limit.duration > 0
+                ) ?? []
+        newSquaddie.conditions.set(conditionType, filtered)
     }
 }
 
@@ -741,13 +698,8 @@ const reduceConditionTypeByAmount = ({
 
 const getAllConditions = (
     squaddie: InBattleSquaddie
-): {
-    [k in TSquaddieConditionType]?: Omit<
-        SquaddieCondition,
-        TSquaddieConditionType
-    >[]
-} => {
-    if (squaddie == undefined) return {}
+): Map<TSquaddieConditionType, SquaddieCondition[]> => {
+    if (squaddie == undefined) return new Map()
     return deepCopyConditions(squaddie.conditions)
 }
 
@@ -800,43 +752,27 @@ const dispelOrTreatSquaddieConditions = ({
     action: "dispel" | "treat"
 }): {
     squaddie: InBattleSquaddie
-    reducedConditions: {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    }
+    reducedConditions: Map<TSquaddieConditionType, SquaddieCondition[]>
 } => {
-    const reducedConditions: {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    } = {}
-    const newConditions: {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    } = {}
+    const reducedConditions = new Map<
+        TSquaddieConditionType,
+        SquaddieCondition[]
+    >()
 
     const cloneSquaddie = clone(squaddie)
 
-    for (const conditionTypeStr in cloneSquaddie.conditions) {
-        const squaddieConditionType = conditionTypeStr as TSquaddieConditionType
-
+    for (const [
+        squaddieConditionType,
+        squaddieConditionsForType,
+    ] of cloneSquaddie.conditions.entries()) {
         const squaddieHasConditionTypeThatMayBeReduced =
             conditionTypes.all ||
             (conditionTypes.types ?? []).includes(squaddieConditionType)
 
         if (!squaddieHasConditionTypeThatMayBeReduced) {
-            newConditions[squaddieConditionType] =
-                cloneSquaddie.conditions[squaddieConditionType]
             continue
         }
 
-        const squaddieConditionsForType =
-            cloneSquaddie.conditions[squaddieConditionType]
         if (
             squaddieConditionsForType == undefined ||
             squaddieConditionsForType.length == 0
@@ -851,7 +787,10 @@ const dispelOrTreatSquaddieConditions = ({
             )
 
         if (reducedConditionsForType.length > 0)
-            reducedConditions[squaddieConditionType] = reducedConditionsForType
+            reducedConditions.set(
+                squaddieConditionType,
+                reducedConditionsForType
+            )
         newConditionsForType.push(
             ...removeSquaddieConditionsReducedToZeroAmount(
                 reducedConditionsForType
@@ -859,9 +798,11 @@ const dispelOrTreatSquaddieConditions = ({
         )
 
         if (newConditionsForType.length > 0)
-            cloneSquaddie.conditions[squaddieConditionType] =
+            cloneSquaddie.conditions.set(
+                squaddieConditionType,
                 newConditionsForType
-        else delete cloneSquaddie.conditions[squaddieConditionType]
+            )
+        else cloneSquaddie.conditions.delete(squaddieConditionType)
     }
 
     return {
@@ -931,7 +872,7 @@ const calculateConditionAmount = (
     let conditionPenalty: number = 0
     if (type == ProficiencyType.ARMOR) {
         const amount = sumOfConditionAmount(
-            squaddie.conditions[SquaddieConditionType.ARMOR]
+            squaddie.conditions.get(SquaddieConditionType.ARMOR)
         )
         if (amount > 0) conditionBonus = amount
         if (amount < 0) conditionPenalty = amount

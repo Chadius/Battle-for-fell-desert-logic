@@ -124,12 +124,10 @@ export const InBattleSquaddieCollectionService = {
         collection: InBattleSquaddieCollection
         changes: {
             newConditions: SquaddieCondition[]
-            netEffect: {
-                [k in TSquaddieConditionType]?: Omit<
-                    SquaddieCondition,
-                    "type"
-                >[]
-            }
+            netEffect: Map<
+                TSquaddieConditionType,
+                Omit<SquaddieCondition, "type">[]
+            >
         }
     } => {
         throwIfCollectionIsUndefined(collection, "addConditionsToSquaddie")
@@ -167,12 +165,7 @@ export const InBattleSquaddieCollectionService = {
         collection: InBattleSquaddieCollection
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
-    }): {
-        [k in TSquaddieConditionType]?: Omit<
-            SquaddieCondition,
-            TSquaddieConditionType
-        >[]
-    } => {
+    }): Map<TSquaddieConditionType, SquaddieCondition[]> => {
         throwIfCollectionIsUndefined(collection, "getAllConditions")
         throwErrorsIfSquaddieIsUndefined({
             functionName: "getAllConditions",
@@ -509,12 +502,10 @@ export const InBattleSquaddieCollectionService = {
         commitChanges: boolean
     }): {
         collection: InBattleSquaddieCollection
-        dispelledConditions: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        dispelledConditions: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, TSquaddieConditionType>[]
+        >
         conditionTypes: {
             all?: boolean
             types?: TSquaddieConditionType[]
@@ -570,12 +561,10 @@ export const InBattleSquaddieCollectionService = {
         commitChanges: boolean
     }): {
         collection: InBattleSquaddieCollection
-        treatedConditions: {
-            [k in TSquaddieConditionType]?: Omit<
-                SquaddieCondition,
-                TSquaddieConditionType
-            >[]
-        }
+        treatedConditions: Map<
+            TSquaddieConditionType,
+            Omit<SquaddieCondition, TSquaddieConditionType>[]
+        >
         conditionTypes: {
             all?: boolean
             types?: TSquaddieConditionType[]

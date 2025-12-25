@@ -417,22 +417,40 @@ describe("Squaddie Actions on a friend", () => {
         expect(results[0].outOfBattleSquaddieId).toEqual(
             targetOutOfBattleSquaddieId
         )
-        expect(results[0].treat!.treatedConditions).toEqual({
-            [SquaddieConditionType.SLOWED]: [
-                SquaddieConditionService.new({
-                    type: SquaddieConditionType.SLOWED,
-                    amount: 0,
-                    duration: undefined,
-                }),
-            ],
-            [SquaddieConditionType.ARMOR]: [
-                SquaddieConditionService.new({
-                    type: SquaddieConditionType.ARMOR,
-                    amount: -1,
-                    duration: undefined,
-                }),
-            ],
-        })
+        expect(results[0].treat!.treatedConditions!.size).toEqual(2)
+        expect(
+            results[0].treat!.treatedConditions!.get(
+                SquaddieConditionType.SLOWED
+            )
+        ).toEqual([
+            SquaddieConditionService.new({
+                type: SquaddieConditionType.SLOWED,
+                amount: 0,
+                duration: undefined,
+            }),
+        ])
+        expect(
+            results[0].treat!.treatedConditions!.get(
+                SquaddieConditionType.ARMOR
+            )
+        ).toEqual([
+            SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: -1,
+                duration: undefined,
+            }),
+        ])
+        expect(
+            results[0].treat!.treatedConditions!.get(
+                SquaddieConditionType.ARMOR
+            )
+        ).toEqual([
+            SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: -1,
+                duration: undefined,
+            }),
+        ])
 
         ApplyResultService.applyResultsToSquaddies({
             inBattleSquaddieManager,
@@ -443,8 +461,8 @@ describe("Squaddie Actions on a friend", () => {
             inBattleSquaddieId: targetInBattleSquaddieId,
             outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
         })
-        expect(conditions[SquaddieConditionType.SLOWED]).toBeUndefined()
-        expect(conditions[SquaddieConditionType.ELUSIVE]).toHaveLength(1)
-        expect(conditions[SquaddieConditionType.ARMOR]).toHaveLength(2)
+        expect(conditions.has(SquaddieConditionType.SLOWED)).toBeFalsy()
+        expect(conditions.get(SquaddieConditionType.ELUSIVE)).toHaveLength(1)
+        expect(conditions.get(SquaddieConditionType.ARMOR)).toHaveLength(2)
     })
 })

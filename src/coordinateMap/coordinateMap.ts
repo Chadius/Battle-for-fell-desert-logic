@@ -28,11 +28,7 @@ export interface CoordinateMap {
     id: string
     name: string
     coordinates: Coordinate[][]
-    coordinateBySquaddie: {
-        [outOfBattleSquaddieId: string]: {
-            [inBattleSquaddieId: string]: OffsetMaybeOffmapCoordinate
-        }
-    }
+    coordinateBySquaddie: Map<string, Map<number, OffsetMaybeOffmapCoordinate>>
     coordinatesSquaddiesCannotStopOn: Map<number, Set<number>>
 }
 
@@ -57,7 +53,7 @@ export const CoordinateMapService = {
             name,
             coordinates,
             coordinatesSquaddiesCannotStopOn,
-            coordinateBySquaddie: {},
+            coordinateBySquaddie: new Map(),
         }
     },
     addSquaddie: ({
@@ -92,34 +88,41 @@ export const CoordinateMapService = {
         }
 
         if (
-            copyMap.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId]?.[
-                squaddieId.inBattleSquaddieId
-            ] != undefined
+            copyMap.coordinateBySquaddie.has(
+                squaddieId.outOfBattleSquaddieId
+            ) &&
+            copyMap.coordinateBySquaddie
+                .get(squaddieId.outOfBattleSquaddieId)!
+                .has(squaddieId.inBattleSquaddieId)
         ) {
-            const row =
-                copyMap.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId][
-                    squaddieId.inBattleSquaddieId
-                ].row
-            const col =
-                copyMap.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId][
-                    squaddieId.inBattleSquaddieId
-                ].col
+            const row = copyMap.coordinateBySquaddie
+                .get(squaddieId.outOfBattleSquaddieId)!
+                .get(squaddieId.inBattleSquaddieId)!.row
+            const col = copyMap.coordinateBySquaddie
+                .get(squaddieId.outOfBattleSquaddieId)!
+                .get(squaddieId.inBattleSquaddieId)!.col
+
             if (row != undefined && col != undefined) {
                 copyMap.coordinates[row][col].squaddieId = undefined
             }
 
-            delete copyMap.coordinateBySquaddie[
+            copyMap.coordinateBySquaddie
+                .get(squaddieId.outOfBattleSquaddieId)!
+                .delete(squaddieId.inBattleSquaddieId)
+            copyMap.coordinateBySquaddie.delete(
                 squaddieId.outOfBattleSquaddieId
-            ][squaddieId.inBattleSquaddieId]
-            delete copyMap.coordinateBySquaddie[
-                squaddieId.outOfBattleSquaddieId
-            ]
+            )
         }
 
-        copyMap.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId] ||= {}
-        copyMap.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId][
-            squaddieId.inBattleSquaddieId
-        ] = { ...coordinate }
+        if (!copyMap.coordinateBySquaddie.has(squaddieId.outOfBattleSquaddieId))
+            copyMap.coordinateBySquaddie.set(
+                squaddieId.outOfBattleSquaddieId,
+                new Map()
+            )
+
+        copyMap.coordinateBySquaddie
+            .get(squaddieId.outOfBattleSquaddieId)!
+            .set(squaddieId.inBattleSquaddieId, { ...coordinate })
 
         if (coordinate.row != undefined && coordinate.col != undefined)
             copyMap.coordinates[coordinate.row][coordinate.col].squaddieId = {
@@ -137,9 +140,9 @@ export const CoordinateMapService = {
             inBattleSquaddieId: number
         }
     }): OffsetMaybeOffmapCoordinate | undefined {
-        return map.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId]?.[
-            squaddieId.inBattleSquaddieId
-        ]
+        return map.coordinateBySquaddie
+            .get(squaddieId.outOfBattleSquaddieId)
+            ?.get(squaddieId.inBattleSquaddieId)
     },
     getSquaddieAtCoordinate: ({
         map,
@@ -168,10 +171,9 @@ export const CoordinateMapService = {
             inBattleSquaddieId: number
         }
     }): CoordinateMap => {
-        const squaddieCoordinateInfo =
-            map.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId]?.[
-                squaddieId.inBattleSquaddieId
-            ]
+        const squaddieCoordinateInfo = map.coordinateBySquaddie
+            .get(squaddieId.outOfBattleSquaddieId)
+            ?.get(squaddieId.inBattleSquaddieId)
         if (squaddieCoordinateInfo == undefined) return map
 
         const copyMap = cloneCoordinateMap(map)
@@ -183,18 +185,17 @@ export const CoordinateMapService = {
             copyMap.coordinates[squaddieCoordinateInfo.row][
                 squaddieCoordinateInfo.col
             ].squaddieId = undefined
-        delete copyMap.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId][
-            squaddieId.inBattleSquaddieId
-        ]
+        copyMap.coordinateBySquaddie
+            .get(squaddieId.outOfBattleSquaddieId)
+            ?.delete(squaddieId.inBattleSquaddieId)
 
         if (
-            Object.keys(
-                copyMap.coordinateBySquaddie[squaddieId.outOfBattleSquaddieId]
-            ).length == 0
+            copyMap.coordinateBySquaddie.get(squaddieId.outOfBattleSquaddieId)
+                ?.size == 0
         )
-            delete copyMap.coordinateBySquaddie[
+            copyMap.coordinateBySquaddie.delete(
                 squaddieId.outOfBattleSquaddieId
-            ]
+            )
         return copyMap
     },
     getAllSquaddieCoordinatesOnMap: (
@@ -207,21 +208,19 @@ export const CoordinateMapService = {
         coordinate: OffsetMaybeOffmapCoordinate
     }[] => {
         let squaddieCoordinateInfo = []
-        for (const outOfBattleSquaddieId of Object.keys(
-            map.coordinateBySquaddie
-        )) {
-            for (const inBattleSquaddieId of Object.keys(
-                map.coordinateBySquaddie[outOfBattleSquaddieId]
-            )) {
+        for (const outOfBattleSquaddieId of map.coordinateBySquaddie.keys()) {
+            for (const inBattleSquaddieId of map.coordinateBySquaddie
+                .get(outOfBattleSquaddieId)
+                ?.keys() || []) {
                 squaddieCoordinateInfo.push({
                     squaddieId: {
                         outOfBattleSquaddieId: outOfBattleSquaddieId,
-                        inBattleSquaddieId: Number(inBattleSquaddieId),
+                        inBattleSquaddieId: inBattleSquaddieId,
                     },
                     coordinate: {
-                        ...map.coordinateBySquaddie[outOfBattleSquaddieId][
-                            Number(inBattleSquaddieId)
-                        ],
+                        ...map.coordinateBySquaddie
+                            .get(outOfBattleSquaddieId)
+                            ?.get(inBattleSquaddieId)!,
                     },
                 })
             }
@@ -466,13 +465,28 @@ const cloneCoordinateMap = (original: CoordinateMap): CoordinateMap => {
         cloneCoordinatesSquaddiesCannotStopOn.set(row, new Set(cols))
     }
 
+    const cloneCoordinateBySquaddie: Map<
+        string,
+        Map<number, OffsetMaybeOffmapCoordinate>
+    > = new Map()
+    for (const [
+        outOfBattleSquaddieId,
+        mapping,
+    ] of original.coordinateBySquaddie) {
+        const cloneMapping: Map<number, OffsetMaybeOffmapCoordinate> = new Map()
+        for (const [inBattleSquaddieId, coordinates] of mapping) {
+            cloneMapping.set(inBattleSquaddieId, { ...coordinates })
+        }
+        cloneCoordinateBySquaddie.set(outOfBattleSquaddieId, cloneMapping)
+    }
+
     return {
         id: original.id,
         name: original.name,
         coordinates: original.coordinates.map((row) =>
             row.map((c) => cloneCoordinate(c))
         ),
-        coordinateBySquaddie: { ...original.coordinateBySquaddie },
+        coordinateBySquaddie: cloneCoordinateBySquaddie,
         coordinatesSquaddiesCannotStopOn: cloneCoordinatesSquaddiesCannotStopOn,
     }
 }

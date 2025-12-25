@@ -453,15 +453,17 @@ describe("Squaddie Actions against foes", () => {
         expect(results[0].outOfBattleSquaddieId).toEqual(
             targetOutOfBattleSquaddieId
         )
-        expect(results[0].dispel!.dispelledConditions).toEqual({
-            [SquaddieConditionType.ELUSIVE]: [
-                SquaddieConditionService.new({
-                    type: SquaddieConditionType.ELUSIVE,
-                    amount: undefined,
-                    duration: undefined,
-                }),
-            ],
-        })
+        expect(
+            results[0].dispel!.dispelledConditions!.get(
+                SquaddieConditionType.ELUSIVE
+            )
+        ).toEqual([
+            SquaddieConditionService.new({
+                type: SquaddieConditionType.ELUSIVE,
+                amount: undefined,
+                duration: undefined,
+            }),
+        ])
 
         ApplyResultService.applyResultsToSquaddies({
             inBattleSquaddieManager,
@@ -472,8 +474,8 @@ describe("Squaddie Actions against foes", () => {
             inBattleSquaddieId: targetInBattleSquaddieId,
             outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
         })
-        expect(conditions[SquaddieConditionType.ELUSIVE]).toBeUndefined()
-        expect(conditions[SquaddieConditionType.ARMOR]).toHaveLength(2)
-        expect(conditions[SquaddieConditionType.SLOWED]).toHaveLength(1)
+        expect(conditions.has(SquaddieConditionType.ELUSIVE)).toBeFalsy()
+        expect(conditions.get(SquaddieConditionType.ARMOR)).toHaveLength(2)
+        expect(conditions.get(SquaddieConditionType.SLOWED)).toHaveLength(1)
     })
 })
