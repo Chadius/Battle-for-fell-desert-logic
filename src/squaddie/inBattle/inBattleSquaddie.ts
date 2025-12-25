@@ -730,7 +730,9 @@ const getProficiencyLevel = ({
     attributeSheet: OutOfBattleSquaddieAttributeSheet
     type: TProficiencyType
 }): TProficiencyLevel => {
-    return attributeSheet.proficiencyLevels[type] ?? ProficiencyLevel.UNTRAINED
+    return (
+        attributeSheet.proficiencyLevels.get(type) ?? ProficiencyLevel.UNTRAINED
+    )
 }
 
 const removeSquaddieConditionsReducedToZeroAmount = (

@@ -13,7 +13,7 @@ export interface OutOfBattleSquaddieAttributeSheet {
         moveThroughWalls: boolean
         stopOnSquaddies: boolean
     }
-    proficiencyLevels: { [key in TProficiencyType]?: TProficiencyLevel }
+    proficiencyLevels: Map<TProficiencyType, TProficiencyLevel>
     attributeScores: { [key in AttributeScoreType]: number }
     rank: number
     items: {
@@ -31,12 +31,30 @@ export const OutOfBattleSquaddieAttributeSheetService = {
         rank,
         attributeScores,
         items,
-    }: Partial<Omit<OutOfBattleSquaddieAttributeSheet, "movement">> & {
+    }: Partial<
+        Omit<
+            OutOfBattleSquaddieAttributeSheet,
+            "movement" | "proficiencyLevels"
+        >
+    > & {
         id: string
         attributeScores: { [key in AttributeScoreType]: number }
         movement: Partial<OutOfBattleSquaddieAttributeSheet["movement"]>
         items?: Partial<OutOfBattleSquaddieAttributeSheet["items"]>
+        proficiencyLevels?:
+            | Map<TProficiencyType, TProficiencyLevel>
+            | { [key in TProficiencyType]?: TProficiencyLevel }
     }): OutOfBattleSquaddieAttributeSheet => {
+        const proficiencyLevelsMap =
+            proficiencyLevels instanceof Map
+                ? proficiencyLevels
+                : new Map(
+                      Object.entries(proficiencyLevels ?? {}) as [
+                          TProficiencyType,
+                          TProficiencyLevel,
+                      ][]
+                  )
+
         return {
             id,
             maxHitPoints: maxHitPoints ?? 1,
@@ -46,7 +64,7 @@ export const OutOfBattleSquaddieAttributeSheetService = {
                 moveThroughWalls: movement?.moveThroughWalls ?? false,
                 stopOnSquaddies: movement?.stopOnSquaddies ?? false,
             },
-            proficiencyLevels: proficiencyLevels ?? {},
+            proficiencyLevels: proficiencyLevelsMap,
             rank: rank ?? 0,
             attributeScores,
             items: {
@@ -132,14 +150,7 @@ export const OutOfBattleSquaddieAttributeSheetService = {
 const clone = (
     original: OutOfBattleSquaddieAttributeSheet
 ): OutOfBattleSquaddieAttributeSheet => {
-    const newProficiencyLevels: OutOfBattleSquaddieAttributeSheet["proficiencyLevels"] =
-        {}
-    for (const [proficiencyType, proficiencyLevel] of Object.entries(
-        original.proficiencyLevels
-    )) {
-        newProficiencyLevels[proficiencyType as TProficiencyType] =
-            proficiencyLevel
-    }
+    const newProficiencyLevels = new Map(original.proficiencyLevels.entries())
 
     const newAttributeScores: OutOfBattleSquaddieAttributeSheet["attributeScores"] =
         {
