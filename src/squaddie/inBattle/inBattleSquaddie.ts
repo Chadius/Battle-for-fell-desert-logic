@@ -304,25 +304,22 @@ export const InBattleSquaddieService = {
         const rank = attributeSheet.rank
 
         let attributeScore = 0
-        if (
-            ProficiencyLevelConst.attributeScoreByProficiencyType[type] !=
-            undefined
-        ) {
+        if (ProficiencyLevelConst.attributeScoreByProficiencyType.has(type)) {
             attributeScore = getAttributeScore({
                 attributeSheet,
-                type: ProficiencyLevelConst.attributeScoreByProficiencyType[
+                type: ProficiencyLevelConst.attributeScoreByProficiencyType.get(
                     type
-                ],
+                )!,
             })
         }
 
         const proficiencyLevel =
-            ProficiencyLevelConst.bonusByProficiencyLevel[
+            ProficiencyLevelConst.bonusByProficiencyLevel.get(
                 getProficiencyLevel({
                     attributeSheet,
                     type,
                 })
-            ]
+            ) ?? 0
 
         let { conditionBonus, conditionPenalty } = calculateConditionAmount(
             type,

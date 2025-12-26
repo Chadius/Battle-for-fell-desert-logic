@@ -1221,9 +1221,9 @@ describe("In Battle Squaddie Manager", () => {
             ).toEqual(
                 attributeSheet.rank +
                     attributeSheet.attributeScores[AttributeScore.BODY] +
-                    ProficiencyLevelConst.bonusByProficiencyLevel[
+                    ProficiencyLevelConst.bonusByProficiencyLevel.get(
                         ProficiencyLevel.NOVICE
-                    ]
+                    )!
             )
 
             expect(
@@ -1233,9 +1233,9 @@ describe("In Battle Squaddie Manager", () => {
                 }).total
             ).toEqual(
                 attributeSheet.rank +
-                    ProficiencyLevelConst.bonusByProficiencyLevel[
+                    ProficiencyLevelConst.bonusByProficiencyLevel.get(
                         ProficiencyLevel.NOVICE
-                    ]
+                    )!
             )
         })
     })
@@ -1372,9 +1372,9 @@ describe("In Battle Squaddie Manager", () => {
                 }).total
             ).toEqual(
                 attributeSheet.rank +
-                    ProficiencyLevelConst.bonusByProficiencyLevel[
+                    ProficiencyLevelConst.bonusByProficiencyLevel.get(
                         ProficiencyLevel.NOVICE
-                    ] +
+                    )! +
                     2 +
                     armorPositive1LongDuration.amount!
             )

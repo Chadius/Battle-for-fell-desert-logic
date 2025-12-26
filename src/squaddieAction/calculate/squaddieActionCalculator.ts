@@ -225,9 +225,9 @@ const calculateDamageResults = ({
     if (damage == undefined) return []
 
     const damageAttributeScoreType =
-        ProficiencyLevelConst.attributeScoreByProficiencyType[
+        ProficiencyLevelConst.attributeScoreByProficiencyType.get(
             damage.targetProficiency
-        ] ?? damage.attributeScoreType
+        ) ?? damage.attributeScoreType
 
     const previewedDamage = inBattleSquaddieManager.previewDamageToSquaddie({
         inBattleSquaddieId: inBattleSquaddie.id,
