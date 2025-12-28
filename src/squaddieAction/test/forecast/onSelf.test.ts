@@ -20,10 +20,7 @@ import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation.t
 import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.ts"
 import { SquaddieActionService } from "../../squaddieAction.ts"
-import {
-    DegreeOfSuccess,
-    type TDegreeOfSuccess,
-} from "../../../degreesOfSuccess/degreeOfSuccess.ts"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.ts"
 import { ActionRange } from "../../actionRange.ts"
 import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator.ts"
 
@@ -130,7 +127,7 @@ describe("forecasts on effects on yourself", () => {
             outOfBattleSquaddieId: "outOfBattleSquaddie",
         })
 
-        const chanceToHitOutOf36: Map<TDegreeOfSuccess, number> =
+        const chanceToHitOutOf36: Map<string, number> =
             SquaddieActionForecastCalculator.forecastChanceToHit({
                 inBattleSquaddieManager,
                 actor: squaddieId,
@@ -140,10 +137,11 @@ describe("forecasts on effects on yourself", () => {
                     manager: squaddieActionManager,
                 },
             })
-
+        const forecastKey = SquaddieActionForecastCalculator.getForecastKey({
+            ...squaddieId,
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+        })
         expect(chanceToHitOutOf36.size).toBe(1)
-        expect(chanceToHitOutOf36.get(DegreeOfSuccess.SUCCESS)).toBe(36)
+        expect(chanceToHitOutOf36.get(forecastKey)).toBe(36)
     })
-
-    // it("will move on the map", () => {})
 })

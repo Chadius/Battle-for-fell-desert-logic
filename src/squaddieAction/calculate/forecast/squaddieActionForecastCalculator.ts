@@ -33,9 +33,40 @@ export const SquaddieActionForecastCalculator = {
             mapId: string
             manager: CoordinateMapCollectionManager
         }
-    }): Map<TDegreeOfSuccess, number> => {
-        const chances = new Map<TDegreeOfSuccess, number>([])
-        chances.set(DegreeOfSuccess.SUCCESS, 36)
+    }): Map<string, number> => {
+        const chances = new Map<string, number>([])
+        chances.set(
+            getForecastKey({
+                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                ...actor,
+            }),
+            36
+        )
         return chances
     },
+    getForecastKey: ({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        degreeOfSuccess,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        degreeOfSuccess: TDegreeOfSuccess
+    }): string =>
+        getForecastKey({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            degreeOfSuccess,
+        }),
 }
+
+const getForecastKey = ({
+    inBattleSquaddieId,
+    outOfBattleSquaddieId,
+    degreeOfSuccess,
+}: {
+    inBattleSquaddieId: number
+    outOfBattleSquaddieId: string
+    degreeOfSuccess: TDegreeOfSuccess
+}): string =>
+    `${outOfBattleSquaddieId}+++${inBattleSquaddieId}+++${degreeOfSuccess}`
