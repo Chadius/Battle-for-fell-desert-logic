@@ -1,9 +1,5 @@
 import { CoordinateCalculator } from "./coordinateCalculator.ts"
-import {
-    type CoordinateMap,
-    CoordinateMapService,
-    type OffsetCoordinate,
-} from "./coordinateMap.ts"
+import { type CoordinateMap, CoordinateMapService } from "./coordinateMap.ts"
 import type { AStarGraph } from "../aStarSearch/aStarGraph.ts"
 import {
     type CoordinateMovePath,
@@ -20,6 +16,10 @@ import {
     SquaddieAffiliationService,
     type TSquaddieAffiliation,
 } from "../squaddie/outOfBattle/affiliation.ts"
+import {
+    type OffsetCoordinate,
+    OffsetCoordinateService,
+} from "./offsetCoordinate.ts"
 
 export interface CoordinateMapSearchLimits {
     maximumMoveCost?: number
@@ -190,11 +190,8 @@ export class CoordinateMapAStarAdapter
         currentNode: OffsetCoordinate
         path: CoordinateMovePath
     }): boolean {
-        return !(
-            this.map.coordinatesSquaddiesCannotStopOn.has(currentNode.row) &&
-            this.map.coordinatesSquaddiesCannotStopOn
-                .get(currentNode.row)
-                ?.has(currentNode.col)
+        return !this.map.coordinatesSquaddiesCannotStopOn.has(
+            OffsetCoordinateService.coordinateToKey(currentNode)
         )
     }
 
@@ -247,14 +244,13 @@ export class CoordinateMapAStarAdapter
     }
 
     postProcess({ path: _ }: { path: CoordinateMovePath | undefined }): void {
-        for (const [row, cols] of this.map.coordinatesSquaddiesCannotStopOn) {
-            for (const col of cols) {
-                CoordinatePathMapService.deletePath({
-                    coordinatePathMap: this.coordinatePathMap,
-                    row,
-                    col,
-                })
-            }
+        for (const key of this.map.coordinatesSquaddiesCannotStopOn.values()) {
+            const { row, col } = OffsetCoordinateService.keyToCoordinate(key)
+            CoordinatePathMapService.deletePath({
+                coordinatePathMap: this.coordinatePathMap,
+                row,
+                col,
+            })
         }
 
         const locationsWithSquaddiesCannotStopOn =

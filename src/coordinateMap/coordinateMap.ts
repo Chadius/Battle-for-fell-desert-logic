@@ -5,11 +5,10 @@ import {
     CoordinateMovePathService,
     type CoordinateMovePathStep,
 } from "./path/path.ts"
-
-export type OffsetCoordinate = {
-    row: number
-    col: number
-}
+import {
+    type OffsetCoordinate,
+    OffsetCoordinateService,
+} from "./offsetCoordinate.ts"
 
 export type OffsetMaybeOffmapCoordinate = {
     row: number | undefined
@@ -29,7 +28,7 @@ export interface CoordinateMap {
     name: string
     coordinates: Coordinate[][]
     coordinateBySquaddie: Map<string, Map<number, OffsetMaybeOffmapCoordinate>>
-    coordinatesSquaddiesCannotStopOn: Map<number, Set<number>>
+    coordinatesSquaddiesCannotStopOn: Set<string>
 }
 
 export const CoordinateMapService = {
@@ -44,10 +43,8 @@ export const CoordinateMapService = {
     }): CoordinateMap => {
         const coordinates =
             convertMovementPropertiesIntoCoordinates(movementProperties)
-        const coordinatesSquaddiesCannotStopOn: Map<
-            number,
-            Set<number>
-        > = calculateCoordinateProperties(coordinates)
+        const coordinatesSquaddiesCannotStopOn: Set<string> =
+            calculateCoordinateProperties(coordinates)
         return {
             id,
             name,
@@ -457,13 +454,9 @@ const convertMovementPropertiesIntoCoordinates = (
 }
 
 const cloneCoordinateMap = (original: CoordinateMap): CoordinateMap => {
-    const cloneCoordinatesSquaddiesCannotStopOn: Map<
-        number,
-        Set<number>
-    > = new Map()
-    for (const [row, cols] of original.coordinatesSquaddiesCannotStopOn) {
-        cloneCoordinatesSquaddiesCannotStopOn.set(row, new Set(cols))
-    }
+    const cloneCoordinatesSquaddiesCannotStopOn: Set<string> = new Set(
+        original.coordinatesSquaddiesCannotStopOn
+    )
 
     const cloneCoordinateBySquaddie: Map<
         string,
@@ -544,15 +537,14 @@ const getNumberOfColumns = ({ map }: { map: CoordinateMap }): number => {
 
 const calculateCoordinateProperties = (
     coordinates: Coordinate[][]
-): Map<number, Set<number>> => {
-    const cannotStopCoordinates: Map<number, Set<number>> = new Map()
+): Set<string> => {
+    const cannotStopCoordinates: Set<string> = new Set()
     for (const row of coordinates) {
         for (const coordinate of row) {
             if (!coordinate.canStop) {
-                if (!cannotStopCoordinates.has(coordinate.row)) {
-                    cannotStopCoordinates.set(coordinate.row, new Set())
-                }
-                cannotStopCoordinates.get(coordinate.row)!.add(coordinate.col)
+                cannotStopCoordinates.add(
+                    OffsetCoordinateService.coordinateToKey(coordinate)
+                )
             }
         }
     }

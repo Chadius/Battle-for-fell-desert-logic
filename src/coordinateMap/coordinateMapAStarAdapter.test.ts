@@ -25,11 +25,7 @@ import {
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../proficiency/squaddieCondition.ts"
-import {
-    type CoordinateMap,
-    CoordinateMapService,
-    type OffsetCoordinate,
-} from "./coordinateMap.ts"
+import { type CoordinateMap, CoordinateMapService } from "./coordinateMap.ts"
 import { AStarSearchService } from "../aStarSearch/aStarSearch.ts"
 import {
     type CoordinateMovePath,
@@ -37,6 +33,7 @@ import {
 } from "./path/path.ts"
 import type { AStarGraph } from "../aStarSearch/aStarGraph.ts"
 import { CoordinatePathMapService } from "./mapTransposition/coordinatePathMap.ts"
+import type { OffsetCoordinate } from "./offsetCoordinate.ts"
 
 describe("coordinateMapAStarAdapter", () => {
     let manager: InBattleSquaddieManager

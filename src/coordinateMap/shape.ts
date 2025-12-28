@@ -1,6 +1,6 @@
 import type { EnumLike } from "../enum.ts"
-import type { OffsetCoordinate } from "./coordinateMap.ts"
 import { CoordinateCalculator } from "./coordinateCalculator.ts"
+import type { OffsetCoordinate } from "./offsetCoordinate.ts"
 
 export const CoordinateGeneratorShape = {
     BLOOM: "BLOOM",

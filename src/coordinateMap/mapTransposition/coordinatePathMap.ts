@@ -1,8 +1,4 @@
-import {
-    type CoordinateMap,
-    CoordinateMapService,
-    type OffsetCoordinate,
-} from "../coordinateMap.ts"
+import { type CoordinateMap, CoordinateMapService } from "../coordinateMap.ts"
 import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
@@ -10,6 +6,10 @@ import {
     type CoordinateMovePathStep,
     type TCoordinateMovePathMoveType,
 } from "../path/path.ts"
+import {
+    type OffsetCoordinate,
+    OffsetCoordinateService,
+} from "../offsetCoordinate.ts"
 
 interface VisitedCoordinate {
     row: number
@@ -26,7 +26,9 @@ interface VisitedCoordinate {
 export interface CoordinatePathMap {
     id: string
     name: string
-    visitedCoordinates: (VisitedCoordinate | undefined)[][]
+    visitedCoordinates: Map<string, VisitedCoordinate>
+    numberOfRows: number
+    numberOfColumns: number
 }
 
 export const CoordinatePathMapService = {
@@ -39,27 +41,12 @@ export const CoordinatePathMapService = {
         name: string
         map: CoordinateMap
     }): CoordinatePathMap => {
-        const visitedCoordinates: (VisitedCoordinate | undefined)[][] = []
-
-        for (
-            let row = 0;
-            row < CoordinateMapService.getNumberOfRows({ map });
-            row++
-        ) {
-            visitedCoordinates.push([])
-            for (
-                let col = 0;
-                col < CoordinateMapService.getNumberOfColumns({ map });
-                col++
-            ) {
-                visitedCoordinates[row].push(undefined)
-            }
-        }
-
         return {
             id,
             name,
-            visitedCoordinates,
+            visitedCoordinates: new Map(),
+            numberOfRows: CoordinateMapService.getNumberOfRows({ map }),
+            numberOfColumns: CoordinateMapService.getNumberOfColumns({ map }),
         }
     },
     getNumberOfRows: ({
@@ -87,8 +74,9 @@ export const CoordinatePathMapService = {
     }): void => {
         throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "extendPath")
         throwIfCoordinateIsOffMap(coordinatePathMap, row, col, "extendPath")
-        let destinationCoordinate =
-            coordinatePathMap.visitedCoordinates[row][col]
+        let destinationCoordinate = coordinatePathMap.visitedCoordinates.get(
+            OffsetCoordinateService.coordinateToKey({ row, col })
+        )
         if (destinationCoordinate == undefined) return
 
         if (destinationCoordinate.cachedMovePath != undefined) return
@@ -119,10 +107,9 @@ export const CoordinatePathMapService = {
             })
 
             if (previousCoordinate == undefined) break
-            currentCoordinate =
-                coordinatePathMap.visitedCoordinates[previousCoordinate.row][
-                    previousCoordinate.col
-                ]
+            currentCoordinate = coordinatePathMap.visitedCoordinates.get(
+                OffsetCoordinateService.coordinateToKey(previousCoordinate)
+            )
         }
 
         steps[0].moveType = CoordinateMovePathMoveType.START
@@ -142,8 +129,9 @@ export const CoordinatePathMapService = {
     }): CoordinateMovePath | undefined => {
         throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "getPath")
         throwIfCoordinateIsOffMap(coordinatePathMap, row, col, "getPath")
-        let destinationCoordinate =
-            coordinatePathMap.visitedCoordinates[row][col]
+        let destinationCoordinate = coordinatePathMap.visitedCoordinates.get(
+            OffsetCoordinateService.coordinateToKey({ row, col })
+        )
         if (destinationCoordinate == undefined) return undefined
 
         return destinationCoordinate.cachedMovePath
@@ -158,7 +146,9 @@ export const CoordinatePathMapService = {
         col: number
     }): void => {
         throwIfCoordinateIsOffMap(coordinatePathMap, row, col, "deletePath")
-        coordinatePathMap.visitedCoordinates[row][col] = undefined
+        coordinatePathMap.visitedCoordinates.delete(
+            OffsetCoordinateService.coordinateToKey({ row, col })
+        )
     },
     add: ({
         coordinatePathMap,
@@ -185,13 +175,14 @@ export const CoordinatePathMapService = {
             )
         }
 
-        coordinatePathMap.visitedCoordinates[currentCoordinate.row][
-            currentCoordinate.col
-        ] = {
-            row: currentCoordinate.row,
-            col: currentCoordinate.col,
-            previousCoordinate,
-        }
+        coordinatePathMap.visitedCoordinates.set(
+            OffsetCoordinateService.coordinateToKey(currentCoordinate),
+            {
+                row: currentCoordinate.row,
+                col: currentCoordinate.col,
+                previousCoordinate,
+            }
+        )
     },
 }
 
@@ -211,7 +202,7 @@ const getNumberOfRows = ({
     coordinatePathMap: CoordinatePathMap
 }): number => {
     throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "getNumberOfRows")
-    return coordinatePathMap.visitedCoordinates.length
+    return coordinatePathMap.numberOfRows
 }
 
 const getNumberOfColumns = ({
@@ -220,7 +211,7 @@ const getNumberOfColumns = ({
     coordinatePathMap: CoordinatePathMap
 }): number => {
     throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "getNumberOfRows")
-    return coordinatePathMap.visitedCoordinates[0].length
+    return coordinatePathMap.numberOfColumns
 }
 
 const throwIfCoordinateIsOffMap = (

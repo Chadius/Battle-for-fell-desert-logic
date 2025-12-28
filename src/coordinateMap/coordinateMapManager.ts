@@ -5,9 +5,9 @@ import {
 import {
     type CoordinateMap,
     CoordinateMapService,
-    type OffsetCoordinate,
     type OffsetMaybeOffmapCoordinate,
 } from "./coordinateMap.ts"
+import type { OffsetCoordinate } from "./offsetCoordinate.ts"
 
 export class CoordinateMapCollectionManager {
     coordinateMapCollection?: CoordinateMapCollection
