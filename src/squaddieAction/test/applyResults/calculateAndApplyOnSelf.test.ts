@@ -2,45 +2,45 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieAction,
     SquaddieActionService,
-} from "../squaddieAction.ts"
-import { SquaddieActionManager } from "../squaddieActionManager.ts"
+} from "../../squaddieAction.ts"
+import { SquaddieActionManager } from "../../squaddieActionManager.ts"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
-import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
-import {
-    type InBattleSquaddieCollection,
-    InBattleSquaddieCollectionService,
-} from "../../squaddie/inBattle/inBattleSquaddieCollection.ts"
-import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
-import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
-import { AttributeScore } from "../../proficiency/attributeScore.ts"
-import {
-    ProficiencyLevel,
-    ProficiencyType,
-} from "../../proficiency/proficiencyLevel.ts"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
-import { SquaddieAffiliation } from "../../squaddie/outOfBattle/affiliation.ts"
-import { SquaddieActionCollectionService } from "../squaddieActionCollection.ts"
-import { ActionRange } from "../actionRange.ts"
-import { CoordinateGeneratorShape } from "../../coordinateMap/shape.ts"
-import { SquaddieActionCalculator } from "../calculate/squaddieActionCalculator.ts"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
-import { ApplyResultService } from "../apply/applyResultService.ts"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
+import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.ts"
+import {
+    type InBattleSquaddieCollection,
+    InBattleSquaddieCollectionService,
+} from "../../../squaddie/inBattle/inBattleSquaddieCollection.ts"
+import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
+import { AttributeScore } from "../../../proficiency/attributeScore.ts"
+import {
+    ProficiencyLevel,
+    ProficiencyType,
+} from "../../../proficiency/proficiencyLevel.ts"
+import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation.ts"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.ts"
+import { ActionRange } from "../../actionRange.ts"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.ts"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.ts"
 import {
     SquaddieConditionService,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition.ts"
-import { CoordinateMapService } from "../../coordinateMap/coordinateMap.ts"
-import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
-import { CoordinateMovePathService } from "../../coordinateMap/path/path.ts"
-import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection.ts"
-import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.ts"
+} from "../../../proficiency/squaddieCondition.ts"
+import { ApplyResultService } from "../../apply/applyResultService.ts"
+import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.ts"
+import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection.ts"
+import { CoordinateMapService } from "../../../coordinateMap/coordinateMap.ts"
+import { CoordinateMovePathService } from "../../../coordinateMap/path/path.ts"
+import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator.ts"
+import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult.ts"
 
 describe("Squaddie resolves actions on themself", () => {
     let endTurnAction: SquaddieAction
@@ -165,7 +165,7 @@ describe("Squaddie resolves actions on themself", () => {
             outOfBattleSquaddieId,
         }).current
 
-        const results = SquaddieActionCalculator.calculateResult({
+        const results = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
             inBattleSquaddieManager,
             actor: {
@@ -204,7 +204,7 @@ describe("Squaddie resolves actions on themself", () => {
     })
 
     it("will apply removing all actions when squaddie uses End Turn without actually changing squaddie", () => {
-        const results = SquaddieActionCalculator.calculateResult({
+        const results = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
             inBattleSquaddieManager,
             actor: {
@@ -237,7 +237,7 @@ describe("Squaddie resolves actions on themself", () => {
     })
 
     it("can add conditions", () => {
-        const results = SquaddieActionCalculator.calculateResult({
+        const results = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
             inBattleSquaddieManager,
             actor: {
@@ -338,7 +338,7 @@ describe("Squaddie resolves actions on themself", () => {
             let results: SquaddieActionResult[]
 
             beforeEach(() => {
-                results = SquaddieActionCalculator.calculateResult({
+                results = SquaddieActionResultCalculator.calculateResult({
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     inBattleSquaddieManager,
                     actor: {

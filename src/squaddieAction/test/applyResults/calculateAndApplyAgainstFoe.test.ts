@@ -2,46 +2,46 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieAction,
     SquaddieActionService,
-} from "../squaddieAction.ts"
-import { SquaddieActionManager } from "../squaddieActionManager.ts"
+} from "../../squaddieAction.ts"
+import { SquaddieActionManager } from "../../squaddieActionManager.ts"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
-import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
-import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
+import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.ts"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "../../squaddie/inBattle/inBattleSquaddieCollection.ts"
-import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
-import { AttributeScore } from "../../proficiency/attributeScore.ts"
+} from "../../../squaddie/inBattle/inBattleSquaddieCollection.ts"
+import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
+import { AttributeScore } from "../../../proficiency/attributeScore.ts"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../proficiency/proficiencyLevel.ts"
-import { SquaddieAffiliation } from "../../squaddie/outOfBattle/affiliation.ts"
-import { ActionRange } from "../actionRange.ts"
-import { CoordinateGeneratorShape } from "../../coordinateMap/shape.ts"
-import { SquaddieActionCollectionService } from "../squaddieActionCollection.ts"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
-import { SquaddieActionCalculator } from "../calculate/squaddieActionCalculator.ts"
-import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
+} from "../../../proficiency/proficiencyLevel.ts"
+import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation.ts"
+import { ActionRange } from "../../actionRange.ts"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.ts"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.ts"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.ts"
+import { ApplyResultService } from "../../apply/applyResultService.ts"
 import {
     SquaddieConditionService,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition.ts"
-import { ApplyResultService } from "../apply/applyResultService.ts"
+} from "../../../proficiency/squaddieCondition.ts"
+import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator.ts"
+import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult.ts"
 
 describe("Squaddie Actions against foes", () => {
     let longswordAction: SquaddieAction
-    let longswordResults: SquaddieActionResult[]
     let lethalLongswordAction: SquaddieAction
+    let longswordResults: SquaddieActionResult[]
     let lethalLongswordResults: SquaddieActionResult[]
     let actionManager: SquaddieActionManager
 
@@ -157,7 +157,7 @@ describe("Squaddie Actions against foes", () => {
         )
         actionManager.addOrUpdate(longswordAction)
 
-        longswordResults = SquaddieActionCalculator.calculateResult({
+        longswordResults = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
             inBattleSquaddieManager,
             actor: {
@@ -206,26 +206,28 @@ describe("Squaddie Actions against foes", () => {
                 },
             },
         })
-        actionManager.addOrUpdate(lethalLongswordAction)
 
-        lethalLongswordResults = SquaddieActionCalculator.calculateResult({
-            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-            inBattleSquaddieManager,
-            actor: {
-                inBattleSquaddieId: actorInBattleSquaddieId,
-                outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
-            },
-            targets: [
-                {
-                    inBattleSquaddieId: targetInBattleSquaddieId,
-                    outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+        actionManager.addOrUpdate(lethalLongswordAction)
+        lethalLongswordResults = SquaddieActionResultCalculator.calculateResult(
+            {
+                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                inBattleSquaddieManager,
+                actor: {
+                    inBattleSquaddieId: actorInBattleSquaddieId,
+                    outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
                 },
-            ],
-            action: {
-                id: lethalLongswordAction.id,
-                manager: actionManager,
-            },
-        })
+                targets: [
+                    {
+                        inBattleSquaddieId: targetInBattleSquaddieId,
+                        outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                    },
+                ],
+                action: {
+                    id: lethalLongswordAction.id,
+                    manager: actionManager,
+                },
+            }
+        )
     })
 
     it("will have results for the actor and targets", () => {
@@ -316,7 +318,7 @@ describe("Squaddie Actions against foes", () => {
         })
 
         const longswordPartiallyAbsorbedResults =
-            SquaddieActionCalculator.calculateResult({
+            SquaddieActionResultCalculator.calculateResult({
                 degreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 inBattleSquaddieManager,
                 actor: {
@@ -431,7 +433,7 @@ describe("Squaddie Actions against foes", () => {
         })
         actionManager.addOrUpdate(dispelElusiveAction)
 
-        const results = SquaddieActionCalculator.calculateResult({
+        const results = SquaddieActionResultCalculator.calculateResult({
             actor: {
                 inBattleSquaddieId: actorInBattleSquaddieId,
                 outOfBattleSquaddieId: actorOutOfBattleSquaddieId,

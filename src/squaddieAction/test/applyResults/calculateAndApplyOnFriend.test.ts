@@ -2,41 +2,41 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieAction,
     SquaddieActionService,
-} from "../squaddieAction.ts"
-import { SquaddieActionManager } from "../squaddieActionManager.ts"
+} from "../../squaddieAction.ts"
+import { SquaddieActionManager } from "../../squaddieActionManager.ts"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
-import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
-import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
+import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.ts"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "../../squaddie/inBattle/inBattleSquaddieCollection.ts"
-import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
-import { AttributeScore } from "../../proficiency/attributeScore.ts"
+} from "../../../squaddie/inBattle/inBattleSquaddieCollection.ts"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.ts"
+import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
+import { AttributeScore } from "../../../proficiency/attributeScore.ts"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../proficiency/proficiencyLevel.ts"
-import { SquaddieAffiliation } from "../../squaddie/outOfBattle/affiliation.ts"
-import { ActionRange } from "../actionRange.ts"
-import { CoordinateGeneratorShape } from "../../coordinateMap/shape.ts"
-import { SquaddieActionCollectionService } from "../squaddieActionCollection.ts"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
-import { SquaddieActionCalculator } from "../calculate/squaddieActionCalculator.ts"
-import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
-import { ApplyResultService } from "../apply/applyResultService.ts"
+} from "../../../proficiency/proficiencyLevel.ts"
+import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation.ts"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.ts"
+import { ActionRange } from "../../actionRange.ts"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.ts"
 import {
     SquaddieConditionService,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition.ts"
+} from "../../../proficiency/squaddieCondition.ts"
+import { ApplyResultService } from "../../apply/applyResultService.ts"
+import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult.ts"
+import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator.ts"
 
 describe("Squaddie Actions on a friend", () => {
     let healingHerbAction: SquaddieAction
@@ -58,7 +58,7 @@ describe("Squaddie Actions on a friend", () => {
     let inBattleSquaddieCollection: InBattleSquaddieCollection
 
     const calculateHealingTargetResults = (): SquaddieActionResult[] => {
-        return SquaddieActionCalculator.calculateResult({
+        return SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
             inBattleSquaddieManager,
             actor: {
@@ -286,7 +286,7 @@ describe("Squaddie Actions on a friend", () => {
     describe("adding conditions", () => {
         it("knows when a condition is added to a teammate", () => {
             const initialMagicalBarrierResult =
-                SquaddieActionCalculator.calculateResult({
+                SquaddieActionResultCalculator.calculateResult({
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     inBattleSquaddieManager,
                     actor: {
@@ -318,7 +318,7 @@ describe("Squaddie Actions on a friend", () => {
             })
 
             const reapplyMagicalBarrierResult =
-                SquaddieActionCalculator.calculateResult({
+                SquaddieActionResultCalculator.calculateResult({
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
                     inBattleSquaddieManager,
                     actor: {
@@ -395,7 +395,7 @@ describe("Squaddie Actions on a friend", () => {
         })
         actionManager.addOrUpdate(treatAllAction)
 
-        const results = SquaddieActionCalculator.calculateResult({
+        const results = SquaddieActionResultCalculator.calculateResult({
             actor: {
                 inBattleSquaddieId: actorInBattleSquaddieId,
                 outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
