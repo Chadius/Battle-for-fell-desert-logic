@@ -214,4 +214,62 @@ describe("coordinateCalculator", () => {
             )
         })
     })
+    describe("get coordinates in a ring of a certain radius around a center", () => {
+        it("returns only the center for radius 0", () => {
+            const ring = CoordinateCalculator.getCoordinatesInRing(
+                { row: 2, col: 3 },
+                0
+            )
+
+            expect(ring).toHaveLength(1)
+            expect(ring).toEqual([{ row: 2, col: 3 }])
+        })
+
+        it("returns the neighboring 6 coordinates for radius 1", () => {
+            const center = { row: 2, col: 3 }
+            const ring = CoordinateCalculator.getCoordinatesInRing(center, 1)
+            const neighbors = CoordinateCalculator.getAllNeighbors(center)
+
+            expect(ring).toHaveLength(6)
+            expect(ring).toEqual(expect.arrayContaining(neighbors))
+        })
+
+        it("returns 12 coordinates for radius 2", () => {
+            const center = { row: 0, col: 0 }
+            const ring = CoordinateCalculator.getCoordinatesInRing(center, 2)
+
+            expect(ring).toHaveLength(12)
+
+            ring.forEach((coordinate) => {
+                expect(
+                    CoordinateCalculator.getDistanceBetween(center, coordinate)
+                ).toBe(2)
+            })
+        })
+
+        it("returns 18 coordinates for radius 3", () => {
+            const center = { row: 5, col: 5 }
+            const ring = CoordinateCalculator.getCoordinatesInRing(center, 3)
+
+            expect(ring).toHaveLength(18)
+
+            ring.forEach((coordinate) => {
+                expect(
+                    CoordinateCalculator.getDistanceBetween(center, coordinate)
+                ).toBe(3)
+            })
+        })
+
+        it("ring coordinates do not include center or inner rings", () => {
+            const center = { row: 3, col: 4 }
+            const ring2 = CoordinateCalculator.getCoordinatesInRing(center, 2)
+            const ring1 = CoordinateCalculator.getCoordinatesInRing(center, 1)
+
+            expect(ring2).not.toContainEqual(center)
+
+            ring1.forEach((coordinate) => {
+                expect(ring2).not.toContainEqual(coordinate)
+            })
+        })
+    })
 })

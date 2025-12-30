@@ -176,4 +176,211 @@ describe("Map Transposition", () => {
             ])
         })
     })
+
+    describe("GetClosestPaths", () => {
+        let coordinateMap: CoordinateMap
+        let coordinatePathMap: CoordinatePathMap
+        beforeEach(() => {
+            coordinateMap = CoordinateMapService.new({
+                id: "getClosestPath",
+                name: "getClosestPath",
+                movementProperties: [
+                    "2 2 1 1 1 ",
+                    " 1 1 1 1 1 ",
+                    "1 1 1 1 1 ",
+                    " 2 2 2 2 2 ",
+                    "2 2 2 2 2 ",
+                ],
+            })
+            coordinatePathMap = CoordinatePathMapService.new({
+                id: "coordinatePathMap",
+                name: "coordinatePathMap",
+                map: coordinateMap,
+            })
+        })
+        it("if there is a direct path return it", () => {
+            CoordinatePathMapService.add({
+                coordinatePathMap,
+                currentCoordinate: {
+                    row: 2,
+                    col: 3,
+                },
+                previousCoordinate: undefined,
+            })
+            CoordinatePathMapService.extendPath({
+                coordinatePathMap,
+                row: 2,
+                col: 3,
+                map: coordinateMap,
+                moveType: CoordinateMovePathMoveType.WALK,
+            })
+            const expectedPath = CoordinatePathMapService.getPath({
+                coordinatePathMap,
+                row: 2,
+                col: 3,
+            })
+
+            const actualPath = CoordinatePathMapService.getClosestPath({
+                coordinatePathMap,
+                targetCoordinate: {
+                    row: 2,
+                    col: 3,
+                },
+            })
+
+            expect(actualPath).toEqual(expectedPath)
+        })
+        it("Get the path with the closest end coordinate", () => {
+            CoordinatePathMapService.add({
+                coordinatePathMap,
+                currentCoordinate: {
+                    row: 2,
+                    col: 1,
+                },
+                previousCoordinate: undefined,
+            })
+            CoordinatePathMapService.add({
+                coordinatePathMap,
+                currentCoordinate: {
+                    row: 2,
+                    col: 2,
+                },
+                previousCoordinate: {
+                    row: 2,
+                    col: 1,
+                },
+            })
+            CoordinatePathMapService.extendPath({
+                map: coordinateMap,
+                moveType: CoordinateMovePathMoveType.WALK,
+                coordinatePathMap,
+                row: 2,
+                col: 2,
+            })
+            const expectedPath = CoordinatePathMapService.getPath({
+                coordinatePathMap,
+                row: 2,
+                col: 2,
+            })
+
+            const actualPath = CoordinatePathMapService.getClosestPath({
+                coordinatePathMap,
+                targetCoordinate: {
+                    row: 2,
+                    col: 3,
+                },
+            })
+
+            expect(actualPath).toEqual(expectedPath)
+        })
+        it("If multiple paths are equally close, use the path with less move distance", () => {
+            CoordinatePathMapService.add({
+                coordinatePathMap,
+                currentCoordinate: {
+                    row: 2,
+                    col: 1,
+                },
+                previousCoordinate: undefined,
+            })
+            CoordinatePathMapService.add({
+                coordinatePathMap,
+                currentCoordinate: {
+                    row: 2,
+                    col: 2,
+                },
+                previousCoordinate: {
+                    row: 2,
+                    col: 1,
+                },
+            })
+            CoordinatePathMapService.extendPath({
+                map: coordinateMap,
+                moveType: CoordinateMovePathMoveType.WALK,
+                coordinatePathMap,
+                row: 2,
+                col: 2,
+            })
+
+            CoordinatePathMapService.add({
+                coordinatePathMap,
+                currentCoordinate: {
+                    row: 3,
+                    col: 1,
+                },
+                previousCoordinate: undefined,
+            })
+            CoordinatePathMapService.add({
+                coordinatePathMap,
+                currentCoordinate: {
+                    row: 3,
+                    col: 2,
+                },
+                previousCoordinate: {
+                    row: 3,
+                    col: 1,
+                },
+            })
+            CoordinatePathMapService.extendPath({
+                map: coordinateMap,
+                moveType: CoordinateMovePathMoveType.WALK,
+                coordinatePathMap,
+                row: 3,
+                col: 2,
+            })
+            const expectedPath = CoordinatePathMapService.getPath({
+                coordinatePathMap,
+                row: 2,
+                col: 2,
+            })
+
+            const actualPath = CoordinatePathMapService.getClosestPath({
+                coordinatePathMap,
+                targetCoordinate: {
+                    row: 2,
+                    col: 3,
+                },
+            })
+
+            expect(actualPath).toEqual(expectedPath)
+        })
+        it("Can override the maximum search distance", () => {
+            CoordinatePathMapService.add({
+                coordinatePathMap,
+                currentCoordinate: {
+                    row: 0,
+                    col: 4,
+                },
+                previousCoordinate: undefined,
+            })
+
+            const actualPathDefaultMaxDistance3 =
+                CoordinatePathMapService.getClosestPath({
+                    coordinatePathMap,
+                    targetCoordinate: {
+                        row: 3,
+                        col: 4,
+                    },
+                })
+
+            expect(actualPathDefaultMaxDistance3).toBeUndefined()
+
+            const expectedPath = CoordinatePathMapService.getPath({
+                coordinatePathMap,
+                row: 0,
+                col: 4,
+            })
+
+            const actualPathUnlimitedDistance =
+                CoordinatePathMapService.getClosestPath({
+                    coordinatePathMap,
+                    targetCoordinate: {
+                        row: 3,
+                        col: 4,
+                    },
+                    maxDistanceOverride: 9001,
+                })
+
+            expect(actualPathUnlimitedDistance).toEqual(expectedPath)
+        })
+    })
 })

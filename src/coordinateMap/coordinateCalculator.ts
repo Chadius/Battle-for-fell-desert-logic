@@ -31,6 +31,18 @@ const directionDifferencesByRowIsEven = {
     ],
 }
 
+const axialDirectionOffsets: Map<
+    TCoordinateDirection,
+    { q: number; r: number }
+> = new Map([
+    [CoordinateDirection.RIGHT, { q: +1, r: 0 }],
+    [CoordinateDirection.UP_RIGHT, { q: +1, r: -1 }],
+    [CoordinateDirection.UP_LEFT, { q: 0, r: -1 }],
+    [CoordinateDirection.LEFT, { q: -1, r: 0 }],
+    [CoordinateDirection.DOWN_LEFT, { q: -1, r: +1 }],
+    [CoordinateDirection.DOWN_RIGHT, { q: 0, r: +1 }],
+])
+
 export const CoordinateCalculator = {
     getNeighbor: (
         origin: OffsetCoordinate,
@@ -75,6 +87,60 @@ export const CoordinateCalculator = {
         }
 
         return allInRange
+    },
+    getDistanceBetween: (
+        from: OffsetCoordinate,
+        to: OffsetCoordinate
+    ): number => {
+        const fromAxial = AxialCoordinateCalculator.offsetToAxial(from)
+        const toAxial = AxialCoordinateCalculator.offsetToAxial(to)
+        const dq = toAxial.q - fromAxial.q
+        const dr = toAxial.r - fromAxial.r
+        return (Math.abs(dq) + Math.abs(dr) + Math.abs(dq + dr)) / 2
+    },
+    getCoordinatesInRing: (
+        center: OffsetCoordinate,
+        radius: number
+    ): OffsetCoordinate[] => {
+        if (radius === 0) {
+            return [center]
+        }
+
+        const centerAxial = AxialCoordinateCalculator.offsetToAxial(center)
+
+        const startDirection = axialDirectionOffsets.get(
+            CoordinateDirection.DOWN_LEFT
+        )!
+        let currentAxial = {
+            q: centerAxial.q + startDirection.q * radius,
+            r: centerAxial.r + startDirection.r * radius,
+        }
+
+        const results: OffsetCoordinate[] = []
+
+        for (const direction of [
+            CoordinateDirection.RIGHT,
+            CoordinateDirection.UP_RIGHT,
+            CoordinateDirection.UP_LEFT,
+            CoordinateDirection.LEFT,
+            CoordinateDirection.DOWN_LEFT,
+            CoordinateDirection.DOWN_RIGHT,
+        ]) {
+            const directionVector = axialDirectionOffsets.get(direction)!
+
+            for (let step = 0; step < radius; step++) {
+                results.push(
+                    AxialCoordinateCalculator.axialToOffset(currentAxial)
+                )
+
+                currentAxial = {
+                    q: currentAxial.q + directionVector.q,
+                    r: currentAxial.r + directionVector.r,
+                }
+            }
+        }
+
+        return results
     },
 }
 

@@ -10,6 +10,7 @@ import {
     type OffsetCoordinate,
     OffsetCoordinateService,
 } from "../offsetCoordinate.ts"
+import { CoordinateCalculator } from "../coordinateCalculator.ts"
 
 interface VisitedCoordinate {
     row: number
@@ -184,6 +185,54 @@ export const CoordinatePathMapService = {
             }
         )
     },
+    getClosestPath: ({
+        coordinatePathMap,
+        targetCoordinate,
+        maxDistanceOverride = 3,
+    }: {
+        coordinatePathMap: CoordinatePathMap
+        targetCoordinate: OffsetCoordinate
+        maxDistanceOverride?: number
+    }): CoordinateMovePath | undefined => {
+        throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "getClosestPath")
+
+        const directPath = CoordinatePathMapService.getPath({
+            coordinatePathMap,
+            row: targetCoordinate.row,
+            col: targetCoordinate.col,
+        })
+        if (directPath != undefined) return directPath
+
+        let lowestCostMovePath: CoordinateMovePath | undefined = undefined
+        let lowestCost = 0
+
+        for (
+            let currentRadius = 1;
+            currentRadius <= maxDistanceOverride;
+            currentRadius++
+        ) {
+            const coordinates = CoordinateCalculator.getCoordinatesInRing(
+                targetCoordinate,
+                currentRadius
+            ).filter(
+                (coordinate) =>
+                    coordinate.row > 0 &&
+                    coordinate.row < getNumberOfRows({ coordinatePathMap }) &&
+                    coordinate.col > 0 &&
+                    coordinate.col < getNumberOfColumns({ coordinatePathMap })
+            )
+            if (coordinates.length == 0) break
+
+            lowestCostMovePath = updateClosestLowestCostMovePath(
+                coordinates,
+                coordinatePathMap,
+                lowestCostMovePath,
+                lowestCost
+            )
+            if (lowestCostMovePath != undefined) return lowestCostMovePath
+        }
+        return lowestCostMovePath
+    },
 }
 
 const throwIfCoordinatePathMapIsUndefined = (
@@ -212,6 +261,35 @@ const getNumberOfColumns = ({
 }): number => {
     throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "getNumberOfRows")
     return coordinatePathMap.numberOfColumns
+}
+
+const updateClosestLowestCostMovePath = (
+    coordinates: OffsetCoordinate[],
+    coordinatePathMap: CoordinatePathMap,
+    lowestCostMovePath: undefined | CoordinateMovePath,
+    lowestCost: number
+) => {
+    for (const coordinate of coordinates) {
+        let coordinateKey = OffsetCoordinateService.coordinateToKey(coordinate)
+        if (!coordinatePathMap.visitedCoordinates.has(coordinateKey)) continue
+
+        let visitedCoordinate =
+            coordinatePathMap.visitedCoordinates.get(coordinateKey)
+        if (!visitedCoordinate?.cachedMovePath) continue
+
+        if (
+            lowestCostMovePath == undefined ||
+            CoordinateMovePathService.getTotalMoveCost(
+                visitedCoordinate.cachedMovePath
+            ) < lowestCost
+        ) {
+            lowestCostMovePath = visitedCoordinate.cachedMovePath
+            lowestCost = CoordinateMovePathService.getTotalMoveCost(
+                visitedCoordinate.cachedMovePath
+            )
+        }
+    }
+    return lowestCostMovePath
 }
 
 const throwIfCoordinateIsOffMap = (
