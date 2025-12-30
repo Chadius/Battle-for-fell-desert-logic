@@ -1,14 +1,14 @@
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.ts"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
     type CoordinateMovePathStep,
-} from "./path/path.ts"
+} from "./path/path"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
-} from "./offsetCoordinate.ts"
+} from "./offsetCoordinate"
 
 export type OffsetMaybeOffmapCoordinate = {
     row: number | undefined

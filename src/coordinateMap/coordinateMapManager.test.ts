@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type CoordinateMapCollection,
     CoordinateMapCollectionService,
-} from "./coordinateMapCollection.ts"
-import { CoordinateMapCollectionManager } from "./coordinateMapManager.ts"
-import { CoordinateMapService } from "./coordinateMap.ts"
+} from "./coordinateMapCollection"
+import { CoordinateMapCollectionManager } from "./coordinateMapManager"
+import { CoordinateMapService } from "./coordinateMap"
 
 describe("Coordinate Map Manager", () => {
     let coordinateMapCollection: CoordinateMapCollection

@@ -1,36 +1,36 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { OutOfBattleSquaddieCollectionService } from "../outOfBattle/outOfBattleSquaddieCollection.ts"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
+import { OutOfBattleSquaddieCollectionService } from "../outOfBattle/outOfBattleSquaddieCollection"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "../outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
+} from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../outOfBattle/outOfBattleSquaddie.ts"
-import { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager.ts"
+} from "../outOfBattle/outOfBattleSquaddie"
+import { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager"
 import {
     ProficiencyLevel,
     ProficiencyLevelConst,
     ProficiencyType,
     type TProficiencyType,
-} from "../../proficiency/proficiencyLevel.ts"
+} from "../../proficiency/proficiencyLevel"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "./inBattleSquaddieCollection.ts"
-import { InBattleSquaddieManager } from "./inBattleSquaddieManager.ts"
-import { AttributeScore } from "../../proficiency/attributeScore.ts"
+} from "./inBattleSquaddieCollection"
+import { InBattleSquaddieManager } from "./inBattleSquaddieManager"
+import { AttributeScore } from "../../proficiency/attributeScore"
 import {
     type SquaddieCondition,
     SquaddieConditionService,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition.ts"
-import { SquaddieAffiliation } from "../outOfBattle/affiliation.ts"
-import { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager.ts"
-import { SquaddieItemCollectionService } from "../../squaddieItem/squaddieItemCollection.ts"
-import { SquaddieItemService } from "../../squaddieItem/squaddieItem.ts"
+} from "../../proficiency/squaddieCondition"
+import { SquaddieAffiliation } from "../outOfBattle/affiliation"
+import { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
+import { SquaddieItemCollectionService } from "../../squaddieItem/squaddieItemCollection"
+import { SquaddieItemService } from "../../squaddieItem/squaddieItem"
 
 describe("In Battle Squaddie Manager", () => {
     let attributeSheet: OutOfBattleSquaddieAttributeSheet

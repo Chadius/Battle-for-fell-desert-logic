@@ -1,11 +1,15 @@
-import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.ts"
-import type { SquaddieActionManager } from "../../squaddieActionManager.ts"
-import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.ts"
-import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator.ts"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type { SquaddieActionManager } from "../../squaddieActionManager"
+import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
+import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
-} from "../../../degreesOfSuccess/degreeOfSuccess.ts"
+} from "../../../degreesOfSuccess/degreeOfSuccess"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
+import type { SquaddieAction } from "../../squaddieAction"
+import { ProficiencyLevelConst } from "../../../proficiency/proficiencyLevel"
+import { ProbabilityLookup } from "../probabilityLookup"
 
 export const SquaddieActionForecastCalculator = {
     forecastChanceToHit: ({
@@ -13,7 +17,6 @@ export const SquaddieActionForecastCalculator = {
         targets,
         action,
         inBattleSquaddieManager,
-        map,
     }: {
         inBattleSquaddieManager: InBattleSquaddieManager
         actor: {
@@ -34,14 +37,41 @@ export const SquaddieActionForecastCalculator = {
             manager: CoordinateMapCollectionManager
         }
     }): Map<string, number> => {
+        const squaddieAction = action.manager.get(action.id)
+        const actorProficiencyBonus = getActorProficiencyBonus({
+            actor,
+            squaddieAction,
+            inBattleSquaddieManager,
+        })
+
         const chances = new Map<string, number>([])
-        chances.set(
-            getForecastKey({
-                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                ...actor,
-            }),
-            36
-        )
+
+        for (const target of targets) {
+            const targetDefensiveBonus = getTargetDefensiveBonus({
+                target,
+                squaddieAction,
+                inBattleSquaddieManager,
+            })
+
+            const modifier = actorProficiencyBonus - targetDefensiveBonus
+            const rawProbabilities =
+                ProbabilityLookup.calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus(
+                    modifier
+                )
+
+            const probabilities = redistributeProbabilities({
+                probabilities: rawProbabilities,
+                supportedDegrees: squaddieAction.degreesOfSuccess,
+            })
+
+            for (const [degreeOfSuccess, probability] of probabilities) {
+                const forecastKey = getForecastKey({
+                    degreeOfSuccess,
+                    ...target,
+                })
+                chances.set(forecastKey, probability)
+            }
+        }
         return chances
     },
     getForecastKey: ({
@@ -69,4 +99,95 @@ const getForecastKey = ({
     outOfBattleSquaddieId: string
     degreeOfSuccess: TDegreeOfSuccess
 }): string =>
-    `${outOfBattleSquaddieId}+++${inBattleSquaddieId}+++${degreeOfSuccess}`
+    `${SquaddieIdConverterService.squaddieIdToKey({ inBattleSquaddieId, outOfBattleSquaddieId })}+++${degreeOfSuccess}`
+
+const getActorProficiencyBonus = ({
+    actor,
+    squaddieAction,
+    inBattleSquaddieManager,
+}: {
+    actor: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }
+    squaddieAction: SquaddieAction
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): number => {
+    const bonusBreakdown = inBattleSquaddieManager.getProficiencyBonus({
+        inBattleSquaddieId: actor.inBattleSquaddieId,
+        outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+        type: squaddieAction.proficiency,
+    })
+    return bonusBreakdown.total
+}
+
+const getTargetDefensiveBonus = ({
+    target,
+    squaddieAction,
+    inBattleSquaddieManager,
+}: {
+    target: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }
+    squaddieAction: SquaddieAction
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): number => {
+    const defensiveProficiencyType =
+        ProficiencyLevelConst.defendingProficiencyTypeByProficiencyType.get(
+            squaddieAction.proficiency
+        )
+    if (defensiveProficiencyType == undefined) {
+        return 0
+    }
+    const bonusBreakdown = inBattleSquaddieManager.getProficiencyBonus({
+        inBattleSquaddieId: target.inBattleSquaddieId,
+        outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+        type: defensiveProficiencyType,
+    })
+    return bonusBreakdown.total
+}
+
+const redistributeProbabilities = ({
+    probabilities,
+    supportedDegrees,
+}: {
+    probabilities: Map<TDegreeOfSuccess, number>
+    supportedDegrees: TDegreeOfSuccess[]
+}): Map<TDegreeOfSuccess, number> => {
+    const redistributedProbabilities = new Map<TDegreeOfSuccess, number>()
+
+    let criticalChance = probabilities.get(DegreeOfSuccess.CRITICAL) ?? 0
+    let successChance = probabilities.get(DegreeOfSuccess.SUCCESS) ?? 0
+    let failureChance = probabilities.get(DegreeOfSuccess.FAILURE) ?? 0
+    let botchChance = probabilities.get(DegreeOfSuccess.BOTCH) ?? 0
+
+    if (!supportedDegrees.includes(DegreeOfSuccess.CRITICAL)) {
+        successChance += criticalChance
+        criticalChance = 0
+    }
+
+    if (!supportedDegrees.includes(DegreeOfSuccess.FAILURE)) {
+        successChance += failureChance
+        failureChance = 0
+    }
+
+    if (!supportedDegrees.includes(DegreeOfSuccess.BOTCH)) {
+        failureChance += botchChance
+        botchChance = 0
+    }
+
+    for (const degree of supportedDegrees) {
+        if (degree === DegreeOfSuccess.CRITICAL) {
+            redistributedProbabilities.set(degree, criticalChance)
+        } else if (degree === DegreeOfSuccess.SUCCESS) {
+            redistributedProbabilities.set(degree, successChance)
+        } else if (degree === DegreeOfSuccess.FAILURE) {
+            redistributedProbabilities.set(degree, failureChance)
+        } else if (degree === DegreeOfSuccess.BOTCH) {
+            redistributedProbabilities.set(degree, botchChance)
+        }
+    }
+
+    return redistributedProbabilities
+}

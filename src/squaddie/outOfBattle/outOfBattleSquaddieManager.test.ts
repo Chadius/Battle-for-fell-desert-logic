@@ -2,26 +2,26 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type OutOfBattleSquaddieCollection,
     OutOfBattleSquaddieCollectionService,
-} from "./outOfBattleSquaddieCollection.ts"
+} from "./outOfBattleSquaddieCollection"
 import {
     type OutOfBattleSquaddieAttributeSheetCollection,
     OutOfBattleSquaddieAttributeSheetCollectionService,
-} from "./outOfBattleSquaddieAttributeSheetCollection.ts"
+} from "./outOfBattleSquaddieAttributeSheetCollection"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "./outOfBattleSquaddieAttributeSheet.ts"
+} from "./outOfBattleSquaddieAttributeSheet"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../proficiency/proficiencyLevel.ts"
-import { OutOfBattleSquaddieManager } from "./outOfBattleSquaddieManager.ts"
+} from "../../proficiency/proficiencyLevel"
+import { OutOfBattleSquaddieManager } from "./outOfBattleSquaddieManager"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "./outOfBattleSquaddie.ts"
-import { AttributeScore } from "../../proficiency/attributeScore.ts"
-import { SquaddieAffiliation } from "./affiliation.ts"
+} from "./outOfBattleSquaddie"
+import { AttributeScore } from "../../proficiency/attributeScore"
+import { SquaddieAffiliation } from "./affiliation"
 
 describe("Out of Battle Squaddie Manager", () => {
     let squaddieCollection: OutOfBattleSquaddieCollection

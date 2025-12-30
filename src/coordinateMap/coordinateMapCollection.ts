@@ -1,4 +1,4 @@
-import { type CoordinateMap } from "./coordinateMap.ts"
+import { type CoordinateMap } from "./coordinateMap"
 
 export interface CoordinateMapCollection {
     mapById: Map<string, CoordinateMap>

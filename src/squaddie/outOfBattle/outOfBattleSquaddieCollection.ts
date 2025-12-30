@@ -1,7 +1,7 @@
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "./outOfBattleSquaddie.ts"
+} from "./outOfBattleSquaddie"
 
 export interface OutOfBattleSquaddieCollection {
     outOfBattleSquaddieById: Map<string, OutOfBattleSquaddie>

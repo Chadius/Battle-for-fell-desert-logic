@@ -1,9 +1,9 @@
-import type { AttributeScoreType } from "../../proficiency/attributeScore.ts"
+import type { AttributeScoreType } from "../../../proficiency/attributeScore"
 import type {
     SquaddieCondition,
     TSquaddieConditionType,
-} from "../../proficiency/squaddieCondition.ts"
-import type { CoordinateMovePath } from "../../coordinateMap/path/path.ts"
+} from "../../../proficiency/squaddieCondition"
+import type { CoordinateMovePath } from "../../../coordinateMap/path/path"
 
 export type DamageResult = {
     net: number

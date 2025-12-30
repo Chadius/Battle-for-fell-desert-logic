@@ -1,21 +1,21 @@
 import {
     type InBattleSquaddie,
     InBattleSquaddieService,
-} from "./inBattleSquaddie.ts"
-import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie.ts"
-import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import type { AttributeScoreType } from "../../proficiency/attributeScore.ts"
+} from "./inBattleSquaddie"
+import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
+import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
+import type { AttributeScoreType } from "../../proficiency/attributeScore"
 import type {
     SquaddieCondition,
     TSquaddieConditionType,
-} from "../../proficiency/squaddieCondition.ts"
+} from "../../proficiency/squaddieCondition"
 import {
     type TProficiencyLevel,
     type TProficiencyType,
-} from "../../proficiency/proficiencyLevel.ts"
-import type { DamageResult } from "../../squaddieAction/calculate/squaddieActionResult.ts"
-import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
-import type { SquaddieItem } from "../../squaddieItem/squaddieItem.ts"
+} from "../../proficiency/proficiencyLevel"
+import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction"
+import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 
 export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: Map<string, InBattleSquaddie[]>

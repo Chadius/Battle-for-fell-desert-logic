@@ -1,39 +1,36 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.ts"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
+} from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../squaddie/outOfBattle/outOfBattleSquaddie.ts"
+} from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "../squaddie/inBattle/inBattleSquaddieCollection.ts"
-import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
-import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
-import { AttributeScore } from "../proficiency/attributeScore.ts"
-import { SquaddieAffiliation } from "../squaddie/outOfBattle/affiliation.ts"
+} from "../squaddie/inBattle/inBattleSquaddieCollection"
+import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
+import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
+import { AttributeScore } from "../proficiency/attributeScore"
+import { SquaddieAffiliation } from "../squaddie/outOfBattle/affiliation"
 import {
     CoordinateMapAStarAdapter,
     type CoordinateMapSearchLimits,
-} from "./coordinateMapAStarAdapter.ts"
+} from "./coordinateMapAStarAdapter"
 import {
     SquaddieConditionService,
     SquaddieConditionType,
-} from "../proficiency/squaddieCondition.ts"
-import { type CoordinateMap, CoordinateMapService } from "./coordinateMap.ts"
-import { AStarSearchService } from "../aStarSearch/aStarSearch.ts"
-import {
-    type CoordinateMovePath,
-    CoordinateMovePathService,
-} from "./path/path.ts"
-import type { AStarGraph } from "../aStarSearch/aStarGraph.ts"
-import { CoordinatePathMapService } from "./mapTransposition/coordinatePathMap.ts"
-import type { OffsetCoordinate } from "./offsetCoordinate.ts"
+} from "../proficiency/squaddieCondition"
+import { type CoordinateMap, CoordinateMapService } from "./coordinateMap"
+import { AStarSearchService } from "../aStarSearch/aStarSearch"
+import { type CoordinateMovePath, CoordinateMovePathService } from "./path/path"
+import type { AStarGraph } from "../aStarSearch/aStarGraph"
+import { CoordinatePathMapService } from "./mapTransposition/coordinatePathMap"
+import type { OffsetCoordinate } from "./offsetCoordinate"
 
 describe("coordinateMapAStarAdapter", () => {
     let manager: InBattleSquaddieManager

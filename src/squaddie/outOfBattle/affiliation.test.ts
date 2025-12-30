@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-    SquaddieAffiliation,
-    SquaddieAffiliationService,
-} from "./affiliation.ts"
+import { SquaddieAffiliation, SquaddieAffiliationService } from "./affiliation"
 
 describe("Squaddie Affiliation", () => {
     const friendTests = [

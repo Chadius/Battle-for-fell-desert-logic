@@ -1,13 +1,13 @@
 import {
     type CoordinateMapCollection,
     CoordinateMapCollectionService,
-} from "./coordinateMapCollection.ts"
+} from "./coordinateMapCollection"
 import {
     type CoordinateMap,
     CoordinateMapService,
     type OffsetMaybeOffmapCoordinate,
-} from "./coordinateMap.ts"
-import type { OffsetCoordinate } from "./offsetCoordinate.ts"
+} from "./coordinateMap"
+import type { OffsetCoordinate } from "./offsetCoordinate"
 
 export class CoordinateMapCollectionManager {
     coordinateMapCollection?: CoordinateMapCollection

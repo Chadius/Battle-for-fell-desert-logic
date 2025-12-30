@@ -1,4 +1,4 @@
-import type { SquaddieItem } from "./squaddieItem.ts"
+import type { SquaddieItem } from "./squaddieItem"
 
 export interface SquaddieItemCollection {
     itemById: Map<string, SquaddieItem>

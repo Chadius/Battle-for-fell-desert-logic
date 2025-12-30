@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { OffsetCoordinateService } from "./offsetCoordinate.ts"
+import { OffsetCoordinateService } from "./offsetCoordinate"
 
 describe("OffsetCoordinateService", () => {
     describe("coordinateToKey", () => {

@@ -1,26 +1,26 @@
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "./inBattleSquaddieCollection.ts"
-import type { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager.ts"
-import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie.ts"
-import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import type { InBattleSquaddie } from "./inBattleSquaddie.ts"
-import type { AttributeScoreType } from "../../proficiency/attributeScore.ts"
+} from "./inBattleSquaddieCollection"
+import type { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager"
+import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
+import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
+import type { InBattleSquaddie } from "./inBattleSquaddie"
+import type { AttributeScoreType } from "../../proficiency/attributeScore"
 import {
     type SquaddieCondition,
     type TSquaddieConditionType,
-} from "../../proficiency/squaddieCondition.ts"
+} from "../../proficiency/squaddieCondition"
 import {
     ProficiencyLevel,
     type TProficiencyLevel,
     type TProficiencyType,
-} from "../../proficiency/proficiencyLevel.ts"
-import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction.ts"
-import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager.ts"
-import type { SquaddieItem } from "../../squaddieItem/squaddieItem.ts"
-import type { TSquaddieAffiliation } from "../outOfBattle/affiliation.ts"
-import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult.ts"
+} from "../../proficiency/proficiencyLevel"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction"
+import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
+import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
+import type { TSquaddieAffiliation } from "../outOfBattle/affiliation"
+import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection

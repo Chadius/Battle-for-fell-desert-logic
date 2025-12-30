@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CoordinateMapService } from "./coordinateMap.ts"
+import { CoordinateMapService } from "./coordinateMap"
 
 describe("Coordinate Map", () => {
     it("creates a new map instead of modifying the original", () => {

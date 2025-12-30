@@ -1,28 +1,28 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.ts"
-import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.ts"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import {
     type OutOfBattleSquaddieAttributeSheetCollection,
     OutOfBattleSquaddieAttributeSheetCollectionService,
-} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.ts"
-import { SquaddieActionManager } from "../../squaddieActionManager.ts"
-import { SquaddieActionCollectionService } from "../../squaddieActionCollection.ts"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import { AttributeScore } from "../../../proficiency/attributeScore.ts"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
+import { SquaddieActionManager } from "../../squaddieActionManager"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
+import { OutOfBattleSquaddieAttributeSheetService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import { AttributeScore } from "../../../proficiency/attributeScore"
 import {
     ProficiencyLevel,
     ProficiencyType,
     type TProficiencyLevel,
     type TProficiencyType,
-} from "../../../proficiency/proficiencyLevel.ts"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
-import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation.ts"
-import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection.ts"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.ts"
-import { SquaddieActionService } from "../../squaddieAction.ts"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.ts"
-import { ActionRange } from "../../actionRange.ts"
-import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator.ts"
+} from "../../../proficiency/proficiencyLevel"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
+import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation"
+import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
+import { SquaddieActionService } from "../../squaddieAction"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
+import { ActionRange } from "../../actionRange"
+import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator"
 
 describe("forecasts on effects on yourself", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager
@@ -103,10 +103,7 @@ describe("forecasts on effects on yourself", () => {
                 friend: false,
             },
             attribute: AttributeScore.BODY,
-            degreesOfSuccess: [
-                DegreeOfSuccess.SUCCESS,
-                DegreeOfSuccess.FAILURE,
-            ],
+            degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
             range: ActionRange.SELF,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {

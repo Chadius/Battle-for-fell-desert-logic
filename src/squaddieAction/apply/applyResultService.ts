@@ -1,8 +1,8 @@
-import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.ts"
+import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
 
-import type { SquaddieActionResult } from "../calculate/squaddieActionResult.ts"
-import type { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.ts"
-import { CoordinateMovePathService } from "../../coordinateMap/path/path.ts"
+import type { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
+import type { SquaddieActionResult } from "../calculate/result/squaddieActionResult"
+import { CoordinateMovePathService } from "../../coordinateMap/path/path"
 
 export const ApplyResultService = {
     applyResultsToSquaddies: ({

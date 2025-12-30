@@ -1,10 +1,10 @@
 import {
     type SquaddieItemCollection,
     SquaddieItemCollectionService,
-} from "./squaddieItemCollection.ts"
+} from "./squaddieItemCollection"
 import { beforeEach, describe, expect, it } from "vitest"
-import { type SquaddieItem, SquaddieItemService } from "./squaddieItem.ts"
-import { ProficiencyType } from "../proficiency/proficiencyLevel.ts"
+import { type SquaddieItem, SquaddieItemService } from "./squaddieItem"
+import { ProficiencyType } from "../proficiency/proficiencyLevel"
 
 describe("Squaddie Item Collection", () => {
     let squaddieItemCollection: SquaddieItemCollection

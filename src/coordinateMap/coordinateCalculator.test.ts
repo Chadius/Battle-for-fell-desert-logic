@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
     CoordinateCalculator,
     CoordinateDirection,
-} from "./coordinateCalculator.ts"
+} from "./coordinateCalculator"
 
 describe("coordinateCalculator", () => {
     describe("get neighboring coordinates", () => {

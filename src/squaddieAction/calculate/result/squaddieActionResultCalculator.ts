@@ -1,22 +1,22 @@
-import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.ts"
-import type { TDegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.ts"
-import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.ts"
-import type { SquaddieActionManager } from "../../squaddieActionManager.ts"
-import type { SquaddieActionResult } from "./squaddieActionResult.ts"
-import type { SquaddieActionEffect } from "../../squaddieAction.ts"
-import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie.ts"
-import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.ts"
-import type { OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.ts"
-import { ProficiencyLevelConst } from "../../../proficiency/proficiencyLevel.ts"
+import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
+import type { TDegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type { SquaddieActionManager } from "../../squaddieActionManager"
+import type { SquaddieActionResult } from "./squaddieActionResult"
+import type { SquaddieActionEffect } from "../../squaddieAction"
+import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
+import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
+import type { OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import { ProficiencyLevelConst } from "../../../proficiency/proficiencyLevel"
 import type {
     SquaddieCondition,
     TSquaddieConditionType,
-} from "../../../proficiency/squaddieCondition.ts"
+} from "../../../proficiency/squaddieCondition"
 import {
     type CoordinateMovePath,
     CoordinateMovePathService,
-} from "../../../coordinateMap/path/path.ts"
-import { CoordinateMapService } from "../../../coordinateMap/coordinateMap.ts"
+} from "../../../coordinateMap/path/path"
+import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 
 export type SquaddieActionDecisions = {
     desiredMovementDestination?: {

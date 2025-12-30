@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { ProbabilityLookup } from "./probabilityLookup.ts"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.ts"
+import { ProbabilityLookup } from "./probabilityLookup"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
 
 describe("ProbabilityLookup", () => {
     describe("calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus", () => {

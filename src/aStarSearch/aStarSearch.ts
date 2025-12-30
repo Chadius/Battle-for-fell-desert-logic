@@ -1,5 +1,5 @@
-import type { AStarGraph } from "./aStarGraph.ts"
-import { PriorityQueue } from "../priorityQueue/priorityQueue.ts"
+import type { AStarGraph } from "./aStarGraph"
+import { PriorityQueue } from "../priorityQueue/priorityQueue"
 
 export const AStarSearchService = {
     search: <T, U, Graph extends AStarGraph<T, U>>({

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { CoordinateGeneratorShape, CoordinateShapeService } from "./shape.ts"
-import type { OffsetCoordinate } from "./offsetCoordinate.ts"
+import { CoordinateGeneratorShape, CoordinateShapeService } from "./shape"
+import type { OffsetCoordinate } from "./offsetCoordinate"
 
 describe("Coordinate Shapes", () => {
     describe("Generate Bloom type Shapes", () => {

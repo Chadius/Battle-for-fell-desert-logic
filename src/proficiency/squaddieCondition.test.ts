@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
     SquaddieConditionService,
     SquaddieConditionType,
-} from "./squaddieCondition.ts"
+} from "./squaddieCondition"
 
 describe("Squaddie Condition", () => {
     describe("Is helpful", () => {

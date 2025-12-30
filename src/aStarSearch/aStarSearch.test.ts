@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { CoordinateMapService } from "../coordinateMap/coordinateMap.ts"
-import type { AStarGraph } from "./aStarGraph.ts"
-import { AStarSearchService } from "./aStarSearch.ts"
+import { CoordinateMapService } from "../coordinateMap/coordinateMap"
+import type { AStarGraph } from "./aStarGraph"
+import { AStarSearchService } from "./aStarSearch"
 import {
     type CoordinateMovementInstruction,
     type CoordinateMovePath,
     CoordinateMovePathService,
-} from "../coordinateMap/path/path.ts"
-import { CoordinateMapAStarAdapter } from "../coordinateMap/coordinateMapAStarAdapter.ts"
-import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate.ts"
+} from "../coordinateMap/path/path"
+import { CoordinateMapAStarAdapter } from "../coordinateMap/coordinateMapAStarAdapter"
+import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
 
 describe("A* Search", () => {
     let graph: CoordinateMapAStarAdapter

@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieActionCollection,
     SquaddieActionCollectionService,
-} from "./squaddieActionCollection.ts"
-import { type SquaddieAction, SquaddieActionService } from "./squaddieAction.ts"
-import { AttributeScore } from "../proficiency/attributeScore.ts"
-import { ProficiencyType } from "../proficiency/proficiencyLevel.ts"
-import { ActionRange } from "./actionRange.ts"
-import { CoordinateGeneratorShape } from "../coordinateMap/shape.ts"
-import { SquaddieActionManager } from "./squaddieActionManager.ts"
-import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.ts"
+} from "./squaddieActionCollection"
+import { type SquaddieAction, SquaddieActionService } from "./squaddieAction"
+import { AttributeScore } from "../proficiency/attributeScore"
+import { ProficiencyType } from "../proficiency/proficiencyLevel"
+import { ActionRange } from "./actionRange"
+import { CoordinateGeneratorShape } from "../coordinateMap/shape"
+import { SquaddieActionManager } from "./squaddieActionManager"
+import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 
 describe("Squaddie Action Collection Manager", () => {
     let longswordAttackAction: SquaddieAction

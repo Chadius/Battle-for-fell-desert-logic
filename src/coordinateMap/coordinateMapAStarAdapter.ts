@@ -1,25 +1,25 @@
-import { CoordinateCalculator } from "./coordinateCalculator.ts"
-import { type CoordinateMap, CoordinateMapService } from "./coordinateMap.ts"
-import type { AStarGraph } from "../aStarSearch/aStarGraph.ts"
+import { CoordinateCalculator } from "./coordinateCalculator"
+import { type CoordinateMap, CoordinateMapService } from "./coordinateMap"
+import type { AStarGraph } from "../aStarSearch/aStarGraph"
 import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
-} from "./path/path.ts"
+} from "./path/path"
 import {
     type CoordinatePathMap,
     CoordinatePathMapService,
-} from "./mapTransposition/coordinatePathMap.ts"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.ts"
-import { SquaddieConditionType } from "../proficiency/squaddieCondition.ts"
+} from "./mapTransposition/coordinatePathMap"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import { SquaddieConditionType } from "../proficiency/squaddieCondition"
 import {
     SquaddieAffiliationService,
     type TSquaddieAffiliation,
-} from "../squaddie/outOfBattle/affiliation.ts"
+} from "../squaddie/outOfBattle/affiliation"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
-} from "./offsetCoordinate.ts"
+} from "./offsetCoordinate"
 
 export interface CoordinateMapSearchLimits {
     maximumMoveCost?: number

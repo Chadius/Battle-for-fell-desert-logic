@@ -1,5 +1,5 @@
-import type { EnumLike } from "../../enum.ts"
-import type { OffsetCoordinate } from "../offsetCoordinate.ts"
+import type { EnumLike } from "../../enum"
+import type { OffsetCoordinate } from "../offsetCoordinate"
 
 export const CoordinateMovePathMoveType = {
     START: "START",

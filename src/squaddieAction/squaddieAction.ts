@@ -1,24 +1,24 @@
 import {
     AttributeScore,
     type AttributeScoreType,
-} from "../proficiency/attributeScore.ts"
-import { ActionRange, type TActionRange } from "./actionRange.ts"
+} from "../proficiency/attributeScore"
+import { ActionRange, type TActionRange } from "./actionRange"
 import {
     CoordinateGeneratorShape,
     type TCoordinateGeneratorShape,
-} from "../coordinateMap/shape.ts"
+} from "../coordinateMap/shape"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
-} from "../degreesOfSuccess/degreeOfSuccess.ts"
+} from "../degreesOfSuccess/degreeOfSuccess"
 import {
     ProficiencyType,
     type TProficiencyType,
-} from "../proficiency/proficiencyLevel.ts"
+} from "../proficiency/proficiencyLevel"
 import type {
     SquaddieCondition,
     TSquaddieConditionType,
-} from "../proficiency/squaddieCondition.ts"
+} from "../proficiency/squaddieCondition"
 
 interface SquaddieActionTargeting {
     range: TActionRange

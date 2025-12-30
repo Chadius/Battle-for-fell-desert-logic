@@ -1,4 +1,4 @@
-import type { TProficiencyType } from "../proficiency/proficiencyLevel.ts"
+import type { TProficiencyType } from "../proficiency/proficiencyLevel"
 
 export interface SquaddieItem {
     id: string

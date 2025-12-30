@@ -1,14 +1,14 @@
 import {
     type OutOfBattleSquaddieCollection,
     OutOfBattleSquaddieCollectionService,
-} from "./outOfBattleSquaddieCollection.ts"
+} from "./outOfBattleSquaddieCollection"
 import {
     type OutOfBattleSquaddieAttributeSheetCollection,
     OutOfBattleSquaddieAttributeSheetCollectionService,
-} from "./outOfBattleSquaddieAttributeSheetCollection.ts"
-import { type OutOfBattleSquaddieAttributeSheet } from "./outOfBattleSquaddieAttributeSheet.ts"
-import type { OutOfBattleSquaddie } from "./outOfBattleSquaddie.ts"
-import type { TSquaddieAffiliation } from "./affiliation.ts"
+} from "./outOfBattleSquaddieAttributeSheetCollection"
+import { type OutOfBattleSquaddieAttributeSheet } from "./outOfBattleSquaddieAttributeSheet"
+import type { OutOfBattleSquaddie } from "./outOfBattleSquaddie"
+import type { TSquaddieAffiliation } from "./affiliation"
 
 export class OutOfBattleSquaddieManager {
     squaddieCollection?: OutOfBattleSquaddieCollection

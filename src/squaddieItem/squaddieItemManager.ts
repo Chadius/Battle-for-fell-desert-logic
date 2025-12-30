@@ -1,8 +1,8 @@
 import {
     type SquaddieItemCollection,
     SquaddieItemCollectionService,
-} from "./squaddieItemCollection.ts"
-import type { SquaddieItem } from "./squaddieItem.ts"
+} from "./squaddieItemCollection"
+import type { SquaddieItem } from "./squaddieItem"
 
 export class SquaddieItemManager {
     collection?: SquaddieItemCollection

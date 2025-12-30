@@ -1,4 +1,4 @@
-import type { EnumLike } from "../enum.ts"
+import type { EnumLike } from "../enum"
 
 export const SquaddieRole = {
     NONE: "NONE",
