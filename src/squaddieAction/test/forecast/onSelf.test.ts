@@ -93,7 +93,7 @@ describe("forecasts on effects on yourself", () => {
         )
     })
 
-    it("will not apply any defensive bonus", () => {
+    it("will always succeed if the action always succeeds", () => {
         const hurtsSelf = SquaddieActionService.new({
             id: "hurtsSelf",
             name: "hurtsSelf",

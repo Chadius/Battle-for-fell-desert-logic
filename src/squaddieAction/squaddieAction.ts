@@ -77,6 +77,7 @@ export interface SquaddieAction {
     degreesOfSuccess: TDegreeOfSuccess[]
     targeting: SquaddieActionTargeting
     proficiency: TProficiencyType
+    actorRollsToHit: boolean
     effectOnActor: DegreeOfSuccessEffects
     effectOnTarget?: DegreeOfSuccessEffects
 }
@@ -94,6 +95,7 @@ export const SquaddieActionService = {
         affiliationRelationship,
         effectOnActor,
         effectOnTarget,
+        actorRollsToHit,
     }: Partial<SquaddieAction> &
         Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
         Partial<SquaddieActionTargeting>): SquaddieAction => {
@@ -117,6 +119,7 @@ export const SquaddieActionService = {
                     friend: false,
                 },
             },
+            actorRollsToHit: actorRollsToHit ?? true,
             effectOnActor,
             effectOnTarget,
         }

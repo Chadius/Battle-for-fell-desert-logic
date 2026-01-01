@@ -47,11 +47,12 @@ export const SquaddieActionForecastCalculator = {
         const chances = new Map<string, number>([])
 
         for (const target of targets) {
-            const targetDefensiveBonus = getTargetDefensiveBonus({
-                target,
-                squaddieAction,
-                inBattleSquaddieManager,
-            })
+            const targetDefensiveBonus =
+                getTargetDefensiveBonus({
+                    target,
+                    squaddieAction,
+                    inBattleSquaddieManager,
+                }) + 6
 
             const modifier = actorProficiencyBonus - targetDefensiveBonus
             const rawProbabilities =
@@ -167,14 +168,14 @@ const redistributeProbabilities = ({
         criticalChance = 0
     }
 
-    if (!supportedDegrees.includes(DegreeOfSuccess.FAILURE)) {
-        successChance += failureChance
-        failureChance = 0
-    }
-
     if (!supportedDegrees.includes(DegreeOfSuccess.BOTCH)) {
         failureChance += botchChance
         botchChance = 0
+    }
+
+    if (!supportedDegrees.includes(DegreeOfSuccess.FAILURE)) {
+        successChance += failureChance
+        failureChance = 0
     }
 
     for (const degree of supportedDegrees) {

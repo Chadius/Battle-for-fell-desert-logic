@@ -55,7 +55,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
     })
 
     describe("Get probability distribution from modifier difference", () => {
-        it("calculates probabilities when actor bonus = 5 and target bonus = 3, should add up to 36", () => {
+        it("calculates probabilities should add up to 36", () => {
             addSquaddieToCollections({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
@@ -81,7 +81,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 proficiencyLevel: ProficiencyLevel.NOVICE,
                 attributeScores: {
                     [AttributeScore.BODY]: 0,
-                    [AttributeScore.MIND]: 2,
+                    [AttributeScore.MIND]: 2 - 6,
                     [AttributeScore.SOUL]: 0,
                 },
             })
@@ -186,7 +186,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 attributeScores: {
                     [AttributeScore.BODY]: 0,
-                    [AttributeScore.MIND]: 0,
+                    [AttributeScore.MIND]: -6,
                     [AttributeScore.SOUL]: 0,
                 },
             })
@@ -201,7 +201,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 proficiencyLevel: ProficiencyLevel.MASTER,
                 attributeScores: {
                     [AttributeScore.BODY]: 0,
-                    [AttributeScore.MIND]: 4,
+                    [AttributeScore.MIND]: 4 - 6,
                     [AttributeScore.SOUL]: 0,
                 },
             })
@@ -311,7 +311,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 attributeScores: {
                     [AttributeScore.BODY]: 0,
-                    [AttributeScore.MIND]: 0,
+                    [AttributeScore.MIND]: -6,
                     [AttributeScore.SOUL]: 0,
                 },
             })
@@ -383,7 +383,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 attributeScores: {
                     [AttributeScore.BODY]: 0,
-                    [AttributeScore.MIND]: 0,
+                    [AttributeScore.MIND]: -6,
                     [AttributeScore.SOUL]: 0,
                 },
             })
@@ -479,7 +479,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 proficiencyLevel: ProficiencyLevel.MASTER,
                 attributeScores: {
                     [AttributeScore.BODY]: 0,
-                    [AttributeScore.MIND]: 4,
+                    [AttributeScore.MIND]: 4 - 6,
                     [AttributeScore.SOUL]: 0,
                 },
             })
@@ -576,7 +576,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 proficiencyLevel: ProficiencyLevel.LEGENDARY,
                 attributeScores: {
                     [AttributeScore.BODY]: 0,
-                    [AttributeScore.MIND]: 11,
+                    [AttributeScore.MIND]: 11 - 6,
                     [AttributeScore.SOUL]: 0,
                 },
             })
@@ -675,7 +675,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 proficiencyLevel: ProficiencyLevel.UNTRAINED,
                 attributeScores: {
                     [AttributeScore.BODY]: 0,
-                    [AttributeScore.MIND]: 0,
+                    [AttributeScore.MIND]: 0 - 6,
                     [AttributeScore.SOUL]: 0,
                 },
             })
@@ -692,7 +692,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             const armorCondition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
                 duration: 10,
-                amount: 20,
+                amount: 14,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
                 inBattleSquaddieId: targetId.inBattleSquaddieId,
