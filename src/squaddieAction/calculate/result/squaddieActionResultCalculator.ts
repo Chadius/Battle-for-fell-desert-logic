@@ -20,6 +20,7 @@ import {
 import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 import type { RollGenerator } from "../roll/rollGenerator"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
+import { ProficiencyCalculator } from "../proficiencyCalculator"
 
 export type SquaddieActionDecisions = {
     desiredMovementDestination?: {
@@ -200,11 +201,11 @@ export const SquaddieActionResultCalculator = {
         const squaddieAction = managers.squaddieActionManager.get(action.id)
 
         const actorProficiencyBonus =
-            managers.inBattleSquaddieManager.getProficiencyBonus({
-                inBattleSquaddieId: actor.inBattleSquaddieId,
-                outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
-                type: squaddieAction.proficiency,
-            }).total
+            ProficiencyCalculator.getActorProficiencyBonus({
+                actor,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            })
 
         const rollResult = rollGenerator.roll(2)
         const actorRoll: [number, number] = [rollResult[0], rollResult[1]]
@@ -212,20 +213,18 @@ export const SquaddieActionResultCalculator = {
         const targetModifierDifferences = new Map<string, number>()
 
         for (const target of targets) {
-            const defensiveProficiencyType =
-                ProficiencyLevelConst.defendingProficiencyTypeByProficiencyType.get(
-                    squaddieAction.proficiency
-                )
-
             const targetDefensiveBonus =
-                managers.inBattleSquaddieManager.getProficiencyBonus({
-                    inBattleSquaddieId: target.inBattleSquaddieId,
-                    outOfBattleSquaddieId: target.outOfBattleSquaddieId,
-                    type: defensiveProficiencyType!,
-                }).total
+                ProficiencyCalculator.getTargetDefensiveBonus({
+                    target,
+                    squaddieAction,
+                    inBattleSquaddieManager: managers.inBattleSquaddieManager,
+                })
 
             const modifierDifference =
-                actorProficiencyBonus - 6 - targetDefensiveBonus
+                ProficiencyCalculator.calculateModifierDifference({
+                    actorBonus: actorProficiencyBonus,
+                    targetDefensiveBonus,
+                })
 
             const targetKey = SquaddieIdConverterService.squaddieIdToKey({
                 inBattleSquaddieId: target.inBattleSquaddieId,

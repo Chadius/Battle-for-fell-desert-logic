@@ -7,9 +7,8 @@ import {
     type TDegreeOfSuccess,
 } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import type { SquaddieAction } from "../../squaddieAction"
-import { ProficiencyLevelConst } from "../../../proficiency/proficiencyLevel"
 import { ProbabilityLookup } from "../probabilityLookup"
+import { ProficiencyCalculator } from "../proficiencyCalculator"
 
 export const SquaddieActionForecastCalculator = {
     forecastChanceToHit: ({
@@ -38,23 +37,27 @@ export const SquaddieActionForecastCalculator = {
         }
     }): Map<string, number> => {
         const squaddieAction = action.manager.get(action.id)
-        const actorProficiencyBonus = getActorProficiencyBonus({
-            actor,
-            squaddieAction,
-            inBattleSquaddieManager,
-        })
+        const actorProficiencyBonus =
+            ProficiencyCalculator.getActorProficiencyBonus({
+                actor,
+                squaddieAction,
+                inBattleSquaddieManager,
+            })
 
         const chances = new Map<string, number>([])
 
         for (const target of targets) {
             const targetDefensiveBonus =
-                getTargetDefensiveBonus({
+                ProficiencyCalculator.getTargetDefensiveBonus({
                     target,
                     squaddieAction,
                     inBattleSquaddieManager,
-                }) + 6
+                })
 
-            const modifier = actorProficiencyBonus - targetDefensiveBonus
+            const modifier = ProficiencyCalculator.calculateModifierDifference({
+                actorBonus: actorProficiencyBonus,
+                targetDefensiveBonus,
+            })
             const rawProbabilities =
                 ProbabilityLookup.calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus(
                     modifier
@@ -101,53 +104,6 @@ const getForecastKey = ({
     degreeOfSuccess: TDegreeOfSuccess
 }): string =>
     `${SquaddieIdConverterService.squaddieIdToKey({ inBattleSquaddieId, outOfBattleSquaddieId })}+++${degreeOfSuccess}`
-
-const getActorProficiencyBonus = ({
-    actor,
-    squaddieAction,
-    inBattleSquaddieManager,
-}: {
-    actor: {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
-    }
-    squaddieAction: SquaddieAction
-    inBattleSquaddieManager: InBattleSquaddieManager
-}): number => {
-    const bonusBreakdown = inBattleSquaddieManager.getProficiencyBonus({
-        inBattleSquaddieId: actor.inBattleSquaddieId,
-        outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
-        type: squaddieAction.proficiency,
-    })
-    return bonusBreakdown.total
-}
-
-const getTargetDefensiveBonus = ({
-    target,
-    squaddieAction,
-    inBattleSquaddieManager,
-}: {
-    target: {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
-    }
-    squaddieAction: SquaddieAction
-    inBattleSquaddieManager: InBattleSquaddieManager
-}): number => {
-    const defensiveProficiencyType =
-        ProficiencyLevelConst.defendingProficiencyTypeByProficiencyType.get(
-            squaddieAction.proficiency
-        )
-    if (defensiveProficiencyType == undefined) {
-        return 0
-    }
-    const bonusBreakdown = inBattleSquaddieManager.getProficiencyBonus({
-        inBattleSquaddieId: target.inBattleSquaddieId,
-        outOfBattleSquaddieId: target.outOfBattleSquaddieId,
-        type: defensiveProficiencyType,
-    })
-    return bonusBreakdown.total
-}
 
 const redistributeProbabilities = ({
     probabilities,
