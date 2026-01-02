@@ -1,5 +1,6 @@
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import type { TDegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieActionManager } from "../../squaddieActionManager"
 import type { SquaddieActionResult } from "./squaddieActionResult"
@@ -104,6 +105,51 @@ export const SquaddieActionResultCalculator = {
                 })
             })
         )
+        return results
+    },
+    calculateDegreeOfSuccessForTargets: ({
+        actorRoll,
+        targetModifierDifferences,
+        supportedDegreesOfSuccess,
+    }: {
+        actorRoll: [number, number]
+        targetModifierDifferences: Map<string, number>
+        supportedDegreesOfSuccess?: TDegreeOfSuccess[]
+    }): Map<string, TDegreeOfSuccess> => {
+        const rollTotal = actorRoll[0] + actorRoll[1]
+        const isMaxRoll = actorRoll[0] === 6 && actorRoll[1] === 6
+        const isMinRoll = actorRoll[0] === 1 && actorRoll[1] === 1
+
+        const allowedDegrees: Set<TDegreeOfSuccess> = new Set(
+            supportedDegreesOfSuccess ?? [
+                DegreeOfSuccess.CRITICAL,
+                DegreeOfSuccess.SUCCESS,
+                DegreeOfSuccess.FAILURE,
+                DegreeOfSuccess.BOTCH,
+            ]
+        )
+
+        const results = new Map<string, TDegreeOfSuccess>()
+
+        for (const [
+            targetKey,
+            modifierDifference,
+        ] of targetModifierDifferences) {
+            const totalValue = rollTotal + modifierDifference
+
+            let degree = getBaseDegreeFromValue(totalValue)
+
+            if (isMaxRoll) {
+                degree = increaseDegree(degree)
+            } else if (isMinRoll) {
+                degree = decreaseDegree(degree)
+            }
+
+            degree = redistributeUnsupportedDegree(degree, allowedDegrees)
+
+            results.set(targetKey, degree)
+        }
+
         return results
     },
 }
@@ -460,4 +506,49 @@ const calculateMovementResults = ({
             },
         },
     ]
+}
+
+const getBaseDegreeFromValue = (value: number): TDegreeOfSuccess => {
+    if (value >= 6) return DegreeOfSuccess.CRITICAL
+    if (value <= -6) return DegreeOfSuccess.BOTCH
+    if (value >= 0) return DegreeOfSuccess.SUCCESS
+    return DegreeOfSuccess.FAILURE
+}
+
+const increaseDegree = (degree: TDegreeOfSuccess): TDegreeOfSuccess => {
+    if (degree === DegreeOfSuccess.BOTCH) return DegreeOfSuccess.FAILURE
+    if (degree === DegreeOfSuccess.FAILURE) return DegreeOfSuccess.SUCCESS
+    if (degree === DegreeOfSuccess.SUCCESS) return DegreeOfSuccess.CRITICAL
+    return DegreeOfSuccess.CRITICAL
+}
+
+const decreaseDegree = (degree: TDegreeOfSuccess): TDegreeOfSuccess => {
+    if (degree === DegreeOfSuccess.CRITICAL) return DegreeOfSuccess.SUCCESS
+    if (degree === DegreeOfSuccess.SUCCESS) return DegreeOfSuccess.FAILURE
+    if (degree === DegreeOfSuccess.FAILURE) return DegreeOfSuccess.BOTCH
+    return DegreeOfSuccess.BOTCH
+}
+
+const redistributeUnsupportedDegree = (
+    degree: TDegreeOfSuccess,
+    supportedDegreesOfSuccess: Set<TDegreeOfSuccess>
+): TDegreeOfSuccess => {
+    if (supportedDegreesOfSuccess.has(degree)) return degree
+
+    if (degree === DegreeOfSuccess.CRITICAL) {
+        return DegreeOfSuccess.SUCCESS
+    }
+
+    if (degree === DegreeOfSuccess.BOTCH) {
+        if (supportedDegreesOfSuccess.has(DegreeOfSuccess.FAILURE)) {
+            return DegreeOfSuccess.FAILURE
+        }
+        return DegreeOfSuccess.SUCCESS
+    }
+
+    if (degree === DegreeOfSuccess.FAILURE) {
+        return DegreeOfSuccess.SUCCESS
+    }
+
+    return degree
 }
