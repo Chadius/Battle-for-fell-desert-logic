@@ -167,7 +167,10 @@ describe("Squaddie resolves actions on themself", () => {
 
         const results = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-            inBattleSquaddieManager,
+            managers: {
+                inBattleSquaddieManager,
+                squaddieActionManager: actionManager,
+            },
             actor: {
                 inBattleSquaddieId,
                 outOfBattleSquaddieId,
@@ -180,7 +183,6 @@ describe("Squaddie resolves actions on themself", () => {
             ],
             action: {
                 id: endTurnAction.id,
-                manager: actionManager,
             },
         })
 
@@ -206,7 +208,10 @@ describe("Squaddie resolves actions on themself", () => {
     it("will apply removing all actions when squaddie uses End Turn without actually changing squaddie", () => {
         const results = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-            inBattleSquaddieManager,
+            managers: {
+                inBattleSquaddieManager,
+                squaddieActionManager: actionManager,
+            },
             actor: {
                 inBattleSquaddieId,
                 outOfBattleSquaddieId,
@@ -219,7 +224,6 @@ describe("Squaddie resolves actions on themself", () => {
             ],
             action: {
                 id: endTurnAction.id,
-                manager: actionManager,
             },
         })
 
@@ -239,7 +243,10 @@ describe("Squaddie resolves actions on themself", () => {
     it("can add conditions", () => {
         const results = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-            inBattleSquaddieManager,
+            managers: {
+                inBattleSquaddieManager,
+                squaddieActionManager: actionManager,
+            },
             actor: {
                 inBattleSquaddieId,
                 outOfBattleSquaddieId,
@@ -252,7 +259,6 @@ describe("Squaddie resolves actions on themself", () => {
             ],
             action: {
                 id: raiseShieldAction.id,
-                manager: actionManager,
             },
         })
 
@@ -340,19 +346,21 @@ describe("Squaddie resolves actions on themself", () => {
             beforeEach(() => {
                 results = SquaddieActionResultCalculator.calculateResult({
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    inBattleSquaddieManager,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                        coordinateMapCollectionManager: mapManager,
+                    },
                     actor: {
                         inBattleSquaddieId,
                         outOfBattleSquaddieId,
                     },
                     targets: [],
                     map: {
-                        manager: mapManager,
                         mapId: "map",
                     },
                     action: {
                         id: moveAction.id,
-                        manager: actionManager,
                         decisions: {
                             desiredMovementDestination: {
                                 row: 0,

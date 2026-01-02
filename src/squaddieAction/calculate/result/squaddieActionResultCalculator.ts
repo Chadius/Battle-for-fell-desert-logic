@@ -18,6 +18,8 @@ import {
     CoordinateMovePathService,
 } from "../../../coordinateMap/path/path"
 import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
+import type { RollGenerator } from "../roll/rollGenerator"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 
 export type SquaddieActionDecisions = {
     desiredMovementDestination?: {
@@ -31,12 +33,16 @@ export const SquaddieActionResultCalculator = {
         actor,
         targets,
         action,
-        inBattleSquaddieManager,
+        managers,
         degreeOfSuccess,
         map,
     }: {
+        managers: {
+            inBattleSquaddieManager: InBattleSquaddieManager
+            squaddieActionManager: SquaddieActionManager
+            coordinateMapCollectionManager?: CoordinateMapCollectionManager
+        }
         degreeOfSuccess: TDegreeOfSuccess
-        inBattleSquaddieManager: InBattleSquaddieManager
         actor: {
             inBattleSquaddieId: number
             outOfBattleSquaddieId: string
@@ -47,28 +53,26 @@ export const SquaddieActionResultCalculator = {
         }[]
         action: {
             id: string
-            manager: SquaddieActionManager
             decisions?: SquaddieActionDecisions
         }
         map?: {
             mapId: string
-            manager: CoordinateMapCollectionManager
         }
     }): SquaddieActionResult[] => {
         const {
             inBattleSquaddie: actorInBattleSquaddie,
             outOfBattleSquaddie: actorOutOfBattleSquaddie,
             attributeSheet: actorAttributeSheet,
-        } = inBattleSquaddieManager.getSquaddie({
+        } = managers.inBattleSquaddieManager.getSquaddie({
             ...actor,
         })
 
-        const squaddieAction = action.manager.get(action.id)
+        const squaddieAction = managers.squaddieActionManager.get(action.id)
         const results: SquaddieActionResult[] = calculateEffectOnSquaddie({
             effect: squaddieAction.effectOnActor[degreeOfSuccess],
             decisions: action.decisions,
             map,
-            inBattleSquaddieManager,
+            managers,
             actor: {
                 inBattleSquaddie: actorInBattleSquaddie,
                 outOfBattleSquaddie: actorOutOfBattleSquaddie,
@@ -89,13 +93,14 @@ export const SquaddieActionResultCalculator = {
                 )
                     return []
 
-                const targetSquaddie = inBattleSquaddieManager.getSquaddie({
-                    ...target,
-                })
+                const targetSquaddie =
+                    managers.inBattleSquaddieManager.getSquaddie({
+                        ...target,
+                    })
                 return calculateEffectOnSquaddie({
                     effect: squaddieAction.effectOnTarget[degreeOfSuccess],
                     decisions: action.decisions,
-                    inBattleSquaddieManager,
+                    managers,
                     actor: {
                         inBattleSquaddie: actorInBattleSquaddie,
                         outOfBattleSquaddie: actorOutOfBattleSquaddie,
@@ -152,6 +157,128 @@ export const SquaddieActionResultCalculator = {
 
         return results
     },
+
+    calculateActionResultsWithRolls: ({
+        actor,
+        targets,
+        action,
+        managers,
+        rollGenerator,
+        map,
+    }: {
+        managers: {
+            inBattleSquaddieManager: InBattleSquaddieManager
+            squaddieActionManager: SquaddieActionManager
+            coordinateMapCollectionManager?: CoordinateMapCollectionManager
+        }
+        actor: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        targets: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }[]
+        action: {
+            id: string
+            decisions?: SquaddieActionDecisions
+        }
+        rollGenerator: RollGenerator
+        map?: {
+            mapId: string
+        }
+    }): {
+        actorRoll: [number, number]
+        targetResults: Map<
+            string,
+            {
+                degreeOfSuccess: TDegreeOfSuccess
+                squaddieActionResults: SquaddieActionResult[]
+            }
+        >
+    } => {
+        const squaddieAction = managers.squaddieActionManager.get(action.id)
+
+        const actorProficiencyBonus =
+            managers.inBattleSquaddieManager.getProficiencyBonus({
+                inBattleSquaddieId: actor.inBattleSquaddieId,
+                outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+                type: squaddieAction.proficiency,
+            }).total
+
+        const rollResult = rollGenerator.roll(2)
+        const actorRoll: [number, number] = [rollResult[0], rollResult[1]]
+
+        const targetModifierDifferences = new Map<string, number>()
+
+        for (const target of targets) {
+            const defensiveProficiencyType =
+                ProficiencyLevelConst.defendingProficiencyTypeByProficiencyType.get(
+                    squaddieAction.proficiency
+                )
+
+            const targetDefensiveBonus =
+                managers.inBattleSquaddieManager.getProficiencyBonus({
+                    inBattleSquaddieId: target.inBattleSquaddieId,
+                    outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+                    type: defensiveProficiencyType!,
+                }).total
+
+            const modifierDifference =
+                actorProficiencyBonus - 6 - targetDefensiveBonus
+
+            const targetKey = SquaddieIdConverterService.squaddieIdToKey({
+                inBattleSquaddieId: target.inBattleSquaddieId,
+                outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+            })
+
+            targetModifierDifferences.set(targetKey, modifierDifference)
+        }
+
+        const degreesByTarget =
+            SquaddieActionResultCalculator.calculateDegreeOfSuccessForTargets({
+                actorRoll,
+                targetModifierDifferences,
+                supportedDegreesOfSuccess: squaddieAction.degreesOfSuccess,
+            })
+
+        const targetResults = new Map<
+            string,
+            {
+                degreeOfSuccess: TDegreeOfSuccess
+                squaddieActionResults: SquaddieActionResult[]
+            }
+        >()
+
+        for (const [targetKey, degreeOfSuccess] of degreesByTarget) {
+            const target = targets.find(
+                (t) =>
+                    SquaddieIdConverterService.squaddieIdToKey({
+                        inBattleSquaddieId: t.inBattleSquaddieId,
+                        outOfBattleSquaddieId: t.outOfBattleSquaddieId,
+                    }) === targetKey
+            )!
+
+            const results = SquaddieActionResultCalculator.calculateResult({
+                degreeOfSuccess,
+                managers,
+                actor,
+                targets: [target],
+                action,
+                map,
+            })
+
+            targetResults.set(targetKey, {
+                degreeOfSuccess,
+                squaddieActionResults: results,
+            })
+        }
+
+        return {
+            actorRoll,
+            targetResults,
+        }
+    },
 }
 
 const calculateActionPointChange = ({
@@ -187,12 +314,15 @@ const calculateActionPointChange = ({
 const calculateEffectOnSquaddie = ({
     effect,
     target,
-    inBattleSquaddieManager,
+    managers,
     decisions,
     map,
 }: {
     effect: SquaddieActionEffect | undefined
-    inBattleSquaddieManager: InBattleSquaddieManager
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        coordinateMapCollectionManager?: CoordinateMapCollectionManager
+    }
     actor: {
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
@@ -206,7 +336,6 @@ const calculateEffectOnSquaddie = ({
     decisions?: SquaddieActionDecisions
     map?: {
         mapId: string
-        manager: CoordinateMapCollectionManager
     }
 }): SquaddieActionResult[] => {
     if (effect == undefined) return []
@@ -214,37 +343,37 @@ const calculateEffectOnSquaddie = ({
     let results: SquaddieActionResult[] = []
     results.push(
         ...calculateActionPointChange({
-            inBattleSquaddieManager,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
             actionPoints: effect?.actionPoints,
             ...target,
         }),
         ...calculateDamageResults({
-            inBattleSquaddieManager,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
             damage: effect?.damage,
             ...target,
         }),
         ...calculateHealingResults({
-            inBattleSquaddieManager,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
             healing: effect?.healing,
             ...target,
         }),
         ...calculateConditionAddResults({
-            inBattleSquaddieManager,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
             conditions: effect?.conditions?.add,
             ...target,
         }),
         ...calculateConditionDispelResults({
-            inBattleSquaddieManager,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
             conditions: effect?.conditions?.dispel,
             ...target,
         }),
         ...calculateConditionTreatResults({
-            inBattleSquaddieManager,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
             conditions: effect?.conditions?.treat,
             ...target,
         }),
         ...calculateMovementResults({
-            inBattleSquaddieManager,
+            managers,
             decisions,
             movement: effect?.movement,
             map,
@@ -447,26 +576,32 @@ const calculateConditionTreatResults = ({
 const calculateMovementResults = ({
     inBattleSquaddie,
     outOfBattleSquaddie,
-    inBattleSquaddieManager,
+    managers,
     decisions,
     movement,
     map,
     actionPointsEffect,
 }: {
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        coordinateMapCollectionManager?: CoordinateMapCollectionManager
+    }
     actionPointsEffect: SquaddieActionEffect["actionPoints"] | undefined
     movement: SquaddieActionEffect["movement"] | undefined
     map?: {
         mapId: string
-        manager: CoordinateMapCollectionManager
     }
     decisions: SquaddieActionDecisions | undefined
     inBattleSquaddie: InBattleSquaddie
     outOfBattleSquaddie: OutOfBattleSquaddie
     attributeSheet: OutOfBattleSquaddieAttributeSheet
-    inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
     if (movement == undefined) return []
-    if (map == undefined) return []
+    if (
+        map == undefined ||
+        managers.coordinateMapCollectionManager == undefined
+    )
+        return []
 
     if (
         movement.moveToSelectedDestination &&
@@ -477,8 +612,8 @@ const calculateMovementResults = ({
     const routeInfo: {
         expectedPath: CoordinateMovePath
     } = CoordinateMapService.calculateRoute({
-        map: map.manager.getMapById(map.mapId),
-        inBattleSquaddieManager,
+        map: managers.coordinateMapCollectionManager.getMapById(map.mapId),
+        inBattleSquaddieManager: managers.inBattleSquaddieManager,
         inBattleSquaddieId: inBattleSquaddie.id,
         outOfBattleSquaddieId: outOfBattleSquaddie.id,
         stopConditions: [

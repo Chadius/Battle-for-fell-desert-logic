@@ -159,7 +159,10 @@ describe("Squaddie Actions against foes", () => {
 
         longswordResults = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-            inBattleSquaddieManager,
+            managers: {
+                inBattleSquaddieManager,
+                squaddieActionManager: actionManager,
+            },
             actor: {
                 inBattleSquaddieId: actorInBattleSquaddieId,
                 outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
@@ -172,7 +175,6 @@ describe("Squaddie Actions against foes", () => {
             ],
             action: {
                 id: longswordAction.id,
-                manager: actionManager,
             },
         })
 
@@ -211,7 +213,10 @@ describe("Squaddie Actions against foes", () => {
         lethalLongswordResults = SquaddieActionResultCalculator.calculateResult(
             {
                 degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                inBattleSquaddieManager,
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager: actionManager,
+                },
                 actor: {
                     inBattleSquaddieId: actorInBattleSquaddieId,
                     outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
@@ -224,7 +229,6 @@ describe("Squaddie Actions against foes", () => {
                 ],
                 action: {
                     id: lethalLongswordAction.id,
-                    manager: actionManager,
                 },
             }
         )
@@ -320,7 +324,10 @@ describe("Squaddie Actions against foes", () => {
         const longswordPartiallyAbsorbedResults =
             SquaddieActionResultCalculator.calculateResult({
                 degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                inBattleSquaddieManager,
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager: actionManager,
+                },
                 actor: {
                     inBattleSquaddieId: actorInBattleSquaddieId,
                     outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
@@ -333,7 +340,6 @@ describe("Squaddie Actions against foes", () => {
                 ],
                 action: {
                     id: longswordAction.id,
-                    manager: actionManager,
                 },
             })
 
@@ -446,10 +452,12 @@ describe("Squaddie Actions against foes", () => {
             ],
             action: {
                 id: dispelElusiveAction.id,
-                manager: actionManager,
             },
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-            inBattleSquaddieManager,
+            managers: {
+                inBattleSquaddieManager,
+                squaddieActionManager: actionManager,
+            },
         })
 
         expect(results[0].outOfBattleSquaddieId).toEqual(

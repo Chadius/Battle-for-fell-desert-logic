@@ -60,7 +60,10 @@ describe("Squaddie Actions on a friend", () => {
     const calculateHealingTargetResults = (): SquaddieActionResult[] => {
         return SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-            inBattleSquaddieManager,
+            managers: {
+                inBattleSquaddieManager,
+                squaddieActionManager: actionManager,
+            },
             actor: {
                 inBattleSquaddieId: actorInBattleSquaddieId,
                 outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
@@ -73,7 +76,6 @@ describe("Squaddie Actions on a friend", () => {
             ],
             action: {
                 id: healingHerbAction.id,
-                manager: actionManager,
             },
         })
     }
@@ -288,7 +290,10 @@ describe("Squaddie Actions on a friend", () => {
             const initialMagicalBarrierResult =
                 SquaddieActionResultCalculator.calculateResult({
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    inBattleSquaddieManager,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                    },
                     actor: {
                         inBattleSquaddieId: actorInBattleSquaddieId,
                         outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
@@ -301,7 +306,6 @@ describe("Squaddie Actions on a friend", () => {
                     ],
                     action: {
                         id: magicalBarrierAction.id,
-                        manager: actionManager,
                     },
                 })
 
@@ -320,7 +324,10 @@ describe("Squaddie Actions on a friend", () => {
             const reapplyMagicalBarrierResult =
                 SquaddieActionResultCalculator.calculateResult({
                     degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                    inBattleSquaddieManager,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                    },
                     actor: {
                         inBattleSquaddieId: actorInBattleSquaddieId,
                         outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
@@ -333,7 +340,6 @@ describe("Squaddie Actions on a friend", () => {
                     ],
                     action: {
                         id: magicalBarrierAction.id,
-                        manager: actionManager,
                     },
                 })
             expect(
@@ -408,10 +414,12 @@ describe("Squaddie Actions on a friend", () => {
             ],
             action: {
                 id: treatAllAction.id,
-                manager: actionManager,
             },
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-            inBattleSquaddieManager,
+            managers: {
+                inBattleSquaddieManager,
+                squaddieActionManager: actionManager,
+            },
         })
 
         expect(results[0].outOfBattleSquaddieId).toEqual(
