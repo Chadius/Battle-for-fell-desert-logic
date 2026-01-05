@@ -25,7 +25,6 @@ import {
     ProficiencyLevel,
     ProficiencyType,
 } from "../../../proficiency/proficiencyLevel"
-import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation"
 import { ActionRange } from "../../actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
@@ -37,6 +36,7 @@ import {
 } from "../../../proficiency/squaddieCondition"
 import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
 import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation"
 
 describe("Squaddie Actions against foes", () => {
     let longswordAction: SquaddieAction

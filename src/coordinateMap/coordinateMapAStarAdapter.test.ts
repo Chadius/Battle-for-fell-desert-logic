@@ -16,7 +16,6 @@ import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleS
 import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 import { AttributeScore } from "../proficiency/attributeScore"
-import { SquaddieAffiliation } from "../squaddie/outOfBattle/affiliation"
 import {
     CoordinateMapAStarAdapter,
     type CoordinateMapSearchLimits,
@@ -31,6 +30,7 @@ import { type CoordinateMovePath, CoordinateMovePathService } from "./path/path"
 import type { AStarGraph } from "../aStarSearch/aStarGraph"
 import { CoordinatePathMapService } from "./mapTransposition/coordinatePathMap"
 import type { OffsetCoordinate } from "./offsetCoordinate"
+import { SquaddieAffiliation } from "../affiliation/affiliation"
 
 describe("coordinateMapAStarAdapter", () => {
     let manager: InBattleSquaddieManager

@@ -13,13 +13,13 @@ import {
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { SquaddieConditionType } from "../proficiency/squaddieCondition"
 import {
-    SquaddieAffiliationService,
-    type TSquaddieAffiliation,
-} from "../squaddie/outOfBattle/affiliation"
-import {
     type OffsetCoordinate,
     OffsetCoordinateService,
 } from "./offsetCoordinate"
+import {
+    SquaddieAffiliationService,
+    type TSquaddieAffiliation,
+} from "../affiliation/affiliation"
 
 export interface CoordinateMapSearchLimits {
     maximumMoveCost?: number

@@ -26,7 +26,6 @@ import {
     ProficiencyLevel,
     ProficiencyType,
 } from "../../../proficiency/proficiencyLevel"
-import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation"
 import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
 import { ActionRange } from "../../actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
@@ -37,6 +36,7 @@ import {
 import { ApplyResultService } from "../../apply/applyResultService"
 import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult"
 import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation"
 
 describe("Squaddie Actions on a friend", () => {
     let healingHerbAction: SquaddieAction

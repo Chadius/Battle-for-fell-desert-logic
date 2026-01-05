@@ -13,10 +13,10 @@ import {
     ProficiencyLevelConst,
     ProficiencyType,
 } from "../../proficiency/proficiencyLevel"
-import { SquaddieAffiliation } from "../../squaddie/outOfBattle/affiliation"
 import type { SquaddieAction } from "../squaddieAction"
 import { SquaddieActionService } from "../squaddieAction"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
+import { SquaddieAffiliation } from "../../affiliation/affiliation"
 
 describe("ProficiencyCalculator", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

@@ -27,10 +27,10 @@ import {
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
-import { SquaddieAffiliation } from "../outOfBattle/affiliation"
 import { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
 import { SquaddieItemCollectionService } from "../../squaddieItem/squaddieItemCollection"
 import { SquaddieItemService } from "../../squaddieItem/squaddieItem"
+import { SquaddieAffiliation } from "../../affiliation/affiliation"
 
 describe("In Battle Squaddie Manager", () => {
     let attributeSheet: OutOfBattleSquaddieAttributeSheet

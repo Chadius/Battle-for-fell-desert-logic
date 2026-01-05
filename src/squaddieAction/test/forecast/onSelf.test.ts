@@ -16,13 +16,13 @@ import {
     type TProficiencyType,
 } from "../../../proficiency/proficiencyLevel"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation"
 import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { SquaddieActionService } from "../../squaddieAction"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { ActionRange } from "../../actionRange"
 import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation"
 
 describe("forecasts on effects on yourself", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

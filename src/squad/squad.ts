@@ -1,5 +1,5 @@
-import { type TSquaddieAffiliation } from "../squaddie/outOfBattle/affiliation"
 import type { TSquaddieRole } from "./roles"
+import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 
 export interface Squad {
     id: string

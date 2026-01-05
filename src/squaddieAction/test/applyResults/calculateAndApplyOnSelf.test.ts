@@ -25,7 +25,6 @@ import {
     ProficiencyLevel,
     ProficiencyType,
 } from "../../../proficiency/proficiencyLevel"
-import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation"
 import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
 import { ActionRange } from "../../actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
@@ -41,6 +40,7 @@ import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 import { CoordinateMovePathService } from "../../../coordinateMap/path/path"
 import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
 import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation"
 
 describe("Squaddie resolves actions on themself", () => {
     let endTurnAction: SquaddieAction

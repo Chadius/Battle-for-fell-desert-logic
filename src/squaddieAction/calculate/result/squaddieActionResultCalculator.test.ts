@@ -19,11 +19,11 @@ import {
     ProficiencyLevel,
     ProficiencyType,
 } from "../../../proficiency/proficiencyLevel"
-import { SquaddieAffiliation } from "../../../squaddie/outOfBattle/affiliation"
 import { ActionRange } from "../../actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation"
 
 describe("SquaddieActionResultCalculator", () => {
     describe("calculateDegreeOfSuccessForTargets", () => {

@@ -28,13 +28,13 @@ import {
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { AttributeScore } from "../../../proficiency/attributeScore"
 import {
-    SquaddieAffiliation,
-    type TSquaddieAffiliation,
-} from "../../../squaddie/outOfBattle/affiliation"
-import {
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
+import {
+    SquaddieAffiliation,
+    type TSquaddieAffiliation,
+} from "../../../affiliation/affiliation"
 
 describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
     let attributeSheetCollection: OutOfBattleSquaddieAttributeSheetCollection

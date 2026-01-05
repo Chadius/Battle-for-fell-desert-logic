@@ -21,7 +21,7 @@ import {
     OutOfBattleSquaddieService,
 } from "./outOfBattleSquaddie"
 import { AttributeScore } from "../../proficiency/attributeScore"
-import { SquaddieAffiliation } from "./affiliation"
+import { SquaddieAffiliation } from "../../affiliation/affiliation"
 
 describe("Out of Battle Squaddie Manager", () => {
     let squaddieCollection: OutOfBattleSquaddieCollection

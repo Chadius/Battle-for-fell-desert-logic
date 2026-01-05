@@ -1,4 +1,4 @@
-import type { EnumLike } from "../../enum"
+import type { EnumLike } from "../enum"
 
 export const SquaddieAffiliation = {
     PLAYER: "PLAYER",
