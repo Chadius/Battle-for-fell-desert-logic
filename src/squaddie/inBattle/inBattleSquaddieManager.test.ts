@@ -1150,6 +1150,45 @@ describe("In Battle Squaddie Manager", () => {
         })
     })
 
+    describe("canSquaddieAct", () => {
+        it("returns true when squaddie has action points and HP", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            expect(manager.canSquaddieAct(inBattleSquaddie00Id!)).toBe(true)
+        })
+
+        it("returns false when squaddie has spent all action points", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            manager.spendActionPoints({
+                ...inBattleSquaddie00Id!,
+                actionPoints: 3,
+            })
+
+            expect(manager.canSquaddieAct(inBattleSquaddie00Id!)).toBe(false)
+        })
+
+        it("returns false when squaddie is at 0 hit points", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            manager.dealDamageToSquaddie({
+                ...inBattleSquaddie00Id!,
+                damage: {
+                    amount: 5,
+                    type: AttributeScore.BODY,
+                },
+            })
+
+            expect(manager.canSquaddieAct(inBattleSquaddie00Id!)).toBe(false)
+        })
+    })
+
     describe("Proficiency level and rank", () => {
         it("can get the proficiency levels", () => {
             const inBattleSquaddie00Id = manager.createNewSquaddie({

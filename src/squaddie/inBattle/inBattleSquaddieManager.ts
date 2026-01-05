@@ -454,6 +454,25 @@ export class InBattleSquaddieManager {
         })
     }
 
+    canSquaddieAct({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): boolean {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+
+        if (squaddieInfo.inBattleSquaddie.hitPoints.current <= 0) {
+            return false
+        }
+
+        return squaddieInfo.inBattleSquaddie.actionPoints.current > 0
+    }
+
     spendActionPoints({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
