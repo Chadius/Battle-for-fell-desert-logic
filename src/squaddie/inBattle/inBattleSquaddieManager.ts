@@ -19,8 +19,13 @@ import {
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction"
 import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
 import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
-import type { TSquaddieAffiliation } from "../outOfBattle/affiliation"
 import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
+import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
+
+export type BattleSquaddieId = {
+    inBattleSquaddieId: number
+    outOfBattleSquaddieId: string
+}
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection
@@ -1061,6 +1066,41 @@ export class InBattleSquaddieManager {
         return this.outOfBattleSquaddieManager!.getSquaddieAffiliation(
             outOfBattleSquaddieId
         )
+    }
+
+    getAllSquaddiesOfAffiliation(
+        affiliation: TSquaddieAffiliation
+    ): BattleSquaddieId[] {
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(
+            this.getAllSquaddiesOfAffiliation.name
+        )
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.getAllSquaddiesOfAffiliation.name
+        )
+
+        const outOfBattleSquaddies =
+            this.outOfBattleSquaddieManager!.getAllWithSquaddieAffiliation(
+                affiliation
+            )
+
+        const squaddieIds: BattleSquaddieId[] = []
+        for (const outOfBattleSquaddie of outOfBattleSquaddies) {
+            const inBattleSquaddies =
+                InBattleSquaddieCollectionService.getSquaddiesByOutOfBattleSquaddieId(
+                    {
+                        collection: this.inBattleSquaddieCollection!,
+                        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                    }
+                )
+            for (const inBattleSquaddie of inBattleSquaddies) {
+                squaddieIds.push({
+                    inBattleSquaddieId: inBattleSquaddie.id,
+                    outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                })
+            }
+        }
+
+        return squaddieIds
     }
 
     private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {

@@ -39,6 +39,21 @@ export const InBattleSquaddieCollectionService = {
             .get(outOfBattleSquaddieId)
             ?.at(id)
     },
+    getSquaddiesByOutOfBattleSquaddieId: ({
+        collection,
+        outOfBattleSquaddieId,
+    }: {
+        collection: InBattleSquaddieCollection
+        outOfBattleSquaddieId: string
+    }): InBattleSquaddie[] => {
+        throwIfCollectionIsUndefined(
+            collection,
+            "getSquaddiesByOutOfBattleSquaddieId"
+        )
+        return (
+            collection.byOutOfBattleSquaddieId.get(outOfBattleSquaddieId) ?? []
+        )
+    },
     createNewSquaddie({
         collection,
         outOfBattleSquaddie,

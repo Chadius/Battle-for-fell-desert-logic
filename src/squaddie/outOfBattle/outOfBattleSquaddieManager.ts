@@ -8,7 +8,7 @@ import {
 } from "./outOfBattleSquaddieAttributeSheetCollection"
 import { type OutOfBattleSquaddieAttributeSheet } from "./outOfBattleSquaddieAttributeSheet"
 import type { OutOfBattleSquaddie } from "./outOfBattleSquaddie"
-import type { TSquaddieAffiliation } from "./affiliation"
+import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
 
 export class OutOfBattleSquaddieManager {
     squaddieCollection?: OutOfBattleSquaddieCollection
@@ -320,6 +320,24 @@ export class OutOfBattleSquaddieManager {
             )
         }
         return outOfBattleSquaddie.affiliation
+    }
+
+    getAllWithSquaddieAffiliation(
+        squaddieAffiliation: TSquaddieAffiliation
+    ): OutOfBattleSquaddie[] {
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.getAllWithSquaddieAffiliation.name
+        )
+        this.throwIfSquaddieCollectionIsUndefined(
+            this.getAllWithSquaddieAffiliation.name
+        )
+
+        return OutOfBattleSquaddieCollectionService.getAllWithSquaddieAffiliation(
+            {
+                collection: this.squaddieCollection!,
+                squaddieAffiliation,
+            }
+        )
     }
 
     private throwIfSquaddieCollectionIsUndefined(callName: string) {

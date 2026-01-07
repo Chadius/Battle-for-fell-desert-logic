@@ -97,6 +97,16 @@ describe("Out of Battle Squaddie Manager", () => {
         )
     })
 
+    it("can get squaddies by affiliation", () => {
+        manager.addOrUpdateAttributeSheet(attributeSheet)
+        manager.addOrUpdateSquaddie(squaddie)
+        const squaddies = manager.getAllWithSquaddieAffiliation(
+            squaddie.affiliation
+        )
+        expect(squaddies).toHaveLength(1)
+        expect(squaddies[0]).toEqual(squaddie)
+    })
+
     it("will not get a squaddie if raw squaddie or attribute sheet is missing", () => {
         expect(manager.getSquaddie(squaddie.id)).toBeUndefined()
         manager.addOrUpdateSquaddie(squaddie)

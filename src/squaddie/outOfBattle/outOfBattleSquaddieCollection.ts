@@ -2,6 +2,7 @@ import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
 } from "./outOfBattleSquaddie"
+import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
 
 export interface OutOfBattleSquaddieCollection {
     outOfBattleSquaddieById: Map<string, OutOfBattleSquaddie>
@@ -58,6 +59,22 @@ export const OutOfBattleSquaddieCollectionService = {
             ),
         ]
     },
+    getAllWithSquaddieAffiliation: ({
+        collection,
+        squaddieAffiliation,
+    }: {
+        collection: OutOfBattleSquaddieCollection
+        squaddieAffiliation: TSquaddieAffiliation
+    }): OutOfBattleSquaddie[] => {
+        throwIfCollectionIsUndefined(
+            collection,
+            "getAllWithSquaddieAffiliation"
+        )
+        return [...collection.outOfBattleSquaddieById.values()].filter(
+            (outOfBattleSquaddie) =>
+                outOfBattleSquaddie.affiliation == squaddieAffiliation
+        )
+    },
 }
 
 const clone = (
@@ -77,4 +94,14 @@ const clone = (
     return {
         outOfBattleSquaddieById,
     }
+}
+
+const throwIfCollectionIsUndefined = (
+    collection: OutOfBattleSquaddieCollection,
+    callName: string
+) => {
+    if (collection == undefined)
+        throw new Error(
+            `[OutBattleSquaddieCollectionService.${callName}]: collection must be defined`
+        )
 }

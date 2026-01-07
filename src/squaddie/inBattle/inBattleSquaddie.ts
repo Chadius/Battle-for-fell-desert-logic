@@ -20,7 +20,7 @@ import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 
 export interface InBattleSquaddie {
     id: number
-    outOfBattleId: string
+    outOfBattleSquaddieId: string
     name: string
     hitPoints: {
         max: number
@@ -48,7 +48,7 @@ export const InBattleSquaddieService = {
     }): InBattleSquaddie => {
         return {
             id,
-            outOfBattleId: outOfBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
             name,
             hitPoints: {
                 max: attributeSheet.maxHitPoints,

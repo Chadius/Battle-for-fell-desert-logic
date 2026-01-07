@@ -96,6 +96,109 @@ describe("In Battle Squaddie Manager", () => {
         )
     })
 
+    describe("GetSquaddiesOfAffiliation", () => {
+        beforeEach(() => {
+            manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "player",
+                    name: "Player",
+                    actionIds: [],
+                    attributeSheetId: "test sheet",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            )
+            manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "ally",
+                    name: "Ally",
+                    actionIds: [],
+                    attributeSheetId: "test sheet",
+                    affiliation: SquaddieAffiliation.ALLY,
+                })
+            )
+            manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "enemy",
+                    name: "Enemy",
+                    actionIds: [],
+                    attributeSheetId: "test sheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            )
+            manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "none",
+                    name: "None",
+                    actionIds: [],
+                    attributeSheetId: "test sheet",
+                    affiliation: SquaddieAffiliation.NONE,
+                })
+            )
+
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: "player",
+            })
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: "player",
+            })
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: "ally",
+            })
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy",
+            })
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: "none",
+            })
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: "none",
+            })
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: "none",
+            })
+        })
+
+        it("can get all player squaddies", () => {
+            const squaddieIds = manager.getAllSquaddiesOfAffiliation(
+                SquaddieAffiliation.PLAYER
+            )
+            expect(squaddieIds).toHaveLength(2)
+            expect(squaddieIds[0].inBattleSquaddieId).not.toEqual(
+                squaddieIds[1].inBattleSquaddieId
+            )
+        })
+
+        it("can get all ally squaddies", () => {
+            const squaddieIds = manager.getAllSquaddiesOfAffiliation(
+                SquaddieAffiliation.ALLY
+            )
+            expect(squaddieIds).toHaveLength(1)
+        })
+
+        it("can get all enemy squaddies", () => {
+            const squaddieIds = manager.getAllSquaddiesOfAffiliation(
+                SquaddieAffiliation.ENEMY
+            )
+            expect(squaddieIds).toHaveLength(1)
+        })
+
+        it("can get all squaddies without affiliation", () => {
+            const squaddieIds = manager.getAllSquaddiesOfAffiliation(
+                SquaddieAffiliation.NONE
+            )
+            expect(squaddieIds).toHaveLength(3)
+            expect(squaddieIds[0].inBattleSquaddieId).not.toEqual(
+                squaddieIds[1].inBattleSquaddieId
+            )
+            expect(squaddieIds[0].inBattleSquaddieId).not.toEqual(
+                squaddieIds[2].inBattleSquaddieId
+            )
+            expect(squaddieIds[1].inBattleSquaddieId).not.toEqual(
+                squaddieIds[2].inBattleSquaddieId
+            )
+        })
+    })
+
     describe("Adding squaddies", () => {
         it("can create and store a new InBattleSquaddie based on an existing Out of Battle Squaddie", () => {
             expect(

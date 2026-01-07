@@ -17,6 +17,136 @@ import type { CoordinateMap } from "../coordinateMap/coordinateMap"
 import { CoordinateMapService } from "../coordinateMap/coordinateMap"
 
 describe("MissionTurn", () => {
+    let inBattleSquaddieManager: InBattleSquaddieManager
+    let coordinateMap: CoordinateMap
+    let playerSquaddieId: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }
+    let allySquaddieId: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }
+    let enemySquaddieId: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }
+    let noneAffiliationSquaddieId: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }
+
+    beforeEach(() => {
+        const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+            OutOfBattleSquaddieCollectionService.new(),
+            OutOfBattleSquaddieAttributeSheetCollectionService.new()
+        )
+
+        const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
+            items: { itemIds: [], maxCapacity: 0 },
+            movement: {
+                distancePerAction: 1,
+            },
+            id: "test sheet",
+            maxHitPoints: 5,
+            attributeScores: {
+                [AttributeScore.BODY]: 5,
+                [AttributeScore.MIND]: 5,
+                [AttributeScore.SOUL]: 5,
+            },
+            rank: 0,
+        })
+        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
+        const playerSquaddie = OutOfBattleSquaddieService.new({
+            id: "player",
+            name: "Player",
+            actionIds: [],
+            attributeSheetId: "test sheet",
+            affiliation: SquaddieAffiliation.PLAYER,
+        })
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+
+        const allySquaddie = OutOfBattleSquaddieService.new({
+            id: "ally",
+            name: "Ally",
+            actionIds: [],
+            attributeSheetId: "test sheet",
+            affiliation: SquaddieAffiliation.ALLY,
+        })
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(allySquaddie)
+
+        const enemySquaddie = OutOfBattleSquaddieService.new({
+            id: "enemy",
+            name: "Enemy",
+            actionIds: [],
+            attributeSheetId: "test sheet",
+            affiliation: SquaddieAffiliation.ENEMY,
+        })
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
+
+        const noneSquaddie = OutOfBattleSquaddieService.new({
+            id: "none",
+            name: "None",
+            actionIds: [],
+            attributeSheetId: "test sheet",
+            affiliation: SquaddieAffiliation.NONE,
+        })
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(noneSquaddie)
+
+        const inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.new()
+        inBattleSquaddieManager = new InBattleSquaddieManager(
+            inBattleSquaddieCollection,
+            outOfBattleSquaddieManager
+        )
+
+        playerSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+            outOfBattleSquaddieId: "player",
+        })!
+        allySquaddieId = inBattleSquaddieManager.createNewSquaddie({
+            outOfBattleSquaddieId: "ally",
+        })!
+        enemySquaddieId = inBattleSquaddieManager.createNewSquaddie({
+            outOfBattleSquaddieId: "enemy",
+        })!
+        noneAffiliationSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+            outOfBattleSquaddieId: "none",
+        })!
+
+        coordinateMap = CoordinateMapService.new({
+            id: "test map",
+            name: "Test Map",
+            movementProperties: [
+                "1 1 1 1 1 1 1 1 1 1 ",
+                " 1 1 1 1 1 1 1 1 1 1 ",
+                "1 1 1 1 1 1 1 1 1 1 ",
+                " 1 1 1 1 1 1 1 1 1 1 ",
+            ],
+        })
+
+        coordinateMap = CoordinateMapService.addSquaddie({
+            map: coordinateMap,
+            squaddieId: playerSquaddieId,
+            coordinate: { row: 0, col: 0 },
+        })
+        coordinateMap = CoordinateMapService.addSquaddie({
+            map: coordinateMap,
+            squaddieId: allySquaddieId,
+            coordinate: { row: 1, col: 0 },
+        })
+        coordinateMap = CoordinateMapService.addSquaddie({
+            map: coordinateMap,
+            squaddieId: enemySquaddieId,
+            coordinate: { row: 2, col: 0 },
+        })
+        coordinateMap = CoordinateMapService.addSquaddie({
+            map: coordinateMap,
+            squaddieId: noneAffiliationSquaddieId,
+            coordinate: { row: 3, col: 0 },
+        })
+    })
+
     describe("MissionTurnService.new", () => {
         it("creates a new MissionTurn with default values", () => {
             const missionTurn: MissionTurn = MissionTurnService.new()
@@ -63,138 +193,6 @@ describe("MissionTurn", () => {
     })
 
     describe("MissionTurnService.calculateNextPhase", () => {
-        let inBattleSquaddieManager: InBattleSquaddieManager
-        let coordinateMap: CoordinateMap
-        let playerSquaddieIds: {
-            inBattleSquaddieId: number
-            outOfBattleSquaddieId: string
-        }
-        let allySquaddieIds: {
-            inBattleSquaddieId: number
-            outOfBattleSquaddieId: string
-        }
-        let enemySquaddieIds: {
-            inBattleSquaddieId: number
-            outOfBattleSquaddieId: string
-        }
-        let noneSquaddieIds: {
-            inBattleSquaddieId: number
-            outOfBattleSquaddieId: string
-        }
-
-        beforeEach(() => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: {
-                        distancePerAction: 1,
-                    },
-                    id: "test sheet",
-                    maxHitPoints: 5,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
-
-            const playerSquaddie = OutOfBattleSquaddieService.new({
-                id: "player",
-                name: "Player",
-                actionIds: [],
-                attributeSheetId: "test sheet",
-                affiliation: SquaddieAffiliation.PLAYER,
-            })
-            outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
-
-            const allySquaddie = OutOfBattleSquaddieService.new({
-                id: "ally",
-                name: "Ally",
-                actionIds: [],
-                attributeSheetId: "test sheet",
-                affiliation: SquaddieAffiliation.ALLY,
-            })
-            outOfBattleSquaddieManager.addOrUpdateSquaddie(allySquaddie)
-
-            const enemySquaddie = OutOfBattleSquaddieService.new({
-                id: "enemy",
-                name: "Enemy",
-                actionIds: [],
-                attributeSheetId: "test sheet",
-                affiliation: SquaddieAffiliation.ENEMY,
-            })
-            outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
-
-            const noneSquaddie = OutOfBattleSquaddieService.new({
-                id: "none",
-                name: "None",
-                actionIds: [],
-                attributeSheetId: "test sheet",
-                affiliation: SquaddieAffiliation.NONE,
-            })
-            outOfBattleSquaddieManager.addOrUpdateSquaddie(noneSquaddie)
-
-            const inBattleSquaddieCollection =
-                InBattleSquaddieCollectionService.new()
-            inBattleSquaddieManager = new InBattleSquaddieManager(
-                inBattleSquaddieCollection,
-                outOfBattleSquaddieManager
-            )
-
-            playerSquaddieIds = inBattleSquaddieManager.createNewSquaddie({
-                outOfBattleSquaddieId: "player",
-            })!
-            allySquaddieIds = inBattleSquaddieManager.createNewSquaddie({
-                outOfBattleSquaddieId: "ally",
-            })!
-            enemySquaddieIds = inBattleSquaddieManager.createNewSquaddie({
-                outOfBattleSquaddieId: "enemy",
-            })!
-            noneSquaddieIds = inBattleSquaddieManager.createNewSquaddie({
-                outOfBattleSquaddieId: "none",
-            })!
-
-            coordinateMap = CoordinateMapService.new({
-                id: "test map",
-                name: "Test Map",
-                movementProperties: [
-                    "1 1 1 1 1 1 1 1 1 1 ",
-                    " 1 1 1 1 1 1 1 1 1 1 ",
-                    "1 1 1 1 1 1 1 1 1 1 ",
-                    " 1 1 1 1 1 1 1 1 1 1 ",
-                ],
-            })
-
-            coordinateMap = CoordinateMapService.addSquaddie({
-                map: coordinateMap,
-                squaddieId: playerSquaddieIds,
-                coordinate: { row: 0, col: 0 },
-            })
-            coordinateMap = CoordinateMapService.addSquaddie({
-                map: coordinateMap,
-                squaddieId: allySquaddieIds,
-                coordinate: { row: 1, col: 0 },
-            })
-            coordinateMap = CoordinateMapService.addSquaddie({
-                map: coordinateMap,
-                squaddieId: enemySquaddieIds,
-                coordinate: { row: 2, col: 0 },
-            })
-            coordinateMap = CoordinateMapService.addSquaddie({
-                map: coordinateMap,
-                squaddieId: noneSquaddieIds,
-                coordinate: { row: 3, col: 0 },
-            })
-        })
-
         describe("TURN_START transitions", () => {
             it("TURN_START with Player squaddie available transitions to PLAYER_TURN_START", () => {
                 const missionTurn = MissionTurnService.new()
@@ -213,7 +211,7 @@ describe("MissionTurn", () => {
             it("TURN_START with no Player but Ally available transitions to ALLY_TURN_START", () => {
                 const mapWithoutPlayer = CoordinateMapService.removeSquaddie({
                     map: coordinateMap,
-                    squaddieId: playerSquaddieIds,
+                    squaddieId: playerSquaddieId,
                 })
 
                 const missionTurn = MissionTurnService.new()
@@ -231,11 +229,11 @@ describe("MissionTurn", () => {
             it("TURN_START with only Enemy available transitions to ENEMY_TURN_START", () => {
                 let modifiedMap = CoordinateMapService.removeSquaddie({
                     map: coordinateMap,
-                    squaddieId: playerSquaddieIds,
+                    squaddieId: playerSquaddieId,
                 })
                 modifiedMap = CoordinateMapService.removeSquaddie({
                     map: modifiedMap,
-                    squaddieId: allySquaddieIds,
+                    squaddieId: allySquaddieId,
                 })
 
                 const missionTurn = MissionTurnService.new()
@@ -253,15 +251,15 @@ describe("MissionTurn", () => {
             it("TURN_START with only None affiliation available transitions to NONE_AFFILIATION_TURN_START", () => {
                 let modifiedMap = CoordinateMapService.removeSquaddie({
                     map: coordinateMap,
-                    squaddieId: playerSquaddieIds,
+                    squaddieId: playerSquaddieId,
                 })
                 modifiedMap = CoordinateMapService.removeSquaddie({
                     map: modifiedMap,
-                    squaddieId: allySquaddieIds,
+                    squaddieId: allySquaddieId,
                 })
                 modifiedMap = CoordinateMapService.removeSquaddie({
                     map: modifiedMap,
-                    squaddieId: enemySquaddieIds,
+                    squaddieId: enemySquaddieId,
                 })
 
                 const missionTurn = MissionTurnService.new()
@@ -279,19 +277,19 @@ describe("MissionTurn", () => {
             it("TURN_START with no squaddies available transitions to TURN_END", () => {
                 let modifiedMap = CoordinateMapService.removeSquaddie({
                     map: coordinateMap,
-                    squaddieId: playerSquaddieIds,
+                    squaddieId: playerSquaddieId,
                 })
                 modifiedMap = CoordinateMapService.removeSquaddie({
                     map: modifiedMap,
-                    squaddieId: allySquaddieIds,
+                    squaddieId: allySquaddieId,
                 })
                 modifiedMap = CoordinateMapService.removeSquaddie({
                     map: modifiedMap,
-                    squaddieId: enemySquaddieIds,
+                    squaddieId: enemySquaddieId,
                 })
                 modifiedMap = CoordinateMapService.removeSquaddie({
                     map: modifiedMap,
-                    squaddieId: noneSquaddieIds,
+                    squaddieId: noneAffiliationSquaddieId,
                 })
 
                 const missionTurn = MissionTurnService.new()
@@ -448,7 +446,7 @@ describe("MissionTurn", () => {
             it("PLAYER_TURN with squaddie off map transitions to PLAYER_TURN_END", () => {
                 const mapWithoutPlayer = CoordinateMapService.removeSquaddie({
                     map: coordinateMap,
-                    squaddieId: playerSquaddieIds,
+                    squaddieId: playerSquaddieId,
                 })
 
                 const missionTurn = MissionTurnService.new({
@@ -469,7 +467,7 @@ describe("MissionTurn", () => {
             it("PLAYER_TURN with no Player squaddies transitions to PLAYER_TURN_END", () => {
                 const mapWithoutPlayer = CoordinateMapService.removeSquaddie({
                     map: coordinateMap,
-                    squaddieId: playerSquaddieIds,
+                    squaddieId: playerSquaddieId,
                 })
 
                 const missionTurn = MissionTurnService.new({
@@ -489,7 +487,7 @@ describe("MissionTurn", () => {
 
             it("ALLY_TURN with all Ally squaddies at 0 HP transitions to ALLY_TURN_END", () => {
                 inBattleSquaddieManager.dealDamageToSquaddie({
-                    ...allySquaddieIds,
+                    ...allySquaddieId,
                     damage: {
                         amount: 5,
                         type: AttributeScore.BODY,
@@ -513,7 +511,7 @@ describe("MissionTurn", () => {
 
             it("ENEMY_TURN with all Enemy squaddies out of actions transitions to ENEMY_TURN_END", () => {
                 inBattleSquaddieManager.spendActionPoints({
-                    ...enemySquaddieIds,
+                    ...enemySquaddieId,
                     actionPoints: 3,
                 })
 
@@ -554,7 +552,7 @@ describe("MissionTurn", () => {
             it("PLAYER_TURN_END with no Ally but Enemy available transitions to ENEMY_TURN_START", () => {
                 const mapWithoutAlly = CoordinateMapService.removeSquaddie({
                     map: coordinateMap,
-                    squaddieId: allySquaddieIds,
+                    squaddieId: allySquaddieId,
                 })
 
                 const missionTurn = MissionTurnService.new({
@@ -593,7 +591,7 @@ describe("MissionTurn", () => {
             it("ALLY_TURN_END with only None affiliation available transitions to NONE_AFFILIATION_TURN_START", () => {
                 const mapWithoutEnemy = CoordinateMapService.removeSquaddie({
                     map: coordinateMap,
-                    squaddieId: enemySquaddieIds,
+                    squaddieId: enemySquaddieId,
                 })
 
                 const missionTurn = MissionTurnService.new({
@@ -665,6 +663,54 @@ describe("MissionTurn", () => {
                     MissionAffiliationTurn.TURN_START
                 )
             })
+        })
+    })
+
+    describe("MissionTurnService.resetActionPoints", () => {
+        let playerSquaddie2Id: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+
+        beforeEach(() => {
+            playerSquaddie2Id = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player",
+            })!
+        })
+
+        it("will restore actions for all squaddies of the given affiliation", () => {
+            inBattleSquaddieManager.spendActionPoints({
+                ...playerSquaddie2Id,
+                actionPoints: 3,
+            })
+
+            inBattleSquaddieManager.spendActionPoints({
+                ...enemySquaddieId,
+                actionPoints: 3,
+            })
+
+            MissionTurnService.resetActionPointsForSquaddieAffiliation({
+                inBattleSquaddieManager,
+                squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            })
+
+            expect(
+                inBattleSquaddieManager.getActionPoints({
+                    ...playerSquaddieId,
+                }).current
+            ).toBe(3)
+
+            expect(
+                inBattleSquaddieManager.getActionPoints({
+                    ...playerSquaddie2Id,
+                }).current
+            ).toBe(3)
+
+            expect(
+                inBattleSquaddieManager.getActionPoints({
+                    ...enemySquaddieId,
+                }).current
+            ).toBe(0)
         })
     })
 })

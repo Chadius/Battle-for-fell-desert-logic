@@ -55,7 +55,6 @@ export const MissionTurnService = {
     }): MissionTurn => {
         const currentPhase = missionTurn.missionAffiliationTurn
 
-        // Try each handler in sequence
         const turnStartResult = handleTurnStartPhase(currentPhase, missionTurn)
         if (turnStartResult) return turnStartResult
 
@@ -92,6 +91,21 @@ export const MissionTurnService = {
         }
 
         return missionTurn
+    },
+    resetActionPointsForSquaddieAffiliation({
+        inBattleSquaddieManager,
+        squaddieAffiliation,
+    }: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieAffiliation: TSquaddieAffiliation
+    }) {
+        const battleSquaddieIds =
+            inBattleSquaddieManager.getAllSquaddiesOfAffiliation(
+                squaddieAffiliation
+            )
+        for (const battleSquaddieId of battleSquaddieIds) {
+            inBattleSquaddieManager.resetActionPoints(battleSquaddieId)
+        }
     },
 }
 
