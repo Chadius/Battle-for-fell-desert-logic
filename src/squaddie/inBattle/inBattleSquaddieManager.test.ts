@@ -197,6 +197,26 @@ describe("In Battle Squaddie Manager", () => {
                 squaddieIds[2].inBattleSquaddieId
             )
         })
+
+        it("can get all squaddies across all affiliations", () => {
+            const allSquaddieIds = manager.getAllSquaddies()
+            expect(allSquaddieIds).toHaveLength(7)
+
+            const compositeKeys = allSquaddieIds.map(
+                (s) => `${s.outOfBattleSquaddieId}-${s.inBattleSquaddieId}`
+            )
+            const uniqueCompositeKeys = new Set(compositeKeys)
+            expect(uniqueCompositeKeys.size).toBe(7)
+        })
+
+        it("returns empty array when no squaddies exist", () => {
+            const emptyManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                manager["outOfBattleSquaddieManager"]
+            )
+            const allSquaddieIds = emptyManager.getAllSquaddies()
+            expect(allSquaddieIds).toHaveLength(0)
+        })
     })
 
     describe("Adding squaddies", () => {

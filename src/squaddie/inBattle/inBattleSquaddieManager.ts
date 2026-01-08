@@ -20,7 +20,10 @@ import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction"
 import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
 import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
-import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
+import {
+    SquaddieAffiliation,
+    type TSquaddieAffiliation,
+} from "../../affiliation/affiliation"
 
 export type BattleSquaddieId = {
     inBattleSquaddieId: number
@@ -1101,6 +1104,23 @@ export class InBattleSquaddieManager {
         }
 
         return squaddieIds
+    }
+
+    getAllSquaddies(): BattleSquaddieId[] {
+        const allAffiliations = [
+            SquaddieAffiliation.PLAYER,
+            SquaddieAffiliation.ALLY,
+            SquaddieAffiliation.ENEMY,
+            SquaddieAffiliation.NONE,
+        ]
+
+        const allSquaddies: BattleSquaddieId[] = []
+        for (const affiliation of allAffiliations) {
+            const squaddies = this.getAllSquaddiesOfAffiliation(affiliation)
+            allSquaddies.push(...squaddies)
+        }
+
+        return allSquaddies
     }
 
     private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {

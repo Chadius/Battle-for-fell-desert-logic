@@ -1,21 +1,15 @@
+import type { BattleSquaddieId } from "./inBattle/inBattleSquaddieManager"
+
 const separator = "+++"
 
 export const SquaddieIdConverterService = {
     squaddieIdToKey: ({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
-    }: {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
-    }): string => {
+    }: BattleSquaddieId): string => {
         return `${outOfBattleSquaddieId}${separator}${inBattleSquaddieId}`
     },
-    keyToSquaddieId: (
-        key: string
-    ): {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
-    } => {
+    keyToSquaddieId: (key: string): BattleSquaddieId => {
         const [outOfBattleSquaddieId, inBattleSquaddieIdStr] =
             key.split(separator)
         return {
