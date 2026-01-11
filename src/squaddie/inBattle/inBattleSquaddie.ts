@@ -18,6 +18,8 @@ import type { DamageResult } from "../../squaddieAction/calculate/result/squaddi
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction"
 import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 
+export const DEFAULT_ACTION_POINTS = 3
+
 export interface InBattleSquaddie {
     id: number
     outOfBattleSquaddieId: string
@@ -56,7 +58,7 @@ export const InBattleSquaddieService = {
             },
             conditions: new Map(),
             actionPoints: {
-                current: 3,
+                current: DEFAULT_ACTION_POINTS,
             },
             actionIds: {
                 natural: [...outOfBattleSquaddie.actionIds],
@@ -224,6 +226,18 @@ export const InBattleSquaddieService = {
     } => {
         return { current: inBattleSquaddie.actionPoints.current }
     },
+    getMaximumActionPoints: (inBattleSquaddie: InBattleSquaddie): number => {
+        let maximumActionPoints = DEFAULT_ACTION_POINTS
+
+        const slowedAmount = InBattleSquaddieService.calculateConditionAmount({
+            squaddie: inBattleSquaddie,
+            conditionType: SquaddieConditionType.SLOWED,
+        })
+
+        maximumActionPoints -= slowedAmount
+
+        return Math.max(maximumActionPoints, 0)
+    },
     spendActionPoints: ({
         squaddie,
         actionPoints,
@@ -249,7 +263,8 @@ export const InBattleSquaddieService = {
         squaddie: InBattleSquaddie
     }): InBattleSquaddie => {
         const newSquaddie = clone(squaddie)
-        newSquaddie.actionPoints.current = 3
+        newSquaddie.actionPoints.current =
+            InBattleSquaddieService.getMaximumActionPoints(squaddie)
         return newSquaddie
     },
     getProficiencyLevel: ({

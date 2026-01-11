@@ -462,6 +462,24 @@ export class InBattleSquaddieManager {
         })
     }
 
+    getMaximumActionPoints({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): number {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+
+        return InBattleSquaddieCollectionService.getMaximumActionPoints({
+            ...squaddieInfo,
+            collection: this.inBattleSquaddieCollection!,
+        })
+    }
+
     canSquaddieAct({
         inBattleSquaddieId,
         outOfBattleSquaddieId,

@@ -1271,6 +1271,144 @@ describe("In Battle Squaddie Manager", () => {
                 })
             )
         })
+
+        describe("getMaximumActionPoints", () => {
+            it("returns 3 when squaddie has no SLOWED condition", () => {
+                const inBattleSquaddie00Id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                expect(
+                    manager.getMaximumActionPoints(inBattleSquaddie00Id!)
+                ).toBe(3)
+            })
+
+            it("returns 2 when squaddie has SLOWED 1", () => {
+                const inBattleSquaddie00Id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                const slowedCondition = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: 2,
+                })
+
+                manager.addConditionsToSquaddie({
+                    ...inBattleSquaddie00Id!,
+                    conditions: [slowedCondition],
+                })
+
+                expect(
+                    manager.getMaximumActionPoints(inBattleSquaddie00Id!)
+                ).toBe(2)
+            })
+
+            it("returns 0 when squaddie has SLOWED 3", () => {
+                const inBattleSquaddie00Id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                const slowedCondition = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 3,
+                    duration: 2,
+                })
+
+                manager.addConditionsToSquaddie({
+                    ...inBattleSquaddie00Id!,
+                    conditions: [slowedCondition],
+                })
+
+                expect(
+                    manager.getMaximumActionPoints(inBattleSquaddie00Id!)
+                ).toBe(0)
+            })
+
+            it("sums multiple SLOWED conditions with different amounts and durations", () => {
+                const inBattleSquaddie00Id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                const slowedCondition1 = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: 2,
+                })
+
+                const slowedCondition2 = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: 3,
+                })
+
+                manager.addConditionsToSquaddie({
+                    ...inBattleSquaddie00Id!,
+                    conditions: [slowedCondition1, slowedCondition2],
+                })
+
+                expect(
+                    manager.getMaximumActionPoints(inBattleSquaddie00Id!)
+                ).toBe(2)
+            })
+        })
+
+        describe("resetActionPoints respects SLOWED condition", () => {
+            it("resets to 2 when squaddie has SLOWED 1", () => {
+                const inBattleSquaddie00Id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                const slowedCondition = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: 2,
+                })
+
+                manager.addConditionsToSquaddie({
+                    ...inBattleSquaddie00Id!,
+                    conditions: [slowedCondition],
+                })
+
+                manager.spendActionPoints({
+                    ...inBattleSquaddie00Id!,
+                    actionPoints: 2,
+                })
+
+                manager.resetActionPoints(inBattleSquaddie00Id!)
+
+                expect(manager.getActionPoints(inBattleSquaddie00Id!)).toEqual(
+                    expect.objectContaining({
+                        current: 2,
+                    })
+                )
+            })
+
+            it("resets to 0 when squaddie has SLOWED 3 or more", () => {
+                const inBattleSquaddie00Id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                const slowedCondition = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 3,
+                    duration: 2,
+                })
+
+                manager.addConditionsToSquaddie({
+                    ...inBattleSquaddie00Id!,
+                    conditions: [slowedCondition],
+                })
+
+                manager.resetActionPoints(inBattleSquaddie00Id!)
+
+                expect(manager.getActionPoints(inBattleSquaddie00Id!)).toEqual(
+                    expect.objectContaining({
+                        current: 0,
+                    })
+                )
+            })
+        })
     })
 
     describe("canSquaddieAct", () => {

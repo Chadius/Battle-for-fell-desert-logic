@@ -324,6 +324,25 @@ export const InBattleSquaddieCollectionService = {
 
         return InBattleSquaddieService.getActionPoints(inBattleSquaddie)
     },
+    getMaximumActionPoints: ({
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+        collection,
+    }: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        collection: InBattleSquaddieCollection
+    }): number => {
+        throwIfCollectionIsUndefined(collection, "getMaximumActionPoints")
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "getMaximumActionPoints",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
+        })
+
+        return InBattleSquaddieService.getMaximumActionPoints(inBattleSquaddie)
+    },
     spendActionPoints: ({
         collection,
         actionPoints,
