@@ -379,6 +379,43 @@ export const InBattleSquaddieCollectionService = {
 
         return { collection: modifiedCollection, spent }
     },
+    restoreActionPoints: ({
+        collection,
+        actionPoints,
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+        commitChanges,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        actionPoints: number
+        commitChanges: boolean
+    }): { collection: InBattleSquaddieCollection; restored: number } => {
+        throwIfCollectionIsUndefined(collection, "restoreActionPoints")
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "restoreActionPoints",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
+        })
+
+        const { squaddie, restored } =
+            InBattleSquaddieService.restoreActionPoints({
+                squaddie: inBattleSquaddie,
+                actionPoints,
+            })
+
+        let modifiedCollection = commitChanges
+            ? addOrUpdateSquaddie({
+                  collection,
+                  inBattleSquaddie: squaddie,
+                  outOfBattleSquaddie,
+              })
+            : collection
+
+        return { collection: modifiedCollection, restored }
+    },
     resetActionPoints: ({
         collection,
         inBattleSquaddie,

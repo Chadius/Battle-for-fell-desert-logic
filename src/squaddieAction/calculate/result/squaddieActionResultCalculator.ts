@@ -356,6 +356,11 @@ const calculateEffectOnSquaddie = ({
             healing: effect?.healing,
             ...target,
         }),
+        ...calculateActionPointsRestorationResults({
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            actionPointsRestore: effect?.actionPoints?.restore,
+            ...target,
+        }),
         ...calculateConditionAddResults({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             conditions: effect?.conditions?.add,
@@ -458,6 +463,42 @@ const calculateHealingResults = ({
             healing: {
                 net: previewedHealing.net,
                 ...healing,
+            },
+        },
+    ]
+}
+
+const calculateActionPointsRestorationResults = ({
+    actionPointsRestore,
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    inBattleSquaddieManager,
+}: {
+    actionPointsRestore: number | undefined
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): SquaddieActionResult[] => {
+    if (actionPointsRestore == undefined) return []
+
+    const previewedRestoration =
+        inBattleSquaddieManager.previewRestoreActionPoints({
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            actionPoints: actionPointsRestore,
+        })
+
+    return [
+        {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            actionPoints: {
+                spent: 0,
+                restore: {
+                    net: previewedRestoration.restored,
+                    raw: actionPointsRestore,
+                },
             },
         },
     ]

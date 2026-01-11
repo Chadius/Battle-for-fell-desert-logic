@@ -25,6 +25,10 @@ export interface SquaddieActionResult {
     outOfBattleSquaddieId: string
     actionPoints?: {
         spent: number
+        restore?: {
+            net: number
+            raw: number
+        }
     }
     damage?: DamageResult
     healing?: HealingResult

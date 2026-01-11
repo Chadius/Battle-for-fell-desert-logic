@@ -1409,6 +1409,75 @@ describe("In Battle Squaddie Manager", () => {
                 )
             })
         })
+
+        describe("restoreActionPoints", () => {
+            it("can restore action points up to maximum", () => {
+                const id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                manager.spendActionPoints({ ...id!, actionPoints: 2 })
+                manager.restoreActionPoints({ ...id!, actionPoints: 1 })
+
+                expect(manager.getActionPoints(id!)).toEqual(
+                    expect.objectContaining({ current: 2 })
+                )
+            })
+
+            it("cannot restore beyond maximum action points", () => {
+                const id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                manager.spendActionPoints({ ...id!, actionPoints: 1 })
+                manager.restoreActionPoints({ ...id!, actionPoints: 5 })
+
+                expect(manager.getActionPoints(id!)).toEqual(
+                    expect.objectContaining({ current: 3 })
+                )
+            })
+
+            it("respects SLOWED condition when restoring", () => {
+                const id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                const slowedCondition = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: 2,
+                })
+
+                manager.addConditionsToSquaddie({
+                    ...id!,
+                    conditions: [slowedCondition],
+                })
+
+                manager.spendActionPoints({ ...id!, actionPoints: 2 })
+                manager.restoreActionPoints({ ...id!, actionPoints: 5 })
+
+                expect(manager.getActionPoints(id!)).toEqual(
+                    expect.objectContaining({ current: 2 })
+                )
+            })
+
+            it("previewRestoreActionPoints shows restoration without applying", () => {
+                const id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                manager.spendActionPoints({ ...id!, actionPoints: 2 })
+                const preview = manager.previewRestoreActionPoints({
+                    ...id!,
+                    actionPoints: 1,
+                })
+
+                expect(preview.restored).toBe(1)
+                expect(manager.getActionPoints(id!)).toEqual(
+                    expect.objectContaining({ current: 1 })
+                )
+            })
+        })
     })
 
     describe("canSquaddieAct", () => {

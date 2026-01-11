@@ -546,6 +546,53 @@ export class InBattleSquaddieManager {
         }
     }
 
+    restoreActionPoints({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        actionPoints,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        actionPoints: number
+    }) {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.restoreActionPoints({
+                commitChanges: true,
+                collection: this.inBattleSquaddieCollection!,
+                ...squaddieInfo,
+                actionPoints,
+            }).collection
+    }
+
+    previewRestoreActionPoints({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        actionPoints,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        actionPoints: number
+    }): { restored: number } {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+
+        return {
+            restored: InBattleSquaddieCollectionService.restoreActionPoints({
+                commitChanges: false,
+                collection: this.inBattleSquaddieCollection!,
+                ...squaddieInfo,
+                actionPoints,
+            }).restored,
+        }
+    }
+
     resetActionPoints({
         inBattleSquaddieId,
         outOfBattleSquaddieId,

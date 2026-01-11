@@ -36,6 +36,10 @@ const applyResultToSquaddie = ({
     }
 }) => {
     applyActionPointsResultToSquaddie({ inBattleSquaddieManager, result })
+    applyActionPointsRestorationResultToSquaddie({
+        inBattleSquaddieManager,
+        result,
+    })
     applyDamageResultToSquaddie({ inBattleSquaddieManager, result })
     applyHealingResultToSquaddie({ inBattleSquaddieManager, result })
     applyConditionsAddResultToSquaddie({ inBattleSquaddieManager, result })
@@ -57,6 +61,22 @@ const applyActionPointsResultToSquaddie = ({
         inBattleSquaddieId: result.inBattleSquaddieId,
         outOfBattleSquaddieId: result.outOfBattleSquaddieId,
         actionPoints: result.actionPoints.spent,
+    })
+}
+
+const applyActionPointsRestorationResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.actionPoints?.restore == undefined) return
+
+    inBattleSquaddieManager.restoreActionPoints({
+        inBattleSquaddieId: result.inBattleSquaddieId,
+        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        actionPoints: result.actionPoints.restore.net,
     })
 }
 
