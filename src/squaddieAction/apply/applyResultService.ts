@@ -35,6 +35,9 @@ const applyResultToSquaddie = ({
         manager: CoordinateMapCollectionManager
     }
 }) => {
+    dispelConditionsResultToSquaddie({ inBattleSquaddieManager, result })
+    treatConditionsResultToSquaddie({ inBattleSquaddieManager, result })
+    applyConditionsAddResultToSquaddie({ inBattleSquaddieManager, result })
     applyActionPointsResultToSquaddie({ inBattleSquaddieManager, result })
     applyActionPointsRestorationResultToSquaddie({
         inBattleSquaddieManager,
@@ -42,9 +45,6 @@ const applyResultToSquaddie = ({
     })
     applyDamageResultToSquaddie({ inBattleSquaddieManager, result })
     applyHealingResultToSquaddie({ inBattleSquaddieManager, result })
-    applyConditionsAddResultToSquaddie({ inBattleSquaddieManager, result })
-    dispelConditionsResultToSquaddie({ inBattleSquaddieManager, result })
-    treatConditionsResultToSquaddie({ inBattleSquaddieManager, result })
     moveSquaddie({ result, map })
 }
 

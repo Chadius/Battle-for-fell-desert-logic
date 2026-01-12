@@ -13,6 +13,7 @@ import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
+import { SquaddieConditionService } from "../../../proficiency/squaddieCondition"
 import {
     type CoordinateMovePath,
     CoordinateMovePathService,
@@ -277,6 +278,24 @@ export const SquaddieActionResultCalculator = {
             actorRoll,
             targetResults,
         }
+    },
+
+    reverseResult: (original: SquaddieActionResult): SquaddieActionResult => {
+        validateResultForReversal(original)
+
+        let reversed: SquaddieActionResult = {
+            inBattleSquaddieId: original.inBattleSquaddieId,
+            outOfBattleSquaddieId: original.outOfBattleSquaddieId,
+        }
+
+        reversed = reverseActionPoints(original, reversed)
+        reversed = reverseDamage(original, reversed)
+        reversed = reverseHealing(original, reversed)
+        reversed = reverseConditionsAdded(original, reversed)
+        reversed = reverseDispel(original, reversed)
+        reversed = reverseTreat(original, reversed)
+        reversed = reverseMovement(original, reversed)
+        return reversed
     },
 }
 
@@ -726,4 +745,235 @@ const redistributeUnsupportedDegree = (
     }
 
     return degree
+}
+
+const validateResultForReversal = (original: SquaddieActionResult): void => {
+    validateResultForReversalDamageHealing(original)
+    validateResultForReversalConditionEffects(original)
+    validateResultForReversalConditionsAdded(original)
+}
+
+const validateResultForReversalDamageHealing = (
+    original: SquaddieActionResult
+): void => {
+    if (original.damage && original.healing) {
+        throw new Error(
+            "[SquaddieActionResultCalculator.reverseResult]: Result cannot have both damage and healing"
+        )
+    }
+}
+
+const validateResultForReversalConditionEffects = (
+    original: SquaddieActionResult
+): void => {
+    const conditionEffectCount = [
+        original.conditionsAdded ? 1 : 0,
+        original.dispel ? 1 : 0,
+        original.treat ? 1 : 0,
+    ].reduce((a, b) => a + b, 0)
+
+    if (conditionEffectCount > 1) {
+        throw new Error(
+            "[SquaddieActionResultCalculator.reverseResult]: Result cannot have multiple condition effects"
+        )
+    }
+}
+
+const validateResultForReversalConditionsAdded = (
+    original: SquaddieActionResult
+): void => {
+    if (!(original.conditionsAdded && original.conditionsAdded.length > 0)) {
+        return
+    }
+
+    let hasHindering = false
+    let hasHelpful = false
+    for (const condition of original.conditionsAdded) {
+        if (SquaddieConditionService.isHindering(condition)) hasHindering = true
+        if (SquaddieConditionService.isHelpful(condition)) hasHelpful = true
+    }
+    if (hasHindering && hasHelpful) {
+        throw new Error(
+            "[SquaddieActionResultCalculator.reverseResult]: conditionsAdded cannot contain both hindering and helpful conditions"
+        )
+    }
+}
+
+const extractConditionsFromMap = (
+    conditionMap: Map<TSquaddieConditionType, Omit<SquaddieCondition, "type">[]>
+): SquaddieCondition[] => {
+    const conditions: SquaddieCondition[] = []
+    for (const [type, conditionDataArray] of conditionMap) {
+        for (const conditionData of conditionDataArray) {
+            conditions.push({
+                type,
+                amount: conditionData.amount,
+                limit: conditionData.limit,
+            })
+        }
+    }
+    return conditions
+}
+
+const reverseActionPoints = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (original.actionPoints == undefined) return reversed
+
+    reversed.actionPoints = {
+        spent: original.actionPoints.restore?.net ?? 0,
+        restore:
+            original.actionPoints.spent > 0
+                ? {
+                      net: original.actionPoints.spent,
+                      raw: original.actionPoints.spent,
+                  }
+                : undefined,
+    }
+    return reversed
+}
+
+const reverseDamage = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (original.damage == undefined) return reversed
+
+    reversed.healing = {
+        net: original.damage.net,
+        raw: original.damage.net,
+    }
+
+    return reversed
+}
+
+const reverseHealing = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (original.healing == undefined) return reversed
+
+    reversed.damage = {
+        net: original.healing.net,
+        raw: original.healing.net,
+        absorbed: 0,
+        willKo: false,
+        type: undefined,
+    }
+
+    return reversed
+}
+
+const reverseConditionsAdded = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if ((original.conditionsAdded ?? []).length == 0) return reversed
+
+    const hinderingConditions: SquaddieCondition[] = []
+    const helpfulConditions: SquaddieCondition[] = []
+
+    for (const condition of original.conditionsAdded!) {
+        if (SquaddieConditionService.isHindering(condition)) {
+            hinderingConditions.push(condition)
+        } else if (SquaddieConditionService.isHelpful(condition)) {
+            helpfulConditions.push(condition)
+        }
+    }
+
+    if (hinderingConditions.length > 0) {
+        const types = Array.from(
+            new Set(hinderingConditions.map((c) => c.type))
+        )
+        const totalAmount = hinderingConditions.reduce(
+            (sum, c) => sum + (c.amount ?? 0),
+            0
+        )
+        reversed.treat = {
+            conditionTypes: { types, all: false },
+            amount: totalAmount > 0 ? totalAmount : undefined,
+        }
+    }
+
+    if (helpfulConditions.length > 0) {
+        const types = Array.from(new Set(helpfulConditions.map((c) => c.type)))
+        const totalAmount = helpfulConditions.reduce(
+            (sum, c) => sum + (c.amount ?? 0),
+            0
+        )
+        reversed.dispel = {
+            conditionTypes: { types, all: false },
+            amount: totalAmount > 0 ? totalAmount : undefined,
+        }
+    }
+
+    return reversed
+}
+
+const reverseDispel = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (
+        original.dispel?.dispelledConditions == undefined ||
+        original.dispel.dispelledConditions.size == 0
+    )
+        return reversed
+
+    reversed.conditionsAdded = extractConditionsFromMap(
+        original.dispel.dispelledConditions
+    )
+
+    return reversed
+}
+
+const reverseTreat = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (
+        original.treat?.treatedConditions == undefined ||
+        original.treat.treatedConditions.size == 0
+    )
+        return reversed
+
+    reversed.conditionsAdded = extractConditionsFromMap(
+        original.treat.treatedConditions
+    )
+
+    return reversed
+}
+
+const reverseMovement = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (original.movement?.expectedPath == undefined) return reversed
+    const start = CoordinateMovePathService.getStartCoordinate(
+        original.movement.expectedPath
+    )
+    const end = CoordinateMovePathService.getEndCoordinate(
+        original.movement.expectedPath
+    )
+
+    reversed.movement = {
+        expectedPath: CoordinateMovePathService.new({
+            steps: [
+                {
+                    row: end.row,
+                    col: end.col,
+                    moveType: start.moveType,
+                    moveCost: 0,
+                },
+                {
+                    row: start.row,
+                    col: start.col,
+                    moveType: end.moveType,
+                    moveCost: 0,
+                },
+            ],
+        }),
+    }
+    return reversed
 }

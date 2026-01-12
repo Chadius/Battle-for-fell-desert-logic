@@ -69,6 +69,11 @@ The test descriptions and variable/function names should be used to document as 
 To help me understand what code is generated, please continue adding comments above the code blocks.
 I will remove them from the committed code, but it will help me understand why it is written that way.
 
+Avoid trivial comments, like adding "Given/When/Then" in test code.
+
+SonarQube has a warning when a function exceeds a complexity of 15, that's a good indicator that a function should be
+broken into several helper function.
+
 # Adding New Interfaces
 
 When you add a new interface or subsystem, it's important to define levels of abstraction.
