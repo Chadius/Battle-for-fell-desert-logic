@@ -276,7 +276,6 @@ describe("Reversing SquaddieActionResults", () => {
                 SquaddieConditionType.ELUSIVE
             )
             expect(reversed.dispel?.conditionTypes.all).toBe(false)
-            // ARMOR has amount 2, ELUSIVE has amount undefined (0), total is 2
             expect(reversed.dispel?.amount).toBe(2)
             expect(reversed.treat).toBeUndefined()
             expect(reversed.conditionsAdded).toBeUndefined()

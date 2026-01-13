@@ -44,6 +44,16 @@ export const MissionTurnService = {
         }
     },
 
+    createFromJSON: (data: {
+        turnCount: number
+        missionAffiliationTurn: TMissionAffiliationTurn
+    }): MissionTurn => {
+        return MissionTurnService.new({
+            turnCount: data.turnCount,
+            missionAffiliationTurn: data.missionAffiliationTurn,
+        })
+    },
+
     calculateNextPhase: ({
         missionTurn,
         inBattleSquaddieManager,

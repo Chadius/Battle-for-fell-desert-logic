@@ -5,6 +5,7 @@ import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
 import { MissionTurnService } from "./missionTurn"
+import { MissionHistoryService } from "./history/missionHistory"
 
 describe("MissionState", () => {
     describe("new", () => {
@@ -12,6 +13,7 @@ describe("MissionState", () => {
             const state = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
+                history: MissionHistoryService.new(),
             })
 
             expect(state).toEqual({
@@ -19,6 +21,7 @@ describe("MissionState", () => {
                 mapId: "map-1",
                 objectives: [],
                 turn: MissionTurnService.new(),
+                history: MissionHistoryService.new(),
             })
         })
 

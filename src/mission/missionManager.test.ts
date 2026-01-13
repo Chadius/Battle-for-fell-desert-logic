@@ -29,7 +29,7 @@ describe("MissionManager", () => {
         it("creates a new MissionManager with no parameters", () => {
             const manager = new MissionManager()
 
-            expect(manager.state).toBeUndefined()
+            expect(manager.missionState).toBeUndefined()
             expect(manager.inBattleSquaddieManager).toBeUndefined()
             expect(manager.coordinateMapCollectionManager).toBeUndefined()
             expect(manager.squaddieActionManager).toBeUndefined()
@@ -43,7 +43,7 @@ describe("MissionManager", () => {
 
             const manager = new MissionManager(state)
 
-            expect(manager.state).toBe(state)
+            expect(manager.missionState).toBe(state)
         })
 
         it("creates a new MissionManager with all dependencies", () => {
@@ -62,7 +62,7 @@ describe("MissionManager", () => {
                 squaddieActionManager
             )
 
-            expect(manager.state).toBe(state)
+            expect(manager.missionState).toBe(state)
             expect(manager.inBattleSquaddieManager).toBe(
                 inBattleSquaddieManager
             )
@@ -371,11 +371,15 @@ describe("MissionManager", () => {
 
             const manager = new MissionManager(state)
 
-            expect(manager.state!.objectives[0].hasGivenReward).toBe(false)
+            expect(manager.missionState!.objectives[0].hasGivenReward).toBe(
+                false
+            )
 
             manager.setMissionObjectiveAsRewarded("obj-1")
 
-            expect(manager.state!.objectives[0].hasGivenReward).toBe(true)
+            expect(manager.missionState!.objectives[0].hasGivenReward).toBe(
+                true
+            )
         })
 
         it("does not affect other objectives", () => {
@@ -417,8 +421,12 @@ describe("MissionManager", () => {
 
             manager.setMissionObjectiveAsRewarded("obj-1")
 
-            expect(manager.state!.objectives[0].hasGivenReward).toBe(true)
-            expect(manager.state!.objectives[1].hasGivenReward).toBe(false)
+            expect(manager.missionState!.objectives[0].hasGivenReward).toBe(
+                true
+            )
+            expect(manager.missionState!.objectives[1].hasGivenReward).toBe(
+                false
+            )
         })
 
         it("state is updated immutably", () => {
@@ -443,12 +451,12 @@ describe("MissionManager", () => {
             })
 
             const manager = new MissionManager(state)
-            const originalState = manager.state
+            const originalState = manager.missionState
 
             manager.setMissionObjectiveAsRewarded("obj-1")
 
-            expect(manager.state).not.toBe(originalState)
-            expect(manager.state!.objectives).not.toBe(
+            expect(manager.missionState).not.toBe(originalState)
+            expect(manager.missionState!.objectives).not.toBe(
                 originalState!.objectives
             )
         })
@@ -480,7 +488,9 @@ describe("MissionManager", () => {
                 manager.setMissionObjectiveAsRewarded("non-existent")
             }).not.toThrow()
 
-            expect(manager.state!.objectives[0].hasGivenReward).toBe(false)
+            expect(manager.missionState!.objectives[0].hasGivenReward).toBe(
+                false
+            )
         })
 
         it("throws when state is undefined", () => {

@@ -74,6 +74,15 @@ Avoid trivial comments, like adding "Given/When/Then" in test code.
 SonarQube has a warning when a function exceeds a complexity of 15, that's a good indicator that a function should be
 broken into several helper function.
 
+## Reducing code complexity
+
+If an object has multiple optional fields and independent work can be done on each, use multiple helper functions
+instead of multiple if statements. This reduces complexity and makes it easier to read.
+
+For example, SquaddieActionHistoryEntryService uses convertSquaddieActionResultToSerializable to serialize the
+SquaddieActionResult object. It uses helper functions to serialize each SquaddieActionResult field. These functions
+serialize one field and returns the serialized object so it can be passed on to the next helper function.
+
 # Adding New Interfaces
 
 When you add a new interface or subsystem, it's important to define levels of abstraction.

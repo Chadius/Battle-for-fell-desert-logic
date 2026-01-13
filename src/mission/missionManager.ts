@@ -13,20 +13,26 @@ import type { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerat
 import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
 import { ApplyResultService } from "../squaddieAction/apply/applyResultService"
+import type { SquaddieAction } from "../squaddieAction/squaddieAction"
+import { MissionHistoryService } from "./history/missionHistory"
+import { MissionTurnHistoryEntryService } from "./history/missionTurnHistoryEntry"
+import { SquaddieTurnRecordService } from "./history/squaddieTurnRecord"
+import type { SquaddieTurnActionRecord } from "./history/squaddieTurnActionRecord"
+import { SquaddieTurnActionRecordService } from "./history/squaddieTurnActionRecord"
 
 export class MissionManager {
-    state?: MissionState
+    missionState?: MissionState
     inBattleSquaddieManager?: InBattleSquaddieManager
     coordinateMapCollectionManager?: CoordinateMapCollectionManager
     squaddieActionManager?: SquaddieActionManager
 
     constructor(
-        state?: MissionState,
+        missionState?: MissionState,
         inBattleSquaddieManager?: InBattleSquaddieManager,
         coordinateMapCollectionManager?: CoordinateMapCollectionManager,
         squaddieActionManager?: SquaddieActionManager
     ) {
-        this.state = state
+        this.missionState = missionState
         this.inBattleSquaddieManager = inBattleSquaddieManager
         this.coordinateMapCollectionManager = coordinateMapCollectionManager
         this.squaddieActionManager = squaddieActionManager
@@ -35,7 +41,7 @@ export class MissionManager {
     hasMissionEnded(): boolean {
         this.throwIfStateIsUndefined(this.hasMissionEnded.name)
 
-        return this.state!.objectives.some((objective) => {
+        return this.missionState!.objectives.some((objective) => {
             const hasMissionEndsReward = objective.rewards.some(
                 (reward) =>
                     reward.type === MissionObjectiveRewardType.MISSION_ENDS
@@ -53,7 +59,7 @@ export class MissionManager {
         )
 
         return MissionObjectiveService.getCompletedObjectivesWithoutReward(
-            this.state!.objectives,
+            this.missionState!.objectives,
             this.inBattleSquaddieManager!
         )
     }
@@ -61,15 +67,17 @@ export class MissionManager {
     setMissionObjectiveAsRewarded(objectiveId: string): void {
         this.throwIfStateIsUndefined(this.setMissionObjectiveAsRewarded.name)
 
-        const updatedObjectives = this.state!.objectives.map((objective) => {
-            if (objective.id === objectiveId) {
-                return MissionObjectiveService.markRewardAsGiven(objective)
+        const updatedObjectives = this.missionState!.objectives.map(
+            (objective) => {
+                if (objective.id === objectiveId) {
+                    return MissionObjectiveService.markRewardAsGiven(objective)
+                }
+                return objective
             }
-            return objective
-        })
+        )
 
-        this.state = {
-            ...this.state!,
+        this.missionState = {
+            ...this.missionState!,
             objectives: updatedObjectives,
         }
     }
@@ -127,9 +135,11 @@ export class MissionManager {
                 },
                 rollGenerator,
                 map: {
-                    mapId: this.state!.mapId,
+                    mapId: this.missionState!.mapId,
                 },
             })
+
+        const fullAction = this.squaddieActionManager!.get(action.id)
 
         for (const [
             _targetKey,
@@ -139,17 +149,142 @@ export class MissionManager {
                 inBattleSquaddieManager: this.inBattleSquaddieManager!,
                 results: targetResult.squaddieActionResults,
                 map: {
-                    mapId: this.state!.mapId,
+                    mapId: this.missionState!.mapId,
                     manager: this.coordinateMapCollectionManager!,
                 },
             })
+
+            for (const result of targetResult.squaddieActionResults) {
+                this.recordAction({ action: fullAction, result })
+            }
         }
 
         return calculationResults
     }
 
+    recordAction({
+        action,
+        result,
+    }: {
+        action: SquaddieAction
+        result: SquaddieActionResult
+    }): void {
+        this.throwIfStateIsUndefined(this.recordAction.name)
+
+        if (this.missionState!.history == undefined) {
+            this.missionState = {
+                ...this.missionState!,
+                history: MissionHistoryService.new(),
+            }
+        }
+
+        const currentTurn = this.missionState!.turn
+        const actionEntry = SquaddieTurnActionRecordService.new({
+            action,
+            result,
+        })
+
+        let turnEntry = MissionHistoryService.getTurn({
+            history: this.missionState!.history!,
+            turnNumber: currentTurn.turnCount,
+        })
+
+        turnEntry ??= MissionTurnHistoryEntryService.new({
+            turnNumber: currentTurn.turnCount,
+            missionAffiliationTurn: currentTurn.missionAffiliationTurn,
+            squaddieEntries: [],
+        })
+
+        let squaddieEntry =
+            MissionTurnHistoryEntryService.getSquaddieTurnRecord({
+                entry: turnEntry,
+                squaddieId: {
+                    inBattleSquaddieId: result.inBattleSquaddieId,
+                    outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+                },
+            })
+
+        squaddieEntry ??= SquaddieTurnRecordService.new({
+            actingBattleSquaddieId: {
+                inBattleSquaddieId: result.inBattleSquaddieId,
+                outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+            },
+            actions: [],
+        })
+
+        squaddieEntry = SquaddieTurnRecordService.addAction({
+            entry: squaddieEntry,
+            action: actionEntry,
+        })
+
+        turnEntry = MissionTurnHistoryEntryService.addOrUpdateSquaddieEntry({
+            entry: turnEntry,
+            squaddieEntry,
+        })
+
+        const updatedHistory = MissionHistoryService.addOrUpdateTurn({
+            history: this.missionState!.history!,
+            turnEntry,
+        })
+
+        this.missionState = {
+            ...this.missionState!,
+            history: updatedHistory,
+        }
+    }
+
+    getTotalActionCount(): number {
+        this.throwIfStateIsUndefined(this.getTotalActionCount.name)
+
+        if (this.missionState!.history == undefined) return 0
+
+        return MissionHistoryService.getTotalActionCount(
+            this.missionState!.history
+        )
+    }
+
+    getCompletedTurnCount(): number {
+        this.throwIfStateIsUndefined(this.getCompletedTurnCount.name)
+
+        if (this.missionState!.history == undefined) return 0
+
+        return MissionHistoryService.getTurnCount(this.missionState!.history)
+    }
+
+    getActionCountInTurn(turnNumber: number): number | undefined {
+        this.throwIfStateIsUndefined(this.getActionCountInTurn.name)
+
+        if (this.missionState!.history == undefined) return undefined
+
+        return MissionHistoryService.getActionCountInTurn({
+            history: this.missionState!.history,
+            turnNumber,
+        })
+    }
+
+    getSquaddieActionsInTurn({
+        turnNumber,
+        squaddieId,
+    }: {
+        turnNumber: number
+        squaddieId: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+    }): SquaddieTurnActionRecord[] | undefined {
+        this.throwIfStateIsUndefined(this.getSquaddieActionsInTurn.name)
+
+        if (this.missionState!.history == undefined) return undefined
+
+        return MissionHistoryService.getActionsBySquaddieInTurn({
+            history: this.missionState!.history,
+            turnNumber,
+            squaddieId,
+        })
+    }
+
     private throwIfStateIsUndefined(callName: string) {
-        if (this.state == undefined)
+        if (this.missionState == undefined)
             throw new Error(
                 `[MissionManager.${callName}]: state must be defined`
             )
