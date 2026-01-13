@@ -154,9 +154,10 @@ export class MissionManager {
                 },
             })
 
-            for (const result of targetResult.squaddieActionResults) {
-                this.recordAction({ action: fullAction, result })
-            }
+            this.recordAction({
+                action: fullAction,
+                results: targetResult.squaddieActionResults,
+            })
         }
 
         return calculationResults
@@ -164,10 +165,10 @@ export class MissionManager {
 
     recordAction({
         action,
-        result,
+        results,
     }: {
         action: SquaddieAction
-        result: SquaddieActionResult
+        results: SquaddieActionResult[]
     }): void {
         this.throwIfStateIsUndefined(this.recordAction.name)
 
@@ -179,9 +180,9 @@ export class MissionManager {
         }
 
         const currentTurn = this.missionState!.turn
-        const actionEntry = SquaddieTurnActionRecordService.new({
+        const squaddieTurnActionRecord = SquaddieTurnActionRecordService.new({
             action,
-            result,
+            results,
         })
 
         let turnEntry = MissionHistoryService.getTurn({
@@ -192,35 +193,38 @@ export class MissionManager {
         turnEntry ??= MissionTurnHistoryEntryService.new({
             turnNumber: currentTurn.turnCount,
             missionAffiliationTurn: currentTurn.missionAffiliationTurn,
-            squaddieEntries: [],
+            squaddieTurnRecords: [],
         })
 
-        let squaddieEntry =
-            MissionTurnHistoryEntryService.getSquaddieTurnRecord({
-                entry: turnEntry,
-                squaddieId: {
+        for (const result of results) {
+            let squaddieTurnRecord =
+                MissionTurnHistoryEntryService.getSquaddieTurnRecord({
+                    turnHistoryEntry: turnEntry,
+                    squaddieId: {
+                        inBattleSquaddieId: result.inBattleSquaddieId,
+                        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+                    },
+                })
+
+            squaddieTurnRecord ??= SquaddieTurnRecordService.new({
+                actingBattleSquaddieId: {
                     inBattleSquaddieId: result.inBattleSquaddieId,
                     outOfBattleSquaddieId: result.outOfBattleSquaddieId,
                 },
+                actions: [],
             })
 
-        squaddieEntry ??= SquaddieTurnRecordService.new({
-            actingBattleSquaddieId: {
-                inBattleSquaddieId: result.inBattleSquaddieId,
-                outOfBattleSquaddieId: result.outOfBattleSquaddieId,
-            },
-            actions: [],
-        })
+            squaddieTurnRecord = SquaddieTurnRecordService.addAction({
+                squaddieTurnRecord: squaddieTurnRecord,
+                action: squaddieTurnActionRecord,
+            })
 
-        squaddieEntry = SquaddieTurnRecordService.addAction({
-            entry: squaddieEntry,
-            action: actionEntry,
-        })
-
-        turnEntry = MissionTurnHistoryEntryService.addOrUpdateSquaddieEntry({
-            entry: turnEntry,
-            squaddieEntry,
-        })
+            turnEntry =
+                MissionTurnHistoryEntryService.addOrUpdateSquaddieTurnRecord({
+                    turnHistory: turnEntry,
+                    squaddieTurnRecord: squaddieTurnRecord,
+                })
+        }
 
         const updatedHistory = MissionHistoryService.addOrUpdateTurn({
             history: this.missionState!.history!,

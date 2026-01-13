@@ -15,11 +15,11 @@ export const MissionTurnHistoryEntryService = {
     new: ({
         turnNumber,
         missionAffiliationTurn,
-        squaddieEntries = [],
+        squaddieTurnRecords = [],
     }: {
         turnNumber: number
         missionAffiliationTurn: TMissionAffiliationTurn
-        squaddieEntries?: SquaddieTurnRecord[]
+        squaddieTurnRecords?: SquaddieTurnRecord[]
     }): MissionTurnHistoryEntry => {
         if (turnNumber == undefined || turnNumber < 0) {
             throw new Error(
@@ -36,11 +36,11 @@ export const MissionTurnHistoryEntryService = {
         return {
             turnNumber,
             missionAffiliationTurn: missionAffiliationTurn,
-            squaddieTurnRecords: squaddieEntries.map((s) => ({
+            squaddieTurnRecords: squaddieTurnRecords.map((s) => ({
                 actingBattleSquaddieId: s.actingBattleSquaddieId,
                 actions: s.actions.map((a) => ({
                     action: { ...a.action },
-                    result: { ...a.result },
+                    results: a.results.map((r) => ({ ...r })),
                 })),
             })),
         }
@@ -59,23 +59,23 @@ export const MissionTurnHistoryEntryService = {
         return MissionTurnHistoryEntryService.new({
             turnNumber: data.turnNumber,
             missionAffiliationTurn: data.missionAffiliationTurn,
-            squaddieEntries: deserializedSquaddieEntries,
+            squaddieTurnRecords: deserializedSquaddieEntries,
         })
     },
 
-    addOrUpdateSquaddieEntry: ({
-        entry,
-        squaddieEntry,
+    addOrUpdateSquaddieTurnRecord: ({
+        turnHistory,
+        squaddieTurnRecord,
     }: {
-        entry: MissionTurnHistoryEntry
-        squaddieEntry: SquaddieTurnRecord
+        turnHistory: MissionTurnHistoryEntry
+        squaddieTurnRecord: SquaddieTurnRecord
     }): MissionTurnHistoryEntry => {
-        throwIfEntryIsUndefined(entry, "addOrUpdateSquaddieEntry")
+        throwIfEntryIsUndefined(turnHistory, "addOrUpdateSquaddieEntry")
 
-        const existingIndex = entry.squaddieTurnRecords.findIndex(
+        const existingIndex = turnHistory.squaddieTurnRecords.findIndex(
             (s) =>
                 s.actingBattleSquaddieId ===
-                squaddieEntry.actingBattleSquaddieId
+                squaddieTurnRecord.actingBattleSquaddieId
         )
 
         const convertSquaddieActions = (
@@ -83,59 +83,60 @@ export const MissionTurnHistoryEntryService = {
         ) => {
             return actions.map((a) => ({
                 action: { ...a.action },
-                result: { ...a.result },
+                results: a.results.map((r) => ({ ...r })),
             }))
         }
 
         let newSquaddieEntries: SquaddieTurnRecord[]
         if (existingIndex >= 0) {
-            newSquaddieEntries = entry.squaddieTurnRecords.map((s, index) =>
-                index === existingIndex
-                    ? {
-                          actingBattleSquaddieId:
-                              squaddieEntry.actingBattleSquaddieId,
-                          actions: convertSquaddieActions(
-                              squaddieEntry.actions
-                          ),
-                      }
-                    : {
-                          actingBattleSquaddieId: s.actingBattleSquaddieId,
-                          actions: convertSquaddieActions(s.actions),
-                      }
+            newSquaddieEntries = turnHistory.squaddieTurnRecords.map(
+                (s, index) =>
+                    index === existingIndex
+                        ? {
+                              actingBattleSquaddieId:
+                                  squaddieTurnRecord.actingBattleSquaddieId,
+                              actions: convertSquaddieActions(
+                                  squaddieTurnRecord.actions
+                              ),
+                          }
+                        : {
+                              actingBattleSquaddieId: s.actingBattleSquaddieId,
+                              actions: convertSquaddieActions(s.actions),
+                          }
             )
         } else {
             newSquaddieEntries = [
-                ...entry.squaddieTurnRecords.map((s) => ({
+                ...turnHistory.squaddieTurnRecords.map((s) => ({
                     actingBattleSquaddieId: s.actingBattleSquaddieId,
                     actions: convertSquaddieActions(s.actions),
                 })),
                 {
                     actingBattleSquaddieId:
-                        squaddieEntry.actingBattleSquaddieId,
-                    actions: convertSquaddieActions(squaddieEntry.actions),
+                        squaddieTurnRecord.actingBattleSquaddieId,
+                    actions: convertSquaddieActions(squaddieTurnRecord.actions),
                 },
             ]
         }
 
         return {
-            turnNumber: entry.turnNumber,
-            missionAffiliationTurn: entry.missionAffiliationTurn,
+            turnNumber: turnHistory.turnNumber,
+            missionAffiliationTurn: turnHistory.missionAffiliationTurn,
             squaddieTurnRecords: newSquaddieEntries,
         }
     },
 
     getSquaddieTurnRecord: ({
-        entry,
+        turnHistoryEntry,
         squaddieId,
     }: {
-        entry: MissionTurnHistoryEntry
+        turnHistoryEntry: MissionTurnHistoryEntry
         squaddieId: BattleSquaddieId
     }): SquaddieTurnRecord | undefined => {
-        throwIfEntryIsUndefined(entry, "getSquaddieEntry")
+        throwIfEntryIsUndefined(turnHistoryEntry, "getSquaddieEntry")
 
         const squaddieKey =
             SquaddieIdConverterService.squaddieIdToKey(squaddieId)
-        return entry.squaddieTurnRecords.find(
+        return turnHistoryEntry.squaddieTurnRecords.find(
             (s) => s.actingBattleSquaddieId === squaddieKey
         )
     },

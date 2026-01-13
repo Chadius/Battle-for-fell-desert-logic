@@ -69,39 +69,57 @@ export interface SquaddieTurnActionRecord {
         id: string
         name: string
     }
-    result: SerializableSquaddieActionResult
+    results: SerializableSquaddieActionResult[]
 }
 
 export const SquaddieTurnActionRecordService = {
     new: ({
         action,
-        result,
+        results,
     }: {
         action: SquaddieAction
-        result: SquaddieActionResult
+        results: SquaddieActionResult[]
     }): SquaddieTurnActionRecord => {
         throwIfActionDataIsInvalid(action, "new")
-        throwIfResultIsInvalid(result, "new")
+
+        if (!results || results.length === 0) {
+            throw new Error(
+                "[SquaddieTurnActionRecordService.new]: results must have at least one entry"
+            )
+        }
+
+        results.forEach((result) => {
+            throwIfResultIsInvalid(result, "new")
+        })
 
         return {
             action: {
                 id: action.id,
                 name: action.name,
             },
-            result: convertSquaddieActionResultToSerializable(result),
+            results: results.map(convertSquaddieActionResultToSerializable),
         }
     },
 
     createFromJSON: (data: {
         action: { id: string; name: string }
-        result: SerializableSquaddieActionResult
+        results: SerializableSquaddieActionResult[]
     }): SquaddieTurnActionRecord => {
         throwIfActionDataIsInvalid(data.action, "createFromJSON")
-        throwIfResultIsInvalid(data.result, "createFromJSON")
+
+        if (!data.results || data.results.length === 0) {
+            throw new Error(
+                "[ActionHistoryEntryService.createFromJSON]: results must have at least one entry"
+            )
+        }
+
+        data.results.forEach((result) => {
+            throwIfResultIsInvalid(result, "createFromJSON")
+        })
 
         return {
             action: { ...data.action },
-            result: { ...data.result },
+            results: data.results.map((result) => ({ ...result })),
         }
     },
 
@@ -115,11 +133,11 @@ export const SquaddieTurnActionRecordService = {
         return entry.action.name
     },
 
-    getResult: (
+    getResults: (
         entry: SquaddieTurnActionRecord
-    ): SerializableSquaddieActionResult => {
-        throwIfEntryIsUndefined(entry, "getResult")
-        return { ...entry.result }
+    ): SerializableSquaddieActionResult[] => {
+        throwIfEntryIsUndefined(entry, "getResults")
+        return entry.results.map((result) => ({ ...result }))
     },
 }
 

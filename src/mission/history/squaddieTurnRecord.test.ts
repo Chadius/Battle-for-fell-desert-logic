@@ -12,36 +12,42 @@ import type { SquaddieActionResult } from "../../squaddieAction/calculate/result
 
 describe("SquaddieTurnRecordService", () => {
     describe("new", () => {
-        it("creates entry with squaddie ID and empty actions", () => {
-            const entry = SquaddieTurnRecordService.new({
+        it("creates a record with squaddie ID and empty actions", () => {
+            const squaddieTurnRecord = SquaddieTurnRecordService.new({
                 actingBattleSquaddieId: {
                     inBattleSquaddieId: 1,
                     outOfBattleSquaddieId: "squaddie1",
                 },
             })
 
-            expect(entry.actingBattleSquaddieId).toBe("squaddie1+++1")
-            expect(entry.actions).toHaveLength(0)
+            expect(squaddieTurnRecord.actingBattleSquaddieId).toBe(
+                "squaddie1+++1"
+            )
+            expect(squaddieTurnRecord.actions).toHaveLength(0)
         })
 
-        it("creates entry with squaddie ID and initial actions", () => {
+        it("creates a record with squaddie ID and initial actions", () => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
                 action: { id: "action2", name: "Move" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
-            const entry = SquaddieTurnRecordService.new({
+            const squaddieTurnRecord = SquaddieTurnRecordService.new({
                 actingBattleSquaddieId: {
                     inBattleSquaddieId: 1,
                     outOfBattleSquaddieId: "squaddie1",
@@ -49,9 +55,9 @@ describe("SquaddieTurnRecordService", () => {
                 actions: [action1, action2],
             })
 
-            expect(entry.actions).toHaveLength(2)
-            expect(entry.actions[0].action.id).toBe("action1")
-            expect(entry.actions[1].action.id).toBe("action2")
+            expect(squaddieTurnRecord.actions).toHaveLength(2)
+            expect(squaddieTurnRecord.actions[0].action.id).toBe("action1")
+            expect(squaddieTurnRecord.actions[1].action.id).toBe("action2")
         })
 
         it("throws error if squaddie ID is invalid", () => {
@@ -100,10 +106,12 @@ describe("SquaddieTurnRecordService", () => {
                 actions: [
                     {
                         action: { id: "action1", name: "Attack" },
-                        result: {
-                            inBattleSquaddieId: 1,
-                            outOfBattleSquaddieId: "squaddie1",
-                        },
+                        results: [
+                            {
+                                inBattleSquaddieId: 1,
+                                outOfBattleSquaddieId: "squaddie1",
+                            },
+                        ],
                     },
                 ],
             }
@@ -122,9 +130,7 @@ describe("SquaddieTurnRecordService", () => {
 
             expect(() =>
                 SquaddieTurnRecordService.createFromJSON(data)
-            ).toThrow(
-                "[SquaddieTurnRecordService.createFromJSON]: actingBattleSquaddieId must be defined"
-            )
+            ).toThrow("actingBattleSquaddieId must be defined")
         })
     })
 
@@ -142,16 +148,18 @@ describe("SquaddieTurnRecordService", () => {
 
             newAction = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
         })
 
         it("adds action to empty actions list", () => {
             const updated = SquaddieTurnRecordService.addAction({
-                entry,
+                squaddieTurnRecord: entry,
                 action: newAction,
             })
 
@@ -162,10 +170,12 @@ describe("SquaddieTurnRecordService", () => {
         it("adds action to existing actions list", () => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             entry = SquaddieTurnRecordService.new({
@@ -178,14 +188,16 @@ describe("SquaddieTurnRecordService", () => {
 
             const action2 = SquaddieTurnActionRecordService.new({
                 action: { id: "action2", name: "Move" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const updated = SquaddieTurnRecordService.addAction({
-                entry,
+                squaddieTurnRecord: entry,
                 action: action2,
             })
 
@@ -195,7 +207,7 @@ describe("SquaddieTurnRecordService", () => {
 
         it("returns new instance without modifying original", () => {
             const updated = SquaddieTurnRecordService.addAction({
-                entry,
+                squaddieTurnRecord: entry,
                 action: newAction,
             })
 
@@ -206,7 +218,7 @@ describe("SquaddieTurnRecordService", () => {
         it("throws error when entry is undefined", () => {
             expect(() =>
                 SquaddieTurnRecordService.addAction({
-                    entry: undefined as any,
+                    squaddieTurnRecord: undefined as any,
                     action: newAction,
                 })
             ).toThrow(
@@ -221,18 +233,22 @@ describe("SquaddieTurnRecordService", () => {
         beforeEach(() => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
                 action: { id: "action2", name: "Move" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             entry = SquaddieTurnRecordService.new({
@@ -288,20 +304,29 @@ describe("SquaddieTurnRecordService", () => {
         it("serializes and deserializes entry with actions", () => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                    damage: { net: 10, raw: 12, absorbed: 2, willKo: false },
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                        damage: {
+                            net: 10,
+                            raw: 12,
+                            absorbed: 2,
+                            willKo: false,
+                        },
+                    } as SquaddieActionResult,
+                ],
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
                 action: { id: "action2", name: "Heal" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                    healing: { net: 5, raw: 5 },
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                        healing: { net: 5, raw: 5 },
+                    } as SquaddieActionResult,
+                ],
             })
 
             const entry = SquaddieTurnRecordService.new({
@@ -320,9 +345,9 @@ describe("SquaddieTurnRecordService", () => {
             expect(deserialized.actingBattleSquaddieId).toBe("squaddie1+++1")
             expect(deserialized.actions).toHaveLength(2)
             expect(deserialized.actions[0].action.id).toBe("action1")
-            expect(deserialized.actions[0].result.damage?.net).toBe(10)
+            expect(deserialized.actions[0].results[0].damage?.net).toBe(10)
             expect(deserialized.actions[1].action.id).toBe("action2")
-            expect(deserialized.actions[1].result.healing?.net).toBe(5)
+            expect(deserialized.actions[1].results[0].healing?.net).toBe(5)
         })
     })
 })

@@ -19,7 +19,7 @@ export const MissionHistoryService = {
                     actingBattleSquaddieId: s.actingBattleSquaddieId,
                     actions: s.actions.map((a) => ({
                         action: { ...a.action },
-                        result: { ...a.result },
+                        results: a.results.map((r) => ({ ...r })),
                     })),
                 })),
             })),
@@ -56,7 +56,7 @@ export const MissionHistoryService = {
                 actingBattleSquaddieId: s.actingBattleSquaddieId,
                 actions: s.actions.map((a) => ({
                     action: { ...a.action },
-                    result: { ...a.result },
+                    results: a.results.map((r) => ({ ...r })),
                 })),
             }))
         }
@@ -150,14 +150,14 @@ export const MissionHistoryService = {
 
         const squaddieEntry =
             MissionTurnHistoryEntryService.getSquaddieTurnRecord({
-                entry: turn,
+                turnHistoryEntry: turn,
                 squaddieId,
             })
         if (squaddieEntry == undefined) return undefined
 
         return squaddieEntry.actions.map((a) => ({
             action: { ...a.action },
-            result: { ...a.result },
+            results: { ...a.results },
         }))
     },
 

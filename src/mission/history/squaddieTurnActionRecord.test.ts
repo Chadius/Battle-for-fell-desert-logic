@@ -24,13 +24,14 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
             expect(entry.action.id).toBe("action1")
             expect(entry.action.name).toBe("Attack")
-            expect(entry.result.inBattleSquaddieId).toBe(1)
-            expect(entry.result.outOfBattleSquaddieId).toBe("squaddie1")
+            expect(entry.results).toHaveLength(1)
+            expect(entry.results[0].inBattleSquaddieId).toBe(1)
+            expect(entry.results[0].outOfBattleSquaddieId).toBe("squaddie1")
         })
 
         it("creates entry with action points", () => {
@@ -50,10 +51,10 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
-            expect(entry.result.actionPoints).toEqual({
+            expect(entry.results[0].actionPoints).toEqual({
                 spent: 2,
                 restore: { net: 1, raw: 1 },
             })
@@ -79,10 +80,10 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
-            expect(entry.result.damage).toEqual({
+            expect(entry.results[0].damage).toEqual({
                 net: 10,
                 raw: 12,
                 absorbed: 2,
@@ -105,10 +106,10 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
-            expect(entry.result.healing).toEqual({ net: 5, raw: 5 })
+            expect(entry.results[0].healing).toEqual({ net: 5, raw: 5 })
         })
 
         it("creates entry with conditions added", () => {
@@ -131,11 +132,11 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
-            expect(entry.result.conditionsAdded).toHaveLength(1)
-            expect(entry.result.conditionsAdded?.[0].type).toBe(
+            expect(entry.results[0].conditionsAdded).toHaveLength(1)
+            expect(entry.results[0].conditionsAdded?.[0].type).toBe(
                 SquaddieConditionType.HUSTLE
             )
         })
@@ -176,19 +177,19 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
-            expect(entry.result.dispel?.dispelledConditions).not.toBeInstanceOf(
-                Map
-            )
             expect(
-                entry.result.dispel?.dispelledConditions?.[
+                entry.results[0].dispel?.dispelledConditions
+            ).not.toBeInstanceOf(Map)
+            expect(
+                entry.results[0].dispel?.dispelledConditions?.[
                     SquaddieConditionType.SLOWED
                 ]
             ).toHaveLength(1)
             expect(
-                entry.result.dispel?.dispelledConditions?.[
+                entry.results[0].dispel?.dispelledConditions?.[
                     SquaddieConditionType.ARMOR
                 ]
             ).toHaveLength(1)
@@ -221,14 +222,14 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
-            expect(entry.result.treat?.treatedConditions).not.toBeInstanceOf(
-                Map
-            )
             expect(
-                entry.result.treat?.treatedConditions?.[
+                entry.results[0].treat?.treatedConditions
+            ).not.toBeInstanceOf(Map)
+            expect(
+                entry.results[0].treat?.treatedConditions?.[
                     SquaddieConditionType.ABSORB
                 ]
             ).toHaveLength(1)
@@ -262,18 +263,20 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
-            expect(entry.result.movement?.expectedPath.steps).toHaveLength(2)
-            expect(entry.result.movement?.expectedPath.steps[0]).toEqual({
+            expect(entry.results[0].movement?.expectedPath.steps).toHaveLength(
+                2
+            )
+            expect(entry.results[0].movement?.expectedPath.steps[0]).toEqual({
                 row: 0,
                 col: 0,
                 moveType: "START",
                 moveCost: 0,
             })
             expect(
-                entry.result.movement?.expectedPath.movementInstruction
+                entry.results[0].movement?.expectedPath.movementInstruction
             ).toHaveLength(1)
         })
 
@@ -285,7 +288,10 @@ describe("ActionHistoryEntryService", () => {
             }
 
             expect(() =>
-                SquaddieTurnActionRecordService.new({ action, result })
+                SquaddieTurnActionRecordService.new({
+                    action,
+                    results: [result],
+                })
             ).toThrow("[ActionHistoryEntryService.new]: action must have id")
         })
 
@@ -297,7 +303,10 @@ describe("ActionHistoryEntryService", () => {
             }
 
             expect(() =>
-                SquaddieTurnActionRecordService.new({ action, result })
+                SquaddieTurnActionRecordService.new({
+                    action,
+                    results: [result],
+                })
             ).toThrow("[ActionHistoryEntryService.new]: action must have id")
         })
 
@@ -309,7 +318,10 @@ describe("ActionHistoryEntryService", () => {
             const result = {} as SquaddieActionResult
 
             expect(() =>
-                SquaddieTurnActionRecordService.new({ action, result })
+                SquaddieTurnActionRecordService.new({
+                    action,
+                    results: [result],
+                })
             ).toThrow(
                 "[ActionHistoryEntryService.new]: result must have squaddie IDs"
             )
@@ -320,55 +332,60 @@ describe("ActionHistoryEntryService", () => {
         it("deserializes valid data", () => {
             const data = {
                 action: { id: "action1", name: "Attack" },
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                    damage: {
-                        net: 10,
-                        raw: 12,
-                        absorbed: 2,
-                        willKo: false,
-                        type: AttributeScore.BODY,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                        damage: {
+                            net: 10,
+                            raw: 12,
+                            absorbed: 2,
+                            willKo: false,
+                            type: AttributeScore.BODY,
+                        },
                     },
-                },
+                ],
             }
 
             const entry = SquaddieTurnActionRecordService.createFromJSON(data)
 
             expect(entry.action.id).toBe("action1")
             expect(entry.action.name).toBe("Attack")
-            expect(entry.result.damage?.net).toBe(10)
+            expect(entry.results).toHaveLength(1)
+            expect(entry.results[0].damage?.net).toBe(10)
         })
 
         it("deserializes dispel with plain object", () => {
             const data = {
                 action: { id: "action1", name: "Dispel" },
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                    dispel: {
-                        dispelledConditions: {
-                            [SquaddieConditionType.SLOWED]: [
-                                {
-                                    type: SquaddieConditionType.SLOWED,
-                                    amount: undefined,
-                                    limit: { duration: 0 },
-                                },
-                            ],
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                        dispel: {
+                            dispelledConditions: {
+                                [SquaddieConditionType.SLOWED]: [
+                                    {
+                                        type: SquaddieConditionType.SLOWED,
+                                        amount: undefined,
+                                        limit: { duration: 0 },
+                                    },
+                                ],
+                            },
+                            conditionTypes: {
+                                types: [SquaddieConditionType.SLOWED],
+                            },
+                            amount: 1,
                         },
-                        conditionTypes: {
-                            types: [SquaddieConditionType.SLOWED],
-                        },
-                        amount: 1,
                     },
-                },
+                ],
             }
 
             const entry = SquaddieTurnActionRecordService.createFromJSON(data)
 
-            expect(entry.result.dispel?.dispelledConditions).toBeDefined()
+            expect(entry.results[0].dispel?.dispelledConditions).toBeDefined()
             expect(
-                entry.result.dispel?.dispelledConditions?.[
+                entry.results[0].dispel?.dispelledConditions?.[
                     SquaddieConditionType.SLOWED
                 ]
             ).toHaveLength(1)
@@ -377,10 +394,12 @@ describe("ActionHistoryEntryService", () => {
         it("throws error for invalid action data", () => {
             const data = {
                 action: { id: undefined as any, name: "Attack" },
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SerializableSquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SerializableSquaddieActionResult,
+                ],
             }
 
             expect(() =>
@@ -393,7 +412,7 @@ describe("ActionHistoryEntryService", () => {
         it("throws error for invalid result data", () => {
             const data = {
                 action: { id: "action1", name: "Attack" },
-                result: {} as SerializableSquaddieActionResult,
+                results: [{} as SerializableSquaddieActionResult],
             }
 
             expect(() =>
@@ -425,7 +444,10 @@ describe("ActionHistoryEntryService", () => {
                 },
             }
 
-            entry = SquaddieTurnActionRecordService.new({ action, result })
+            entry = SquaddieTurnActionRecordService.new({
+                action,
+                results: [result],
+            })
         })
 
         it("getActionId returns action id", () => {
@@ -440,11 +462,12 @@ describe("ActionHistoryEntryService", () => {
             )
         })
 
-        it("getResult returns cloned result", () => {
-            const result = SquaddieTurnActionRecordService.getResult(entry)
+        it("getResults returns cloned results", () => {
+            const results = SquaddieTurnActionRecordService.getResults(entry)
 
-            expect(result.inBattleSquaddieId).toBe(1)
-            expect(result.damage?.net).toBe(10)
+            expect(results).toHaveLength(1)
+            expect(results[0].inBattleSquaddieId).toBe(1)
+            expect(results[0].damage?.net).toBe(10)
         })
 
         it("throws error when entry is undefined", () => {
@@ -510,7 +533,7 @@ describe("ActionHistoryEntryService", () => {
 
             const entry = SquaddieTurnActionRecordService.new({
                 action,
-                result,
+                results: [result],
             })
 
             const json = JSON.stringify(entry)
@@ -519,16 +542,17 @@ describe("ActionHistoryEntryService", () => {
                 SquaddieTurnActionRecordService.createFromJSON(parsed)
 
             expect(deserialized.action.id).toBe("action1")
-            expect(deserialized.result.damage?.net).toBe(10)
-            expect(deserialized.result.healing?.net).toBe(5)
-            expect(deserialized.result.conditionsAdded).toHaveLength(1)
+            expect(deserialized.results).toHaveLength(1)
+            expect(deserialized.results[0].damage?.net).toBe(10)
+            expect(deserialized.results[0].healing?.net).toBe(5)
+            expect(deserialized.results[0].conditionsAdded).toHaveLength(1)
             expect(
-                deserialized.result.dispel?.dispelledConditions?.[
+                deserialized.results[0].dispel?.dispelledConditions?.[
                     SquaddieConditionType.SLOWED
                 ]
             ).toHaveLength(1)
             expect(
-                deserialized.result.movement?.expectedPath.steps
+                deserialized.results[0].movement?.expectedPath.steps
             ).toHaveLength(2)
         })
     })

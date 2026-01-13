@@ -101,10 +101,12 @@ describe("MissionHistoryService", () => {
         it("updates existing turn", () => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const squaddie1 = SquaddieTurnRecordService.new({
@@ -118,17 +120,19 @@ describe("MissionHistoryService", () => {
             const turn0 = MissionTurnHistoryEntryService.new({
                 turnNumber: 0,
                 missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
-                squaddieEntries: [squaddie1],
+                squaddieTurnRecords: [squaddie1],
             })
 
             history = MissionHistoryService.new({ turns: [turn0] })
 
             const action2 = SquaddieTurnActionRecordService.new({
                 action: { id: "action2", name: "Move" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const updatedSquaddie = SquaddieTurnRecordService.new({
@@ -142,7 +146,7 @@ describe("MissionHistoryService", () => {
             const updatedTurn = MissionTurnHistoryEntryService.new({
                 turnNumber: 0,
                 missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
-                squaddieEntries: [updatedSquaddie],
+                squaddieTurnRecords: [updatedSquaddie],
             })
 
             const updated = MissionHistoryService.addOrUpdateTurn({
@@ -257,18 +261,22 @@ describe("MissionHistoryService", () => {
         it("counts actions across multiple turns and squaddies", () => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
                 action: { id: "action2", name: "Move" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const squaddie1Turn0 = SquaddieTurnRecordService.new({
@@ -282,15 +290,17 @@ describe("MissionHistoryService", () => {
             const turn0 = MissionTurnHistoryEntryService.new({
                 turnNumber: 0,
                 missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
-                squaddieEntries: [squaddie1Turn0],
+                squaddieTurnRecords: [squaddie1Turn0],
             })
 
             const action3 = SquaddieTurnActionRecordService.new({
                 action: { id: "action3", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 2,
-                    outOfBattleSquaddieId: "squaddie2",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "squaddie2",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const squaddie2Turn1 = SquaddieTurnRecordService.new({
@@ -304,7 +314,7 @@ describe("MissionHistoryService", () => {
             const turn1 = MissionTurnHistoryEntryService.new({
                 turnNumber: 1,
                 missionAffiliationTurn: MissionAffiliationTurn.ENEMY_TURN,
-                squaddieEntries: [squaddie2Turn1],
+                squaddieTurnRecords: [squaddie2Turn1],
             })
 
             const history = MissionHistoryService.new({
@@ -347,18 +357,22 @@ describe("MissionHistoryService", () => {
         beforeEach(() => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
                 action: { id: "action2", name: "Move" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const squaddie1 = SquaddieTurnRecordService.new({
@@ -372,7 +386,7 @@ describe("MissionHistoryService", () => {
             const turn0 = MissionTurnHistoryEntryService.new({
                 turnNumber: 0,
                 missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
-                squaddieEntries: [squaddie1],
+                squaddieTurnRecords: [squaddie1],
             })
 
             history = MissionHistoryService.new({ turns: [turn0] })
@@ -426,10 +440,12 @@ describe("MissionHistoryService", () => {
         beforeEach(() => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                    } as SquaddieActionResult,
+                ],
             })
 
             const squaddie1 = SquaddieTurnRecordService.new({
@@ -443,7 +459,7 @@ describe("MissionHistoryService", () => {
             const turn0 = MissionTurnHistoryEntryService.new({
                 turnNumber: 0,
                 missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
-                squaddieEntries: [squaddie1],
+                squaddieTurnRecords: [squaddie1],
             })
 
             history = MissionHistoryService.new({ turns: [turn0] })
@@ -472,11 +488,18 @@ describe("MissionHistoryService", () => {
         it("serializes and deserializes complete history", () => {
             const action1 = SquaddieTurnActionRecordService.new({
                 action: { id: "action1", name: "Attack" } as SquaddieAction,
-                result: {
-                    inBattleSquaddieId: 1,
-                    outOfBattleSquaddieId: "squaddie1",
-                    damage: { net: 10, raw: 12, absorbed: 2, willKo: false },
-                } as SquaddieActionResult,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie1",
+                        damage: {
+                            net: 10,
+                            raw: 12,
+                            absorbed: 2,
+                            willKo: false,
+                        },
+                    } as SquaddieActionResult,
+                ],
             })
 
             const squaddie1 = SquaddieTurnRecordService.new({
@@ -490,7 +513,7 @@ describe("MissionHistoryService", () => {
             const turn0 = MissionTurnHistoryEntryService.new({
                 turnNumber: 0,
                 missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
-                squaddieEntries: [squaddie1],
+                squaddieTurnRecords: [squaddie1],
             })
 
             const history = MissionHistoryService.new({ turns: [turn0] })
@@ -506,8 +529,8 @@ describe("MissionHistoryService", () => {
                 deserialized.turns[0].squaddieTurnRecords[0].actions
             ).toHaveLength(1)
             expect(
-                deserialized.turns[0].squaddieTurnRecords[0].actions[0].result
-                    .damage?.net
+                deserialized.turns[0].squaddieTurnRecords[0].actions[0]
+                    .results[0].damage?.net
             ).toBe(10)
         })
     })
