@@ -17,10 +17,7 @@ export const MissionHistoryService = {
                 missionAffiliationTurn: t.missionAffiliationTurn,
                 squaddieTurnRecords: t.squaddieTurnRecords.map((s) => ({
                     actingBattleSquaddieId: s.actingBattleSquaddieId,
-                    actions: s.actions.map((a) => ({
-                        action: { ...a.action },
-                        results: a.results.map((r) => ({ ...r })),
-                    })),
+                    actions: convertSquaddieTurnRecord(s),
                 })),
             })),
         }
@@ -54,10 +51,7 @@ export const MissionHistoryService = {
         ) => {
             return squaddieEntries.map((s) => ({
                 actingBattleSquaddieId: s.actingBattleSquaddieId,
-                actions: s.actions.map((a) => ({
-                    action: { ...a.action },
-                    results: a.results.map((r) => ({ ...r })),
-                })),
+                actions: convertSquaddieTurnRecord(s),
             }))
         }
 
@@ -186,3 +180,9 @@ const throwIfHistoryIsUndefined = (
             `[MissionHistoryService.${callName}]: history must be defined`
         )
 }
+
+const convertSquaddieTurnRecord = (s: SquaddieTurnRecord) =>
+    s.actions.map((a) => ({
+        action: { ...a.action },
+        results: a.results.map((r) => ({ ...r })),
+    }))
