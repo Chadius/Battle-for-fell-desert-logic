@@ -1,7 +1,10 @@
 import type { TMissionAffiliationTurn } from "../missionTurn"
 import type { SquaddieTurnRecord } from "./squaddieTurnRecord"
 import { SquaddieTurnRecordService } from "./squaddieTurnRecord"
-import type { SquaddieTurnActionRecord } from "./squaddieTurnActionRecord"
+import {
+    type SquaddieTurnActionRecord,
+    SquaddieTurnActionRecordService,
+} from "./squaddieTurnActionRecord"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/inBattleSquaddieManager"
 
@@ -38,10 +41,7 @@ export const MissionTurnHistoryEntryService = {
             missionAffiliationTurn: missionAffiliationTurn,
             squaddieTurnRecords: squaddieTurnRecords.map((s) => ({
                 actingBattleSquaddieId: s.actingBattleSquaddieId,
-                actions: s.actions.map((a) => ({
-                    action: { ...a.action },
-                    results: a.results.map((r) => ({ ...r })),
-                })),
+                actions: s.actions.map(SquaddieTurnActionRecordService.clone),
             })),
         }
     },
@@ -70,22 +70,13 @@ export const MissionTurnHistoryEntryService = {
         turnHistory: MissionTurnHistoryEntry
         squaddieTurnRecord: SquaddieTurnRecord
     }): MissionTurnHistoryEntry => {
-        throwIfEntryIsUndefined(turnHistory, "addOrUpdateSquaddieEntry")
+        throwIfTurnHistoryIsUndefined(turnHistory, "addOrUpdateSquaddieEntry")
 
         const existingIndex = turnHistory.squaddieTurnRecords.findIndex(
             (s) =>
                 s.actingBattleSquaddieId ===
                 squaddieTurnRecord.actingBattleSquaddieId
         )
-
-        const convertSquaddieActions = (
-            actions: SquaddieTurnActionRecord[]
-        ) => {
-            return actions.map((a) => ({
-                action: { ...a.action },
-                results: a.results.map((r) => ({ ...r })),
-            }))
-        }
 
         let newSquaddieEntries: SquaddieTurnRecord[]
         if (existingIndex >= 0) {
@@ -95,25 +86,31 @@ export const MissionTurnHistoryEntryService = {
                         ? {
                               actingBattleSquaddieId:
                                   squaddieTurnRecord.actingBattleSquaddieId,
-                              actions: convertSquaddieActions(
-                                  squaddieTurnRecord.actions
+                              actions: squaddieTurnRecord.actions.map(
+                                  SquaddieTurnActionRecordService.clone
                               ),
                           }
                         : {
                               actingBattleSquaddieId: s.actingBattleSquaddieId,
-                              actions: convertSquaddieActions(s.actions),
+                              actions: s.actions.map(
+                                  SquaddieTurnActionRecordService.clone
+                              ),
                           }
             )
         } else {
             newSquaddieEntries = [
                 ...turnHistory.squaddieTurnRecords.map((s) => ({
                     actingBattleSquaddieId: s.actingBattleSquaddieId,
-                    actions: convertSquaddieActions(s.actions),
+                    actions: s.actions.map(
+                        SquaddieTurnActionRecordService.clone
+                    ),
                 })),
                 {
                     actingBattleSquaddieId:
                         squaddieTurnRecord.actingBattleSquaddieId,
-                    actions: convertSquaddieActions(squaddieTurnRecord.actions),
+                    actions: squaddieTurnRecord.actions.map(
+                        SquaddieTurnActionRecordService.clone
+                    ),
                 },
             ]
         }
@@ -132,7 +129,7 @@ export const MissionTurnHistoryEntryService = {
         turnHistoryEntry: MissionTurnHistoryEntry
         squaddieId: BattleSquaddieId
     }): SquaddieTurnRecord | undefined => {
-        throwIfEntryIsUndefined(turnHistoryEntry, "getSquaddieEntry")
+        throwIfTurnHistoryIsUndefined(turnHistoryEntry, "getSquaddieEntry")
 
         const squaddieKey =
             SquaddieIdConverterService.squaddieIdToKey(squaddieId)
@@ -142,7 +139,7 @@ export const MissionTurnHistoryEntryService = {
     },
 
     getTotalActionCount: (entry: MissionTurnHistoryEntry): number => {
-        throwIfEntryIsUndefined(entry, "getTotalActionCount")
+        throwIfTurnHistoryIsUndefined(entry, "getTotalActionCount")
 
         return entry.squaddieTurnRecords.reduce(
             (total, squaddieEntry) =>
@@ -152,24 +149,111 @@ export const MissionTurnHistoryEntryService = {
     },
 
     getTurnNumber: (entry: MissionTurnHistoryEntry): number => {
-        throwIfEntryIsUndefined(entry, "getTurnNumber")
+        throwIfTurnHistoryIsUndefined(entry, "getTurnNumber")
         return entry.turnNumber
     },
 
     getMissionAffiliationTurn: (
         entry: MissionTurnHistoryEntry
     ): TMissionAffiliationTurn => {
-        throwIfEntryIsUndefined(entry, "getMissionAffiliationTurn")
+        throwIfTurnHistoryIsUndefined(entry, "getMissionAffiliationTurn")
         return entry.missionAffiliationTurn
+    },
+
+    getLastAction: (
+        entry: MissionTurnHistoryEntry
+    ): SquaddieTurnActionRecord | undefined => {
+        throwIfTurnHistoryIsUndefined(entry, "getLastAction")
+
+        for (let i = entry.squaddieTurnRecords.length - 1; i >= 0; i--) {
+            const squaddieRecord = entry.squaddieTurnRecords[i]
+            if (squaddieRecord.actions.length > 0) {
+                const lastAction = squaddieRecord.actions.at(-1)!
+                return SquaddieTurnActionRecordService.clone(lastAction)
+            }
+        }
+
+        return undefined
+    },
+
+    removeLastAction: (
+        missionTurnHistoryEntry: MissionTurnHistoryEntry
+    ): {
+        missionTurnHistoryEntry: MissionTurnHistoryEntry
+        removed?: SquaddieTurnActionRecord
+    } => {
+        throwIfTurnHistoryIsUndefined(
+            missionTurnHistoryEntry,
+            "removeLastAction"
+        )
+
+        const lastSquaddieTurnActionRecord =
+            MissionTurnHistoryEntryService.getLastAction(
+                missionTurnHistoryEntry
+            )
+
+        if (lastSquaddieTurnActionRecord == undefined) {
+            return {
+                missionTurnHistoryEntry,
+            }
+        }
+
+        const lastSquaddieTurnRecord =
+            missionTurnHistoryEntry.squaddieTurnRecords.at(-1)
+        if (lastSquaddieTurnRecord == undefined) {
+            return {
+                missionTurnHistoryEntry,
+            }
+        }
+
+        let removedAction: SquaddieTurnActionRecord | undefined =
+            lastSquaddieTurnRecord.actions.at(-1)
+        if (removedAction == undefined) {
+            return {
+                missionTurnHistoryEntry,
+            }
+        }
+
+        const newSquaddieRecords: SquaddieTurnRecord[] =
+            missionTurnHistoryEntry.squaddieTurnRecords
+                .slice(0, -1)
+                .map((squaddieTurnRecord) => {
+                    return SquaddieTurnRecordService.clone(squaddieTurnRecord)
+                })
+
+        const updatedLastTurnRecord: SquaddieTurnRecord =
+            SquaddieTurnRecordService.new({
+                actingBattleSquaddieId:
+                    SquaddieIdConverterService.keyToSquaddieId(
+                        missionTurnHistoryEntry.squaddieTurnRecords.at(-1)!
+                            .actingBattleSquaddieId
+                    ),
+                actions: missionTurnHistoryEntry.squaddieTurnRecords
+                    .at(-1)!
+                    .actions.slice(0, -1),
+            })
+        if (updatedLastTurnRecord.actions.length > 0) {
+            newSquaddieRecords.push(updatedLastTurnRecord)
+        }
+
+        return {
+            missionTurnHistoryEntry: {
+                turnNumber: missionTurnHistoryEntry.turnNumber,
+                missionAffiliationTurn:
+                    missionTurnHistoryEntry.missionAffiliationTurn,
+                squaddieTurnRecords: newSquaddieRecords,
+            },
+            removed: removedAction,
+        }
     },
 }
 
-const throwIfEntryIsUndefined = (
-    entry: MissionTurnHistoryEntry,
+const throwIfTurnHistoryIsUndefined = (
+    turnHistory: MissionTurnHistoryEntry,
     callName: string
 ) => {
-    if (entry == undefined)
+    if (turnHistory == undefined)
         throw new Error(
-            `[MissionTurnHistoryEntryService.${callName}]: entry must be defined`
+            `[MissionTurnHistoryEntryService.${callName}]: turnHistory must be defined`
         )
 }

@@ -1,6 +1,9 @@
 import type { MissionTurnHistoryEntry } from "./missionTurnHistoryEntry"
 import { MissionTurnHistoryEntryService } from "./missionTurnHistoryEntry"
-import type { SquaddieTurnActionRecord } from "./squaddieTurnActionRecord"
+import {
+    type SquaddieTurnActionRecord,
+    SquaddieTurnActionRecordService,
+} from "./squaddieTurnActionRecord"
 import type { SquaddieTurnRecord } from "./squaddieTurnRecord"
 
 export interface MissionHistory {
@@ -17,7 +20,9 @@ export const MissionHistoryService = {
                 missionAffiliationTurn: t.missionAffiliationTurn,
                 squaddieTurnRecords: t.squaddieTurnRecords.map((s) => ({
                     actingBattleSquaddieId: s.actingBattleSquaddieId,
-                    actions: convertSquaddieTurnRecord(s),
+                    actions: s.actions.map(
+                        SquaddieTurnActionRecordService.clone
+                    ),
                 })),
             })),
         }
@@ -51,7 +56,7 @@ export const MissionHistoryService = {
         ) => {
             return squaddieEntries.map((s) => ({
                 actingBattleSquaddieId: s.actingBattleSquaddieId,
-                actions: convertSquaddieTurnRecord(s),
+                actions: s.actions.map(SquaddieTurnActionRecordService.clone),
             }))
         }
 
@@ -149,10 +154,7 @@ export const MissionHistoryService = {
             })
         if (squaddieEntry == undefined) return undefined
 
-        return squaddieEntry.actions.map((a) => ({
-            action: { ...a.action },
-            results: { ...a.results },
-        }))
+        return squaddieEntry.actions.map(SquaddieTurnActionRecordService.clone)
     },
 
     getActionCountInTurn: ({
@@ -180,9 +182,3 @@ const throwIfHistoryIsUndefined = (
             `[MissionHistoryService.${callName}]: history must be defined`
         )
 }
-
-const convertSquaddieTurnRecord = (s: SquaddieTurnRecord) =>
-    s.actions.map((a) => ({
-        action: { ...a.action },
-        results: a.results.map((r) => ({ ...r })),
-    }))

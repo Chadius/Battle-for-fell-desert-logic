@@ -14,7 +14,10 @@ import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
 import { ApplyResultService } from "../squaddieAction/apply/applyResultService"
 import type { SquaddieAction } from "../squaddieAction/squaddieAction"
-import { MissionHistoryService } from "./history/missionHistory"
+import {
+    type MissionHistory,
+    MissionHistoryService,
+} from "./history/missionHistory"
 import { MissionTurnHistoryEntryService } from "./history/missionTurnHistoryEntry"
 import { SquaddieTurnRecordService } from "./history/squaddieTurnRecord"
 import type { SquaddieTurnActionRecord } from "./history/squaddieTurnActionRecord"
@@ -287,6 +290,59 @@ export class MissionManager {
         })
     }
 
+    undoLastAction({
+        reversingResults,
+    }: {
+        reversingResults: SquaddieActionResult[]
+    }): {
+        removedAction: SquaddieTurnActionRecord | undefined
+    } {
+        this.throwIfStateIsUndefined(this.undoLastAction.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(this.undoLastAction.name)
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.undoLastAction.name
+        )
+
+        const { currentTurn, lastAction } = this.getLastAction()
+
+        if (lastAction == undefined || currentTurn == undefined) {
+            return { removedAction: undefined }
+        }
+
+        ApplyResultService.applyResultsToSquaddies({
+            inBattleSquaddieManager: this.inBattleSquaddieManager!,
+            results: reversingResults,
+            map: {
+                mapId: this.missionState!.mapId,
+                manager: this.coordinateMapCollectionManager!,
+            },
+        })
+
+        const { missionTurnHistoryEntry: updatedTurn } =
+            MissionTurnHistoryEntryService.removeLastAction(currentTurn)
+
+        let updatedHistory: MissionHistory
+        if (updatedTurn == undefined) {
+            updatedHistory = {
+                turns: this.missionState!.history!.turns.filter(
+                    (t) => t.turnNumber !== currentTurn.turnNumber
+                ),
+            }
+        } else {
+            updatedHistory = MissionHistoryService.addOrUpdateTurn({
+                history: this.missionState!.history!,
+                turnEntry: updatedTurn,
+            })
+        }
+
+        this.missionState = {
+            ...this.missionState!,
+            history: updatedHistory,
+        }
+
+        return { removedAction: lastAction }
+    }
+
     private throwIfStateIsUndefined(callName: string) {
         if (this.missionState == undefined)
             throw new Error(
@@ -313,5 +369,29 @@ export class MissionManager {
             throw new Error(
                 `[MissionManager.${callName}]: squaddieActionManager must be defined`
             )
+    }
+
+    private getLastAction() {
+        if (this.missionState!.history == undefined) {
+            return { lastAction: undefined }
+        }
+
+        const currentTurn = MissionHistoryService.getTurn({
+            history: this.missionState!.history,
+            turnNumber: this.missionState!.turn.turnCount,
+        })
+
+        if (currentTurn == undefined) {
+            return { lastAction: undefined }
+        }
+
+        const lastAction =
+            MissionTurnHistoryEntryService.getLastAction(currentTurn)
+
+        if (lastAction == undefined) {
+            return { lastAction: undefined }
+        }
+
+        return { lastAction, currentTurn }
     }
 }

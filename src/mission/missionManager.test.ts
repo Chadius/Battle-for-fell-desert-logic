@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { MissionManager } from "./missionManager"
-import { MissionStateService } from "./missionState"
+import { type MissionState, MissionStateService } from "./missionState"
 import { MissionObjectiveService } from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    type BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
@@ -16,7 +19,10 @@ import { AttributeScore } from "../proficiency/attributeScore"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
 import { SquaddieActionService } from "../squaddieAction/squaddieAction"
-import { ProficiencyType } from "../proficiency/proficiencyLevel"
+import {
+    ProficiencyLevel,
+    ProficiencyType,
+} from "../proficiency/proficiencyLevel"
 import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../coordinateMap/coordinateMap"
@@ -804,6 +810,264 @@ describe("MissionManager", () => {
                 })
             ).toThrow(
                 "[MissionManager.useActionAndGetResults]: coordinateMapCollectionManager must be defined"
+            )
+        })
+    })
+
+    describe("undoLastAction", () => {
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let coordinateMapCollectionManager: CoordinateMapCollectionManager
+        let squaddieActionManager: SquaddieActionManager
+        let missionState: MissionState
+        let manager: MissionManager
+        let squaddieId: BattleSquaddieId
+
+        beforeEach(() => {
+            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
+                {
+                    id: "attr-sheet-1",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    movement: {
+                        distancePerAction: 2,
+                    },
+                    proficiencyLevels: {
+                        [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
+                        [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
+                    },
+                    rank: 0,
+                }
+            )
+
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "squaddie-1",
+                    attributeSheetId: "attr-sheet-1",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    name: "squaddie-1",
+                })
+            )
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            squaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "squaddie-1",
+            })
+
+            let coordinateMapCollection = CoordinateMapCollectionService.new()
+            coordinateMapCollection =
+                CoordinateMapCollectionService.addOrUpdate({
+                    collection: coordinateMapCollection,
+                    map: CoordinateMapService.new({
+                        id: "map-1",
+                        name: "test map",
+                        movementProperties: ["1 1 1 "],
+                    }),
+                })
+
+            coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+                coordinateMapCollection
+            )
+
+            const squaddieActionCollection =
+                SquaddieActionCollectionService.new()
+
+            squaddieActionManager = new SquaddieActionManager(
+                squaddieActionCollection
+            )
+
+            squaddieActionManager.addOrUpdate({
+                id: "attack",
+                name: "Attack",
+                actionType: { isDamaging: true },
+                actionEffects: [
+                    {
+                        actionDamageAmount: { damage: 3 },
+                    },
+                ],
+            } as any)
+
+            missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+            })
+
+            manager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager
+            )
+        })
+
+        it("returns undefined if no history exists", () => {
+            const result = manager.undoLastAction({
+                reversingResults: [],
+            })
+
+            expect(result.removedAction).toBeUndefined()
+        })
+
+        it("returns undefined if history exists but current turn is empty", () => {
+            manager.recordAction({
+                action: squaddieActionManager.get("attack"),
+                results: [squaddieId],
+            })
+
+            expect(manager.missionState?.history).toBeDefined()
+
+            manager.missionState = {
+                ...manager.missionState!,
+                turn: {
+                    ...manager.missionState!.turn,
+                    turnCount: 99,
+                },
+            }
+
+            const result = manager.undoLastAction({
+                reversingResults: [],
+            })
+
+            expect(result.removedAction).toBeUndefined()
+        })
+
+        it("removes last action from history", () => {
+            const action = squaddieActionManager.get("attack")
+            manager.recordAction({
+                action,
+                results: [squaddieId],
+            })
+
+            expect(manager.getTotalActionCount()).toBe(1)
+
+            const result = manager.undoLastAction({
+                reversingResults: [],
+            })
+
+            expect(result.removedAction).toBeDefined()
+            expect(result.removedAction?.action.id).toBe("attack")
+            expect(manager.getTotalActionCount()).toBe(0)
+        })
+
+        it("applies reversing results without recording them", () => {
+            const action = squaddieActionManager.get("attack")
+
+            manager.recordAction({
+                action,
+                results: [squaddieId],
+            })
+
+            expect(manager.getTotalActionCount()).toBe(1)
+
+            manager.undoLastAction({
+                reversingResults: [
+                    {
+                        ...squaddieId,
+                        healing: {
+                            net: 3,
+                            raw: 3,
+                        },
+                    },
+                ],
+            })
+
+            expect(manager.getTotalActionCount()).toBe(0)
+        })
+
+        it("only removes last action when multiple actions exist", () => {
+            const action = squaddieActionManager.get("attack")
+
+            manager.recordAction({
+                action,
+                results: [squaddieId],
+            })
+
+            manager.recordAction({
+                action,
+                results: [squaddieId],
+            })
+
+            manager.recordAction({
+                action,
+                results: [squaddieId],
+            })
+
+            expect(manager.getTotalActionCount()).toBe(3)
+
+            manager.undoLastAction({
+                reversingResults: [],
+            })
+
+            expect(manager.getTotalActionCount()).toBe(2)
+        })
+
+        it("cleans up empty squaddie records after removing last action", () => {
+            const action = squaddieActionManager.get("attack")
+
+            manager.recordAction({
+                action,
+                results: [squaddieId],
+            })
+
+            expect(
+                manager.missionState?.history?.turns[0].squaddieTurnRecords
+            ).toHaveLength(1)
+
+            manager.undoLastAction({
+                reversingResults: [],
+            })
+
+            expect(manager.missionState?.history?.turns).toHaveLength(1)
+            expect(
+                manager.missionState?.history?.turns[0].squaddieTurnRecords
+            ).toHaveLength(0)
+        })
+
+        it("throws error if missionState is undefined", () => {
+            manager.missionState = undefined
+
+            expect(() =>
+                manager.undoLastAction({
+                    reversingResults: [],
+                })
+            ).toThrow("[MissionManager.undoLastAction]: state must be defined")
+        })
+
+        it("throws error if inBattleSquaddieManager is undefined", () => {
+            manager.inBattleSquaddieManager = undefined
+
+            expect(() =>
+                manager.undoLastAction({
+                    reversingResults: [],
+                })
+            ).toThrow(
+                "[MissionManager.undoLastAction]: inBattleSquaddieManager must be defined"
+            )
+        })
+
+        it("throws error if coordinateMapCollectionManager is undefined", () => {
+            manager.coordinateMapCollectionManager = undefined
+
+            expect(() =>
+                manager.undoLastAction({
+                    reversingResults: [],
+                })
+            ).toThrow(
+                "[MissionManager.undoLastAction]: coordinateMapCollectionManager must be defined"
             )
         })
     })

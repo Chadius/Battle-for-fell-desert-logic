@@ -91,14 +91,17 @@ export const SquaddieTurnActionRecordService = {
         results.forEach((result) => {
             throwIfResultIsInvalid(result, "new")
         })
+        return newSquaddieTurnActionRecordService(
+            action,
+            results.map(convertSquaddieActionResultToSerializable)
+        )
+    },
 
-        return {
-            action: {
-                id: action.id,
-                name: action.name,
-            },
-            results: results.map(convertSquaddieActionResultToSerializable),
-        }
+    clone: (original: SquaddieTurnActionRecord): SquaddieTurnActionRecord => {
+        return newSquaddieTurnActionRecordService(
+            original.action,
+            original.results
+        )
     },
 
     createFromJSON: (data: {
@@ -335,4 +338,17 @@ const throwIfResultIsInvalid = (
         throw new Error(
             `[ActionHistoryEntryService.${callName}]: result must have squaddie IDs`
         )
+}
+
+const newSquaddieTurnActionRecordService = (
+    action: { id: string; name: string },
+    results: SerializableSquaddieActionResult[]
+): SquaddieTurnActionRecord => {
+    return {
+        action: {
+            id: action.id,
+            name: action.name,
+        },
+        results: [...results],
+    }
 }

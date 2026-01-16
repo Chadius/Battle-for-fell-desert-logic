@@ -17,18 +17,10 @@ export const SquaddieTurnRecordService = {
         actions?: SquaddieTurnActionRecord[]
     }): SquaddieTurnRecord => {
         throwIfSquaddieIdIsInvalid(actingBattleSquaddieId, "new")
-
-        return {
-            actingBattleSquaddieId: SquaddieIdConverterService.squaddieIdToKey(
-                actingBattleSquaddieId
-            ),
-            actions: actions.map((actionRecord) => {
-                return {
-                    action: { ...actionRecord.action },
-                    results: actionRecord.results.map((r) => ({ ...r })),
-                }
-            }),
-        }
+        return newSquaddieTurnRecordService(
+            SquaddieIdConverterService.squaddieIdToKey(actingBattleSquaddieId),
+            actions
+        )
     },
 
     createFromJSON: (data: any): SquaddieTurnRecord => {
@@ -69,24 +61,21 @@ export const SquaddieTurnRecordService = {
         return {
             actingBattleSquaddieId: squaddieTurnRecord.actingBattleSquaddieId,
             actions: [
-                ...squaddieTurnRecord.actions.map((a) => ({
-                    action: { ...a.action },
-                    results: a.results.map((r) => ({ ...r })),
-                })),
-                {
-                    action: { ...action.action },
-                    results: action.results.map((r) => ({ ...r })),
-                },
+                ...squaddieTurnRecord.actions.map(
+                    SquaddieTurnActionRecordService.clone
+                ),
+                SquaddieTurnActionRecordService.clone(action),
             ],
         }
     },
 
-    getActions: (entry: SquaddieTurnRecord): SquaddieTurnActionRecord[] => {
-        throwIfSquaddieTurnRecordIsUndefined(entry, "getActions")
-        return entry.actions.map((a) => ({
-            action: { ...a.action },
-            results: a.results.map((r) => ({ ...r })),
-        }))
+    getActions: (
+        squaddieTurnRecord: SquaddieTurnRecord
+    ): SquaddieTurnActionRecord[] => {
+        throwIfSquaddieTurnRecordIsUndefined(squaddieTurnRecord, "getActions")
+        return squaddieTurnRecord.actions.map(
+            SquaddieTurnActionRecordService.clone
+        )
     },
 
     getActionCount: (entry: SquaddieTurnRecord): number => {
@@ -100,6 +89,12 @@ export const SquaddieTurnRecordService = {
         throwIfSquaddieTurnRecordIsUndefined(entry, "getActingBattleSquaddieId")
         return SquaddieIdConverterService.keyToSquaddieId(
             entry.actingBattleSquaddieId
+        )
+    },
+    clone: (original: SquaddieTurnRecord): SquaddieTurnRecord => {
+        return newSquaddieTurnRecordService(
+            original.actingBattleSquaddieId,
+            original.actions
         )
     },
 }
@@ -119,4 +114,19 @@ const throwIfSquaddieIdIsInvalid = (id: BattleSquaddieId, callName: string) => {
         throw new Error(
             `[SquaddieTurnRecordService.${callName}]: squaddie ID must be valid`
         )
+}
+
+const newSquaddieTurnRecordService = (
+    actingBattleSquaddieId: string,
+    actions: SquaddieTurnActionRecord[]
+): SquaddieTurnRecord => {
+    return {
+        actingBattleSquaddieId,
+        actions: actions.map((actionRecord) => {
+            return {
+                action: { ...actionRecord.action },
+                results: actionRecord.results.map((r) => ({ ...r })),
+            }
+        }),
+    }
 }
