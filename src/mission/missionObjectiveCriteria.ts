@@ -145,8 +145,7 @@ const isSquaddiesDefeatedSatisfied = (
         return false
     }
 
-    return matchingSquaddies.every((squaddie) => {
-        const hitPoints = inBattleSquaddieManager.getHitPoints(squaddie)
-        return hitPoints.current <= 0
-    })
+    return matchingSquaddies.every((battleSquaddieId) =>
+        inBattleSquaddieManager.isSquaddieDefeated(battleSquaddieId)
+    )
 }
