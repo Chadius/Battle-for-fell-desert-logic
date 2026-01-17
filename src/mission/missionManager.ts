@@ -1,5 +1,12 @@
 import type { MissionState } from "./missionState"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    MissionAffiliationTurn,
+    type TMissionAffiliationTurn,
+} from "./missionTurn"
+import type {
+    BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { MissionObjectiveRewardType } from "./missionObjectiveReward"
@@ -51,6 +58,30 @@ export class MissionManager {
             )
             return hasMissionEndsReward && objective.hasGivenReward
         })
+    }
+
+    shouldCheckMissionObjectives(): boolean {
+        this.throwIfStateIsUndefined(this.shouldCheckMissionObjectives.name)
+
+        const currentPhase = this.missionState!.turn.missionAffiliationTurn
+        const phasesToCheck: TMissionAffiliationTurn[] = [
+            MissionAffiliationTurn.TURN_START,
+            MissionAffiliationTurn.TURN_END,
+            MissionAffiliationTurn.PLAYER_TURN_START,
+            MissionAffiliationTurn.PLAYER_TURN_END,
+            MissionAffiliationTurn.ALLY_TURN_START,
+            MissionAffiliationTurn.ALLY_TURN_END,
+            MissionAffiliationTurn.ENEMY_TURN_START,
+            MissionAffiliationTurn.ENEMY_TURN_END,
+            MissionAffiliationTurn.NONE_AFFILIATION_TURN_START,
+            MissionAffiliationTurn.NONE_AFFILIATION_TURN_END,
+        ]
+
+        if (phasesToCheck.includes(currentPhase)) {
+            return true
+        }
+
+        return this.lastActingSquaddieCannotAct()
     }
 
     calculateCompletedButNotRewardedMissionObjectives(): MissionObjective[] {
@@ -369,6 +400,45 @@ export class MissionManager {
             throw new Error(
                 `[MissionManager.${callName}]: squaddieActionManager must be defined`
             )
+    }
+
+    private lastActingSquaddieCannotAct(): boolean {
+        if (this.inBattleSquaddieManager == undefined) {
+            return false
+        }
+
+        const lastActingSquaddie = this.getLastActingSquaddieId()
+        if (lastActingSquaddie == undefined) {
+            return false
+        }
+
+        return !this.inBattleSquaddieManager.canSquaddieAct(lastActingSquaddie)
+    }
+
+    private getLastActingSquaddieId(): BattleSquaddieId | undefined {
+        if (this.missionState?.history == undefined) {
+            return undefined
+        }
+
+        const currentTurn = MissionHistoryService.getTurn({
+            history: this.missionState.history,
+            turnNumber: this.missionState.turn.turnCount,
+        })
+
+        if (currentTurn == undefined) {
+            return undefined
+        }
+
+        for (let i = currentTurn.squaddieTurnRecords.length - 1; i >= 0; i--) {
+            const squaddieRecord = currentTurn.squaddieTurnRecords[i]
+            if (squaddieRecord.actions.length > 0) {
+                return SquaddieTurnRecordService.getActingBattleSquaddieId(
+                    squaddieRecord
+                )
+            }
+        }
+
+        return undefined
     }
 
     private getLastAction() {
