@@ -1,6 +1,7 @@
 import {
     type InBattleSquaddie,
     InBattleSquaddieService,
+    type SerializableInBattleSquaddie,
 } from "./inBattleSquaddie"
 import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
 import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
@@ -19,6 +20,13 @@ import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 
 export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: Map<string, InBattleSquaddie[]>
+}
+
+export type SerializableInBattleSquaddieCollection = Omit<
+    InBattleSquaddieCollection,
+    "byOutOfBattleSquaddieId"
+> & {
+    byOutOfBattleSquaddieId: { [key: string]: SerializableInBattleSquaddie[] }
 }
 
 export const InBattleSquaddieCollectionService = {
@@ -701,6 +709,90 @@ export const InBattleSquaddieCollectionService = {
             inBattleSquaddie: squaddie,
             outOfBattleSquaddie,
         })
+    },
+    toSerializable: (
+        collection: InBattleSquaddieCollection
+    ): SerializableInBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "toSerializable")
+        const byOutOfBattleSquaddieId: {
+            [key: string]: SerializableInBattleSquaddie[]
+        } = {}
+        for (const [
+            outOfBattleSquaddieId,
+            inBattleSquaddies,
+        ] of collection.byOutOfBattleSquaddieId.entries()) {
+            byOutOfBattleSquaddieId[outOfBattleSquaddieId] =
+                inBattleSquaddies.map((squaddie) =>
+                    InBattleSquaddieService.toSerializable(squaddie)
+                )
+        }
+        return { byOutOfBattleSquaddieId }
+    },
+    fromSerializable: (
+        serializable: SerializableInBattleSquaddieCollection
+    ): InBattleSquaddieCollection => {
+        const byOutOfBattleSquaddieId = new Map<string, InBattleSquaddie[]>()
+        for (const [
+            outOfBattleSquaddieId,
+            serializableSquaddies,
+        ] of Object.entries(serializable.byOutOfBattleSquaddieId)) {
+            byOutOfBattleSquaddieId.set(
+                outOfBattleSquaddieId,
+                serializableSquaddies.map((s) =>
+                    InBattleSquaddieService.fromSerializable(s)
+                )
+            )
+        }
+        return { byOutOfBattleSquaddieId }
+    },
+    updateFromSerializable: ({
+        collection,
+        serializable,
+    }: {
+        collection: InBattleSquaddieCollection
+        serializable: SerializableInBattleSquaddieCollection
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "updateFromSerializable")
+        const updatedCollection = clone(collection)
+
+        for (const [
+            outOfBattleSquaddieId,
+            serializableSquaddies,
+        ] of Object.entries(serializable.byOutOfBattleSquaddieId)) {
+            if (
+                !updatedCollection.byOutOfBattleSquaddieId.has(
+                    outOfBattleSquaddieId
+                )
+            ) {
+                updatedCollection.byOutOfBattleSquaddieId.set(
+                    outOfBattleSquaddieId,
+                    []
+                )
+            }
+
+            const existingSquaddies =
+                updatedCollection.byOutOfBattleSquaddieId.get(
+                    outOfBattleSquaddieId
+                )!
+
+            for (const serializableSquaddie of serializableSquaddies) {
+                const existingIndex = existingSquaddies.findIndex(
+                    (s) => s.id === serializableSquaddie.id
+                )
+                const restoredSquaddie =
+                    InBattleSquaddieService.fromSerializable(
+                        serializableSquaddie
+                    )
+
+                if (existingIndex >= 0) {
+                    existingSquaddies[existingIndex] = restoredSquaddie
+                } else {
+                    existingSquaddies.push(restoredSquaddie)
+                }
+            }
+        }
+
+        return updatedCollection
     },
 }
 

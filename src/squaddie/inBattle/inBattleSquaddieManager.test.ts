@@ -1844,4 +1844,144 @@ describe("In Battle Squaddie Manager", () => {
         })
         expect(noActionPointsSpent).toBe(0)
     })
+
+    describe("serialization", () => {
+        it("serializeCollection returns a serializable representation", () => {
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            const serializable = manager.serializeCollection()
+
+            expect(serializable.byOutOfBattleSquaddieId).toBeDefined()
+            expect(
+                serializable.byOutOfBattleSquaddieId[outOfBattleSquaddie0.id]
+            ).toHaveLength(1)
+        })
+
+        it("loadCollectionFromJSON replaces the collection", () => {
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            const newSerializable = {
+                byOutOfBattleSquaddieId: {
+                    [outOfBattleSquaddie1.id]: [
+                        {
+                            id: 0,
+                            outOfBattleSquaddieId: outOfBattleSquaddie1.id,
+                            name: "Loaded Squaddie",
+                            hitPoints: { max: 5, current: 3 },
+                            conditions: {},
+                            actionPoints: { current: 2 },
+                            actionIds: { natural: ["action1"] },
+                            itemIdsUsed: [],
+                        },
+                    ],
+                },
+            }
+
+            manager.loadCollectionFromJSON(newSerializable)
+
+            expect(
+                manager.doesSquaddieExist({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                    inBattleSquaddieId: 0,
+                })
+            ).toBe(false)
+
+            expect(
+                manager.doesSquaddieExist({
+                    outOfBattleSquaddieId: outOfBattleSquaddie1.id,
+                    inBattleSquaddieId: 0,
+                })
+            ).toBe(true)
+
+            const hitPoints = manager.getHitPoints({
+                outOfBattleSquaddieId: outOfBattleSquaddie1.id,
+                inBattleSquaddieId: 0,
+            })
+            expect(hitPoints.current).toBe(3)
+        })
+
+        it("updateCollectionFromJSON updates existing squaddies and adds new ones", () => {
+            const id0 = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            const updateSerializable = {
+                byOutOfBattleSquaddieId: {
+                    [outOfBattleSquaddie0.id]: [
+                        {
+                            id: id0.inBattleSquaddieId,
+                            outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                            name: "Updated Name",
+                            hitPoints: { max: 5, current: 2 },
+                            conditions: {},
+                            actionPoints: { current: 1 },
+                            actionIds: { natural: ["action1"] },
+                            itemIdsUsed: ["item1"],
+                        },
+                    ],
+                    [outOfBattleSquaddie1.id]: [
+                        {
+                            id: 0,
+                            outOfBattleSquaddieId: outOfBattleSquaddie1.id,
+                            name: "New Squaddie",
+                            hitPoints: { max: 5, current: 5 },
+                            conditions: {},
+                            actionPoints: { current: 3 },
+                            actionIds: { natural: ["action2"] },
+                            itemIdsUsed: [],
+                        },
+                    ],
+                },
+            }
+
+            manager.updateCollectionFromJSON(updateSerializable)
+
+            const updatedHitPoints = manager.getHitPoints({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                inBattleSquaddieId: id0.inBattleSquaddieId,
+            })
+            expect(updatedHitPoints.current).toBe(2)
+
+            const updatedActionPoints = manager.getActionPoints({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                inBattleSquaddieId: id0.inBattleSquaddieId,
+            })
+            expect(updatedActionPoints.current).toBe(1)
+
+            expect(
+                manager.doesSquaddieExist({
+                    outOfBattleSquaddieId: outOfBattleSquaddie1.id,
+                    inBattleSquaddieId: 0,
+                })
+            ).toBe(true)
+        })
+
+        it("throws error when serializing undefined collection", () => {
+            const emptyManager = new InBattleSquaddieManager(
+                undefined,
+                manager.outOfBattleSquaddieManager
+            )
+
+            expect(() => emptyManager.serializeCollection()).toThrow(
+                /inBattleSquaddieCollection must be defined/
+            )
+        })
+
+        it("throws error when updating undefined collection", () => {
+            const emptyManager = new InBattleSquaddieManager(
+                undefined,
+                manager.outOfBattleSquaddieManager
+            )
+
+            expect(() =>
+                emptyManager.updateCollectionFromJSON({
+                    byOutOfBattleSquaddieId: {},
+                })
+            ).toThrow(/inBattleSquaddieCollection must be defined/)
+        })
+    })
 })

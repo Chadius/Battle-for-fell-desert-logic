@@ -1,6 +1,7 @@
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
+    type SerializableInBattleSquaddieCollection,
 } from "./inBattleSquaddieCollection"
 import type { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager"
 import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
@@ -1206,6 +1207,35 @@ export class InBattleSquaddieManager {
         }
 
         return allSquaddies
+    }
+
+    serializeCollection(): SerializableInBattleSquaddieCollection {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.serializeCollection.name
+        )
+        return InBattleSquaddieCollectionService.toSerializable(
+            this.inBattleSquaddieCollection!
+        )
+    }
+
+    loadCollectionFromJSON(
+        serializable: SerializableInBattleSquaddieCollection
+    ): void {
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.fromSerializable(serializable)
+    }
+
+    updateCollectionFromJSON(
+        serializable: SerializableInBattleSquaddieCollection
+    ): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.updateCollectionFromJSON.name
+        )
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.updateFromSerializable({
+                collection: this.inBattleSquaddieCollection!,
+                serializable,
+            })
     }
 
     private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {
