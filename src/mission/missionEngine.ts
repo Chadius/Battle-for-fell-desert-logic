@@ -160,6 +160,38 @@ export class MissionEngine {
         return objectives.filter((objective) => objective.hasGivenReward)
     }
 
+    markMissionObjectiveAsRewarded(objectiveId: string): void {
+        this.throwIfMissionManagerIsUndefined(
+            this.markMissionObjectiveAsRewarded.name
+        )
+
+        const objectives = this.missionManager!.missionState?.objectives ?? []
+        const objective = objectives.find((obj) => obj.id === objectiveId)
+
+        if (objective == undefined) {
+            throw new Error(
+                `[MissionEngine.${this.markMissionObjectiveAsRewarded.name}]: objective not found`
+            )
+        }
+
+        if (objective.hasGivenReward) {
+            return
+        }
+
+        const isComplete = MissionObjectiveService.isComplete(
+            objective,
+            this.missionManager!.inBattleSquaddieManager!
+        )
+
+        if (!isComplete) {
+            throw new Error(
+                `[MissionEngine.${this.markMissionObjectiveAsRewarded.name}]: objective is not complete`
+            )
+        }
+
+        this.missionManager!.setMissionObjectiveAsRewarded(objectiveId)
+    }
+
     private throwIfMissionManagerIsUndefined(callingFunction: string): void {
         if (this.missionManager == undefined) {
             throw new Error(
