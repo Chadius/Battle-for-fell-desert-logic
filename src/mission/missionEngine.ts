@@ -1,4 +1,5 @@
 import { MissionManager } from "./missionManager"
+import type { InMissionSummary } from "./inMissionSummary"
 
 export class MissionEngine {
     missionManager?: MissionManager
@@ -10,6 +11,11 @@ export class MissionEngine {
     isDone(): boolean {
         this.throwIfMissionManagerIsUndefined(this.isDone.name)
         return this.missionManager!.hasMissionEnded()
+    }
+
+    getInMissionSummary(): InMissionSummary {
+        this.throwIfMissionManagerIsUndefined(this.getInMissionSummary.name)
+        return this.missionManager!.createInMissionSummary()
     }
 
     private throwIfMissionManagerIsUndefined(callingFunction: string): void {
