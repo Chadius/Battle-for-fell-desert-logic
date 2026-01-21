@@ -463,5 +463,310 @@ describe("MissionEngine", () => {
             expect(storedResults).toEqual(results)
             expect(storedResults?.actorRoll).toEqual([3, 3])
         })
+
+        it("checks mission objectives after applying action and marks completed objectives as rewarded", () => {
+            const missionObjective = MissionObjectiveService.new({
+                id: "defeat-enemies",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward([
+                        "victory",
+                    ]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+            })
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+                objectives: [missionObjective],
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager
+            )
+
+            const missionEngine = new MissionEngine(
+                missionManager,
+                deterministicRollGenerator
+            )
+
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...targetSquaddieId,
+                damage: { amount: 9, type: undefined },
+            })
+
+            missionEngine.readyAction({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: "attack" },
+            })
+
+            missionEngine.useActionAndGetResults()
+
+            const completedAndRewarded =
+                missionEngine.getCompletedAndRewardedMissionObjectives()
+            expect(completedAndRewarded).toHaveLength(1)
+            expect(completedAndRewarded[0].id).toBe("defeat-enemies")
+        })
+    })
+
+    describe("mission objective getters", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+
+        beforeEach(() => {
+            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
+                {
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: { distancePerAction: 2 },
+                    id: "test_sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                }
+            )
+
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
+            const aliveEnemy = OutOfBattleSquaddieService.new({
+                id: "enemy-alive",
+                name: "Alive Enemy",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "test_sheet",
+            })
+
+            const deadEnemy = OutOfBattleSquaddieService.new({
+                id: "enemy-dead",
+                name: "Dead Enemy",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "test_sheet",
+            })
+
+            const deadAlly = OutOfBattleSquaddieService.new({
+                id: "ally-dead",
+                name: "Dead Ally",
+                affiliation: SquaddieAffiliation.ALLY,
+                attributeSheetId: "test_sheet",
+            })
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(aliveEnemy)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(deadEnemy)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(deadAlly)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-alive",
+            })
+
+            const deadEnemySquaddieId =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "enemy-dead",
+                })
+
+            const deadAllySquaddieId =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "ally-dead",
+                })
+
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...deadEnemySquaddieId,
+                damage: { amount: 100, type: undefined },
+            })
+
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...deadAllySquaddieId,
+                damage: { amount: 100, type: undefined },
+            })
+        })
+
+        it("throws error if MissionManager is undefined for getInProgressObjectives", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() =>
+                missionEngine.getInProgressMissionObjectives()
+            ).toThrow("missionManager is undefined")
+        })
+
+        it("throws error if MissionManager is undefined for getCompletedButNotRewardedObjectives", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() =>
+                missionEngine.getCompletedButNotRewardedMissionObjectives()
+            ).toThrow("missionManager is undefined")
+        })
+
+        it("throws error if MissionManager is undefined for getCompletedAndRewardedObjectives", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() =>
+                missionEngine.getCompletedAndRewardedMissionObjectives()
+            ).toThrow("missionManager is undefined")
+        })
+
+        it("getInProgressObjectives returns objectives that are not complete", () => {
+            const inProgressObjective = MissionObjectiveService.new({
+                id: "in-progress",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+            })
+
+            const completedObjective = MissionObjectiveService.new({
+                id: "completed",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ALLY],
+                        }
+                    ),
+                ],
+            })
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                objectives: [inProgressObjective, completedObjective],
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const inProgress = missionEngine.getInProgressMissionObjectives()
+
+            expect(inProgress).toHaveLength(1)
+            expect(inProgress[0].id).toBe("in-progress")
+        })
+
+        it("getCompletedButNotRewardedObjectives returns completed objectives without reward", () => {
+            const completedNotRewarded = MissionObjectiveService.new({
+                id: "completed-not-rewarded",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ALLY],
+                        }
+                    ),
+                ],
+            })
+
+            const completedAndRewarded = MissionObjectiveService.new({
+                id: "completed-and-rewarded",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ALLY],
+                        }
+                    ),
+                ],
+                hasGivenReward: true,
+            })
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                objectives: [completedNotRewarded, completedAndRewarded],
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const completedButNotRewarded =
+                missionEngine.getCompletedButNotRewardedMissionObjectives()
+
+            expect(completedButNotRewarded).toHaveLength(1)
+            expect(completedButNotRewarded[0].id).toBe("completed-not-rewarded")
+        })
+
+        it("getCompletedAndRewardedObjectives returns objectives that have been rewarded", () => {
+            const notRewarded = MissionObjectiveService.new({
+                id: "not-rewarded",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ALLY],
+                        }
+                    ),
+                ],
+            })
+
+            const rewarded = MissionObjectiveService.new({
+                id: "rewarded",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ALLY],
+                        }
+                    ),
+                ],
+                hasGivenReward: true,
+            })
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                objectives: [notRewarded, rewarded],
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const completedAndRewarded =
+                missionEngine.getCompletedAndRewardedMissionObjectives()
+
+            expect(completedAndRewarded).toHaveLength(1)
+            expect(completedAndRewarded[0].id).toBe("rewarded")
+        })
     })
 })

@@ -4,6 +4,8 @@ import type { SquaddieActionDecisions } from "../squaddieAction/calculate/result
 import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
 import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
+import type { MissionObjective } from "./missionObjective"
+import { MissionObjectiveService } from "./missionObjective"
 
 export interface TargetResult {
     degreeOfSuccess: TDegreeOfSuccess
@@ -83,7 +85,25 @@ export class MissionEngine {
         }
 
         this.readiedAction = undefined
+
+        this.checkAndUpdateMissionObjectives()
+
         return this.actionResults
+    }
+
+    private checkAndUpdateMissionObjectives(): void {
+        if (!this.missionManager!.shouldCheckMissionObjectives()) {
+            return
+        }
+
+        const completedObjectives =
+            this.missionManager!.calculateCompletedButNotRewardedMissionObjectives()
+
+        for (const missionObjective of completedObjectives) {
+            this.missionManager!.setMissionObjectiveAsRewarded(
+                missionObjective.id
+            )
+        }
     }
 
     private convertToSerializableTargetResults(
@@ -106,6 +126,38 @@ export class MissionEngine {
 
     getActionResults(): ActionResults | undefined {
         return this.actionResults
+    }
+
+    getInProgressMissionObjectives(): MissionObjective[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getInProgressMissionObjectives.name
+        )
+
+        const objectives = this.missionManager!.missionState?.objectives ?? []
+        return objectives.filter((objective) => {
+            const isComplete = MissionObjectiveService.isComplete(
+                objective,
+                this.missionManager!.inBattleSquaddieManager!
+            )
+            return !isComplete && !objective.hasGivenReward
+        })
+    }
+
+    getCompletedButNotRewardedMissionObjectives(): MissionObjective[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getCompletedButNotRewardedMissionObjectives.name
+        )
+
+        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives()
+    }
+
+    getCompletedAndRewardedMissionObjectives(): MissionObjective[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getCompletedAndRewardedMissionObjectives.name
+        )
+
+        const objectives = this.missionManager!.missionState?.objectives ?? []
+        return objectives.filter((objective) => objective.hasGivenReward)
     }
 
     private throwIfMissionManagerIsUndefined(callingFunction: string): void {
