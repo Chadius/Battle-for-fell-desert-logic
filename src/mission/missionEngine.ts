@@ -1,6 +1,7 @@
 import { MissionManager } from "./missionManager"
 import type { InMissionSummary } from "./inMissionSummary"
 import type { SquaddieActionDecisions } from "../squaddieAction/calculate/result/squaddieActionResultCalculator"
+import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
 
 export interface ReadiedAction {
     actor: {
@@ -20,9 +21,14 @@ export interface ReadiedAction {
 export class MissionEngine {
     missionManager?: MissionManager
     readiedAction?: ReadiedAction
+    rollGenerator: RollGenerator
 
-    constructor(missionManager?: MissionManager) {
+    constructor(
+        missionManager?: MissionManager,
+        rollGenerator?: RollGenerator
+    ) {
         this.missionManager = missionManager
+        this.rollGenerator = rollGenerator ?? new RollGenerator()
     }
 
     readyAction({ actor, targets, action }: ReadiedAction): {
