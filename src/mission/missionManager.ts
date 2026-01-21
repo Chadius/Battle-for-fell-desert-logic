@@ -29,6 +29,10 @@ import { MissionTurnHistoryEntryService } from "./history/missionTurnHistoryEntr
 import { SquaddieTurnRecordService } from "./history/squaddieTurnRecord"
 import type { SquaddieTurnActionRecord } from "./history/squaddieTurnActionRecord"
 import { SquaddieTurnActionRecordService } from "./history/squaddieTurnActionRecord"
+import {
+    type InMissionSummary,
+    InMissionSummaryService,
+} from "./inMissionSummary"
 
 export class MissionManager {
     missionState?: MissionState
@@ -463,5 +467,35 @@ export class MissionManager {
         }
 
         return { lastAction, currentTurn }
+    }
+
+    createInMissionSummary(): InMissionSummary {
+        this.throwIfStateIsUndefined(this.createInMissionSummary.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.createInMissionSummary.name
+        )
+
+        return InMissionSummaryService.createFromMission({
+            missionObjectives: this.missionState!.objectives,
+            inBattleSquaddieManager: this.inBattleSquaddieManager!,
+        })
+    }
+
+    loadInMissionSummary(InMissionSummary: InMissionSummary): void {
+        this.throwIfStateIsUndefined(this.loadInMissionSummary.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.loadInMissionSummary.name
+        )
+
+        const updatedObjectives = InMissionSummaryService.applyToMission({
+            InMissionSummary,
+            missionObjectives: this.missionState!.objectives,
+            inBattleSquaddieManager: this.inBattleSquaddieManager!,
+        })
+
+        this.missionState = {
+            ...this.missionState!,
+            objectives: updatedObjectives,
+        }
     }
 }

@@ -47,18 +47,18 @@ describe("MissionManager", () => {
         })
 
         it("creates a new MissionManager with state", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
-            expect(manager.missionState).toBe(state)
+            expect(manager.missionState).toBe(missionState)
         })
 
         it("creates a new MissionManager with all dependencies", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
             })
@@ -67,13 +67,13 @@ describe("MissionManager", () => {
             const squaddieActionManager = {} as any
 
             const manager = new MissionManager(
-                state,
+                missionState,
                 inBattleSquaddieManager,
                 coordinateMapCollectionManager,
                 squaddieActionManager
             )
 
-            expect(manager.missionState).toBe(state)
+            expect(manager.missionState).toBe(missionState)
             expect(manager.inBattleSquaddieManager).toBe(
                 inBattleSquaddieManager
             )
@@ -100,13 +100,13 @@ describe("MissionManager", () => {
                 ],
             })
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
             expect(manager.hasMissionEnded()).toBe(false)
         })
@@ -124,13 +124,13 @@ describe("MissionManager", () => {
                 ],
             })
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
             expect(manager.hasMissionEnded()).toBe(false)
         })
@@ -151,13 +151,13 @@ describe("MissionManager", () => {
             const rewardedObjective =
                 MissionObjectiveService.markRewardAsGiven(objective)
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [rewardedObjective],
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
             expect(manager.hasMissionEnded()).toBe(true)
         })
@@ -238,13 +238,16 @@ describe("MissionManager", () => {
                 ],
             })
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(state, inBattleSquaddieManager)
+            const manager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
 
             const results =
                 manager.calculateCompletedButNotRewardedMissionObjectives()
@@ -267,13 +270,16 @@ describe("MissionManager", () => {
                 ],
             })
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(state, inBattleSquaddieManager)
+            const manager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
 
             inBattleSquaddieManager.dealDamageToSquaddie({
                 inBattleSquaddieId: enemySquaddieId.inBattleSquaddieId,
@@ -309,13 +315,16 @@ describe("MissionManager", () => {
             const rewardedObjective =
                 MissionObjectiveService.markRewardAsGiven(objective)
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [rewardedObjective],
             })
 
-            const manager = new MissionManager(state, inBattleSquaddieManager)
+            const manager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
 
             inBattleSquaddieManager.dealDamageToSquaddie({
                 inBattleSquaddieId: enemySquaddieId.inBattleSquaddieId,
@@ -343,12 +352,12 @@ describe("MissionManager", () => {
         })
 
         it("throws when inBattleSquaddieManager is undefined", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
             expect(() =>
                 manager.calculateCompletedButNotRewardedMissionObjectives()
@@ -374,13 +383,13 @@ describe("MissionManager", () => {
                 ],
             })
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
             expect(manager.missionState!.objectives[0].hasGivenReward).toBe(
                 false
@@ -422,13 +431,13 @@ describe("MissionManager", () => {
                 ],
             })
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [objective1, objective2],
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
             manager.setMissionObjectiveAsRewarded("obj-1")
 
@@ -455,13 +464,13 @@ describe("MissionManager", () => {
                 ],
             })
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
             const originalState = manager.missionState
 
             manager.setMissionObjectiveAsRewarded("obj-1")
@@ -487,13 +496,13 @@ describe("MissionManager", () => {
                 ],
             })
 
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
             expect(() => {
                 manager.setMissionObjectiveAsRewarded("non-existent")
@@ -664,13 +673,13 @@ describe("MissionManager", () => {
         })
 
         it("calculates results and applies them to squaddies", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "test_map",
             })
 
             const manager = new MissionManager(
-                state,
+                missionState,
                 inBattleSquaddieManager,
                 coordinateMapCollectionManager,
                 squaddieActionManager
@@ -700,13 +709,13 @@ describe("MissionManager", () => {
         })
 
         it("returns calculation results with rolls and degrees of success", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "test_map",
             })
 
             const manager = new MissionManager(
-                state,
+                missionState,
                 inBattleSquaddieManager,
                 coordinateMapCollectionManager,
                 squaddieActionManager
@@ -750,12 +759,12 @@ describe("MissionManager", () => {
         })
 
         it("throws when inBattleSquaddieManager is undefined", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "test_map",
             })
 
-            const manager = new MissionManager(state)
+            const manager = new MissionManager(missionState)
 
             expect(() =>
                 manager.useActionAndGetResults({
@@ -770,13 +779,13 @@ describe("MissionManager", () => {
         })
 
         it("throws when squaddieActionManager is undefined", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "test_map",
             })
 
             const manager = new MissionManager(
-                state,
+                missionState,
                 inBattleSquaddieManager,
                 coordinateMapCollectionManager
             )
@@ -794,13 +803,13 @@ describe("MissionManager", () => {
         })
 
         it("throws when coordinateMapCollectionManager is undefined", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "test_map",
             })
 
             const manager = new MissionManager(
-                state,
+                missionState,
                 inBattleSquaddieManager,
                 undefined,
                 squaddieActionManager
@@ -1236,7 +1245,7 @@ describe("MissionManager", () => {
         const createMissionManager = (
             missionAffiliationTurn: TMissionAffiliationTurn
         ) => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "test_map",
                 objectives: [createMissionObjective()],
@@ -1246,7 +1255,7 @@ describe("MissionManager", () => {
             })
 
             return new MissionManager(
-                state,
+                missionState,
                 inBattleSquaddieManager,
                 coordinateMapCollectionManager,
                 squaddieActionManager
@@ -1518,7 +1527,7 @@ describe("MissionManager", () => {
         })
 
         it("returns false if inBattleSquaddieManager is undefined during an active turn phase", () => {
-            const state = MissionStateService.new({
+            const missionState = MissionStateService.new({
                 id: "mission-1",
                 mapId: "test_map",
                 objectives: [createMissionObjective()],
@@ -1527,7 +1536,7 @@ describe("MissionManager", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(state, undefined)
+            const missionManager = new MissionManager(missionState, undefined)
             expect(missionManager.shouldCheckMissionObjectives()).toBe(false)
         })
 
@@ -1536,6 +1545,221 @@ describe("MissionManager", () => {
 
             expect(() => missionManager.shouldCheckMissionObjectives()).toThrow(
                 "[MissionManager.shouldCheckMissionObjectives]: state must be defined"
+            )
+        })
+    })
+
+    describe("createInMissionSummary and loadInMissionSummary", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let missionManager: MissionManager
+        let squaddieId: BattleSquaddieId
+
+        beforeEach(() => {
+            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
+                {
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: { distancePerAction: 1 },
+                    id: "test sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                }
+            )
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
+            const enemySquaddie = OutOfBattleSquaddieService.new({
+                id: "enemy-1",
+                name: "Enemy",
+                actionIds: [],
+                attributeSheetId: "test sheet",
+                affiliation: SquaddieAffiliation.ENEMY,
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            squaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+
+            const objective = MissionObjectiveService.new({
+                id: "obj-1",
+                rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+            })
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                objectives: [objective],
+            })
+
+            missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+        })
+
+        it("createInMissionSummary captures objective and squaddie state", () => {
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...squaddieId,
+                damage: { amount: 5, type: undefined },
+            })
+
+            const inMissionSummary = missionManager.createInMissionSummary()
+
+            expect(inMissionSummary.missionObjectives).toHaveLength(1)
+            expect(inMissionSummary.missionObjectives[0].id).toBe("obj-1")
+            expect(inMissionSummary.missionObjectives[0].isCompleted).toBe(
+                false
+            )
+
+            const squaddieData =
+                inMissionSummary.inBattleSquaddieCollection
+                    .byOutOfBattleSquaddieId["enemy-1"][0]
+            expect(squaddieData.hitPoints.current).toBe(5)
+        })
+
+        it("loadInMissionSummary restores squaddie state", () => {
+            const savedState = {
+                missionObjectives: [
+                    { id: "obj-1", isCompleted: false, hasGivenReward: false },
+                ],
+                inBattleSquaddieCollection: {
+                    byOutOfBattleSquaddieId: {
+                        "enemy-1": [
+                            {
+                                id: 0,
+                                outOfBattleSquaddieId: "enemy-1",
+                                name: "Enemy",
+                                hitPoints: { max: 10, current: 3 },
+                                conditions: {},
+                                actionPoints: { current: 1 },
+                                actionIds: { natural: [] },
+                                itemIdsUsed: [],
+                            },
+                        ],
+                    },
+                },
+            }
+
+            missionManager.loadInMissionSummary(savedState)
+
+            const hitPoints = inBattleSquaddieManager.getHitPoints(squaddieId)
+            expect(hitPoints.current).toBe(3)
+
+            const actionPoints =
+                inBattleSquaddieManager.getActionPoints(squaddieId)
+            expect(actionPoints.current).toBe(1)
+        })
+
+        it("loadInMissionSummary restores objective hasGivenReward", () => {
+            const savedState = {
+                missionObjectives: [
+                    { id: "obj-1", isCompleted: true, hasGivenReward: true },
+                ],
+                inBattleSquaddieCollection: {
+                    byOutOfBattleSquaddieId: {
+                        "enemy-1": [
+                            {
+                                id: 0,
+                                outOfBattleSquaddieId: "enemy-1",
+                                name: "Enemy",
+                                hitPoints: { max: 10, current: 0 },
+                                conditions: {},
+                                actionPoints: { current: 3 },
+                                actionIds: { natural: [] },
+                                itemIdsUsed: [],
+                            },
+                        ],
+                    },
+                },
+            }
+
+            missionManager.loadInMissionSummary(savedState)
+
+            expect(
+                missionManager.missionState!.objectives[0].hasGivenReward
+            ).toBe(true)
+        })
+
+        it("round-trip preserves state", () => {
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...squaddieId,
+                damage: { amount: 7, type: undefined },
+            })
+            inBattleSquaddieManager.spendActionPoints({
+                ...squaddieId,
+                actionPoints: 2,
+            })
+
+            const originalHitPoints =
+                inBattleSquaddieManager.getHitPoints(squaddieId)
+            const originalActionPoints =
+                inBattleSquaddieManager.getActionPoints(squaddieId)
+
+            const savedState = missionManager.createInMissionSummary()
+
+            inBattleSquaddieManager.giveHealingToSquaddie({
+                ...squaddieId,
+                healing: { raw: 10 },
+            })
+            inBattleSquaddieManager.restoreActionPoints({
+                ...squaddieId,
+                actionPoints: 3,
+            })
+
+            missionManager.loadInMissionSummary(savedState)
+
+            const restoredHitPoints =
+                inBattleSquaddieManager.getHitPoints(squaddieId)
+            const restoredActionPoints =
+                inBattleSquaddieManager.getActionPoints(squaddieId)
+
+            expect(restoredHitPoints.current).toBe(originalHitPoints.current)
+            expect(restoredActionPoints.current).toBe(
+                originalActionPoints.current
+            )
+        })
+
+        it("createInMissionSummary throws when state is undefined", () => {
+            const manager = new MissionManager(
+                undefined,
+                inBattleSquaddieManager
+            )
+
+            expect(() => manager.createInMissionSummary()).toThrow(
+                "[MissionManager.createInMissionSummary]: state must be defined"
+            )
+        })
+
+        it("createInMissionSummary throws when inBattleSquaddieManager is undefined", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+            })
+            const manager = new MissionManager(missionState)
+
+            expect(() => manager.createInMissionSummary()).toThrow(
+                "[MissionManager.createInMissionSummary]: inBattleSquaddieManager must be defined"
             )
         })
     })

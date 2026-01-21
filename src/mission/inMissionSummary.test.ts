@@ -1,0 +1,389 @@
+import { beforeEach, describe, expect, it } from "vitest"
+import { MissionObjectiveService } from "./missionObjective"
+import { MissionObjectiveRewardService } from "./missionObjectiveReward"
+import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
+import { SquaddieAffiliation } from "../affiliation/affiliation"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
+import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
+import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
+import { AttributeScore } from "../proficiency/attributeScore"
+import {
+    type InMissionSummary,
+    InMissionSummaryService,
+    type MissionObjectiveSummary,
+} from "./inMissionSummary"
+
+describe("InMissionSummary", () => {
+    describe("new", () => {
+        it("creates an empty summary with no parameters", () => {
+            const summary = InMissionSummaryService.new({})
+
+            expect(summary.missionObjectives).toEqual([])
+            expect(
+                summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId
+            ).toEqual({})
+        })
+
+        it("creates a summary with provided data", () => {
+            const objectiveStates: MissionObjectiveSummary[] = [
+                { id: "obj-1", isCompleted: true, hasGivenReward: false },
+            ]
+            const inBattleSquaddieCollection = {
+                byOutOfBattleSquaddieId: {
+                    "squaddie-1": [
+                        {
+                            id: 0,
+                            outOfBattleSquaddieId: "squaddie-1",
+                            name: "Test",
+                            hitPoints: { max: 10, current: 10 },
+                            conditions: {},
+                            actionPoints: { current: 3 },
+                            actionIds: { natural: [] },
+                            itemIdsUsed: [],
+                        },
+                    ],
+                },
+            }
+
+            const summary = InMissionSummaryService.new({
+                missionObjectives: objectiveStates,
+                inBattleSquaddieCollection,
+            })
+
+            expect(summary.missionObjectives).toEqual(objectiveStates)
+            expect(summary.inBattleSquaddieCollection).toEqual(
+                inBattleSquaddieCollection
+            )
+        })
+    })
+
+    describe("createFromMission", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let squaddieId: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+
+        beforeEach(() => {
+            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
+                {
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: { distancePerAction: 1 },
+                    id: "test sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                }
+            )
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
+            const enemySquaddie = OutOfBattleSquaddieService.new({
+                id: "enemy-1",
+                name: "Enemy",
+                actionIds: [],
+                attributeSheetId: "test sheet",
+                affiliation: SquaddieAffiliation.ENEMY,
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            squaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+        })
+
+        it("creates summary from mission with objective and squaddie data", () => {
+            const objective = MissionObjectiveService.new({
+                id: "obj-1",
+                rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+            })
+
+            const summary = InMissionSummaryService.createFromMission({
+                missionObjectives: [objective],
+                inBattleSquaddieManager,
+            })
+
+            expect(summary.missionObjectives).toHaveLength(1)
+            expect(summary.missionObjectives[0].id).toBe("obj-1")
+            expect(summary.missionObjectives[0].isCompleted).toBe(false)
+            expect(summary.missionObjectives[0].hasGivenReward).toBe(false)
+
+            expect(
+                summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId[
+                    "enemy-1"
+                ]
+            ).toHaveLength(1)
+        })
+
+        it("marks objective as completed when criteria are met", () => {
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                inBattleSquaddieId: squaddieId.inBattleSquaddieId,
+                outOfBattleSquaddieId: squaddieId.outOfBattleSquaddieId,
+                damage: { amount: 100, type: undefined },
+            })
+
+            const objective = MissionObjectiveService.new({
+                id: "obj-1",
+                rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+            })
+
+            const summary = InMissionSummaryService.createFromMission({
+                missionObjectives: [objective],
+                inBattleSquaddieManager,
+            })
+
+            expect(summary.missionObjectives[0].isCompleted).toBe(true)
+        })
+
+        it("preserves hasGivenReward flag", () => {
+            const objective = MissionObjectiveService.new({
+                id: "obj-1",
+                rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+                hasGivenReward: true,
+            })
+
+            const summary = InMissionSummaryService.createFromMission({
+                missionObjectives: [objective],
+                inBattleSquaddieManager,
+            })
+
+            expect(summary.missionObjectives[0].hasGivenReward).toBe(true)
+        })
+    })
+
+    describe("serialization", () => {
+        it("round-trip JSON serialization preserves data", () => {
+            const original: InMissionSummary = {
+                missionObjectives: [
+                    { id: "obj-1", isCompleted: true, hasGivenReward: true },
+                    { id: "obj-2", isCompleted: false, hasGivenReward: false },
+                ],
+                inBattleSquaddieCollection: {
+                    byOutOfBattleSquaddieId: {
+                        "squaddie-1": [
+                            {
+                                id: 0,
+                                outOfBattleSquaddieId: "squaddie-1",
+                                name: "Test",
+                                hitPoints: { max: 10, current: 5 },
+                                conditions: {},
+                                actionPoints: { current: 2 },
+                                actionIds: { natural: ["action1"] },
+                                itemIdsUsed: ["item1"],
+                            },
+                        ],
+                    },
+                },
+            }
+
+            const jsonString = JSON.stringify(original)
+            const restored: InMissionSummary = JSON.parse(jsonString)
+
+            expect(restored.missionObjectives).toEqual(
+                original.missionObjectives
+            )
+            expect(restored.inBattleSquaddieCollection).toEqual(
+                original.inBattleSquaddieCollection
+            )
+        })
+
+        it("is directly JSON-serializable without conversion", () => {
+            const summary: InMissionSummary = {
+                missionObjectives: [
+                    { id: "obj-1", isCompleted: true, hasGivenReward: false },
+                ],
+                inBattleSquaddieCollection: {
+                    byOutOfBattleSquaddieId: {},
+                },
+            }
+
+            const jsonString = JSON.stringify(summary)
+            const parsed: InMissionSummary = JSON.parse(jsonString)
+
+            expect(parsed.missionObjectives).toBeDefined()
+            expect(parsed.inBattleSquaddieCollection).toBeDefined()
+        })
+    })
+
+    describe("applyToMission", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+
+        beforeEach(() => {
+            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
+                {
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: { distancePerAction: 1 },
+                    id: "test sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                }
+            )
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
+            const squaddie = OutOfBattleSquaddieService.new({
+                id: "squaddie-1",
+                name: "Squaddie",
+                actionIds: [],
+                attributeSheetId: "test sheet",
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(squaddie)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+        })
+
+        it("loads squaddie collection from saved summary", () => {
+            const savedState: InMissionSummary = {
+                missionObjectives: [],
+                inBattleSquaddieCollection: {
+                    byOutOfBattleSquaddieId: {
+                        "squaddie-1": [
+                            {
+                                id: 0,
+                                outOfBattleSquaddieId: "squaddie-1",
+                                name: "Squaddie",
+                                hitPoints: { max: 10, current: 7 },
+                                conditions: {},
+                                actionPoints: { current: 1 },
+                                actionIds: { natural: [] },
+                                itemIdsUsed: [],
+                            },
+                        ],
+                    },
+                },
+            }
+
+            InMissionSummaryService.applyToMission({
+                InMissionSummary: savedState,
+                missionObjectives: [],
+                inBattleSquaddieManager,
+            })
+
+            const hitPoints = inBattleSquaddieManager.getHitPoints({
+                inBattleSquaddieId: 0,
+                outOfBattleSquaddieId: "squaddie-1",
+            })
+            expect(hitPoints.current).toBe(7)
+
+            const actionPoints = inBattleSquaddieManager.getActionPoints({
+                inBattleSquaddieId: 0,
+                outOfBattleSquaddieId: "squaddie-1",
+            })
+            expect(actionPoints.current).toBe(1)
+        })
+
+        it("marks objectives as rewarded if saved summary has them rewarded", () => {
+            const savedState: InMissionSummary = {
+                missionObjectives: [
+                    { id: "obj-1", isCompleted: true, hasGivenReward: true },
+                ],
+                inBattleSquaddieCollection: {
+                    byOutOfBattleSquaddieId: {},
+                },
+            }
+
+            const objective = MissionObjectiveService.new({
+                id: "obj-1",
+                rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+                hasGivenReward: false,
+            })
+
+            const updatedObjectives = InMissionSummaryService.applyToMission({
+                InMissionSummary: savedState,
+                missionObjectives: [objective],
+                inBattleSquaddieManager,
+            })
+
+            expect(updatedObjectives[0].hasGivenReward).toBe(true)
+        })
+
+        it("does not modify objectives not in saved summary", () => {
+            const savedState: InMissionSummary = {
+                missionObjectives: [],
+                inBattleSquaddieCollection: {
+                    byOutOfBattleSquaddieId: {},
+                },
+            }
+
+            const objective = MissionObjectiveService.new({
+                id: "obj-1",
+                rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+                hasGivenReward: false,
+            })
+
+            const updatedObjectives = InMissionSummaryService.applyToMission({
+                InMissionSummary: savedState,
+                missionObjectives: [objective],
+                inBattleSquaddieManager,
+            })
+
+            expect(updatedObjectives[0].hasGivenReward).toBe(false)
+        })
+    })
+})
