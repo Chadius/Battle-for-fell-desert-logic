@@ -165,4 +165,32 @@ describe("MissionEngine", () => {
             ).toBe(7)
         })
     })
+
+    describe("readyAction", () => {
+        it("stores the readied action and returns isValid true", () => {
+            const missionEngine = new MissionEngine()
+
+            const result = missionEngine.readyAction({
+                actor: {
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "actor-1",
+                },
+                targets: [
+                    {
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "target-1",
+                    },
+                ],
+                action: { id: "action-1" },
+            })
+
+            expect(result.isValid).toBe(true)
+
+            const readiedAction = missionEngine.getReadiedAction()
+            expect(readiedAction?.actor.inBattleSquaddieId).toBe(1)
+            expect(readiedAction?.actor.outOfBattleSquaddieId).toBe("actor-1")
+            expect(readiedAction?.targets).toHaveLength(1)
+            expect(readiedAction?.action.id).toBe("action-1")
+        })
+    })
 })
