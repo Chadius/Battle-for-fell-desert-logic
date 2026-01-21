@@ -155,6 +155,13 @@ They will throw errors if components are missing. This makes it easy to test onl
 For example, the InBattleSquaddieManager can let Squaddies use Items, so it needs to know about the SquaddieItemManager
 objects while managing them.
 
+# Engine
+
+The Engine layer will interact with managers and is responsible for passing user input to the manager and will deliver
+output to them.
+
+For example, the MissionEngine is designed to pass actions, queue up results and wait for the mission to end.
+
 # Test files
 
 Test files use the extension `test.ts` . For example outOfBattleSquaddieAttributeSheet.test.ts is the test file for
