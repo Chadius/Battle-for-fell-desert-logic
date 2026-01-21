@@ -38,6 +38,13 @@ export interface InBattleSquaddie {
     itemIdsUsed: string[]
 }
 
+export type SerializableInBattleSquaddie = Omit<
+    InBattleSquaddie,
+    "conditions"
+> & {
+    conditions: { [key: string]: SquaddieCondition[] }
+}
+
 export const InBattleSquaddieService = {
     new: ({
         id,
@@ -463,6 +470,12 @@ export const InBattleSquaddieService = {
         newSquaddie.itemIdsUsed.push(item.id)
         return newSquaddie
     },
+    toSerializable: (
+        squaddie: InBattleSquaddie
+    ): SerializableInBattleSquaddie => toSerializable(squaddie),
+    fromSerializable: (
+        serializable: SerializableInBattleSquaddie
+    ): InBattleSquaddie => fromSerializable(serializable),
 }
 
 const clone = (original: InBattleSquaddie): InBattleSquaddie => {
@@ -916,4 +929,68 @@ const calculateConditionAmount = (
         if (amount < 0) conditionPenalty = amount
     }
     return { conditionBonus, conditionPenalty }
+}
+
+const toSerializable = (
+    squaddie: InBattleSquaddie
+): SerializableInBattleSquaddie => {
+    const conditions: { [key: string]: SquaddieCondition[] } = {}
+    for (const [
+        conditionType,
+        conditionList,
+    ] of squaddie.conditions.entries()) {
+        conditions[conditionType] = conditionList.map((c) =>
+            SquaddieConditionService.clone(c)
+        )
+    }
+
+    return {
+        id: squaddie.id,
+        outOfBattleSquaddieId: squaddie.outOfBattleSquaddieId,
+        name: squaddie.name,
+        hitPoints: {
+            max: squaddie.hitPoints.max,
+            current: squaddie.hitPoints.current,
+        },
+        conditions,
+        actionPoints: {
+            current: squaddie.actionPoints.current,
+        },
+        actionIds: {
+            natural: [...squaddie.actionIds.natural],
+        },
+        itemIdsUsed: [...squaddie.itemIdsUsed],
+    }
+}
+
+const fromSerializable = (
+    serializable: SerializableInBattleSquaddie
+): InBattleSquaddie => {
+    const conditions = new Map<TSquaddieConditionType, SquaddieCondition[]>()
+    for (const [conditionType, conditionList] of Object.entries(
+        serializable.conditions
+    )) {
+        conditions.set(
+            conditionType as TSquaddieConditionType,
+            conditionList.map((c) => SquaddieConditionService.clone(c))
+        )
+    }
+
+    return {
+        id: serializable.id,
+        outOfBattleSquaddieId: serializable.outOfBattleSquaddieId,
+        name: serializable.name,
+        hitPoints: {
+            max: serializable.hitPoints.max,
+            current: serializable.hitPoints.current,
+        },
+        conditions,
+        actionPoints: {
+            current: serializable.actionPoints.current,
+        },
+        actionIds: {
+            natural: [...serializable.actionIds.natural],
+        },
+        itemIdsUsed: [...serializable.itemIdsUsed],
+    }
 }

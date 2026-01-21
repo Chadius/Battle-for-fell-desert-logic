@@ -37,6 +37,9 @@ Types should be used if we anticipate a future Union of different Types. It is a
 
 Interfaces should be used by default, especially if the object has nested fields.
 
+If we're creating a new type that is based on an existing type (for example, a Serializable type of object), it's
+preferred to use a Type that Inherits from the Interface and removes/replaces fields.
+
 ## Folder conventions
 
 `src` - This is the top level of our application files.
