@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { MissionEngine } from "./missionEngine"
 import { MissionManager } from "./missionManager"
 import { MissionStateService } from "./missionState"
@@ -14,6 +14,16 @@ import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleS
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { AttributeScore } from "../proficiency/attributeScore"
+import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
+import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
+import { SquaddieActionService } from "../squaddieAction/squaddieAction"
+import { ProficiencyType } from "../proficiency/proficiencyLevel"
+import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
+import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection"
+import { CoordinateMapService } from "../coordinateMap/coordinateMap"
+import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
+import { ActionRange } from "../squaddieAction/actionRange"
+import { CoordinateGeneratorShape } from "../coordinateMap/shape"
 
 describe("MissionEngine", () => {
     describe("isDone", () => {
@@ -191,6 +201,267 @@ describe("MissionEngine", () => {
             expect(readiedAction?.actor.outOfBattleSquaddieId).toBe("actor-1")
             expect(readiedAction?.targets).toHaveLength(1)
             expect(readiedAction?.action.id).toBe("action-1")
+        })
+    })
+
+    describe("useActionAndGetResults", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let squaddieActionManager: SquaddieActionManager
+        let coordinateMapCollectionManager: CoordinateMapCollectionManager
+        let actorSquaddieId: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let targetSquaddieId: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let deterministicRollGenerator: RollGenerator
+
+        beforeEach(() => {
+            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const actorAttributeSheet =
+                OutOfBattleSquaddieAttributeSheetService.new({
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: {
+                        distancePerAction: 2,
+                    },
+                    id: "actor_sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                })
+
+            const targetAttributeSheet =
+                OutOfBattleSquaddieAttributeSheetService.new({
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: {
+                        distancePerAction: 2,
+                    },
+                    id: "target_sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                })
+
+            const actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "actor",
+                name: "Actor",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "actor_sheet",
+            })
+
+            const targetOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "target",
+                name: "Target",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "target_sheet",
+            })
+
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                actorAttributeSheet
+            )
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                targetAttributeSheet
+            )
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                actorOutOfBattleSquaddie
+            )
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                targetOutOfBattleSquaddie
+            )
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            actorSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "actor",
+            })
+
+            targetSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "target",
+            })
+
+            const attackAction = SquaddieActionService.new({
+                id: "attack",
+                name: "Attack",
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        foe: true,
+                        friend: false,
+                    },
+                },
+                effectOnActor: {
+                    SUCCESS: {},
+                },
+                effectOnTarget: {
+                    SUCCESS: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.SKILL_BODY,
+                        },
+                    },
+                },
+            })
+
+            squaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+            squaddieActionManager.addOrUpdate(attackAction)
+
+            const map = CoordinateMapService.new({
+                id: "test_map",
+                name: "test map",
+                movementProperties: ["1 1 1 "],
+            })
+
+            coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: actorSquaddieId,
+                coordinate: { row: 0, col: 0 },
+            })
+
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: targetSquaddieId,
+                coordinate: { row: 0, col: 1 },
+            })
+
+            deterministicRollGenerator = new RollGenerator([3, 3])
+        })
+
+        it("throws error if MissionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+            missionEngine.readyAction({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: "attack" },
+            })
+
+            expect(() => missionEngine.useActionAndGetResults()).toThrow(
+                "[MissionEngine.useActionAndGetResults]: missionManager is undefined"
+            )
+        })
+
+        it("throws error if readiedAction is undefined", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager
+            )
+
+            const missionEngine = new MissionEngine(
+                missionManager,
+                deterministicRollGenerator
+            )
+
+            expect(() => missionEngine.useActionAndGetResults()).toThrow(
+                "[MissionEngine.useActionAndGetResults]: readiedAction is undefined"
+            )
+        })
+
+        it("calls MissionManager.useActionAndGetResults, stores results, and clears readiedAction", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager
+            )
+
+            const missionEngine = new MissionEngine(
+                missionManager,
+                deterministicRollGenerator
+            )
+
+            missionEngine.readyAction({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: "attack" },
+            })
+
+            const targetHPBefore =
+                inBattleSquaddieManager.getSquaddie(targetSquaddieId)
+                    .inBattleSquaddie.hitPoints.current
+
+            const results = missionEngine.useActionAndGetResults()
+
+            expect(results.actorRoll).toEqual([3, 3])
+            expect(results.targetResults).toBeDefined()
+            expect(Object.keys(results.targetResults).length).toBeGreaterThan(0)
+
+            const targetHPAfter =
+                inBattleSquaddieManager.getSquaddie(targetSquaddieId)
+                    .inBattleSquaddie.hitPoints.current
+
+            expect(targetHPAfter).toBeLessThan(targetHPBefore)
+
+            expect(missionEngine.getReadiedAction()).toBeUndefined()
+        })
+
+        it("getActionResults returns the stored results", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager
+            )
+
+            const missionEngine = new MissionEngine(
+                missionManager,
+                deterministicRollGenerator
+            )
+
+            expect(missionEngine.getActionResults()).toBeUndefined()
+
+            missionEngine.readyAction({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: "attack" },
+            })
+
+            const results = missionEngine.useActionAndGetResults()
+            const storedResults = missionEngine.getActionResults()
+
+            expect(storedResults).toEqual(results)
+            expect(storedResults?.actorRoll).toEqual([3, 3])
         })
     })
 })
