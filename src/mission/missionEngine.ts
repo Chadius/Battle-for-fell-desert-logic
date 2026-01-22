@@ -59,6 +59,10 @@ export class MissionEngine {
         return this.readiedAction
     }
 
+    cancelReadiedAction(): void {
+        this.readiedAction = undefined
+    }
+
     isDone(): boolean {
         this.throwIfMissionManagerIsUndefined(this.isDone.name)
         return this.missionManager!.hasMissionEnded()

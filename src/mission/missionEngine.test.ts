@@ -208,6 +208,42 @@ describe("MissionEngine", () => {
         })
     })
 
+    describe("cancelReadiedAction", () => {
+        it("clears the readied action when one exists", () => {
+            const missionEngine = new MissionEngine()
+
+            missionEngine.readyAction({
+                actor: {
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "actor-1",
+                },
+                targets: [
+                    {
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "target-1",
+                    },
+                ],
+                action: { id: "action-1" },
+            })
+
+            expect(missionEngine.getReadiedAction()).toBeDefined()
+
+            missionEngine.cancelReadiedAction()
+
+            expect(missionEngine.getReadiedAction()).toBeUndefined()
+        })
+
+        it("does not throw when no readied action exists", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(missionEngine.getReadiedAction()).toBeUndefined()
+
+            expect(() => missionEngine.cancelReadiedAction()).not.toThrow()
+
+            expect(missionEngine.getReadiedAction()).toBeUndefined()
+        })
+    })
+
     describe("useActionAndGetResults", () => {
         let inBattleSquaddieManager: InBattleSquaddieManager
         let squaddieActionManager: SquaddieActionManager
