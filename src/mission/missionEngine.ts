@@ -6,6 +6,8 @@ import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
+import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddieManager"
+import { MissionTurnService, type TMissionAffiliationTurn } from "./missionTurn"
 
 export interface TargetResult {
     degreeOfSuccess: TDegreeOfSuccess
@@ -158,6 +160,47 @@ export class MissionEngine {
 
         const objectives = this.missionManager!.missionState?.objectives ?? []
         return objectives.filter((objective) => objective.hasGivenReward)
+    }
+
+    getCurrentAffiliationTurn(): TMissionAffiliationTurn {
+        this.throwIfMissionManagerIsUndefined(
+            this.getCurrentAffiliationTurn.name
+        )
+        return this.missionManager!.missionState!.turn.missionAffiliationTurn
+    }
+
+    getCurrentTurnNumber(): number {
+        this.throwIfMissionManagerIsUndefined(this.getCurrentTurnNumber.name)
+        return this.missionManager!.missionState!.turn.turnCount
+    }
+
+    getSquaddiesWhoCanActThisPhase(): BattleSquaddieId[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getSquaddiesWhoCanActThisPhase.name
+        )
+
+        const currentAffiliationTurn = this.getCurrentAffiliationTurn()
+        const affiliation =
+            MissionTurnService.getSquaddieAffiliationForAffiliationTurn(
+                currentAffiliationTurn
+            )
+
+        if (affiliation == undefined) {
+            return []
+        }
+
+        const inBattleSquaddieManager =
+            this.missionManager!.inBattleSquaddieManager
+        if (inBattleSquaddieManager == undefined) {
+            return []
+        }
+
+        const allSquaddiesOfAffiliation =
+            inBattleSquaddieManager.getAllSquaddiesOfAffiliation(affiliation)
+
+        return allSquaddiesOfAffiliation.filter((squaddieId) =>
+            inBattleSquaddieManager.canSquaddieAct(squaddieId)
+        )
     }
 
     markMissionObjectiveAsRewarded(objectiveId: string): void {

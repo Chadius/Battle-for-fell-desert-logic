@@ -12,7 +12,10 @@ import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/
 import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    type BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../squaddie/inBattle/inBattleSquaddieManager"
 import { AttributeScore } from "../proficiency/attributeScore"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
@@ -24,6 +27,7 @@ import { CoordinateMapService } from "../coordinateMap/coordinateMap"
 import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
 import { ActionRange } from "../squaddieAction/actionRange"
 import { CoordinateGeneratorShape } from "../coordinateMap/shape"
+import { MissionAffiliationTurn, MissionTurnService } from "./missionTurn"
 
 describe("MissionEngine", () => {
     describe("isDone", () => {
@@ -31,7 +35,7 @@ describe("MissionEngine", () => {
             const missionEngine = new MissionEngine()
 
             expect(() => missionEngine.isDone()).toThrow(
-                "[MissionEngine.isDone]: missionManager is undefined"
+                "missionManager is undefined"
             )
         })
 
@@ -93,7 +97,7 @@ describe("MissionEngine", () => {
             const missionEngine = new MissionEngine()
 
             expect(() => missionEngine.getInMissionSummary()).toThrow(
-                "[MissionEngine.getInMissionSummary]: missionManager is undefined"
+                "missionManager is undefined"
             )
         })
 
@@ -361,7 +365,7 @@ describe("MissionEngine", () => {
             })
 
             expect(() => missionEngine.useActionAndGetResults()).toThrow(
-                "[MissionEngine.useActionAndGetResults]: missionManager is undefined"
+                "missionManager is undefined"
             )
         })
 
@@ -384,7 +388,7 @@ describe("MissionEngine", () => {
             )
 
             expect(() => missionEngine.useActionAndGetResults()).toThrow(
-                "[MissionEngine.useActionAndGetResults]: readiedAction is undefined"
+                "readiedAction is undefined"
             )
         })
 
@@ -1013,6 +1017,284 @@ describe("MissionEngine", () => {
             expect(
                 missionEngine.getCompletedAndRewardedMissionObjectives()
             ).toHaveLength(1)
+        })
+    })
+
+    describe("getCurrentPhase", () => {
+        it("throws error if MissionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() => missionEngine.getCurrentAffiliationTurn()).toThrow(
+                "missionManager is undefined"
+            )
+        })
+
+        it("returns the current phase from mission state", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                }),
+            })
+
+            const missionManager = new MissionManager(missionState)
+            const missionEngine = new MissionEngine(missionManager)
+
+            expect(missionEngine.getCurrentAffiliationTurn()).toBe(
+                MissionAffiliationTurn.PLAYER_TURN
+            )
+        })
+
+        it("returns TURN_START when that is the current phase", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.TURN_START,
+                }),
+            })
+
+            const missionManager = new MissionManager(missionState)
+            const missionEngine = new MissionEngine(missionManager)
+
+            expect(missionEngine.getCurrentAffiliationTurn()).toBe(
+                MissionAffiliationTurn.TURN_START
+            )
+        })
+    })
+
+    describe("getCurrentTurnNumber", () => {
+        it("throws error if MissionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() => missionEngine.getCurrentTurnNumber()).toThrow(
+                "missionManager is undefined"
+            )
+        })
+
+        it("returns the current turn count from mission state", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    turnCount: 5,
+                }),
+            })
+
+            const missionManager = new MissionManager(missionState)
+            const missionEngine = new MissionEngine(missionManager)
+
+            expect(missionEngine.getCurrentTurnNumber()).toBe(5)
+        })
+
+        it("returns 0 when turn count is at initial state", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+            })
+
+            const missionManager = new MissionManager(missionState)
+            const missionEngine = new MissionEngine(missionManager)
+
+            expect(missionEngine.getCurrentTurnNumber()).toBe(0)
+        })
+    })
+
+    describe("getSquaddiesWhoCanActThisPhase", () => {
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let playerSquaddieId: BattleSquaddieId
+
+        beforeEach(() => {
+            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
+                {
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: { distancePerAction: 2 },
+                    id: "test_sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                }
+            )
+
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
+            const playerSquaddie = OutOfBattleSquaddieService.new({
+                id: "player-1",
+                name: "Player Squaddie",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "test_sheet",
+            })
+
+            const enemySquaddie = OutOfBattleSquaddieService.new({
+                id: "enemy-1",
+                name: "Enemy Squaddie",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "test_sheet",
+            })
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            playerSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player-1",
+            })
+
+            inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+        })
+
+        it("throws error if MissionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() =>
+                missionEngine.getSquaddiesWhoCanActThisPhase()
+            ).toThrow("missionManager is undefined")
+        })
+
+        it("returns only player squaddies during PLAYER_TURN phase", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                }),
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.getSquaddiesWhoCanActThisPhase()
+
+            expect(result).toHaveLength(1)
+            expect(result[0].outOfBattleSquaddieId).toBe("player-1")
+        })
+
+        it("returns only enemy squaddies during ENEMY_TURN phase", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.ENEMY_TURN,
+                }),
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.getSquaddiesWhoCanActThisPhase()
+
+            expect(result).toHaveLength(1)
+            expect(result[0].outOfBattleSquaddieId).toBe("enemy-1")
+        })
+
+        it("excludes squaddies who cannot act (no action points)", () => {
+            inBattleSquaddieManager.spendActionPoints({
+                ...playerSquaddieId,
+                actionPoints: 3,
+            })
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                }),
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.getSquaddiesWhoCanActThisPhase()
+
+            expect(result).toHaveLength(0)
+        })
+
+        it("returns empty array during TURN_START phase", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.TURN_START,
+                }),
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.getSquaddiesWhoCanActThisPhase()
+
+            expect(result).toHaveLength(0)
+        })
+
+        it("returns empty array during TURN_END phase", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.TURN_END,
+                }),
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.getSquaddiesWhoCanActThisPhase()
+
+            expect(result).toHaveLength(0)
+        })
+
+        it("returns player squaddies during PLAYER_TURN_START phase", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn:
+                        MissionAffiliationTurn.PLAYER_TURN_START,
+                }),
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.getSquaddiesWhoCanActThisPhase()
+
+            expect(result).toHaveLength(1)
+            expect(result[0].outOfBattleSquaddieId).toBe("player-1")
         })
     })
 })
