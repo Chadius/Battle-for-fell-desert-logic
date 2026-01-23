@@ -841,6 +841,97 @@ describe("MissionEngine", () => {
             expect(storedResults?.actorRoll).toEqual([3, 3])
         })
 
+        it("getSerializedActionResults returns undefined when no action has been used", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager
+            )
+
+            const missionEngine = new MissionEngine(
+                missionManager,
+                deterministicRollGenerator
+            )
+
+            expect(missionEngine.getSerializedActionResults()).toBeUndefined()
+        })
+
+        it("getSerializedActionResults returns serialized results after action is used", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager
+            )
+
+            const missionEngine = new MissionEngine(
+                missionManager,
+                deterministicRollGenerator
+            )
+
+            missionEngine.readyAction({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: "attack" },
+            })
+
+            missionEngine.useActionAndGetResults()
+
+            const serializedResults = missionEngine.getSerializedActionResults()
+
+            expect(serializedResults).toBeDefined()
+            expect(serializedResults?.actorRoll).toEqual([3, 3])
+            expect(serializedResults?.targetResults).toBeDefined()
+            expect(
+                Object.keys(serializedResults!.targetResults).length
+            ).toBeGreaterThan(0)
+        })
+
+        it("getSerializedActionResults can be converted to JSON and back", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager
+            )
+
+            const missionEngine = new MissionEngine(
+                missionManager,
+                deterministicRollGenerator
+            )
+
+            missionEngine.readyAction({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: "attack" },
+            })
+
+            missionEngine.useActionAndGetResults()
+
+            const serializedResults = missionEngine.getSerializedActionResults()
+            const jsonString = JSON.stringify(serializedResults)
+            const parsed = JSON.parse(jsonString)
+
+            expect(parsed.actorRoll).toEqual([3, 3])
+            expect(parsed.targetResults).toBeDefined()
+        })
+
         it("checks mission objectives after applying action and marks completed objectives as rewarded", () => {
             const missionObjective = MissionObjectiveService.new({
                 id: "defeat-enemies",

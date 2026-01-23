@@ -16,16 +16,12 @@ import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
 import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { MissionTurnService, type TMissionAffiliationTurn } from "./missionTurn"
-
-export interface TargetResult {
-    degreeOfSuccess: TDegreeOfSuccess
-    squaddieActionResults: SquaddieActionResult[]
-}
-
-export interface ActionResults {
-    actorRoll: [number, number]
-    targetResults: { [squaddieKey: string]: TargetResult }
-}
+import {
+    type ActionResult,
+    ActionResultsService,
+    type SerializableActionResults,
+} from "./actionResult"
+import type { TargetResult } from "./targetResult"
 
 export interface ReadiedAction {
     actor: {
@@ -46,7 +42,7 @@ export class MissionEngine {
     missionManager?: MissionManager
     readiedAction?: ReadiedAction
     rollGenerator: RollGenerator
-    actionResults?: ActionResults
+    actionResults?: ActionResult
 
     constructor(
         missionManager?: MissionManager,
@@ -100,7 +96,7 @@ export class MissionEngine {
         this.missionManager!.loadInMissionSummary(inMissionSummary)
     }
 
-    useActionAndGetResults(): ActionResults {
+    useActionAndGetResults(): ActionResult {
         this.throwIfMissionManagerIsUndefined(this.useActionAndGetResults.name)
         this.throwIfReadiedActionIsUndefined(this.useActionAndGetResults.name)
 
@@ -157,8 +153,15 @@ export class MissionEngine {
         })
     }
 
-    getActionResults(): ActionResults | undefined {
+    getActionResults(): ActionResult | undefined {
         return this.actionResults
+    }
+
+    getSerializedActionResults(): SerializableActionResults | undefined {
+        if (this.actionResults == undefined) {
+            return undefined
+        }
+        return ActionResultsService.serialize(this.actionResults)
     }
 
     getInProgressMissionObjectives(): MissionObjective[] {
