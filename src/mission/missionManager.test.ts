@@ -1633,8 +1633,9 @@ describe("MissionManager", () => {
             )
 
             const squaddieData =
-                inMissionSummary.inBattleSquaddieCollection
-                    .byOutOfBattleSquaddieId["enemy-1"][0]
+                inMissionSummary.inBattleSquaddieCollection.byOutOfBattleSquaddieId.get(
+                    "enemy-1"
+                )![0]
             expect(squaddieData.hitPoints.current).toBe(5)
         })
 
@@ -1643,22 +1644,23 @@ describe("MissionManager", () => {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: false, hasGivenReward: false },
                 ],
-                inBattleSquaddieCollection: {
-                    byOutOfBattleSquaddieId: {
-                        "enemy-1": [
-                            {
-                                id: 0,
-                                outOfBattleSquaddieId: "enemy-1",
-                                name: "Enemy",
-                                hitPoints: { max: 10, current: 3 },
-                                conditions: {},
-                                actionPoints: { current: 1 },
-                                actionIds: { natural: [] },
-                                itemIdsUsed: [],
-                            },
-                        ],
-                    },
-                },
+                inBattleSquaddieCollection:
+                    InBattleSquaddieCollectionService.deserialize({
+                        byOutOfBattleSquaddieId: {
+                            "enemy-1": [
+                                {
+                                    id: 0,
+                                    outOfBattleSquaddieId: "enemy-1",
+                                    name: "Enemy",
+                                    hitPoints: { max: 10, current: 3 },
+                                    conditions: {},
+                                    actionPoints: { current: 1 },
+                                    actionIds: { natural: [] },
+                                    itemIdsUsed: [],
+                                },
+                            ],
+                        },
+                    }),
             }
 
             missionManager.loadInMissionSummary(savedState)
@@ -1676,22 +1678,23 @@ describe("MissionManager", () => {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],
-                inBattleSquaddieCollection: {
-                    byOutOfBattleSquaddieId: {
-                        "enemy-1": [
-                            {
-                                id: 0,
-                                outOfBattleSquaddieId: "enemy-1",
-                                name: "Enemy",
-                                hitPoints: { max: 10, current: 0 },
-                                conditions: {},
-                                actionPoints: { current: 3 },
-                                actionIds: { natural: [] },
-                                itemIdsUsed: [],
-                            },
-                        ],
-                    },
-                },
+                inBattleSquaddieCollection:
+                    InBattleSquaddieCollectionService.deserialize({
+                        byOutOfBattleSquaddieId: {
+                            "enemy-1": [
+                                {
+                                    id: 0,
+                                    outOfBattleSquaddieId: "enemy-1",
+                                    name: "Enemy",
+                                    hitPoints: { max: 10, current: 0 },
+                                    conditions: {},
+                                    actionPoints: { current: 3 },
+                                    actionIds: { natural: [] },
+                                    itemIdsUsed: [],
+                                },
+                            ],
+                        },
+                    }),
             }
 
             missionManager.loadInMissionSummary(savedState)

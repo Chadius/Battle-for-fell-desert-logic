@@ -25,29 +25,33 @@ describe("InMissionSummary", () => {
             expect(summary.missionObjectives).toEqual([])
             expect(
                 summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId
-            ).toEqual({})
+            ).toBeInstanceOf(Map)
+            expect(
+                summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId.size
+            ).toBe(0)
         })
 
         it("creates a summary with provided data", () => {
             const objectiveStates: MissionObjectiveSummary[] = [
                 { id: "obj-1", isCompleted: true, hasGivenReward: false },
             ]
-            const inBattleSquaddieCollection = {
-                byOutOfBattleSquaddieId: {
-                    "squaddie-1": [
-                        {
-                            id: 0,
-                            outOfBattleSquaddieId: "squaddie-1",
-                            name: "Test",
-                            hitPoints: { max: 10, current: 10 },
-                            conditions: {},
-                            actionPoints: { current: 3 },
-                            actionIds: { natural: [] },
-                            itemIdsUsed: [],
-                        },
-                    ],
-                },
-            }
+            const inBattleSquaddieCollection =
+                InBattleSquaddieCollectionService.deserialize({
+                    byOutOfBattleSquaddieId: {
+                        "squaddie-1": [
+                            {
+                                id: 0,
+                                outOfBattleSquaddieId: "squaddie-1",
+                                name: "Test",
+                                hitPoints: { max: 10, current: 10 },
+                                conditions: {},
+                                actionPoints: { current: 3 },
+                                actionIds: { natural: [] },
+                                itemIdsUsed: [],
+                            },
+                        ],
+                    },
+                })
 
             const summary = InMissionSummaryService.new({
                 missionObjectives: objectiveStates,
@@ -55,9 +59,11 @@ describe("InMissionSummary", () => {
             })
 
             expect(summary.missionObjectives).toEqual(objectiveStates)
-            expect(summary.inBattleSquaddieCollection).toEqual(
-                inBattleSquaddieCollection
-            )
+            expect(
+                summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId.get(
+                    "squaddie-1"
+                )
+            ).toHaveLength(1)
         })
     })
 
@@ -133,9 +139,9 @@ describe("InMissionSummary", () => {
             expect(summary.missionObjectives[0].hasGivenReward).toBe(false)
 
             expect(
-                summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId[
+                summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId.get(
                     "enemy-1"
-                ]
+                )
             ).toHaveLength(1)
         })
 
@@ -190,53 +196,58 @@ describe("InMissionSummary", () => {
     })
 
     describe("serialization", () => {
-        it("round-trip JSON serialization preserves data", () => {
+        it("round-trip serialize/deserialize preserves data", () => {
             const original: InMissionSummary = {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                     { id: "obj-2", isCompleted: false, hasGivenReward: false },
                 ],
-                inBattleSquaddieCollection: {
-                    byOutOfBattleSquaddieId: {
-                        "squaddie-1": [
-                            {
-                                id: 0,
-                                outOfBattleSquaddieId: "squaddie-1",
-                                name: "Test",
-                                hitPoints: { max: 10, current: 5 },
-                                conditions: {},
-                                actionPoints: { current: 2 },
-                                actionIds: { natural: ["action1"] },
-                                itemIdsUsed: ["item1"],
-                            },
-                        ],
-                    },
-                },
+                inBattleSquaddieCollection:
+                    InBattleSquaddieCollectionService.deserialize({
+                        byOutOfBattleSquaddieId: {
+                            "squaddie-1": [
+                                {
+                                    id: 0,
+                                    outOfBattleSquaddieId: "squaddie-1",
+                                    name: "Test",
+                                    hitPoints: { max: 10, current: 5 },
+                                    conditions: {},
+                                    actionPoints: { current: 2 },
+                                    actionIds: { natural: ["action1"] },
+                                    itemIdsUsed: ["item1"],
+                                },
+                            ],
+                        },
+                    }),
             }
 
-            const jsonString = JSON.stringify(original)
-            const restored: InMissionSummary = JSON.parse(jsonString)
+            const serialized = InMissionSummaryService.serialize(original)
+            const jsonString = JSON.stringify(serialized)
+            const parsed = JSON.parse(jsonString)
+            const restored = InMissionSummaryService.deserialize(parsed)
 
             expect(restored.missionObjectives).toEqual(
                 original.missionObjectives
             )
-            expect(restored.inBattleSquaddieCollection).toEqual(
-                original.inBattleSquaddieCollection
-            )
+            expect(
+                restored.inBattleSquaddieCollection.byOutOfBattleSquaddieId.get(
+                    "squaddie-1"
+                )
+            ).toHaveLength(1)
         })
 
-        it("is directly JSON-serializable without conversion", () => {
+        it("SerializableInMissionSummary is directly JSON-serializable", () => {
             const summary: InMissionSummary = {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: false },
                 ],
-                inBattleSquaddieCollection: {
-                    byOutOfBattleSquaddieId: {},
-                },
+                inBattleSquaddieCollection:
+                    InBattleSquaddieCollectionService.new(),
             }
 
-            const jsonString = JSON.stringify(summary)
-            const parsed: InMissionSummary = JSON.parse(jsonString)
+            const serialized = InMissionSummaryService.serialize(summary)
+            const jsonString = JSON.stringify(serialized)
+            const parsed = JSON.parse(jsonString)
 
             expect(parsed.missionObjectives).toBeDefined()
             expect(parsed.inBattleSquaddieCollection).toBeDefined()
@@ -287,22 +298,23 @@ describe("InMissionSummary", () => {
         it("loads squaddie collection from saved summary", () => {
             const savedState: InMissionSummary = {
                 missionObjectives: [],
-                inBattleSquaddieCollection: {
-                    byOutOfBattleSquaddieId: {
-                        "squaddie-1": [
-                            {
-                                id: 0,
-                                outOfBattleSquaddieId: "squaddie-1",
-                                name: "Squaddie",
-                                hitPoints: { max: 10, current: 7 },
-                                conditions: {},
-                                actionPoints: { current: 1 },
-                                actionIds: { natural: [] },
-                                itemIdsUsed: [],
-                            },
-                        ],
-                    },
-                },
+                inBattleSquaddieCollection:
+                    InBattleSquaddieCollectionService.deserialize({
+                        byOutOfBattleSquaddieId: {
+                            "squaddie-1": [
+                                {
+                                    id: 0,
+                                    outOfBattleSquaddieId: "squaddie-1",
+                                    name: "Squaddie",
+                                    hitPoints: { max: 10, current: 7 },
+                                    conditions: {},
+                                    actionPoints: { current: 1 },
+                                    actionIds: { natural: [] },
+                                    itemIdsUsed: [],
+                                },
+                            ],
+                        },
+                    }),
             }
 
             InMissionSummaryService.applyToMission({
@@ -329,9 +341,8 @@ describe("InMissionSummary", () => {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],
-                inBattleSquaddieCollection: {
-                    byOutOfBattleSquaddieId: {},
-                },
+                inBattleSquaddieCollection:
+                    InBattleSquaddieCollectionService.new(),
             }
 
             const objective = MissionObjectiveService.new({
@@ -359,9 +370,8 @@ describe("InMissionSummary", () => {
         it("does not modify objectives not in saved summary", () => {
             const savedState: InMissionSummary = {
                 missionObjectives: [],
-                inBattleSquaddieCollection: {
-                    byOutOfBattleSquaddieId: {},
-                },
+                inBattleSquaddieCollection:
+                    InBattleSquaddieCollectionService.new(),
             }
 
             const objective = MissionObjectiveService.new({

@@ -1,4 +1,8 @@
-import { type SerializableInBattleSquaddieCollection } from "../squaddie/inBattle/inBattleSquaddieCollection"
+import {
+    type InBattleSquaddieCollection,
+    InBattleSquaddieCollectionService,
+    type SerializableInBattleSquaddieCollection,
+} from "../squaddie/inBattle/inBattleSquaddieCollection"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
@@ -11,6 +15,13 @@ export interface MissionObjectiveSummary {
 
 export interface InMissionSummary {
     missionObjectives: MissionObjectiveSummary[]
+    inBattleSquaddieCollection: InBattleSquaddieCollection
+}
+
+export type SerializableInMissionSummary = Omit<
+    InMissionSummary,
+    "inBattleSquaddieCollection"
+> & {
     inBattleSquaddieCollection: SerializableInBattleSquaddieCollection
 }
 
@@ -20,13 +31,13 @@ export const InMissionSummaryService = {
         inBattleSquaddieCollection,
     }: {
         missionObjectives?: MissionObjectiveSummary[]
-        inBattleSquaddieCollection?: SerializableInBattleSquaddieCollection
+        inBattleSquaddieCollection?: InBattleSquaddieCollection
     }): InMissionSummary => {
         return {
             missionObjectives: missionObjectives ?? [],
-            inBattleSquaddieCollection: inBattleSquaddieCollection ?? {
-                byOutOfBattleSquaddieId: {},
-            },
+            inBattleSquaddieCollection:
+                inBattleSquaddieCollection ??
+                InBattleSquaddieCollectionService.new(),
         }
     },
 
@@ -48,7 +59,7 @@ export const InMissionSummaryService = {
             }))
 
         const inBattleSquaddieCollection =
-            inBattleSquaddieManager.serializeCollection()
+            inBattleSquaddieManager.cloneCollection()
 
         return InMissionSummaryService.new({
             missionObjectives: missionObjectiveSummaries,
@@ -65,9 +76,11 @@ export const InMissionSummaryService = {
         missionObjectives: MissionObjective[]
         inBattleSquaddieManager: InBattleSquaddieManager
     }): MissionObjective[] => {
-        inBattleSquaddieManager.loadCollectionFromJSON(
-            InMissionSummary.inBattleSquaddieCollection
-        )
+        const serializedCollection =
+            InBattleSquaddieCollectionService.serialize(
+                InMissionSummary.inBattleSquaddieCollection
+            )
+        inBattleSquaddieManager.loadCollectionFromJSON(serializedCollection)
 
         return missionObjectives.map((missionObjective) => {
             const savedState = InMissionSummary.missionObjectives.find(
@@ -85,5 +98,29 @@ export const InMissionSummaryService = {
             }
             return missionObjective
         })
+    },
+
+    serialize: (
+        inMissionSummary: InMissionSummary
+    ): SerializableInMissionSummary => {
+        return {
+            missionObjectives: inMissionSummary.missionObjectives,
+            inBattleSquaddieCollection:
+                InBattleSquaddieCollectionService.serialize(
+                    inMissionSummary.inBattleSquaddieCollection
+                ),
+        }
+    },
+
+    deserialize: (
+        serializable: SerializableInMissionSummary
+    ): InMissionSummary => {
+        return {
+            missionObjectives: serializable.missionObjectives,
+            inBattleSquaddieCollection:
+                InBattleSquaddieCollectionService.deserialize(
+                    serializable.inBattleSquaddieCollection
+                ),
+        }
     },
 }

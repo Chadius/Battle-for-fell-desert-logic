@@ -2,21 +2,23 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionResultCalculator } from "./squaddieActionResultCalculator"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { RollGenerator } from "../roll/rollGenerator"
-import { type SquaddieAction, SquaddieActionService, } from "../../squaddieAction"
-import { SquaddieActionManager } from "../../squaddieActionManager"
 import {
-    OutOfBattleSquaddieAttributeSheetService
-} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+    type SquaddieAction,
+    SquaddieActionService,
+} from "../../squaddieAction"
+import { SquaddieActionManager } from "../../squaddieActionManager"
+import { OutOfBattleSquaddieAttributeSheetService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import {
-    OutOfBattleSquaddieAttributeSheetCollectionService
-} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 import { AttributeScore } from "../../../proficiency/attributeScore"
-import { ProficiencyLevel, ProficiencyType, } from "../../../proficiency/proficiencyLevel"
+import {
+    ProficiencyLevel,
+    ProficiencyType,
+} from "../../../proficiency/proficiencyLevel"
 import { ActionRange } from "../../actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import { SquaddieActionCollectionService } from "../../squaddieActionCollection"

@@ -1,5 +1,9 @@
 import { MissionManager } from "./missionManager"
-import type { InMissionSummary } from "./inMissionSummary"
+import {
+    type InMissionSummary,
+    InMissionSummaryService,
+    type SerializableInMissionSummary,
+} from "./inMissionSummary"
 import {
     type SerializableForecastedActionResult,
     type SquaddieActionDecisions,
@@ -75,6 +79,25 @@ export class MissionEngine {
     getInMissionSummary(): InMissionSummary {
         this.throwIfMissionManagerIsUndefined(this.getInMissionSummary.name)
         return this.missionManager!.createInMissionSummary()
+    }
+
+    getSerializableInMissionSummary(): SerializableInMissionSummary {
+        this.throwIfMissionManagerIsUndefined(
+            this.getSerializableInMissionSummary.name
+        )
+        const inMissionSummary = this.missionManager!.createInMissionSummary()
+        return InMissionSummaryService.serialize(inMissionSummary)
+    }
+
+    loadSerializableInMissionSummary(
+        serializable: SerializableInMissionSummary
+    ): void {
+        this.throwIfMissionManagerIsUndefined(
+            this.loadSerializableInMissionSummary.name
+        )
+        const inMissionSummary =
+            InMissionSummaryService.deserialize(serializable)
+        this.missionManager!.loadInMissionSummary(inMissionSummary)
     }
 
     useActionAndGetResults(): ActionResults {

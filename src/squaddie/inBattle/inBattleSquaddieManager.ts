@@ -1218,6 +1218,16 @@ export class InBattleSquaddieManager {
         )
     }
 
+    cloneCollection(): InBattleSquaddieCollection {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.cloneCollection.name
+        )
+        const serializedCollection = this.serializeCollection()
+        return InBattleSquaddieCollectionService.deserialize(
+            serializedCollection
+        )
+    }
+
     loadCollectionFromJSON(
         serializable: SerializableInBattleSquaddieCollection
     ): void {
