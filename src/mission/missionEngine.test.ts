@@ -2082,6 +2082,9 @@ describe("MissionEngine", () => {
             expect(info.maximumActionPoints).toBe(3)
             expect(info.conditions).toEqual([])
             expect(info.isDefeated).toBe(false)
+            expect(info.canAct).toBe(true)
+            expect(info.items.itemIds).toEqual([])
+            expect(info.items.itemIdsUsed).toEqual([])
         })
 
         it("reflects squaddie state changes", () => {
@@ -2105,6 +2108,24 @@ describe("MissionEngine", () => {
 
             expect(info.currentHitPoints).toBe(6)
             expect(info.currentActionPoints).toBe(1)
+            expect(info.canAct).toBe(true)
+        })
+
+        it("canAct reflects when squaddie cannot act", () => {
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            inBattleSquaddieManager.spendActionPoints({
+                ...playerSquaddieId,
+                actionPoints: 3,
+            })
+
+            const info = missionEngine.getSquaddieInfo(playerSquaddieId)
+
+            expect(info.canAct).toBe(false)
         })
 
         it("can be serialized to JSON", () => {
@@ -2122,6 +2143,8 @@ describe("MissionEngine", () => {
             expect(parsed.affiliation).toBe(SquaddieAffiliation.PLAYER)
             expect(parsed.currentHitPoints).toBe(10)
             expect(parsed.isDefeated).toBe(false)
+            expect(parsed.canAct).toBe(true)
+            expect(parsed.items).toBeDefined()
         })
     })
 

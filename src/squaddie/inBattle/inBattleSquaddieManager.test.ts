@@ -2000,6 +2000,9 @@ describe("In Battle Squaddie Manager", () => {
             expect(info.currentActionPoints).toBe(3)
             expect(info.conditions).toEqual([])
             expect(info.isDefeated).toBe(false)
+            expect(info.canAct).toBe(true)
+            expect(info.items.itemIds).toEqual(["plateMail", "healScroll"])
+            expect(info.items.itemIdsUsed).toEqual([])
         })
 
         it("reflects damage taken", () => {
@@ -2016,6 +2019,7 @@ describe("In Battle Squaddie Manager", () => {
 
             expect(info.currentHitPoints).toBe(attributeSheet.maxHitPoints - 3)
             expect(info.isDefeated).toBe(false)
+            expect(info.canAct).toBe(true)
         })
 
         it("reflects spent action points", () => {
@@ -2031,6 +2035,23 @@ describe("In Battle Squaddie Manager", () => {
             const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
 
             expect(info.currentActionPoints).toBe(1)
+            expect(info.canAct).toBe(true)
+        })
+
+        it("canAct is false when all action points are spent", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            manager.spendActionPoints({
+                ...inBattleSquaddie00Id,
+                actionPoints: 3,
+            })
+
+            const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
+
+            expect(info.currentActionPoints).toBe(0)
+            expect(info.canAct).toBe(false)
         })
 
         it("includes conditions", () => {
@@ -2070,6 +2091,36 @@ describe("In Battle Squaddie Manager", () => {
 
             expect(info.currentHitPoints).toBeLessThanOrEqual(0)
             expect(info.isDefeated).toBe(true)
+            expect(info.canAct).toBe(false)
+        })
+
+        it("includes used items", () => {
+            const itemManager = new SquaddieItemManager(
+                SquaddieItemCollectionService.new()
+            )
+            itemManager.addOrUpdate(
+                SquaddieItemService.new({
+                    id: "healScroll",
+                    name: "Heal Scroll",
+                    numberOfUses: 2,
+                    actionIds: [],
+                })
+            )
+            manager.setSquaddieItemManager(itemManager)
+
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            manager.useItem({
+                ...inBattleSquaddie00Id,
+                itemId: "healScroll",
+            })
+
+            const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
+
+            expect(info.items.itemIds).toEqual(["plateMail", "healScroll"])
+            expect(info.items.itemIdsUsed).toEqual(["healScroll"])
         })
 
         it("can be serialized to JSON", () => {
@@ -2084,6 +2135,9 @@ describe("In Battle Squaddie Manager", () => {
             expect(parsed.name).toBe("Squaddie0")
             expect(parsed.affiliation).toBe(SquaddieAffiliation.NONE)
             expect(parsed.currentHitPoints).toBe(attributeSheet.maxHitPoints)
+            expect(parsed.canAct).toBe(true)
+            expect(parsed.items.itemIds).toEqual(["plateMail", "healScroll"])
+            expect(parsed.items.itemIdsUsed).toEqual([])
         })
     })
 })

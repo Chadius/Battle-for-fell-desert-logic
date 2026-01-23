@@ -170,7 +170,17 @@ export class InBattleSquaddieManager {
             outOfBattleSquaddieId,
         })
 
+        const canAct = this.canSquaddieAct({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
         const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const itemIds = this.getAllSquaddieItemIds({
             inBattleSquaddieId,
             outOfBattleSquaddieId,
         })
@@ -184,6 +194,11 @@ export class InBattleSquaddieManager {
             maximumActionPoints: maxActionPoints,
             conditions,
             isDefeated,
+            canAct,
+            items: {
+                itemIds,
+                itemIdsUsed: squaddieInfo.inBattleSquaddie.itemIdsUsed,
+            },
         })
     }
 

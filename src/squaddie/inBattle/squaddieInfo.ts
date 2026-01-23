@@ -13,6 +13,11 @@ export interface SquaddieInfo {
     maximumActionPoints: number
     conditions: SquaddieCondition[]
     isDefeated: boolean
+    canAct: boolean
+    items: {
+        itemIds: string[]
+        itemIdsUsed: string[]
+    }
 }
 
 export const SquaddieInfoService = {
@@ -25,6 +30,8 @@ export const SquaddieInfoService = {
         maximumActionPoints,
         conditions,
         isDefeated,
+        canAct,
+        items,
     }: {
         name: string
         affiliation: TSquaddieAffiliation
@@ -34,6 +41,11 @@ export const SquaddieInfoService = {
         maximumActionPoints: number
         conditions: Map<TSquaddieConditionType, SquaddieCondition[]>
         isDefeated: boolean
+        canAct: boolean
+        items: {
+            itemIds: string[]
+            itemIdsUsed: string[]
+        }
     }): SquaddieInfo => {
         return {
             name,
@@ -44,6 +56,11 @@ export const SquaddieInfoService = {
             maximumActionPoints,
             conditions: flattenConditionsMap(conditions),
             isDefeated,
+            canAct,
+            items: {
+                itemIds: [...items.itemIds],
+                itemIdsUsed: [...items.itemIdsUsed],
+            },
         }
     },
 }

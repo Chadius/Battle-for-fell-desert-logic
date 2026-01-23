@@ -19,6 +19,11 @@ describe("SquaddieInfo", () => {
                     conditions: new Map(),
                     maximumActionPoints: 3,
                     isDefeated: false,
+                    canAct: true,
+                    items: {
+                        itemIds: ["sword", "shield"],
+                        itemIdsUsed: ["potion"],
+                    },
                 })
 
                 expect(info.name).toBe("Hero")
@@ -29,6 +34,9 @@ describe("SquaddieInfo", () => {
                 expect(info.maximumActionPoints).toBe(3)
                 expect(info.conditions).toEqual([])
                 expect(info.isDefeated).toBe(false)
+                expect(info.canAct).toBe(true)
+                expect(info.items.itemIds).toEqual(["sword", "shield"])
+                expect(info.items.itemIdsUsed).toEqual(["potion"])
             })
 
             it("flattens conditions map into array", () => {
@@ -58,6 +66,8 @@ describe("SquaddieInfo", () => {
                     maximumActionPoints: 2,
                     conditions: conditionsMap,
                     isDefeated: false,
+                    canAct: true,
+                    items: { itemIds: [], itemIdsUsed: [] },
                 })
 
                 expect(info.conditions).toHaveLength(2)
@@ -75,10 +85,13 @@ describe("SquaddieInfo", () => {
                     maximumActionPoints: 3,
                     conditions: new Map(),
                     isDefeated: true,
+                    canAct: false,
+                    items: { itemIds: [], itemIdsUsed: [] },
                 })
 
                 expect(info.isDefeated).toBe(true)
                 expect(info.currentHitPoints).toBe(0)
+                expect(info.canAct).toBe(false)
             })
 
             it("can be serialized to JSON", () => {
@@ -99,6 +112,8 @@ describe("SquaddieInfo", () => {
                         [SquaddieConditionType.ARMOR, [armorCondition]],
                     ]),
                     isDefeated: false,
+                    canAct: true,
+                    items: { itemIds: ["lance"], itemIdsUsed: [] },
                 })
 
                 const jsonString = JSON.stringify(info)
@@ -114,6 +129,9 @@ describe("SquaddieInfo", () => {
                     SquaddieConditionType.ARMOR
                 )
                 expect(parsed.isDefeated).toBe(false)
+                expect(parsed.canAct).toBe(true)
+                expect(parsed.items.itemIds).toEqual(["lance"])
+                expect(parsed.items.itemIdsUsed).toEqual([])
             })
         })
     })
