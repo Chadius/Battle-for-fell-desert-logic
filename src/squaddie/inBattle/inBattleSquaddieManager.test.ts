@@ -1984,4 +1984,106 @@ describe("In Battle Squaddie Manager", () => {
             ).toThrow(/inBattleSquaddieCollection must be defined/)
         })
     })
+
+    describe("getSquaddieInfo", () => {
+        it("returns squaddie info with all fields", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
+
+            expect(info.name).toBe("Squaddie0")
+            expect(info.affiliation).toBe(SquaddieAffiliation.NONE)
+            expect(info.currentHitPoints).toBe(attributeSheet.maxHitPoints)
+            expect(info.maxHitPoints).toBe(attributeSheet.maxHitPoints)
+            expect(info.currentActionPoints).toBe(3)
+            expect(info.conditions).toEqual([])
+            expect(info.isDefeated).toBe(false)
+        })
+
+        it("reflects damage taken", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            manager.dealDamageToSquaddie({
+                ...inBattleSquaddie00Id,
+                damage: { amount: 3, type: undefined },
+            })
+
+            const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
+
+            expect(info.currentHitPoints).toBe(attributeSheet.maxHitPoints - 3)
+            expect(info.isDefeated).toBe(false)
+        })
+
+        it("reflects spent action points", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            manager.spendActionPoints({
+                ...inBattleSquaddie00Id,
+                actionPoints: 2,
+            })
+
+            const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
+
+            expect(info.currentActionPoints).toBe(1)
+        })
+
+        it("includes conditions", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            const armorCondition = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: 2,
+                duration: 3,
+            })
+
+            manager.addConditionsToSquaddie({
+                ...inBattleSquaddie00Id,
+                conditions: [armorCondition],
+            })
+
+            const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
+
+            expect(info.conditions).toHaveLength(1)
+            expect(info.conditions[0].type).toBe(SquaddieConditionType.ARMOR)
+            expect(info.conditions[0].amount).toBe(2)
+        })
+
+        it("shows defeated squaddie", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            manager.dealDamageToSquaddie({
+                ...inBattleSquaddie00Id,
+                damage: { amount: 100, type: undefined },
+            })
+
+            const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
+
+            expect(info.currentHitPoints).toBeLessThanOrEqual(0)
+            expect(info.isDefeated).toBe(true)
+        })
+
+        it("can be serialized to JSON", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
+            const jsonString = JSON.stringify(info)
+            const parsed = JSON.parse(jsonString)
+
+            expect(parsed.name).toBe("Squaddie0")
+            expect(parsed.affiliation).toBe(SquaddieAffiliation.NONE)
+            expect(parsed.currentHitPoints).toBe(attributeSheet.maxHitPoints)
+        })
+    })
 })

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { MissionEngine } from "./missionEngine"
 import { MissionManager } from "./missionManager"
-import { MissionStateService } from "./missionState"
+import { type MissionState, MissionStateService } from "./missionState"
 import { MissionObjectiveService } from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
@@ -1992,6 +1992,136 @@ describe("MissionEngine", () => {
 
             expect(missionEngine.getReadiedAction()).toBeDefined()
             expect(missionEngine.getReadiedAction()?.action.id).toBe("attack")
+        })
+    })
+
+    describe("getSquaddieInfo", () => {
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let playerSquaddieId: BattleSquaddieId
+        let missionState: MissionState
+
+        beforeEach(() => {
+            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
+                {
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: { distancePerAction: 2 },
+                    id: "test_sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                }
+            )
+
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
+            const playerSquaddie = OutOfBattleSquaddieService.new({
+                id: "player-1",
+                name: "Hero",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "test_sheet",
+            })
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            playerSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player-1",
+            })
+
+            missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+            })
+        })
+
+        it("throws error if MissionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() =>
+                missionEngine.getSquaddieInfo(playerSquaddieId)
+            ).toThrow("missionManager is undefined")
+        })
+
+        it("throws error if inBattleSquaddieManager is undefined", () => {
+            const missionManager = new MissionManager(missionState)
+            const missionEngine = new MissionEngine(missionManager)
+
+            expect(() =>
+                missionEngine.getSquaddieInfo(playerSquaddieId)
+            ).toThrow("inBattleSquaddieManager is undefined")
+        })
+
+        it("returns squaddie info from InBattleSquaddieManager", () => {
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const info = missionEngine.getSquaddieInfo(playerSquaddieId)
+
+            expect(info.name).toBe("Hero")
+            expect(info.affiliation).toBe(SquaddieAffiliation.PLAYER)
+            expect(info.currentHitPoints).toBe(10)
+            expect(info.maxHitPoints).toBe(10)
+            expect(info.currentActionPoints).toBe(3)
+            expect(info.maximumActionPoints).toBe(3)
+            expect(info.conditions).toEqual([])
+            expect(info.isDefeated).toBe(false)
+        })
+
+        it("reflects squaddie state changes", () => {
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...playerSquaddieId,
+                damage: { amount: 4, type: undefined },
+            })
+
+            inBattleSquaddieManager.spendActionPoints({
+                ...playerSquaddieId,
+                actionPoints: 2,
+            })
+
+            const info = missionEngine.getSquaddieInfo(playerSquaddieId)
+
+            expect(info.currentHitPoints).toBe(6)
+            expect(info.currentActionPoints).toBe(1)
+        })
+
+        it("can be serialized to JSON", () => {
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const info = missionEngine.getSquaddieInfo(playerSquaddieId)
+            const jsonString = JSON.stringify(info)
+            const parsed = JSON.parse(jsonString)
+
+            expect(parsed.name).toBe("Hero")
+            expect(parsed.affiliation).toBe(SquaddieAffiliation.PLAYER)
+            expect(parsed.currentHitPoints).toBe(10)
+            expect(parsed.isDefeated).toBe(false)
         })
     })
 })

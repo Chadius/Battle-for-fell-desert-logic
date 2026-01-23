@@ -14,6 +14,7 @@ import type { SquaddieActionResult } from "../squaddieAction/calculate/result/sq
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
 import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { SquaddieInfo } from "../squaddie/inBattle/squaddieInfo"
 import { MissionTurnService, type TMissionAffiliationTurn } from "./missionTurn"
 import {
     type ActionResult,
@@ -237,6 +238,17 @@ export class MissionEngine {
         )
     }
 
+    getSquaddieInfo(squaddieId: BattleSquaddieId): SquaddieInfo {
+        this.throwIfMissionManagerIsUndefined(this.getSquaddieInfo.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getSquaddieInfo.name
+        )
+
+        return this.missionManager!.inBattleSquaddieManager!.getSquaddieInfo(
+            squaddieId
+        )
+    }
+
     markMissionObjectiveAsRewarded(objectiveId: string): void {
         this.throwIfMissionManagerIsUndefined(
             this.markMissionObjectiveAsRewarded.name
@@ -301,6 +313,16 @@ export class MissionEngine {
         if (this.readiedAction == undefined) {
             throw new Error(
                 `[MissionEngine.${callingFunction}]: readiedAction is undefined`
+            )
+        }
+    }
+
+    private throwIfInBattleSquaddieManagerIsUndefined(
+        callingFunction: string
+    ): void {
+        if (this.missionManager?.inBattleSquaddieManager == undefined) {
+            throw new Error(
+                `[MissionEngine.${callingFunction}]: inBattleSquaddieManager is undefined`
             )
         }
     }

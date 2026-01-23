@@ -25,6 +25,7 @@ import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
 } from "../../affiliation/affiliation"
+import { type SquaddieInfo, SquaddieInfoService } from "./squaddieInfo"
 
 export type BattleSquaddieId = {
     inBattleSquaddieId: number
@@ -133,6 +134,57 @@ export class InBattleSquaddieManager {
             outOfBattleSquaddie: outOfBattleInfo.squaddie,
             attributeSheet: outOfBattleInfo.attributeSheet,
         }
+    }
+
+    getSquaddieInfo({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: BattleSquaddieId): SquaddieInfo {
+        const hitPoints = this.getHitPoints({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const actionPoints = this.getActionPoints({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const maxActionPoints = this.getMaximumActionPoints({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const affiliation = this.getSquaddieAffiliation({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const conditions = this.getSquaddieConditions({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const isDefeated = this.isSquaddieDefeated({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+
+        return SquaddieInfoService.new({
+            name: squaddieInfo.inBattleSquaddie.name,
+            affiliation,
+            currentHitPoints: hitPoints.current,
+            maxHitPoints: hitPoints.max,
+            currentActionPoints: actionPoints.current,
+            maximumActionPoints: maxActionPoints,
+            conditions,
+            isDefeated,
+        })
     }
 
     getHitPoints({
