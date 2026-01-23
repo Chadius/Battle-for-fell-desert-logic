@@ -31,6 +31,18 @@ export interface CoordinateMap {
     coordinatesSquaddiesCannotStopOn: Set<string>
 }
 
+export interface SerializedCoordinateMap {
+    id: string
+    name: string
+    coordinates: Coordinate[][]
+    coordinateBySquaddie: {
+        [outOfBattleSquaddieId: string]: {
+            [inBattleSquaddieId: string]: OffsetMaybeOffmapCoordinate
+        }
+    }
+    coordinatesSquaddiesCannotStopOn: string[]
+}
+
 export const CoordinateMapService = {
     new: ({
         id,
@@ -385,6 +397,69 @@ export const CoordinateMapService = {
             map.coordinates[coordinate.row][coordinate.col].movementCost ==
                 undefined
         )
+    },
+    serialize: (map: CoordinateMap): SerializedCoordinateMap => {
+        const coordinateBySquaddie: {
+            [outOfBattleSquaddieId: string]: {
+                [inBattleSquaddieId: string]: OffsetMaybeOffmapCoordinate
+            }
+        } = {}
+
+        for (const [
+            outOfBattleSquaddieId,
+            innerMap,
+        ] of map.coordinateBySquaddie.entries()) {
+            coordinateBySquaddie[outOfBattleSquaddieId] = {}
+            for (const [inBattleSquaddieId, coordinate] of innerMap.entries()) {
+                coordinateBySquaddie[outOfBattleSquaddieId][
+                    inBattleSquaddieId.toString()
+                ] = { ...coordinate }
+            }
+        }
+
+        return {
+            id: map.id,
+            name: map.name,
+            coordinates: map.coordinates.map((row) =>
+                row.map((c) => cloneCoordinate(c))
+            ),
+            coordinateBySquaddie,
+            coordinatesSquaddiesCannotStopOn: Array.from(
+                map.coordinatesSquaddiesCannotStopOn
+            ),
+        }
+    },
+    deserialize: (serialized: SerializedCoordinateMap): CoordinateMap => {
+        const coordinateBySquaddie: Map<
+            string,
+            Map<number, OffsetMaybeOffmapCoordinate>
+        > = new Map()
+
+        for (const [outOfBattleSquaddieId, innerObj] of Object.entries(
+            serialized.coordinateBySquaddie
+        )) {
+            const innerMap = new Map<number, OffsetMaybeOffmapCoordinate>()
+            for (const [inBattleSquaddieIdStr, coordinate] of Object.entries(
+                innerObj
+            )) {
+                innerMap.set(Number.parseInt(inBattleSquaddieIdStr, 10), {
+                    ...coordinate,
+                })
+            }
+            coordinateBySquaddie.set(outOfBattleSquaddieId, innerMap)
+        }
+
+        return {
+            id: serialized.id,
+            name: serialized.name,
+            coordinates: serialized.coordinates.map((row) =>
+                row.map((c) => cloneCoordinate(c))
+            ),
+            coordinateBySquaddie,
+            coordinatesSquaddiesCannotStopOn: new Set(
+                serialized.coordinatesSquaddiesCannotStopOn
+            ),
+        }
     },
 }
 
