@@ -3,6 +3,7 @@ import type { BattleSquaddieId } from "./inBattle/inBattleSquaddieManager"
 const separator = "+++"
 
 export const SquaddieIdConverterService = {
+    separator,
     squaddieIdToKey: ({
         inBattleSquaddieId,
         outOfBattleSquaddieId,

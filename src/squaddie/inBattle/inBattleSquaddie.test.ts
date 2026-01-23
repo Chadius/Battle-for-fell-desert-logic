@@ -66,10 +66,8 @@ describe("InBattleSquaddie", () => {
                 attributeSheet,
             })
 
-            const serializable =
-                InBattleSquaddieService.toSerializable(original)
-            const restored =
-                InBattleSquaddieService.fromSerializable(serializable)
+            const serializable = InBattleSquaddieService.serialize(original)
+            const restored = InBattleSquaddieService.deserialize(serializable)
 
             expect(restored.id).toEqual(original.id)
             expect(restored.outOfBattleSquaddieId).toEqual(
@@ -90,13 +88,11 @@ describe("InBattleSquaddie", () => {
                 attributeSheet,
             })
 
-            const serializable =
-                InBattleSquaddieService.toSerializable(original)
+            const serializable = InBattleSquaddieService.serialize(original)
 
             expect(Object.keys(serializable.conditions)).toHaveLength(0)
 
-            const restored =
-                InBattleSquaddieService.fromSerializable(serializable)
+            const restored = InBattleSquaddieService.deserialize(serializable)
 
             expect(restored.conditions.size).toEqual(0)
         })
@@ -133,8 +129,7 @@ describe("InBattleSquaddie", () => {
             })
             squaddie = addResult.squaddie
 
-            const serializable =
-                InBattleSquaddieService.toSerializable(squaddie)
+            const serializable = InBattleSquaddieService.serialize(squaddie)
 
             expect(Object.keys(serializable.conditions)).toContain(
                 SquaddieConditionType.ABSORB
@@ -146,8 +141,7 @@ describe("InBattleSquaddie", () => {
                 SquaddieConditionType.ELUSIVE
             )
 
-            const restored =
-                InBattleSquaddieService.fromSerializable(serializable)
+            const restored = InBattleSquaddieService.deserialize(serializable)
 
             expect(restored.conditions.size).toEqual(3)
             expect(
@@ -195,8 +189,7 @@ describe("InBattleSquaddie", () => {
             })
             squaddie = addResult.squaddie
 
-            const serializable =
-                InBattleSquaddieService.toSerializable(squaddie)
+            const serializable = InBattleSquaddieService.serialize(squaddie)
 
             const jsonString = JSON.stringify(serializable)
             const parsed: SerializableInBattleSquaddie = JSON.parse(jsonString)
@@ -224,8 +217,7 @@ describe("InBattleSquaddie", () => {
                 attributeSheet,
             })
 
-            const serializable =
-                InBattleSquaddieService.toSerializable(original)
+            const serializable = InBattleSquaddieService.serialize(original)
 
             serializable.name = "Modified"
             serializable.actionIds.natural.push("new-action")
@@ -248,8 +240,7 @@ describe("InBattleSquaddie", () => {
                 itemIdsUsed: [],
             }
 
-            const restored =
-                InBattleSquaddieService.fromSerializable(serializable)
+            const restored = InBattleSquaddieService.deserialize(serializable)
 
             restored.name = "Modified"
             restored.actionIds.natural.push("new-action")

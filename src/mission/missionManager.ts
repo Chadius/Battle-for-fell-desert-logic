@@ -13,6 +13,7 @@ import { MissionObjectiveRewardType } from "./missionObjectiveReward"
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
 import {
+    type ForecastedActionResult,
     type SquaddieActionDecisions,
     SquaddieActionResultCalculator,
 } from "../squaddieAction/calculate/result/squaddieActionResultCalculator"
@@ -497,5 +498,48 @@ export class MissionManager {
             ...this.missionState!,
             objectives: updatedObjectives,
         }
+    }
+
+    previewActionResults({
+        actor,
+        targets,
+        action,
+    }: {
+        actor: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        targets: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }[]
+        action: {
+            id: string
+            decisions?: SquaddieActionDecisions
+        }
+    }): ForecastedActionResult[] {
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.previewActionResults.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.previewActionResults.name
+        )
+
+        return SquaddieActionResultCalculator.calculateForecastedResults({
+            actor,
+            targets,
+            action: {
+                id: action.id,
+                manager: this.squaddieActionManager!,
+                decisions: action.decisions,
+            },
+            inBattleSquaddieManager: this.inBattleSquaddieManager!,
+            map: this.missionState?.mapId
+                ? {
+                      mapId: this.missionState.mapId,
+                      manager: this.coordinateMapCollectionManager!,
+                  }
+                : undefined,
+        })
     }
 }

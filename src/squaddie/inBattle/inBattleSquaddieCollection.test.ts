@@ -61,9 +61,9 @@ describe("InBattleSquaddieCollection", () => {
             const collection = InBattleSquaddieCollectionService.new()
 
             const serializable =
-                InBattleSquaddieCollectionService.toSerializable(collection)
+                InBattleSquaddieCollectionService.serialize(collection)
             const restored =
-                InBattleSquaddieCollectionService.fromSerializable(serializable)
+                InBattleSquaddieCollectionService.deserialize(serializable)
 
             expect(restored.byOutOfBattleSquaddieId.size).toEqual(0)
         })
@@ -79,9 +79,9 @@ describe("InBattleSquaddieCollection", () => {
             collection = updatedCollection
 
             const serializable =
-                InBattleSquaddieCollectionService.toSerializable(collection)
+                InBattleSquaddieCollectionService.serialize(collection)
             const restored =
-                InBattleSquaddieCollectionService.fromSerializable(serializable)
+                InBattleSquaddieCollectionService.deserialize(serializable)
 
             expect(restored.byOutOfBattleSquaddieId.size).toEqual(1)
             const restoredSquaddie =
@@ -114,9 +114,9 @@ describe("InBattleSquaddieCollection", () => {
             collection = c2
 
             const serializable =
-                InBattleSquaddieCollectionService.toSerializable(collection)
+                InBattleSquaddieCollectionService.serialize(collection)
             const restored =
-                InBattleSquaddieCollectionService.fromSerializable(serializable)
+                InBattleSquaddieCollectionService.deserialize(serializable)
 
             expect(restored.byOutOfBattleSquaddieId.size).toEqual(2)
 
@@ -173,9 +173,9 @@ describe("InBattleSquaddieCollection", () => {
             collection = c2
 
             const serializable =
-                InBattleSquaddieCollectionService.toSerializable(collection)
+                InBattleSquaddieCollectionService.serialize(collection)
             const restored =
-                InBattleSquaddieCollectionService.fromSerializable(serializable)
+                InBattleSquaddieCollectionService.deserialize(serializable)
 
             const restoredSquaddie =
                 InBattleSquaddieCollectionService.getSquaddie({
@@ -206,7 +206,7 @@ describe("InBattleSquaddieCollection", () => {
             collection = c1
 
             const serializable =
-                InBattleSquaddieCollectionService.toSerializable(collection)
+                InBattleSquaddieCollectionService.serialize(collection)
 
             const jsonString = JSON.stringify(serializable)
             const parsed: SerializableInBattleSquaddieCollection =

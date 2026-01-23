@@ -470,12 +470,11 @@ export const InBattleSquaddieService = {
         newSquaddie.itemIdsUsed.push(item.id)
         return newSquaddie
     },
-    toSerializable: (
-        squaddie: InBattleSquaddie
-    ): SerializableInBattleSquaddie => toSerializable(squaddie),
-    fromSerializable: (
+    serialize: (squaddie: InBattleSquaddie): SerializableInBattleSquaddie =>
+        serialize(squaddie),
+    deserialize: (
         serializable: SerializableInBattleSquaddie
-    ): InBattleSquaddie => fromSerializable(serializable),
+    ): InBattleSquaddie => deserialize(serializable),
 }
 
 const clone = (original: InBattleSquaddie): InBattleSquaddie => {
@@ -931,7 +930,7 @@ const calculateConditionAmount = (
     return { conditionBonus, conditionPenalty }
 }
 
-const toSerializable = (
+const serialize = (
     squaddie: InBattleSquaddie
 ): SerializableInBattleSquaddie => {
     const conditions: { [key: string]: SquaddieCondition[] } = {}
@@ -963,7 +962,7 @@ const toSerializable = (
     }
 }
 
-const fromSerializable = (
+const deserialize = (
     serializable: SerializableInBattleSquaddie
 ): InBattleSquaddie => {
     const conditions = new Map<TSquaddieConditionType, SquaddieCondition[]>()

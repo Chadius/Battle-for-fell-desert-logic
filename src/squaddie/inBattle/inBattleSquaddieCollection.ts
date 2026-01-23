@@ -710,7 +710,7 @@ export const InBattleSquaddieCollectionService = {
             outOfBattleSquaddie,
         })
     },
-    toSerializable: (
+    serialize: (
         collection: InBattleSquaddieCollection
     ): SerializableInBattleSquaddieCollection => {
         throwIfCollectionIsUndefined(collection, "toSerializable")
@@ -723,12 +723,12 @@ export const InBattleSquaddieCollectionService = {
         ] of collection.byOutOfBattleSquaddieId.entries()) {
             byOutOfBattleSquaddieId[outOfBattleSquaddieId] =
                 inBattleSquaddies.map((squaddie) =>
-                    InBattleSquaddieService.toSerializable(squaddie)
+                    InBattleSquaddieService.serialize(squaddie)
                 )
         }
         return { byOutOfBattleSquaddieId }
     },
-    fromSerializable: (
+    deserialize: (
         serializable: SerializableInBattleSquaddieCollection
     ): InBattleSquaddieCollection => {
         const byOutOfBattleSquaddieId = new Map<string, InBattleSquaddie[]>()
@@ -739,7 +739,7 @@ export const InBattleSquaddieCollectionService = {
             byOutOfBattleSquaddieId.set(
                 outOfBattleSquaddieId,
                 serializableSquaddies.map((s) =>
-                    InBattleSquaddieService.fromSerializable(s)
+                    InBattleSquaddieService.deserialize(s)
                 )
             )
         }
@@ -780,9 +780,7 @@ export const InBattleSquaddieCollectionService = {
                     (s) => s.id === serializableSquaddie.id
                 )
                 const restoredSquaddie =
-                    InBattleSquaddieService.fromSerializable(
-                        serializableSquaddie
-                    )
+                    InBattleSquaddieService.deserialize(serializableSquaddie)
 
                 if (existingIndex >= 0) {
                     existingSquaddies[existingIndex] = restoredSquaddie

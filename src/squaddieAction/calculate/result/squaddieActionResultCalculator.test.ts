@@ -2,23 +2,21 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionResultCalculator } from "./squaddieActionResultCalculator"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { RollGenerator } from "../roll/rollGenerator"
-import {
-    type SquaddieAction,
-    SquaddieActionService,
-} from "../../squaddieAction"
+import { type SquaddieAction, SquaddieActionService, } from "../../squaddieAction"
 import { SquaddieActionManager } from "../../squaddieActionManager"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import {
+    OutOfBattleSquaddieAttributeSheetService
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { AttributeScore } from "../../../proficiency/attributeScore"
 import {
-    ProficiencyLevel,
-    ProficiencyType,
-} from "../../../proficiency/proficiencyLevel"
+    OutOfBattleSquaddieAttributeSheetCollectionService
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
+import { AttributeScore } from "../../../proficiency/attributeScore"
+import { ProficiencyLevel, ProficiencyType, } from "../../../proficiency/proficiencyLevel"
 import { ActionRange } from "../../actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
@@ -471,6 +469,377 @@ describe("SquaddieActionResultCalculator", () => {
 
             expect(result.targetResults.has(targetKey1)).toBe(true)
             expect(result.targetResults.has(targetKey2)).toBe(true)
+        })
+    })
+
+    describe("calculateForecastedResults", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let actionManager: SquaddieActionManager
+        let actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
+        let target: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let testAction: SquaddieAction
+
+        beforeEach(() => {
+            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const soldierSheet = OutOfBattleSquaddieAttributeSheetService.new({
+                id: "soldier",
+                movement: { distancePerAction: 2 },
+                maxHitPoints: 5,
+                attributeScores: {
+                    [AttributeScore.BODY]: 5,
+                    [AttributeScore.MIND]: 7,
+                    [AttributeScore.SOUL]: 3,
+                },
+                proficiencyLevels: {
+                    [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
+                    [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
+                },
+                rank: 3,
+            })
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(soldierSheet)
+
+            const actorSquaddie = OutOfBattleSquaddieService.new({
+                id: "actor",
+                name: "Actor",
+                actionIds: ["test-action"],
+                attributeSheetId: "soldier",
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(actorSquaddie)
+
+            const targetSquaddie = OutOfBattleSquaddieService.new({
+                id: "target",
+                name: "Target",
+                actionIds: [],
+                attributeSheetId: "soldier",
+                affiliation: SquaddieAffiliation.ENEMY,
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(targetSquaddie)
+
+            const inBattleCollection = InBattleSquaddieCollectionService.new()
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                inBattleCollection,
+                outOfBattleSquaddieManager
+            )
+
+            const { inBattleSquaddieId: actorId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "actor",
+                })
+            actor = {
+                inBattleSquaddieId: actorId,
+                outOfBattleSquaddieId: "actor",
+            }
+
+            const { inBattleSquaddieId: targetId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "target",
+                })
+            target = {
+                inBattleSquaddieId: targetId,
+                outOfBattleSquaddieId: "target",
+            }
+
+            testAction = SquaddieActionService.new({
+                id: "test-action",
+                name: "Test Action",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        friend: false,
+                        foe: true,
+                    },
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                            attributeScoreType: AttributeScore.BODY,
+                        },
+                    },
+                },
+            })
+
+            actionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+            actionManager.addOrUpdate(testAction)
+        })
+
+        it("returns forecasted results for each target/degree combo with non-zero chance", () => {
+            const results =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor,
+                    targets: [target],
+                    action: {
+                        id: testAction.id,
+                        manager: actionManager,
+                    },
+                    inBattleSquaddieManager,
+                })
+
+            expect(results.length).toBeGreaterThan(0)
+            const successResult = results.find(
+                (r) =>
+                    r.degreeOfSuccess === DegreeOfSuccess.SUCCESS &&
+                    r.battleSquaddieId.inBattleSquaddieId ===
+                        target.inBattleSquaddieId
+            )
+            expect(successResult).toBeDefined()
+        })
+
+        it("includes correct chance out of 36 from forecast", () => {
+            const results =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor,
+                    targets: [target],
+                    action: {
+                        id: testAction.id,
+                        manager: actionManager,
+                    },
+                    inBattleSquaddieManager,
+                })
+
+            for (const result of results) {
+                expect(result.chanceOutOf36).toBeGreaterThan(0)
+                expect(result.chanceOutOf36).toBeLessThanOrEqual(36)
+            }
+        })
+
+        it("excludes degrees with zero chance when action only supports SUCCESS", () => {
+            const successOnlyAction = SquaddieActionService.new({
+                id: "success-only-action",
+                name: "Success Only Action",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        friend: false,
+                        foe: true,
+                    },
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                            attributeScoreType: AttributeScore.BODY,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(successOnlyAction)
+
+            const results =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor,
+                    targets: [target],
+                    action: {
+                        id: successOnlyAction.id,
+                        manager: actionManager,
+                    },
+                    inBattleSquaddieManager,
+                })
+
+            expect(results.length).toBe(1)
+            expect(results[0].degreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS)
+            expect(results[0].chanceOutOf36).toBe(36)
+
+            const botchResult = results.find(
+                (r) => r.degreeOfSuccess === DegreeOfSuccess.BOTCH
+            )
+            expect(botchResult).toBeUndefined()
+
+            const criticalResult = results.find(
+                (r) => r.degreeOfSuccess === DegreeOfSuccess.CRITICAL
+            )
+            expect(criticalResult).toBeUndefined()
+
+            const failureResult = results.find(
+                (r) => r.degreeOfSuccess === DegreeOfSuccess.FAILURE
+            )
+            expect(failureResult).toBeUndefined()
+        })
+
+        it("handles multiple targets", () => {
+            const target2Squaddie = OutOfBattleSquaddieService.new({
+                id: "target2",
+                name: "Target 2",
+                actionIds: [],
+                attributeSheetId: "soldier",
+                affiliation: SquaddieAffiliation.ENEMY,
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(target2Squaddie)
+
+            const { inBattleSquaddieId: target2Id } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "target2",
+                })
+            const target2 = {
+                inBattleSquaddieId: target2Id,
+                outOfBattleSquaddieId: "target2",
+            }
+
+            const results =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor,
+                    targets: [target, target2],
+                    action: {
+                        id: testAction.id,
+                        manager: actionManager,
+                    },
+                    inBattleSquaddieManager,
+                })
+
+            const target1Results = results.filter(
+                (r) =>
+                    r.battleSquaddieId.inBattleSquaddieId ===
+                    target.inBattleSquaddieId
+            )
+            const target2Results = results.filter(
+                (r) =>
+                    r.battleSquaddieId.inBattleSquaddieId ===
+                    target2.inBattleSquaddieId
+            )
+
+            expect(target1Results.length).toBeGreaterThan(0)
+            expect(target2Results.length).toBeGreaterThan(0)
+        })
+    })
+
+    describe("convertForecastedResultToSerializable", () => {
+        it("converts ForecastedActionResult to serializable format", () => {
+            const forecastedResult = {
+                battleSquaddieId: {
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "squaddie-1",
+                },
+                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                chanceOutOf36: 21,
+                squaddieActionResults: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie-1",
+                        damage: {
+                            net: 2,
+                            raw: 3,
+                            absorbed: 1,
+                            willKo: false,
+                            type: undefined,
+                        },
+                    },
+                ],
+            }
+
+            const serialized =
+                SquaddieActionResultCalculator.serializeForecastedActionResult(
+                    forecastedResult
+                )
+
+            expect(serialized.battleSquaddieId.inBattleSquaddieId).toBe(1)
+            expect(serialized.battleSquaddieId.outOfBattleSquaddieId).toBe(
+                "squaddie-1"
+            )
+            expect(serialized.degreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS)
+            expect(serialized.chanceOutOf36).toBe(21)
+            expect(serialized.squaddieActionResults.length).toBe(1)
+            expect(serialized.squaddieActionResults[0].damage?.net).toBe(2)
+        })
+
+        it("converts array of results with convertForecastedResultsToSerializable", () => {
+            const forecastedResults = [
+                {
+                    battleSquaddieId: {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie-1",
+                    },
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    chanceOutOf36: 21,
+                    squaddieActionResults: [
+                        {
+                            inBattleSquaddieId: 1,
+                            outOfBattleSquaddieId: "squaddie-1",
+                        },
+                    ],
+                },
+                {
+                    battleSquaddieId: {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie-1",
+                    },
+                    degreeOfSuccess: DegreeOfSuccess.CRITICAL,
+                    chanceOutOf36: 6,
+                    squaddieActionResults: [
+                        {
+                            inBattleSquaddieId: 1,
+                            outOfBattleSquaddieId: "squaddie-1",
+                        },
+                    ],
+                },
+            ]
+
+            const serialized =
+                SquaddieActionResultCalculator.deserializeSerializedForecastedActionResult(
+                    forecastedResults
+                )
+
+            expect(serialized.length).toBe(2)
+            expect(serialized[0].degreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS)
+            expect(serialized[1].degreeOfSuccess).toBe(DegreeOfSuccess.CRITICAL)
+        })
+
+        it("serializes result with no Maps to a plain JSON object", () => {
+            const forecastedResult = {
+                battleSquaddieId: {
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "squaddie-1",
+                },
+                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                chanceOutOf36: 21,
+                squaddieActionResults: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "squaddie-1",
+                        healing: { net: 3, raw: 5 },
+                    },
+                ],
+            }
+
+            const serialized =
+                SquaddieActionResultCalculator.serializeForecastedActionResult(
+                    forecastedResult
+                )
+
+            const jsonString = JSON.stringify(serialized)
+            const parsed = JSON.parse(jsonString)
+
+            expect(parsed.battleSquaddieId.inBattleSquaddieId).toBe(1)
+            expect(parsed.squaddieActionResults[0].healing.net).toBe(3)
         })
     })
 })

@@ -1213,7 +1213,7 @@ export class InBattleSquaddieManager {
         this.throwIfInBattleSquaddieCollectionIsUndefined(
             this.serializeCollection.name
         )
-        return InBattleSquaddieCollectionService.toSerializable(
+        return InBattleSquaddieCollectionService.serialize(
             this.inBattleSquaddieCollection!
         )
     }
@@ -1222,7 +1222,7 @@ export class InBattleSquaddieManager {
         serializable: SerializableInBattleSquaddieCollection
     ): void {
         this.inBattleSquaddieCollection =
-            InBattleSquaddieCollectionService.fromSerializable(serializable)
+            InBattleSquaddieCollectionService.deserialize(serializable)
     }
 
     updateCollectionFromJSON(

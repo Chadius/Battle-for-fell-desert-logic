@@ -1,4 +1,7 @@
-import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type {
+    BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieActionManager } from "../../squaddieActionManager"
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
@@ -92,6 +95,22 @@ export const SquaddieActionForecastCalculator = {
             outOfBattleSquaddieId,
             degreeOfSuccess,
         }),
+    parseForecastKey: (
+        key: string
+    ): {
+        battleSquaddieId: BattleSquaddieId
+        degreeOfSuccess: TDegreeOfSuccess
+    } => {
+        const separator = SquaddieIdConverterService.separator
+        const lastSeparatorIndex = key.lastIndexOf(separator)
+        const squaddieKey = key.substring(0, lastSeparatorIndex)
+        const degreeOfSuccess = key.substring(
+            lastSeparatorIndex + separator.length
+        ) as TDegreeOfSuccess
+        const battleSquaddieId =
+            SquaddieIdConverterService.keyToSquaddieId(squaddieKey)
+        return { battleSquaddieId, degreeOfSuccess }
+    },
 }
 
 const getForecastKey = ({

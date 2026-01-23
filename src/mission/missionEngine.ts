@@ -1,6 +1,10 @@
 import { MissionManager } from "./missionManager"
 import type { InMissionSummary } from "./inMissionSummary"
-import type { SquaddieActionDecisions } from "../squaddieAction/calculate/result/squaddieActionResultCalculator"
+import {
+    type SerializableForecastedActionResult,
+    type SquaddieActionDecisions,
+    SquaddieActionResultCalculator,
+} from "../squaddieAction/calculate/result/squaddieActionResultCalculator"
 import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
 import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
@@ -83,7 +87,7 @@ export class MissionEngine {
         })
 
         const targetResults: { [squaddieKey: string]: TargetResult } = {}
-        this.convertToSerializableTargetResults(managerResults, targetResults)
+        this.serializeTargetResults(managerResults, targetResults)
 
         this.actionResults = {
             actorRoll: managerResults.actorRoll,
@@ -112,7 +116,7 @@ export class MissionEngine {
         }
     }
 
-    private convertToSerializableTargetResults(
+    private serializeTargetResults(
         managerResults: {
             actorRoll: [number, number]
             targetResults: Map<
@@ -237,6 +241,26 @@ export class MissionEngine {
         }
 
         this.missionManager!.setMissionObjectiveAsRewarded(objectiveId)
+    }
+
+    previewReadiedActionAndForecastResults(): SerializableForecastedActionResult[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.previewReadiedActionAndForecastResults.name
+        )
+        this.throwIfReadiedActionIsUndefined(
+            this.previewReadiedActionAndForecastResults.name
+        )
+
+        const forecastedActionResults =
+            this.missionManager!.previewActionResults({
+                actor: this.readiedAction!.actor,
+                targets: this.readiedAction!.targets,
+                action: this.readiedAction!.action,
+            })
+
+        return forecastedActionResults.map(
+            SquaddieActionResultCalculator.serializeForecastedActionResult
+        )
     }
 
     private throwIfMissionManagerIsUndefined(callingFunction: string): void {

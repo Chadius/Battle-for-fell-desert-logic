@@ -1,15 +1,17 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import {
-    type SerializableSquaddieActionResult,
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
 } from "./squaddieTurnActionRecord"
 import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
-import type { SquaddieActionResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
+import type {
+    SerializableSquaddieActionResult,
+    SquaddieActionResult,
+} from "../../squaddieAction/calculate/result/squaddieActionResult"
 import { AttributeScore } from "../../proficiency/attributeScore"
 import { SquaddieConditionType } from "../../proficiency/squaddieCondition"
 
-describe("ActionHistoryEntryService", () => {
+describe("SquaddieTurnActionRecordService", () => {
     describe("new", () => {
         it("creates entry with minimal action and result", () => {
             const action: SquaddieAction = {
@@ -139,100 +141,6 @@ describe("ActionHistoryEntryService", () => {
             expect(entry.results[0].conditionsAdded?.[0].type).toBe(
                 SquaddieConditionType.HUSTLE
             )
-        })
-
-        it("converts Map to object for dispel.dispelledConditions", () => {
-            const action: SquaddieAction = {
-                id: "action1",
-                name: "Dispel",
-            } as SquaddieAction
-
-            const dispelledMap = new Map()
-            dispelledMap.set(SquaddieConditionType.SLOWED, [
-                {
-                    type: SquaddieConditionType.SLOWED,
-                    amount: undefined,
-                    limit: { duration: 0 },
-                },
-            ])
-            dispelledMap.set(SquaddieConditionType.ARMOR, [
-                {
-                    type: SquaddieConditionType.SLOWED,
-                    amount: undefined,
-                    limit: { duration: 0 },
-                },
-            ])
-
-            const result: SquaddieActionResult = {
-                inBattleSquaddieId: 1,
-                outOfBattleSquaddieId: "squaddie1",
-                dispel: {
-                    dispelledConditions: dispelledMap,
-                    conditionTypes: {
-                        types: [SquaddieConditionType.SLOWED],
-                    },
-                    amount: 1,
-                },
-            }
-
-            const entry = SquaddieTurnActionRecordService.new({
-                action,
-                results: [result],
-            })
-
-            expect(
-                entry.results[0].dispel?.dispelledConditions
-            ).not.toBeInstanceOf(Map)
-            expect(
-                entry.results[0].dispel?.dispelledConditions?.[
-                    SquaddieConditionType.SLOWED
-                ]
-            ).toHaveLength(1)
-            expect(
-                entry.results[0].dispel?.dispelledConditions?.[
-                    SquaddieConditionType.ARMOR
-                ]
-            ).toHaveLength(1)
-        })
-
-        it("converts Map to object for treat.treatedConditions", () => {
-            const action: SquaddieAction = {
-                id: "action1",
-                name: "Treat",
-            } as SquaddieAction
-
-            const treatedMap = new Map()
-            treatedMap.set(SquaddieConditionType.ABSORB, [
-                {
-                    type: SquaddieConditionType.ABSORB,
-                    amount: undefined,
-                    limit: { duration: 1 },
-                },
-            ])
-
-            const result: SquaddieActionResult = {
-                inBattleSquaddieId: 1,
-                outOfBattleSquaddieId: "squaddie1",
-                treat: {
-                    treatedConditions: treatedMap,
-                    conditionTypes: { types: [SquaddieConditionType.ABSORB] },
-                    amount: 1,
-                },
-            }
-
-            const entry = SquaddieTurnActionRecordService.new({
-                action,
-                results: [result],
-            })
-
-            expect(
-                entry.results[0].treat?.treatedConditions
-            ).not.toBeInstanceOf(Map)
-            expect(
-                entry.results[0].treat?.treatedConditions?.[
-                    SquaddieConditionType.ABSORB
-                ]
-            ).toHaveLength(1)
         })
 
         it("deep clones movement path", () => {
@@ -385,9 +293,9 @@ describe("ActionHistoryEntryService", () => {
 
             expect(entry.results[0].dispel?.dispelledConditions).toBeDefined()
             expect(
-                entry.results[0].dispel?.dispelledConditions?.[
+                entry.results[0].dispel?.dispelledConditions?.get(
                     SquaddieConditionType.SLOWED
-                ]
+                )
             ).toHaveLength(1)
         })
 
@@ -490,7 +398,7 @@ describe("ActionHistoryEntryService", () => {
             dispelledMap.set(SquaddieConditionType.SLOWED, [
                 {
                     type: SquaddieConditionType.SLOWED,
-                    amount: undefined,
+                    amount: 1,
                     limit: { duration: 0 },
                 },
             ])
@@ -536,7 +444,9 @@ describe("ActionHistoryEntryService", () => {
                 results: [result],
             })
 
-            const json = JSON.stringify(entry)
+            // TODO
+            const serialized = SquaddieTurnActionRecordService.serialize(entry)
+            const json = JSON.stringify(serialized)
             const parsed = JSON.parse(json)
             const deserialized =
                 SquaddieTurnActionRecordService.createFromJSON(parsed)
@@ -547,9 +457,9 @@ describe("ActionHistoryEntryService", () => {
             expect(deserialized.results[0].healing?.net).toBe(5)
             expect(deserialized.results[0].conditionsAdded).toHaveLength(1)
             expect(
-                deserialized.results[0].dispel?.dispelledConditions?.[
+                deserialized.results[0].dispel?.dispelledConditions?.get(
                     SquaddieConditionType.SLOWED
-                ]
+                )
             ).toHaveLength(1)
             expect(
                 deserialized.results[0].movement?.expectedPath.steps

@@ -1,9 +1,16 @@
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import type { TDegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type {
+    BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieActionManager } from "../../squaddieActionManager"
-import type { SquaddieActionResult } from "./squaddieActionResult"
+import {
+    type SerializableSquaddieActionResult,
+    type SquaddieActionResult,
+    SquaddieActionResultService,
+} from "./squaddieActionResult"
 import type { SquaddieActionEffect } from "../../squaddieAction"
 import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
 import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
@@ -22,12 +29,27 @@ import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 import type { RollGenerator } from "../roll/rollGenerator"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 import { ProficiencyCalculator } from "../proficiencyCalculator"
+import { SquaddieActionForecastCalculator } from "../forecast/squaddieActionForecastCalculator"
 
 export type SquaddieActionDecisions = {
     desiredMovementDestination?: {
         row: number
         col: number
     }
+}
+
+export interface ForecastedActionResult {
+    battleSquaddieId: BattleSquaddieId
+    degreeOfSuccess: TDegreeOfSuccess
+    chanceOutOf36: number
+    squaddieActionResults: SquaddieActionResult[]
+}
+
+export type SerializableForecastedActionResult = Omit<
+    ForecastedActionResult,
+    "squaddieActionResults"
+> & {
+    squaddieActionResults: SerializableSquaddieActionResult[]
 }
 
 export const SquaddieActionResultCalculator = {
@@ -296,6 +318,110 @@ export const SquaddieActionResultCalculator = {
         reversed = reverseTreat(original, reversed)
         reversed = reverseMovement(original, reversed)
         return reversed
+    },
+
+    calculateForecastedResults: ({
+        actor,
+        targets,
+        action,
+        inBattleSquaddieManager,
+        map,
+    }: {
+        actor: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        targets: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }[]
+        action: {
+            id: string
+            manager: SquaddieActionManager
+            decisions?: SquaddieActionDecisions
+        }
+        inBattleSquaddieManager: InBattleSquaddieManager
+        map?: {
+            mapId: string
+            manager: CoordinateMapCollectionManager
+        }
+    }): ForecastedActionResult[] => {
+        const chances = SquaddieActionForecastCalculator.forecastChanceToHit({
+            actor,
+            targets,
+            action,
+            inBattleSquaddieManager,
+        })
+
+        const results: ForecastedActionResult[] = []
+
+        for (const [forecastKey, chanceOutOf36] of chances) {
+            if (chanceOutOf36 === 0) continue
+
+            const { battleSquaddieId, degreeOfSuccess } =
+                SquaddieActionForecastCalculator.parseForecastKey(forecastKey)
+
+            const squaddieActionResults =
+                SquaddieActionResultCalculator.calculateResult({
+                    actor,
+                    targets: [
+                        {
+                            inBattleSquaddieId:
+                                battleSquaddieId.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                battleSquaddieId.outOfBattleSquaddieId,
+                        },
+                    ],
+                    action: {
+                        id: action.id,
+                        decisions: action.decisions,
+                    },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: action.manager,
+                        coordinateMapCollectionManager: map?.manager,
+                    },
+                    degreeOfSuccess,
+                    map: map ? { mapId: map.mapId } : undefined,
+                })
+
+            results.push({
+                battleSquaddieId,
+                degreeOfSuccess,
+                chanceOutOf36,
+                squaddieActionResults,
+            })
+        }
+
+        return results
+    },
+
+    serializeForecastedActionResult: (
+        result: ForecastedActionResult
+    ): SerializableForecastedActionResult => {
+        return {
+            battleSquaddieId: { ...result.battleSquaddieId },
+            degreeOfSuccess: result.degreeOfSuccess,
+            chanceOutOf36: result.chanceOutOf36,
+            squaddieActionResults: result.squaddieActionResults.map(
+                SquaddieActionResultService.serialize
+            ),
+        }
+    },
+
+    deserializeSerializedForecastedActionResult: (
+        results: SerializableForecastedActionResult[]
+    ): ForecastedActionResult[] => {
+        return results.map((result) => {
+            const deserializedSquaddieActionResults =
+                result.squaddieActionResults.map(
+                    SquaddieActionResultService.deserialize
+                )
+            return {
+                ...result,
+                squaddieActionResults: deserializedSquaddieActionResults,
+            }
+        })
     },
 }
 
