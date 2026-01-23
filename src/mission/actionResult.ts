@@ -1,5 +1,5 @@
 import {
-    type SerializableTargetResult,
+    type SerializedTargetResult,
     type TargetResult,
     TargetResultService,
 } from "./targetResult"
@@ -9,9 +9,9 @@ export interface ActionResult {
     targetResults: { [squaddieKey: string]: TargetResult }
 }
 
-export interface SerializableActionResults {
+export interface SerializedActionResults {
     actorRoll: [number, number]
-    targetResults: { [squaddieKey: string]: SerializableTargetResult }
+    targetResults: { [squaddieKey: string]: SerializedTargetResult }
 }
 
 export const ActionResultsService = {
@@ -27,9 +27,9 @@ export const ActionResultsService = {
             targetResults,
         }
     },
-    serialize: (actionResults: ActionResult): SerializableActionResults => {
+    serialize: (actionResults: ActionResult): SerializedActionResults => {
         const serializedTargetResults: {
-            [squaddieKey: string]: SerializableTargetResult
+            [squaddieKey: string]: SerializedTargetResult
         } = {}
 
         for (const [key, targetResult] of Object.entries(
@@ -45,7 +45,7 @@ export const ActionResultsService = {
         }
     },
 
-    deserialize: (serializable: SerializableActionResults): ActionResult => {
+    deserialize: (serializable: SerializedActionResults): ActionResult => {
         const targetResults: { [squaddieKey: string]: TargetResult } = {}
 
         for (const [key, serializedTargetResult] of Object.entries(

@@ -254,7 +254,7 @@ describe("SquaddieActionResultService", () => {
         })
     })
 
-    describe("convertFromSerializable", () => {
+    describe("deserialize", () => {
         it("converts basic serializable to result", () => {
             const serialized = {
                 inBattleSquaddieId: 1,

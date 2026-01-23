@@ -734,7 +734,7 @@ describe("SquaddieActionResultCalculator", () => {
         })
     })
 
-    describe("convertForecastedResultToSerializable", () => {
+    describe("serializeForecastedActionResult", () => {
         it("converts ForecastedActionResult to serializable format", () => {
             const forecastedResult = {
                 battleSquaddieId: {
@@ -773,7 +773,7 @@ describe("SquaddieActionResultCalculator", () => {
             expect(serialized.squaddieActionResults[0].damage?.net).toBe(2)
         })
 
-        it("converts array of results with convertForecastedResultsToSerializable", () => {
+        it("converts array of results with serialize", () => {
             const forecastedResults = [
                 {
                     battleSquaddieId: {

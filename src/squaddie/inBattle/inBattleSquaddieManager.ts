@@ -1,7 +1,7 @@
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-    type SerializableInBattleSquaddieCollection,
+    type SerializedInBattleSquaddieCollection,
 } from "./inBattleSquaddieCollection"
 import type { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager"
 import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
@@ -1209,7 +1209,7 @@ export class InBattleSquaddieManager {
         return allSquaddies
     }
 
-    serializeCollection(): SerializableInBattleSquaddieCollection {
+    serializeCollection(): SerializedInBattleSquaddieCollection {
         this.throwIfInBattleSquaddieCollectionIsUndefined(
             this.serializeCollection.name
         )
@@ -1229,20 +1229,20 @@ export class InBattleSquaddieManager {
     }
 
     loadCollectionFromJSON(
-        serializable: SerializableInBattleSquaddieCollection
+        serializable: SerializedInBattleSquaddieCollection
     ): void {
         this.inBattleSquaddieCollection =
             InBattleSquaddieCollectionService.deserialize(serializable)
     }
 
     updateCollectionFromJSON(
-        serializable: SerializableInBattleSquaddieCollection
+        serializable: SerializedInBattleSquaddieCollection
     ): void {
         this.throwIfInBattleSquaddieCollectionIsUndefined(
             this.updateCollectionFromJSON.name
         )
         this.inBattleSquaddieCollection =
-            InBattleSquaddieCollectionService.updateFromSerializable({
+            InBattleSquaddieCollectionService.updateFromSerializedCollection({
                 collection: this.inBattleSquaddieCollection!,
                 serializable,
             })

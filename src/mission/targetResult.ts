@@ -1,6 +1,6 @@
 import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 import {
-    type SerializableSquaddieActionResult,
+    type SerializedSquaddieActionResult,
     type SquaddieActionResult,
     SquaddieActionResultService,
 } from "../squaddieAction/calculate/result/squaddieActionResult"
@@ -10,9 +10,9 @@ export interface TargetResult {
     squaddieActionResults: SquaddieActionResult[]
 }
 
-export interface SerializableTargetResult {
+export interface SerializedTargetResult {
     degreeOfSuccess: TDegreeOfSuccess
-    squaddieActionResults: SerializableSquaddieActionResult[]
+    squaddieActionResults: SerializedSquaddieActionResult[]
 }
 
 export const TargetResultService = {
@@ -28,7 +28,7 @@ export const TargetResultService = {
             squaddieActionResults,
         }
     },
-    serialize: (targetResult: TargetResult): SerializableTargetResult => {
+    serialize: (targetResult: TargetResult): SerializedTargetResult => {
         return {
             degreeOfSuccess: targetResult.degreeOfSuccess,
             squaddieActionResults: targetResult.squaddieActionResults.map(
@@ -37,7 +37,7 @@ export const TargetResultService = {
         }
     },
 
-    deserialize: (serializable: SerializableTargetResult): TargetResult => {
+    deserialize: (serializable: SerializedTargetResult): TargetResult => {
         return {
             degreeOfSuccess: serializable.degreeOfSuccess,
             squaddieActionResults: serializable.squaddieActionResults.map(

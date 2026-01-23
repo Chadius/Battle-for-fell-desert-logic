@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
     type ActionResult,
     ActionResultsService,
-    type SerializableActionResults,
+    type SerializedActionResults,
 } from "./actionResult"
 import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 
@@ -73,8 +73,8 @@ describe("ActionResultService", () => {
     })
 
     describe("deserialize", () => {
-        it("deserializes SerializableActionResults", () => {
-            const serializable: SerializableActionResults = {
+        it("deserializes SerializedActionResults", () => {
+            const serializable: SerializedActionResults = {
                 actorRoll: [3, 3],
                 targetResults: {
                     "enemy-1": {
@@ -180,7 +180,7 @@ describe("ActionResultService", () => {
 
             const serialized = ActionResultsService.serialize(original)
             const jsonString = JSON.stringify(serialized)
-            const parsed = JSON.parse(jsonString) as SerializableActionResults
+            const parsed = JSON.parse(jsonString) as SerializedActionResults
             const deserialized = ActionResultsService.deserialize(parsed)
 
             expect(deserialized.actorRoll).toEqual(original.actorRoll)

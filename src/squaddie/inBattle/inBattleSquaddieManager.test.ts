@@ -1864,7 +1864,7 @@ describe("In Battle Squaddie Manager", () => {
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
 
-            const newSerializable = {
+            const newSerialized = {
                 byOutOfBattleSquaddieId: {
                     [outOfBattleSquaddie1.id]: [
                         {
@@ -1881,7 +1881,7 @@ describe("In Battle Squaddie Manager", () => {
                 },
             }
 
-            manager.loadCollectionFromJSON(newSerializable)
+            manager.loadCollectionFromJSON(newSerialized)
 
             expect(
                 manager.doesSquaddieExist({
@@ -1909,7 +1909,7 @@ describe("In Battle Squaddie Manager", () => {
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
 
-            const updateSerializable = {
+            const updateSerialized = {
                 byOutOfBattleSquaddieId: {
                     [outOfBattleSquaddie0.id]: [
                         {
@@ -1938,7 +1938,7 @@ describe("In Battle Squaddie Manager", () => {
                 },
             }
 
-            manager.updateCollectionFromJSON(updateSerializable)
+            manager.updateCollectionFromJSON(updateSerialized)
 
             const updatedHitPoints = manager.getHitPoints({
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,

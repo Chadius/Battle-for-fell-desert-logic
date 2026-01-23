@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import {
     InBattleSquaddieCollectionService,
-    type SerializableInBattleSquaddieCollection,
+    type SerializedInBattleSquaddieCollection,
 } from "./inBattleSquaddieCollection"
 import {
     type OutOfBattleSquaddie,
@@ -195,7 +195,7 @@ describe("InBattleSquaddieCollection", () => {
             expect(restoredAbsorb.limit.duration).toEqual(3)
         })
 
-        it("toSerializable produces valid JSON-serializable object", () => {
+        it("serialize produces valid JSON-serializable object", () => {
             let collection = InBattleSquaddieCollectionService.new()
             const { collection: c1 } =
                 InBattleSquaddieCollectionService.createNewSquaddie({
@@ -209,7 +209,7 @@ describe("InBattleSquaddieCollection", () => {
                 InBattleSquaddieCollectionService.serialize(collection)
 
             const jsonString = JSON.stringify(serializable)
-            const parsed: SerializableInBattleSquaddieCollection =
+            const parsed: SerializedInBattleSquaddieCollection =
                 JSON.parse(jsonString)
 
             expect(parsed.byOutOfBattleSquaddieId).toBeDefined()
@@ -217,7 +217,7 @@ describe("InBattleSquaddieCollection", () => {
             expect(parsed.byOutOfBattleSquaddieId["squaddie-1"]).toHaveLength(1)
         })
 
-        describe("updateFromSerializable", () => {
+        describe("updateFromSerialized", () => {
             it("adds new squaddies from serializable data", () => {
                 let collection = InBattleSquaddieCollectionService.new()
                 const { collection: c1 } =
@@ -228,29 +228,30 @@ describe("InBattleSquaddieCollection", () => {
                     })
                 collection = c1
 
-                const newSerializable: SerializableInBattleSquaddieCollection =
-                    {
-                        byOutOfBattleSquaddieId: {
-                            "squaddie-2": [
-                                {
-                                    id: 0,
-                                    outOfBattleSquaddieId: "squaddie-2",
-                                    name: "New Squaddie",
-                                    hitPoints: { max: 10, current: 8 },
-                                    conditions: {},
-                                    actionPoints: { current: 3 },
-                                    actionIds: { natural: ["action2"] },
-                                    itemIdsUsed: [],
-                                },
-                            ],
-                        },
-                    }
+                const newSerialized: SerializedInBattleSquaddieCollection = {
+                    byOutOfBattleSquaddieId: {
+                        "squaddie-2": [
+                            {
+                                id: 0,
+                                outOfBattleSquaddieId: "squaddie-2",
+                                name: "New Squaddie",
+                                hitPoints: { max: 10, current: 8 },
+                                conditions: {},
+                                actionPoints: { current: 3 },
+                                actionIds: { natural: ["action2"] },
+                                itemIdsUsed: [],
+                            },
+                        ],
+                    },
+                }
 
                 const updated =
-                    InBattleSquaddieCollectionService.updateFromSerializable({
-                        collection,
-                        serializable: newSerializable,
-                    })
+                    InBattleSquaddieCollectionService.updateFromSerializedCollection(
+                        {
+                            collection,
+                            serializable: newSerialized,
+                        }
+                    )
 
                 expect(updated.byOutOfBattleSquaddieId.size).toEqual(2)
                 const newSquaddie =
@@ -282,29 +283,30 @@ describe("InBattleSquaddieCollection", () => {
                     })!
                 expect(originalSquaddie.hitPoints.current).toEqual(10)
 
-                const updateSerializable: SerializableInBattleSquaddieCollection =
-                    {
-                        byOutOfBattleSquaddieId: {
-                            "squaddie-1": [
-                                {
-                                    id: inBattleId,
-                                    outOfBattleSquaddieId: "squaddie-1",
-                                    name: "Updated Name",
-                                    hitPoints: { max: 10, current: 5 },
-                                    conditions: {},
-                                    actionPoints: { current: 1 },
-                                    actionIds: { natural: ["action1"] },
-                                    itemIdsUsed: ["item1"],
-                                },
-                            ],
-                        },
-                    }
+                const updateSerialized: SerializedInBattleSquaddieCollection = {
+                    byOutOfBattleSquaddieId: {
+                        "squaddie-1": [
+                            {
+                                id: inBattleId,
+                                outOfBattleSquaddieId: "squaddie-1",
+                                name: "Updated Name",
+                                hitPoints: { max: 10, current: 5 },
+                                conditions: {},
+                                actionPoints: { current: 1 },
+                                actionIds: { natural: ["action1"] },
+                                itemIdsUsed: ["item1"],
+                            },
+                        ],
+                    },
+                }
 
                 const updated =
-                    InBattleSquaddieCollectionService.updateFromSerializable({
-                        collection,
-                        serializable: updateSerializable,
-                    })
+                    InBattleSquaddieCollectionService.updateFromSerializedCollection(
+                        {
+                            collection,
+                            serializable: updateSerialized,
+                        }
+                    )
 
                 const updatedSquaddie =
                     InBattleSquaddieCollectionService.getSquaddie({

@@ -1,7 +1,7 @@
 import {
     type InBattleSquaddie,
     InBattleSquaddieService,
-    type SerializableInBattleSquaddie,
+    type SerializedInBattleSquaddie,
 } from "./inBattleSquaddie"
 import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
 import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
@@ -22,11 +22,11 @@ export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: Map<string, InBattleSquaddie[]>
 }
 
-export type SerializableInBattleSquaddieCollection = Omit<
+export type SerializedInBattleSquaddieCollection = Omit<
     InBattleSquaddieCollection,
     "byOutOfBattleSquaddieId"
 > & {
-    byOutOfBattleSquaddieId: { [key: string]: SerializableInBattleSquaddie[] }
+    byOutOfBattleSquaddieId: { [key: string]: SerializedInBattleSquaddie[] }
 }
 
 export const InBattleSquaddieCollectionService = {
@@ -712,10 +712,10 @@ export const InBattleSquaddieCollectionService = {
     },
     serialize: (
         collection: InBattleSquaddieCollection
-    ): SerializableInBattleSquaddieCollection => {
-        throwIfCollectionIsUndefined(collection, "toSerializable")
+    ): SerializedInBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "serialize")
         const byOutOfBattleSquaddieId: {
-            [key: string]: SerializableInBattleSquaddie[]
+            [key: string]: SerializedInBattleSquaddie[]
         } = {}
         for (const [
             outOfBattleSquaddieId,
@@ -729,7 +729,7 @@ export const InBattleSquaddieCollectionService = {
         return { byOutOfBattleSquaddieId }
     },
     deserialize: (
-        serializable: SerializableInBattleSquaddieCollection
+        serializable: SerializedInBattleSquaddieCollection
     ): InBattleSquaddieCollection => {
         const byOutOfBattleSquaddieId = new Map<string, InBattleSquaddie[]>()
         for (const [
@@ -745,14 +745,17 @@ export const InBattleSquaddieCollectionService = {
         }
         return { byOutOfBattleSquaddieId }
     },
-    updateFromSerializable: ({
+    updateFromSerializedCollection: ({
         collection,
         serializable,
     }: {
         collection: InBattleSquaddieCollection
-        serializable: SerializableInBattleSquaddieCollection
+        serializable: SerializedInBattleSquaddieCollection
     }): InBattleSquaddieCollection => {
-        throwIfCollectionIsUndefined(collection, "updateFromSerializable")
+        throwIfCollectionIsUndefined(
+            collection,
+            "updateFromSerializedCollection"
+        )
         const updatedCollection = clone(collection)
 
         for (const [

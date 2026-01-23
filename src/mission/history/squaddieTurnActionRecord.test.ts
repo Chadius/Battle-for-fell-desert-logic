@@ -5,7 +5,7 @@ import {
 } from "./squaddieTurnActionRecord"
 import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 import type {
-    SerializableSquaddieActionResult,
+    SerializedSquaddieActionResult,
     SquaddieActionResult,
 } from "../../squaddieAction/calculate/result/squaddieActionResult"
 import { AttributeScore } from "../../proficiency/attributeScore"
@@ -306,7 +306,7 @@ describe("SquaddieTurnActionRecordService", () => {
                     {
                         inBattleSquaddieId: 1,
                         outOfBattleSquaddieId: "squaddie1",
-                    } as SerializableSquaddieActionResult,
+                    } as SerializedSquaddieActionResult,
                 ],
             }
 
@@ -320,7 +320,7 @@ describe("SquaddieTurnActionRecordService", () => {
         it("throws error for invalid result data", () => {
             const data = {
                 action: { id: "action1", name: "Attack" },
-                results: [{} as SerializableSquaddieActionResult],
+                results: [{} as SerializedSquaddieActionResult],
             }
 
             expect(() =>
@@ -444,7 +444,6 @@ describe("SquaddieTurnActionRecordService", () => {
                 results: [result],
             })
 
-            // TODO
             const serialized = SquaddieTurnActionRecordService.serialize(entry)
             const json = JSON.stringify(serialized)
             const parsed = JSON.parse(json)

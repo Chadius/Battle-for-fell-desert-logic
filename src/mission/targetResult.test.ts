@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
 import {
-    type SerializableTargetResult,
+    type SerializedTargetResult,
     type TargetResult,
     TargetResultService,
 } from "./targetResult"
@@ -74,8 +74,8 @@ describe("TargetResultService", () => {
     })
 
     describe("deserialize", () => {
-        it("deserializes a SerializableTargetResult", () => {
-            const serializable: SerializableTargetResult = {
+        it("deserializes a SerializedTargetResult", () => {
+            const serializable: SerializedTargetResult = {
                 degreeOfSuccess: DegreeOfSuccess.FAILURE,
                 squaddieActionResults: [
                     {

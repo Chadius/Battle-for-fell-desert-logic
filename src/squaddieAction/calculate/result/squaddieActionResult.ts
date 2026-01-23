@@ -60,7 +60,7 @@ export interface SquaddieActionResult {
     }
 }
 
-export type SerializableSquaddieActionResult = Omit<
+export type SerializedSquaddieActionResult = Omit<
     SquaddieActionResult,
     "dispel" | "treat"
 > & {
@@ -102,41 +102,38 @@ export const SquaddieActionResultService = {
 
     serialize: (
         result: SquaddieActionResult
-    ): SerializableSquaddieActionResult => {
-        let serializable: SerializableSquaddieActionResult = {
+    ): SerializedSquaddieActionResult => {
+        let serializable: SerializedSquaddieActionResult = {
             inBattleSquaddieId: result.inBattleSquaddieId,
             outOfBattleSquaddieId: result.outOfBattleSquaddieId,
         }
 
-        serializable = convertActionPointsToSerializable(result, serializable)
-        serializable = convertDamageToSerializable(result, serializable)
-        serializable = convertHealingToSerializable(result, serializable)
-        serializable = convertConditionsAddedToSerializable(
-            result,
-            serializable
-        )
-        serializable = convertDispelToSerializable(result, serializable)
-        serializable = convertTreatToSerializable(result, serializable)
-        serializable = convertMovementToSerializable(result, serializable)
+        serializable = convertActionPointsToSerialized(result, serializable)
+        serializable = convertDamageToSerialized(result, serializable)
+        serializable = convertHealingToSerialized(result, serializable)
+        serializable = convertConditionsAddedToSerialized(result, serializable)
+        serializable = convertDispelToSerialized(result, serializable)
+        serializable = convertTreatToSerialized(result, serializable)
+        serializable = convertMovementToSerialized(result, serializable)
 
         return serializable
     },
 
     deserialize: (
-        serialized: SerializableSquaddieActionResult
+        serialized: SerializedSquaddieActionResult
     ): SquaddieActionResult => {
         let result: SquaddieActionResult = {
             inBattleSquaddieId: serialized.inBattleSquaddieId,
             outOfBattleSquaddieId: serialized.outOfBattleSquaddieId,
         }
 
-        result = convertActionPointsFromSerializable(serialized, result)
-        result = convertDamageFromSerializable(serialized, result)
-        result = convertHealingFromSerializable(serialized, result)
-        result = convertConditionsAddedFromSerializable(serialized, result)
-        result = convertDispelFromSerializable(serialized, result)
-        result = convertTreatFromSerializable(serialized, result)
-        result = convertMovementFromSerializable(serialized, result)
+        result = convertActionPointsFromSerialized(serialized, result)
+        result = convertDamageFromSerialized(serialized, result)
+        result = convertHealingFromSerialized(serialized, result)
+        result = convertConditionsAddedFromSerialized(serialized, result)
+        result = convertDispelFromSerialized(serialized, result)
+        result = convertTreatFromSerialized(serialized, result)
+        result = convertMovementFromSerialized(serialized, result)
 
         return result
     },
@@ -259,10 +256,10 @@ const cloneMovement = (
     return cloned
 }
 
-const convertActionPointsToSerializable = (
+const convertActionPointsToSerialized = (
     result: SquaddieActionResult,
-    serializable: SerializableSquaddieActionResult
-): SerializableSquaddieActionResult => {
+    serializable: SerializedSquaddieActionResult
+): SerializedSquaddieActionResult => {
     if (!result.actionPoints) return serializable
 
     serializable.actionPoints = {
@@ -274,40 +271,40 @@ const convertActionPointsToSerializable = (
     return serializable
 }
 
-const convertDamageToSerializable = (
+const convertDamageToSerialized = (
     result: SquaddieActionResult,
-    serializable: SerializableSquaddieActionResult
-): SerializableSquaddieActionResult => {
+    serializable: SerializedSquaddieActionResult
+): SerializedSquaddieActionResult => {
     if (!result.damage) return serializable
 
     serializable.damage = { ...result.damage }
     return serializable
 }
 
-const convertHealingToSerializable = (
+const convertHealingToSerialized = (
     result: SquaddieActionResult,
-    serializable: SerializableSquaddieActionResult
-): SerializableSquaddieActionResult => {
+    serializable: SerializedSquaddieActionResult
+): SerializedSquaddieActionResult => {
     if (!result.healing) return serializable
 
     serializable.healing = { ...result.healing }
     return serializable
 }
 
-const convertConditionsAddedToSerializable = (
+const convertConditionsAddedToSerialized = (
     result: SquaddieActionResult,
-    serializable: SerializableSquaddieActionResult
-): SerializableSquaddieActionResult => {
+    serializable: SerializedSquaddieActionResult
+): SerializedSquaddieActionResult => {
     if (!result.conditionsAdded) return serializable
 
     serializable.conditionsAdded = result.conditionsAdded.map((c) => ({ ...c }))
     return serializable
 }
 
-const convertDispelToSerializable = (
+const convertDispelToSerialized = (
     result: SquaddieActionResult,
-    serializable: SerializableSquaddieActionResult
-): SerializableSquaddieActionResult => {
+    serializable: SerializedSquaddieActionResult
+): SerializedSquaddieActionResult => {
     if (!result.dispel) return serializable
 
     serializable.dispel = {
@@ -327,10 +324,10 @@ const convertDispelToSerializable = (
     return serializable
 }
 
-const convertTreatToSerializable = (
+const convertTreatToSerialized = (
     result: SquaddieActionResult,
-    serializable: SerializableSquaddieActionResult
-): SerializableSquaddieActionResult => {
+    serializable: SerializedSquaddieActionResult
+): SerializedSquaddieActionResult => {
     if (!result.treat) return serializable
 
     serializable.treat = {
@@ -350,10 +347,10 @@ const convertTreatToSerializable = (
     return serializable
 }
 
-const convertMovementToSerializable = (
+const convertMovementToSerialized = (
     result: SquaddieActionResult,
-    serializable: SerializableSquaddieActionResult
-): SerializableSquaddieActionResult => {
+    serializable: SerializedSquaddieActionResult
+): SerializedSquaddieActionResult => {
     if (!result.movement) return serializable
 
     serializable.movement = {
@@ -374,8 +371,8 @@ const convertMovementToSerializable = (
     return serializable
 }
 
-const convertActionPointsFromSerializable = (
-    serialized: SerializableSquaddieActionResult,
+const convertActionPointsFromSerialized = (
+    serialized: SerializedSquaddieActionResult,
     result: SquaddieActionResult
 ): SquaddieActionResult => {
     if (!serialized.actionPoints) return result
@@ -389,8 +386,8 @@ const convertActionPointsFromSerializable = (
     return result
 }
 
-const convertDamageFromSerializable = (
-    serialized: SerializableSquaddieActionResult,
+const convertDamageFromSerialized = (
+    serialized: SerializedSquaddieActionResult,
     result: SquaddieActionResult
 ): SquaddieActionResult => {
     if (!serialized.damage) return result
@@ -399,8 +396,8 @@ const convertDamageFromSerializable = (
     return result
 }
 
-const convertHealingFromSerializable = (
-    serialized: SerializableSquaddieActionResult,
+const convertHealingFromSerialized = (
+    serialized: SerializedSquaddieActionResult,
     result: SquaddieActionResult
 ): SquaddieActionResult => {
     if (!serialized.healing) return result
@@ -409,8 +406,8 @@ const convertHealingFromSerializable = (
     return result
 }
 
-const convertConditionsAddedFromSerializable = (
-    serialized: SerializableSquaddieActionResult,
+const convertConditionsAddedFromSerialized = (
+    serialized: SerializedSquaddieActionResult,
     result: SquaddieActionResult
 ): SquaddieActionResult => {
     if (!serialized.conditionsAdded) return result
@@ -419,8 +416,8 @@ const convertConditionsAddedFromSerializable = (
     return result
 }
 
-const convertDispelFromSerializable = (
-    serialized: SerializableSquaddieActionResult,
+const convertDispelFromSerialized = (
+    serialized: SerializedSquaddieActionResult,
     result: SquaddieActionResult
 ): SquaddieActionResult => {
     if (!serialized.dispel) return result
@@ -447,8 +444,8 @@ const convertDispelFromSerializable = (
     return result
 }
 
-const convertTreatFromSerializable = (
-    serialized: SerializableSquaddieActionResult,
+const convertTreatFromSerialized = (
+    serialized: SerializedSquaddieActionResult,
     result: SquaddieActionResult
 ): SquaddieActionResult => {
     if (!serialized.treat) return result
@@ -475,8 +472,8 @@ const convertTreatFromSerializable = (
     return result
 }
 
-const convertMovementFromSerializable = (
-    serialized: SerializableSquaddieActionResult,
+const convertMovementFromSerialized = (
+    serialized: SerializedSquaddieActionResult,
     result: SquaddieActionResult
 ): SquaddieActionResult => {
     if (!serialized.movement) return result

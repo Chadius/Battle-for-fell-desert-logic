@@ -2,11 +2,10 @@ import { MissionManager } from "./missionManager"
 import {
     type InMissionSummary,
     InMissionSummaryService,
-    type SerializableInMissionSummary,
+    type SerializedInMissionSummary,
 } from "./inMissionSummary"
 import {
-    type SerializableForecastedActionResult,
-    type SquaddieActionDecisions,
+    type SerializedForecastedActionResult,
     SquaddieActionResultCalculator,
 } from "../squaddieAction/calculate/result/squaddieActionResultCalculator"
 import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
@@ -19,24 +18,14 @@ import { MissionTurnService, type TMissionAffiliationTurn } from "./missionTurn"
 import {
     type ActionResult,
     ActionResultsService,
-    type SerializableActionResults,
+    type SerializedActionResults,
 } from "./actionResult"
 import type { TargetResult } from "./targetResult"
-
-export interface ReadiedAction {
-    actor: {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
-    }
-    targets: {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
-    }[]
-    action: {
-        id: string
-        decisions?: SquaddieActionDecisions
-    }
-}
+import {
+    type ReadiedAction,
+    ReadiedActionService,
+    type SerializedReadiedAction,
+} from "./readiedAction"
 
 export class MissionEngine {
     missionManager?: MissionManager
@@ -55,12 +44,23 @@ export class MissionEngine {
     readyAction({ actor, targets, action }: ReadiedAction): {
         isValid: boolean
     } {
-        this.readiedAction = { actor, targets, action }
+        this.readiedAction = ReadiedActionService.new({
+            actor,
+            targets,
+            action,
+        })
         return { isValid: true }
     }
 
     getReadiedAction(): ReadiedAction | undefined {
         return this.readiedAction
+    }
+
+    getSerializedReadiedAction(): SerializedReadiedAction | undefined {
+        if (!this.readiedAction) {
+            return undefined
+        }
+        return ReadiedActionService.serialize(this.readiedAction)
     }
 
     cancelReadiedAction(): void {
@@ -77,19 +77,19 @@ export class MissionEngine {
         return this.missionManager!.createInMissionSummary()
     }
 
-    getSerializableInMissionSummary(): SerializableInMissionSummary {
+    getSerializedInMissionSummary(): SerializedInMissionSummary {
         this.throwIfMissionManagerIsUndefined(
-            this.getSerializableInMissionSummary.name
+            this.getSerializedInMissionSummary.name
         )
         const inMissionSummary = this.missionManager!.createInMissionSummary()
         return InMissionSummaryService.serialize(inMissionSummary)
     }
 
-    loadSerializableInMissionSummary(
-        serializable: SerializableInMissionSummary
+    loadSerializedInMissionSummary(
+        serializable: SerializedInMissionSummary
     ): void {
         this.throwIfMissionManagerIsUndefined(
-            this.loadSerializableInMissionSummary.name
+            this.loadSerializedInMissionSummary.name
         )
         const inMissionSummary =
             InMissionSummaryService.deserialize(serializable)
@@ -157,7 +157,7 @@ export class MissionEngine {
         return this.actionResults
     }
 
-    getSerializedActionResults(): SerializableActionResults | undefined {
+    getSerializedActionResults(): SerializedActionResults | undefined {
         if (this.actionResults == undefined) {
             return undefined
         }
@@ -269,7 +269,7 @@ export class MissionEngine {
         this.missionManager!.setMissionObjectiveAsRewarded(objectiveId)
     }
 
-    previewReadiedActionAndForecastResults(): SerializableForecastedActionResult[] {
+    previewReadiedActionAndForecastResults(): SerializedForecastedActionResult[] {
         this.throwIfMissionManagerIsUndefined(
             this.previewReadiedActionAndForecastResults.name
         )

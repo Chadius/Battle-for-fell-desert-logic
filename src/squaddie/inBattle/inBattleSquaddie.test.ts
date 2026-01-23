@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type InBattleSquaddie,
     InBattleSquaddieService,
-    type SerializableInBattleSquaddie,
+    type SerializedInBattleSquaddie,
 } from "./inBattleSquaddie"
 import {
     SquaddieConditionService,
@@ -162,7 +162,7 @@ describe("InBattleSquaddie", () => {
             expect(restoredAbsorb.limit.duration).toEqual(3)
         })
 
-        it("toSerializable produces valid JSON-serializable object", () => {
+        it("serialize produces valid JSON-serializable object", () => {
             const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "squaddie-out",
                 name: "Test Squaddie",
@@ -192,7 +192,7 @@ describe("InBattleSquaddie", () => {
             const serializable = InBattleSquaddieService.serialize(squaddie)
 
             const jsonString = JSON.stringify(serializable)
-            const parsed: SerializableInBattleSquaddie = JSON.parse(jsonString)
+            const parsed: SerializedInBattleSquaddie = JSON.parse(jsonString)
 
             expect(parsed.id).toEqual(99)
             expect(parsed.name).toEqual("JSON Test")
@@ -229,7 +229,7 @@ describe("InBattleSquaddie", () => {
         })
 
         it("modifications to restored object do not affect serializable", () => {
-            const serializable: SerializableInBattleSquaddie = {
+            const serializable: SerializedInBattleSquaddie = {
                 id: 1,
                 outOfBattleSquaddieId: "squaddie-out",
                 name: "Serialized",

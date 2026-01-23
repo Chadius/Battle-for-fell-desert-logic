@@ -236,7 +236,7 @@ describe("InMissionSummary", () => {
             ).toHaveLength(1)
         })
 
-        it("SerializableInMissionSummary is directly JSON-serializable", () => {
+        it("SerializedInMissionSummary is directly JSON-serializable", () => {
             const summary: InMissionSummary = {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: false },

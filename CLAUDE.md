@@ -37,7 +37,7 @@ Types should be used if we anticipate a future Union of different Types. It is a
 
 Interfaces should be used by default, especially if the object has nested fields.
 
-If we're creating a new type that is based on an existing type (for example, a Serializable type of object), it's
+If we're creating a new type that is based on an existing type (for example, a Serialized type of object), it's
 preferred to use a Type that Inherits from the Interface and removes/replaces fields.
 
 ## Folder conventions
@@ -82,9 +82,9 @@ broken into several helper function.
 If an object has multiple optional fields and independent work can be done on each, use multiple helper functions
 instead of multiple if statements. This reduces complexity and makes it easier to read.
 
-For example, SquaddieActionHistoryEntryService uses convertSquaddieActionResultToSerializable to serialize the
-SquaddieActionResult object. It uses helper functions to serialize each SquaddieActionResult field. These functions
-serialize one field and returns the serialized object so it can be passed on to the next helper function.
+For example, use serialize() and deserialize() to convert components. If the service or class handles multiple objects
+(like the InBattleSquaddieManager) then you can disambiguate the component you are serializing
+(like serializeInBattleSquaddieCollection)
 
 # Adding New Interfaces
 

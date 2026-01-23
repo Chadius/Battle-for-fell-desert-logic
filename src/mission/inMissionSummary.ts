@@ -1,7 +1,7 @@
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-    type SerializableInBattleSquaddieCollection,
+    type SerializedInBattleSquaddieCollection,
 } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { MissionObjective } from "./missionObjective"
@@ -18,11 +18,11 @@ export interface InMissionSummary {
     inBattleSquaddieCollection: InBattleSquaddieCollection
 }
 
-export type SerializableInMissionSummary = Omit<
+export type SerializedInMissionSummary = Omit<
     InMissionSummary,
     "inBattleSquaddieCollection"
 > & {
-    inBattleSquaddieCollection: SerializableInBattleSquaddieCollection
+    inBattleSquaddieCollection: SerializedInBattleSquaddieCollection
 }
 
 export const InMissionSummaryService = {
@@ -102,7 +102,7 @@ export const InMissionSummaryService = {
 
     serialize: (
         inMissionSummary: InMissionSummary
-    ): SerializableInMissionSummary => {
+    ): SerializedInMissionSummary => {
         return {
             missionObjectives: inMissionSummary.missionObjectives,
             inBattleSquaddieCollection:
@@ -113,7 +113,7 @@ export const InMissionSummaryService = {
     },
 
     deserialize: (
-        serializable: SerializableInMissionSummary
+        serializable: SerializedInMissionSummary
     ): InMissionSummary => {
         return {
             missionObjectives: serializable.missionObjectives,

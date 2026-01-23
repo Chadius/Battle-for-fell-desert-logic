@@ -38,7 +38,7 @@ export interface InBattleSquaddie {
     itemIdsUsed: string[]
 }
 
-export type SerializableInBattleSquaddie = Omit<
+export type SerializedInBattleSquaddie = Omit<
     InBattleSquaddie,
     "conditions"
 > & {
@@ -470,11 +470,10 @@ export const InBattleSquaddieService = {
         newSquaddie.itemIdsUsed.push(item.id)
         return newSquaddie
     },
-    serialize: (squaddie: InBattleSquaddie): SerializableInBattleSquaddie =>
+    serialize: (squaddie: InBattleSquaddie): SerializedInBattleSquaddie =>
         serialize(squaddie),
-    deserialize: (
-        serializable: SerializableInBattleSquaddie
-    ): InBattleSquaddie => deserialize(serializable),
+    deserialize: (serializable: SerializedInBattleSquaddie): InBattleSquaddie =>
+        deserialize(serializable),
 }
 
 const clone = (original: InBattleSquaddie): InBattleSquaddie => {
@@ -930,9 +929,7 @@ const calculateConditionAmount = (
     return { conditionBonus, conditionPenalty }
 }
 
-const serialize = (
-    squaddie: InBattleSquaddie
-): SerializableInBattleSquaddie => {
+const serialize = (squaddie: InBattleSquaddie): SerializedInBattleSquaddie => {
     const conditions: { [key: string]: SquaddieCondition[] } = {}
     for (const [
         conditionType,
@@ -963,7 +960,7 @@ const serialize = (
 }
 
 const deserialize = (
-    serializable: SerializableInBattleSquaddie
+    serializable: SerializedInBattleSquaddie
 ): InBattleSquaddie => {
     const conditions = new Map<TSquaddieConditionType, SquaddieCondition[]>()
     for (const [conditionType, conditionList] of Object.entries(

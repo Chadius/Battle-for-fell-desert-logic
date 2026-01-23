@@ -181,13 +181,13 @@ describe("MissionEngine", () => {
         })
     })
 
-    describe("getSerializableInMissionSummary", () => {
+    describe("getSerializedInMissionSummary", () => {
         it("throws error if MissionManager is undefined", () => {
             const missionEngine = new MissionEngine()
 
-            expect(() =>
-                missionEngine.getSerializableInMissionSummary()
-            ).toThrow("missionManager is undefined")
+            expect(() => missionEngine.getSerializedInMissionSummary()).toThrow(
+                "missionManager is undefined"
+            )
         })
 
         it("returns serializable summary with plain objects", () => {
@@ -258,7 +258,7 @@ describe("MissionEngine", () => {
             )
             const missionEngine = new MissionEngine(missionManager)
 
-            const serializable = missionEngine.getSerializableInMissionSummary()
+            const serializable = missionEngine.getSerializedInMissionSummary()
 
             expect(serializable.missionObjectives).toHaveLength(1)
             expect(serializable.missionObjectives[0].id).toBe("obj-1")
@@ -322,7 +322,7 @@ describe("MissionEngine", () => {
             )
             const missionEngine = new MissionEngine(missionManager)
 
-            const serializable = missionEngine.getSerializableInMissionSummary()
+            const serializable = missionEngine.getSerializedInMissionSummary()
             const jsonString = JSON.stringify(serializable)
             const parsed = JSON.parse(jsonString)
 
@@ -335,7 +335,7 @@ describe("MissionEngine", () => {
         })
     })
 
-    describe("loadSerializableInMissionSummary", () => {
+    describe("loadSerializedInMissionSummary", () => {
         let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let inBattleSquaddieManager: InBattleSquaddieManager
         let missionManager: MissionManager
@@ -411,7 +411,7 @@ describe("MissionEngine", () => {
             const engine = new MissionEngine()
 
             expect(() =>
-                engine.loadSerializableInMissionSummary({
+                engine.loadSerializedInMissionSummary({
                     missionObjectives: [],
                     inBattleSquaddieCollection: { byOutOfBattleSquaddieId: {} },
                 })
@@ -441,7 +441,7 @@ describe("MissionEngine", () => {
                 },
             }
 
-            missionEngine.loadSerializableInMissionSummary(savedState)
+            missionEngine.loadSerializedInMissionSummary(savedState)
 
             const hitPoints = inBattleSquaddieManager.getHitPoints(squaddieId)
             expect(hitPoints.current).toBe(3)
@@ -474,14 +474,14 @@ describe("MissionEngine", () => {
                 },
             }
 
-            missionEngine.loadSerializableInMissionSummary(savedState)
+            missionEngine.loadSerializedInMissionSummary(savedState)
 
             expect(
                 missionManager.missionState!.objectives[0].hasGivenReward
             ).toBe(true)
         })
 
-        it("round-trip preserves state via getSerializableInMissionSummary and loadSerializableInMissionSummary", () => {
+        it("round-trip preserves state via getSerializedInMissionSummary and loadSerializedInMissionSummary", () => {
             inBattleSquaddieManager.dealDamageToSquaddie({
                 ...squaddieId,
                 damage: { amount: 6, type: undefined },
@@ -496,14 +496,14 @@ describe("MissionEngine", () => {
             const originalActionPoints =
                 inBattleSquaddieManager.getActionPoints(squaddieId)
 
-            const savedState = missionEngine.getSerializableInMissionSummary()
+            const savedState = missionEngine.getSerializedInMissionSummary()
 
             inBattleSquaddieManager.dealDamageToSquaddie({
                 ...squaddieId,
                 damage: { amount: 2, type: undefined },
             })
 
-            missionEngine.loadSerializableInMissionSummary(savedState)
+            missionEngine.loadSerializedInMissionSummary(savedState)
 
             const restoredHitPoints =
                 inBattleSquaddieManager.getHitPoints(squaddieId)
@@ -542,6 +542,12 @@ describe("MissionEngine", () => {
             expect(readiedAction?.actor.outOfBattleSquaddieId).toBe("actor-1")
             expect(readiedAction?.targets).toHaveLength(1)
             expect(readiedAction?.action.id).toBe("action-1")
+
+            const serialized = missionEngine.getSerializedReadiedAction()
+            expect(serialized?.actor.inBattleSquaddieId).toBe(1)
+            expect(serialized?.actor.outOfBattleSquaddieId).toBe("actor-1")
+            expect(serialized?.targets).toHaveLength(1)
+            expect(serialized?.action.id).toBe("action-1")
         })
     })
 

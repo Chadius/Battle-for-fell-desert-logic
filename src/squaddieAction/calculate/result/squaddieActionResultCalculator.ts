@@ -7,7 +7,7 @@ import type {
 } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieActionManager } from "../../squaddieActionManager"
 import {
-    type SerializableSquaddieActionResult,
+    type SerializedSquaddieActionResult,
     type SquaddieActionResult,
     SquaddieActionResultService,
 } from "./squaddieActionResult"
@@ -45,11 +45,11 @@ export interface ForecastedActionResult {
     squaddieActionResults: SquaddieActionResult[]
 }
 
-export type SerializableForecastedActionResult = Omit<
+export type SerializedForecastedActionResult = Omit<
     ForecastedActionResult,
     "squaddieActionResults"
 > & {
-    squaddieActionResults: SerializableSquaddieActionResult[]
+    squaddieActionResults: SerializedSquaddieActionResult[]
 }
 
 export const SquaddieActionResultCalculator = {
@@ -398,7 +398,7 @@ export const SquaddieActionResultCalculator = {
 
     serializeForecastedActionResult: (
         result: ForecastedActionResult
-    ): SerializableForecastedActionResult => {
+    ): SerializedForecastedActionResult => {
         return {
             battleSquaddieId: { ...result.battleSquaddieId },
             degreeOfSuccess: result.degreeOfSuccess,
@@ -410,7 +410,7 @@ export const SquaddieActionResultCalculator = {
     },
 
     deserializeSerializedForecastedActionResult: (
-        results: SerializableForecastedActionResult[]
+        results: SerializedForecastedActionResult[]
     ): ForecastedActionResult[] => {
         return results.map((result) => {
             const deserializedSquaddieActionResults =

@@ -1,6 +1,6 @@
 import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 import {
-    type SerializableSquaddieActionResult,
+    type SerializedSquaddieActionResult,
     type SquaddieActionResult,
     SquaddieActionResultService,
 } from "../../squaddieAction/calculate/result/squaddieActionResult"
@@ -13,11 +13,11 @@ export interface SquaddieTurnActionRecord {
     results: SquaddieActionResult[]
 }
 
-export type SerializableSquaddieTurnActionRecord = Omit<
+export type SerializedSquaddieTurnActionRecord = Omit<
     SquaddieTurnActionRecord,
     "results"
 > & {
-    results: SerializableSquaddieActionResult[]
+    results: SerializedSquaddieActionResult[]
 }
 
 export const SquaddieTurnActionRecordService = {
@@ -54,7 +54,7 @@ export const SquaddieTurnActionRecordService = {
 
     createFromJSON: (data: {
         action: { id: string; name: string }
-        results: SerializableSquaddieActionResult[]
+        results: SerializedSquaddieActionResult[]
     }): SquaddieTurnActionRecord => {
         throwIfActionDataIsInvalid(data.action, "createFromJSON")
 
@@ -95,7 +95,7 @@ export const SquaddieTurnActionRecordService = {
 
     serialize: (
         squaddieTurnActionRecord: SquaddieTurnActionRecord
-    ): SerializableSquaddieTurnActionRecord => {
+    ): SerializedSquaddieTurnActionRecord => {
         return {
             action: { ...squaddieTurnActionRecord.action },
             results: squaddieTurnActionRecord.results.map((result) =>
@@ -126,7 +126,7 @@ const throwIfActionDataIsInvalid = (
 }
 
 const throwIfResultIsInvalid = (
-    result: SquaddieActionResult | SerializableSquaddieActionResult,
+    result: SquaddieActionResult | SerializedSquaddieActionResult,
     callName: string
 ) => {
     if (
