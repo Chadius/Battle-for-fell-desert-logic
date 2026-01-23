@@ -2124,4 +2124,162 @@ describe("MissionEngine", () => {
             expect(parsed.isDefeated).toBe(false)
         })
     })
+
+    describe("getDefeatedSquaddies", () => {
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let playerSquaddieId: BattleSquaddieId
+        let enemySquaddieId: BattleSquaddieId
+        let missionState: MissionState
+
+        beforeEach(() => {
+            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+                OutOfBattleSquaddieCollectionService.new(),
+                OutOfBattleSquaddieAttributeSheetCollectionService.new()
+            )
+
+            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
+                {
+                    items: { itemIds: [], maxCapacity: 0 },
+                    movement: { distancePerAction: 2 },
+                    id: "test_sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 5,
+                        [AttributeScore.SOUL]: 5,
+                    },
+                    rank: 0,
+                }
+            )
+
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+
+            const playerSquaddie = OutOfBattleSquaddieService.new({
+                id: "player-1",
+                name: "Hero",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "test_sheet",
+            })
+
+            const enemySquaddie = OutOfBattleSquaddieService.new({
+                id: "enemy-1",
+                name: "Enemy",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "test_sheet",
+            })
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            playerSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player-1",
+            })
+
+            enemySquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+
+            missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+            })
+        })
+
+        it("throws error if MissionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() => missionEngine.getDefeatedSquaddies()).toThrow(
+                "missionManager is undefined"
+            )
+        })
+
+        it("throws error if inBattleSquaddieManager is undefined", () => {
+            const missionManager = new MissionManager(missionState)
+            const missionEngine = new MissionEngine(missionManager)
+
+            expect(() => missionEngine.getDefeatedSquaddies()).toThrow(
+                "inBattleSquaddieManager is undefined"
+            )
+        })
+
+        it("returns empty array when no squaddies are defeated", () => {
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            const defeatedSquaddies = missionEngine.getDefeatedSquaddies()
+
+            expect(defeatedSquaddies).toEqual([])
+        })
+
+        it("returns defeated squaddies", () => {
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...enemySquaddieId,
+                damage: { amount: 100, type: undefined },
+            })
+
+            const defeatedSquaddies = missionEngine.getDefeatedSquaddies()
+
+            expect(defeatedSquaddies).toHaveLength(1)
+            expect(defeatedSquaddies[0].inBattleSquaddieId).toBe(
+                enemySquaddieId.inBattleSquaddieId
+            )
+            expect(defeatedSquaddies[0].outOfBattleSquaddieId).toBe(
+                enemySquaddieId.outOfBattleSquaddieId
+            )
+        })
+
+        it("returns multiple defeated squaddies", () => {
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...playerSquaddieId,
+                damage: { amount: 100, type: undefined },
+            })
+
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...enemySquaddieId,
+                damage: { amount: 100, type: undefined },
+            })
+
+            const defeatedSquaddies = missionEngine.getDefeatedSquaddies()
+
+            expect(defeatedSquaddies).toHaveLength(2)
+        })
+
+        it("does not include squaddies who are still alive", () => {
+            const missionManager = new MissionManager(
+                missionState,
+                inBattleSquaddieManager
+            )
+            const missionEngine = new MissionEngine(missionManager)
+
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...enemySquaddieId,
+                damage: { amount: 5, type: undefined },
+            })
+
+            const defeatedSquaddies = missionEngine.getDefeatedSquaddies()
+
+            expect(defeatedSquaddies).toEqual([])
+        })
+    })
 })

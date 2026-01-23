@@ -249,6 +249,22 @@ export class MissionEngine {
         )
     }
 
+    getDefeatedSquaddies(): BattleSquaddieId[] {
+        this.throwIfMissionManagerIsUndefined(this.getDefeatedSquaddies.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getDefeatedSquaddies.name
+        )
+
+        const inBattleSquaddieManager =
+            this.missionManager!.inBattleSquaddieManager!
+
+        const allSquaddies = inBattleSquaddieManager.getAllSquaddies()
+
+        return allSquaddies.filter((squaddieId) =>
+            inBattleSquaddieManager.isSquaddieDefeated(squaddieId)
+        )
+    }
+
     markMissionObjectiveAsRewarded(objectiveId: string): void {
         this.throwIfMissionManagerIsUndefined(
             this.markMissionObjectiveAsRewarded.name
