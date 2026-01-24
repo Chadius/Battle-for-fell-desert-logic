@@ -1,6 +1,12 @@
 import type { MissionState } from "./missionState"
-import { MissionAffiliationTurn, type TMissionAffiliationTurn, } from "./missionTurn"
-import type { BattleSquaddieId, InBattleSquaddieManager, } from "../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    MissionAffiliationTurn,
+    type TMissionAffiliationTurn,
+} from "./missionTurn"
+import type {
+    BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { MissionObjectiveRewardType } from "./missionObjectiveReward"
@@ -16,12 +22,18 @@ import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
 import { ApplyResultService } from "../squaddieAction/apply/applyResultService"
 import type { SquaddieAction } from "../squaddieAction/squaddieAction"
-import { type MissionHistory, MissionHistoryService, } from "./history/missionHistory"
+import {
+    type MissionHistory,
+    MissionHistoryService,
+} from "./history/missionHistory"
 import { MissionTurnHistoryEntryService } from "./history/missionTurnHistoryEntry"
 import { SquaddieTurnRecordService } from "./history/squaddieTurnRecord"
 import type { SquaddieTurnActionRecord } from "./history/squaddieTurnActionRecord"
 import { SquaddieTurnActionRecordService } from "./history/squaddieTurnActionRecord"
-import { type InMissionSummary, InMissionSummaryService, } from "./inMissionSummary"
+import {
+    type InMissionSummary,
+    InMissionSummaryService,
+} from "./inMissionSummary"
 import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap"
 
 export class MissionManager {

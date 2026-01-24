@@ -5,12 +5,13 @@ import { MissionObjectiveService } from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
-import { type BattleSquaddieId, InBattleSquaddieManager, } from "../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    type BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import {
-    OutOfBattleSquaddieAttributeSheetCollectionService
-} from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
@@ -18,14 +19,24 @@ import { AttributeScore } from "../proficiency/attributeScore"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
 import { SquaddieActionService } from "../squaddieAction/squaddieAction"
-import { ProficiencyLevel, ProficiencyType, } from "../proficiency/proficiencyLevel"
+import {
+    ProficiencyLevel,
+    ProficiencyType,
+} from "../proficiency/proficiencyLevel"
 import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService, type SerializedCoordinateMap, } from "../coordinateMap/coordinateMap"
+import {
+    CoordinateMapService,
+    type SerializedCoordinateMap,
+} from "../coordinateMap/coordinateMap"
 import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
 import { ActionRange } from "../squaddieAction/actionRange"
 import { CoordinateGeneratorShape } from "../coordinateMap/shape"
-import { MissionAffiliationTurn, MissionTurnService, type TMissionAffiliationTurn, } from "./missionTurn"
+import {
+    MissionAffiliationTurn,
+    MissionTurnService,
+    type TMissionAffiliationTurn,
+} from "./missionTurn"
 
 describe("MissionManager", () => {
     describe("constructor", () => {
