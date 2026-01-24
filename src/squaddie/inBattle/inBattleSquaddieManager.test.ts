@@ -1,15 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { OutOfBattleSquaddieCollectionService } from "../outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import {
-    type OutOfBattleSquaddieAttributeSheet,
-    OutOfBattleSquaddieAttributeSheetService,
-} from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
+import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
 } from "../outOfBattle/outOfBattleSquaddie"
-import { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager"
 import {
     ProficiencyLevel,
     ProficiencyLevelConst,
@@ -31,6 +25,7 @@ import { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
 import { SquaddieItemCollectionService } from "../../squaddieItem/squaddieItemCollection"
 import { SquaddieItemService } from "../../squaddieItem/squaddieItem"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
 
 describe("In Battle Squaddie Manager", () => {
     let attributeSheet: OutOfBattleSquaddieAttributeSheet
@@ -41,34 +36,33 @@ describe("In Battle Squaddie Manager", () => {
     let manager: InBattleSquaddieManager
 
     beforeEach(() => {
-        let outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-            OutOfBattleSquaddieCollectionService.new(),
-            OutOfBattleSquaddieAttributeSheetCollectionService.new()
-        )
-        attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-            id: "test sheet",
-            movement: {
-                distancePerAction: 2,
-                skipOverPits: true,
-            },
-            maxHitPoints: 5,
-            attributeScores: {
-                [AttributeScore.BODY]: 5,
-                [AttributeScore.MIND]: 7,
-                [AttributeScore.SOUL]: 3,
-            },
-            proficiencyLevels: {
-                [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
-                [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
-                [ProficiencyType.ARMOR]: ProficiencyLevel.NOVICE,
-            },
-            rank: 3,
-            items: {
-                itemIds: ["plateMail", "healScroll"],
-                maxCapacity: 3,
-            },
-        })
-        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+        const outOfBattleSquaddieManagerResult =
+            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
+                sheetId: "test sheet",
+                attributeSheetOptions: {
+                    distancePerAction: 2,
+                    skipOverPits: true,
+                    maxHitPoints: 5,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 7,
+                        [AttributeScore.SOUL]: 3,
+                    },
+                    proficiencyLevels: {
+                        [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
+                        [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
+                        [ProficiencyType.ARMOR]: ProficiencyLevel.NOVICE,
+                    },
+                    rank: 3,
+                    items: {
+                        itemIds: ["plateMail", "healScroll"],
+                        maxCapacity: 3,
+                    },
+                },
+            })
+        const outOfBattleSquaddieManager =
+            outOfBattleSquaddieManagerResult.manager
+        attributeSheet = outOfBattleSquaddieManagerResult.attributeSheet
 
         outOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
             id: "squaddie0",

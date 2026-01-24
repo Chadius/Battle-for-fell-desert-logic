@@ -12,16 +12,14 @@ import {
 import { ApplyResultService } from "../../apply/applyResultService"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { AttributeScore } from "../../../proficiency/attributeScore"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation"
 import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
 
 describe("Reversing SquaddieActionResults", () => {
     describe("validation", () => {
@@ -680,27 +678,24 @@ describe("Reversing SquaddieActionResults", () => {
         let outOfBattleSquaddieId: string
 
         beforeEach(() => {
-            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    id: "soldier",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 7,
-                        [AttributeScore.SOUL]: 3,
-                    },
-                    rank: 3,
-                    movement: {
-                        distancePerAction: 3,
-                    },
-                }
-            )
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const outOfBattleSquaddieManagerResult =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "soldier",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            attributeScores: {
+                                [AttributeScore.BODY]: 5,
+                                [AttributeScore.MIND]: 7,
+                                [AttributeScore.SOUL]: 3,
+                            },
+                            rank: 3,
+                            distancePerAction: 3,
+                        },
+                    }
+                )
+            outOfBattleSquaddieManager =
+                outOfBattleSquaddieManagerResult.manager
 
             outOfBattleSquaddieId = "soldier"
             const outOfBattleSquaddie = OutOfBattleSquaddieService.new({

@@ -1,16 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import {
-    type OutOfBattleSquaddieAttributeSheetCollection,
-    OutOfBattleSquaddieAttributeSheetCollectionService,
-} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
-import {
-    type OutOfBattleSquaddieCollection,
-    OutOfBattleSquaddieCollectionService,
-} from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { SquaddieActionManager } from "../../squaddieActionManager"
@@ -35,20 +26,18 @@ import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
 } from "../../../affiliation/affiliation"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
 
 describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
-    let attributeSheetCollection: OutOfBattleSquaddieAttributeSheetCollection
     let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
     let inBattleSquaddieManager: InBattleSquaddieManager
     let action: SquaddieAction
     let squaddieActionManager: SquaddieActionManager
-    let outOfBattleSquaddieCollection: OutOfBattleSquaddieCollection
 
     beforeEach(() => {
-        attributeSheetCollection =
-            OutOfBattleSquaddieAttributeSheetCollectionService.new()
-        outOfBattleSquaddieCollection =
-            OutOfBattleSquaddieCollectionService.new()
+        const outOfBattleSquaddieManagerResult =
+            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet()
+        outOfBattleSquaddieManager = outOfBattleSquaddieManagerResult.manager
         squaddieActionManager = new SquaddieActionManager(
             SquaddieActionCollectionService.new()
         )
@@ -56,7 +45,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
     describe("Get probability distribution from modifier difference", () => {
         it("calculates probabilities should add up to 36", () => {
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
                 name: "Actor",
@@ -71,7 +60,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 },
             })
 
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
                 name: "Target",
@@ -161,7 +150,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
     describe("Handle multiple targets", () => {
         it("calculates forecasts for 2 targets with different defensive bonuses", () => {
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
                 name: "Actor",
@@ -176,7 +165,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 },
             })
 
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "target1_attribute_sheet",
                 squaddieId: "target1_squaddie",
                 name: "Weak Target, cannot Botch",
@@ -191,7 +180,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 },
             })
 
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "target2_attribute_sheet",
                 squaddieId: "target2_squaddie",
                 name: "Strong Target, very hard to hit",
@@ -286,7 +275,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
     describe("Filter degrees based on action constraints", () => {
         it("only shows SUCCESS degree when action supports only SUCCESS", () => {
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
                 name: "Actor",
@@ -301,7 +290,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 },
             })
 
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
                 name: "Target",
@@ -358,7 +347,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
         })
 
         it("adds critical chances to success when action cannot critically succeed", () => {
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
                 name: "Actor",
@@ -373,7 +362,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 },
             })
 
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
                 name: "Target",
@@ -454,7 +443,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
         })
 
         it("adds botch chances to failure when action cannot botch", () => {
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
                 name: "Actor",
@@ -469,7 +458,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 },
             })
 
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
                 name: "Target, will probably fail",
@@ -551,7 +540,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
     describe("Verify proficiency type mapping", () => {
         it("uses DEFEND_MIND proficiency when action uses SKILL_MIND", () => {
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
                 name: "Actor",
@@ -566,7 +555,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 },
             })
 
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
                 name: "Target is very resistant to Mind attacks",
@@ -650,7 +639,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
     describe("Handle ARMOR conditions for WEAPON proficiencies", () => {
         it("applies ARMOR condition when actor uses WEAPON proficiency", () => {
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
                 name: "Actor",
@@ -665,7 +654,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 },
             })
 
-            addSquaddieToCollections({
+            addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
                 name: "Armored Target",
@@ -781,18 +770,17 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             [AttributeScore.SOUL]: number
         }
     }) => {
-        return OutOfBattleSquaddieAttributeSheetService.new({
+        return OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
             id,
             attributeScores,
             proficiencyLevels: new Map<TProficiencyType, TProficiencyLevel>([
                 [proficiencyType, proficiencyLevel],
             ]),
             rank,
-            movement: {},
         })
     }
 
-    const addSquaddieToCollections = ({
+    const addSquaddieToManager = ({
         attributeSheetId,
         squaddieId,
         name,
@@ -823,34 +811,18 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             attributeScores,
         })
 
-        attributeSheetCollection =
-            OutOfBattleSquaddieAttributeSheetCollectionService.addOrUpdateAttributeSheet(
-                {
-                    collection: attributeSheetCollection,
-                    attributeSheet,
-                }
-            )
-
-        outOfBattleSquaddieCollection =
-            OutOfBattleSquaddieCollectionService.addOrUpdateOutOfBattleSquaddie(
-                {
-                    collection: outOfBattleSquaddieCollection,
-                    outOfBattleSquaddie: OutOfBattleSquaddieService.new({
-                        id: squaddieId,
-                        name,
-                        affiliation,
-                        attributeSheetId,
-                    }),
-                }
-            )
+        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(
+            OutOfBattleSquaddieService.new({
+                id: squaddieId,
+                name,
+                affiliation,
+                attributeSheetId,
+            })
+        )
     }
 
     const initializeManagers = () => {
-        outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-            outOfBattleSquaddieCollection,
-            attributeSheetCollection
-        )
-
         inBattleSquaddieManager = new InBattleSquaddieManager(
             InBattleSquaddieCollectionService.new(),
             outOfBattleSquaddieManager

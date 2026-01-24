@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { ProficiencyCalculator } from "./proficiencyCalculator"
 import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
 import { AttributeScore } from "../../proficiency/attributeScore"
@@ -17,6 +14,7 @@ import type { SquaddieAction } from "../squaddieAction"
 import { SquaddieActionService } from "../squaddieAction"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
 
 describe("ProficiencyCalculator", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager
@@ -26,28 +24,27 @@ describe("ProficiencyCalculator", () => {
     let testAction: SquaddieAction
 
     beforeEach(() => {
-        outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-            OutOfBattleSquaddieCollectionService.new(),
-            OutOfBattleSquaddieAttributeSheetCollectionService.new()
-        )
-
-        const soldierSheet = OutOfBattleSquaddieAttributeSheetService.new({
-            id: "soldier",
-            movement: { distancePerAction: 2 },
-            maxHitPoints: 5,
-            attributeScores: {
-                [AttributeScore.BODY]: 5,
-                [AttributeScore.MIND]: 7,
-                [AttributeScore.SOUL]: 3,
-            },
-            proficiencyLevels: {
-                [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
-                [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
-                [ProficiencyType.WEAPON_MARTIAL]: ProficiencyLevel.NOVICE,
-            },
-            rank: 3,
-        })
-        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(soldierSheet)
+        const outOfBattleSquaddieManagerResult =
+            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
+                sheetId: "soldier",
+                attributeSheetOptions: {
+                    distancePerAction: 2,
+                    maxHitPoints: 5,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 7,
+                        [AttributeScore.SOUL]: 3,
+                    },
+                    proficiencyLevels: {
+                        [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
+                        [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
+                        [ProficiencyType.WEAPON_MARTIAL]:
+                            ProficiencyLevel.NOVICE,
+                    },
+                    rank: 3,
+                },
+            })
+        outOfBattleSquaddieManager = outOfBattleSquaddieManagerResult.manager
 
         const actorSquaddie = OutOfBattleSquaddieService.new({
             id: "actor",

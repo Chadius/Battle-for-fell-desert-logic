@@ -6,17 +6,13 @@ import { MissionObjectiveService } from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
-import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import {
     type BattleSquaddieId,
     InBattleSquaddieManager,
 } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { AttributeScore } from "../proficiency/attributeScore"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
 import { SquaddieActionService } from "../squaddieAction/squaddieAction"
@@ -106,26 +102,17 @@ describe("MissionEngine", () => {
         })
 
         it("returns InMissionSummary from MissionManager", () => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 1 },
-                    id: "test sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 1,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
@@ -195,26 +182,17 @@ describe("MissionEngine", () => {
         })
 
         it("returns serializable summary with plain objects", () => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 1 },
-                    id: "test sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 1,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
@@ -277,26 +255,17 @@ describe("MissionEngine", () => {
         })
 
         it("can serialize into a JSON string", () => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 1 },
-                    id: "test sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 1,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
@@ -340,33 +309,23 @@ describe("MissionEngine", () => {
     })
 
     describe("loadSerializedInMissionSummary", () => {
-        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let inBattleSquaddieManager: InBattleSquaddieManager
         let missionManager: MissionManager
         let missionEngine: MissionEngine
         let squaddieId: BattleSquaddieId
 
         beforeEach(() => {
-            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 1 },
-                    id: "test sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 1,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
@@ -606,42 +565,28 @@ describe("MissionEngine", () => {
         let deterministicRollGenerator: RollGenerator
 
         beforeEach(() => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const actorAttributeSheet =
-                OutOfBattleSquaddieAttributeSheetService.new({
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: {
-                        distancePerAction: 2,
-                    },
-                    id: "actor_sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                })
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "actor_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const targetAttributeSheet =
-                OutOfBattleSquaddieAttributeSheetService.new({
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: {
-                        distancePerAction: 2,
-                    },
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
                     id: "target_sheet",
                     maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
+                    distancePerAction: 2,
+                    items: { maxCapacity: 0 },
                 })
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                targetAttributeSheet
+            )
 
             const actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "actor",
@@ -657,12 +602,6 @@ describe("MissionEngine", () => {
                 attributeSheetId: "target_sheet",
             })
 
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
-                actorAttributeSheet
-            )
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
-                targetAttributeSheet
-            )
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 actorOutOfBattleSquaddie
             )
@@ -1001,27 +940,17 @@ describe("MissionEngine", () => {
         let inBattleSquaddieManager: InBattleSquaddieManager
 
         beforeEach(() => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 2 },
-                    id: "test_sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const aliveEnemy = OutOfBattleSquaddieService.new({
                 id: "enemy-alive",
@@ -1252,27 +1181,17 @@ describe("MissionEngine", () => {
         let inBattleSquaddieManager: InBattleSquaddieManager
 
         beforeEach(() => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 2 },
-                    id: "test_sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const deadEnemy = OutOfBattleSquaddieService.new({
                 id: "enemy-dead",
@@ -1340,27 +1259,17 @@ describe("MissionEngine", () => {
         })
 
         it("throws error if objective is not complete", () => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 2 },
-                    id: "test_sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const aliveEnemy = OutOfBattleSquaddieService.new({
                 id: "enemy-alive",
@@ -1584,32 +1493,21 @@ describe("MissionEngine", () => {
     })
 
     describe("getSquaddiesWhoCanActThisPhase", () => {
-        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let inBattleSquaddieManager: InBattleSquaddieManager
         let playerSquaddieId: BattleSquaddieId
 
         beforeEach(() => {
-            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 2 },
-                    id: "test_sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const playerSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
@@ -1788,38 +1686,28 @@ describe("MissionEngine", () => {
         let targetSquaddieId: BattleSquaddieId
 
         beforeEach(() => {
-            const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const actorAttributeSheet =
-                OutOfBattleSquaddieAttributeSheetService.new({
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 2 },
-                    id: "actor_sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                })
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "actor_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const targetAttributeSheet =
-                OutOfBattleSquaddieAttributeSheetService.new({
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 2 },
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
                     id: "target_sheet",
                     maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
+                    distancePerAction: 2,
+                    items: { maxCapacity: 0 },
                 })
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                targetAttributeSheet
+            )
 
             const actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "actor",
@@ -1835,12 +1723,6 @@ describe("MissionEngine", () => {
                 attributeSheetId: "target_sheet",
             })
 
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
-                actorAttributeSheet
-            )
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
-                targetAttributeSheet
-            )
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 actorOutOfBattleSquaddie
             )
@@ -2008,33 +1890,22 @@ describe("MissionEngine", () => {
     })
 
     describe("getSquaddieInfo", () => {
-        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let inBattleSquaddieManager: InBattleSquaddieManager
         let playerSquaddieId: BattleSquaddieId
         let missionState: MissionState
 
         beforeEach(() => {
-            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 2 },
-                    id: "test_sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const playerSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
@@ -2163,34 +2034,23 @@ describe("MissionEngine", () => {
     })
 
     describe("getDefeatedSquaddies", () => {
-        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let inBattleSquaddieManager: InBattleSquaddieManager
         let playerSquaddieId: BattleSquaddieId
         let enemySquaddieId: BattleSquaddieId
         let missionState: MissionState
 
         beforeEach(() => {
-            outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-                OutOfBattleSquaddieCollectionService.new(),
-                OutOfBattleSquaddieAttributeSheetCollectionService.new()
-            )
-
-            const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new(
-                {
-                    items: { itemIds: [], maxCapacity: 0 },
-                    movement: { distancePerAction: 2 },
-                    id: "test_sheet",
-                    maxHitPoints: 10,
-                    attributeScores: {
-                        [AttributeScore.BODY]: 5,
-                        [AttributeScore.MIND]: 5,
-                        [AttributeScore.SOUL]: 5,
-                    },
-                    rank: 0,
-                }
-            )
-
-            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
 
             const playerSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",

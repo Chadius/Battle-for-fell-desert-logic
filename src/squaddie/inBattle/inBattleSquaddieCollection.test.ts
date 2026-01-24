@@ -7,16 +7,14 @@ import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
 } from "../outOfBattle/outOfBattleSquaddie"
-import {
-    type OutOfBattleSquaddieAttributeSheet,
-    OutOfBattleSquaddieAttributeSheetService,
-} from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
+import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
 import { AttributeScore } from "../../proficiency/attributeScore"
 import {
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
 
 describe("InBattleSquaddieCollection", () => {
     describe("serialization", () => {
@@ -25,22 +23,21 @@ describe("InBattleSquaddieCollection", () => {
         let outOfBattleSquaddie2: OutOfBattleSquaddie
 
         beforeEach(() => {
-            attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-                id: "sheet",
-                maxHitPoints: 10,
-                attributeScores: {
-                    [AttributeScore.BODY]: 5,
-                    [AttributeScore.MIND]: 7,
-                    [AttributeScore.SOUL]: 3,
-                },
-                items: { itemIds: [], maxCapacity: 0 },
-                movement: {
+            attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 7,
+                        [AttributeScore.SOUL]: 3,
+                    },
+                    items: { itemIds: [], maxCapacity: 0 },
                     distancePerAction: 2,
                     skipOverPits: false,
                     moveThroughWalls: false,
                     stopOnSquaddies: false,
-                },
-            })
+                })
             outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "squaddie-1",
                 name: "Test Squaddie 1",

@@ -5,16 +5,13 @@ import {
     MissionTurnService,
 } from "./missionTurn"
 import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
 import { AttributeScore } from "../proficiency/attributeScore"
 import type { CoordinateMap } from "../coordinateMap/coordinateMap"
 import { CoordinateMapService } from "../coordinateMap/coordinateMap"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
 
 describe("MissionTurn", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager
@@ -37,26 +34,15 @@ describe("MissionTurn", () => {
     }
 
     beforeEach(() => {
-        const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-            OutOfBattleSquaddieCollectionService.new(),
-            OutOfBattleSquaddieAttributeSheetCollectionService.new()
-        )
-
-        const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-            items: { itemIds: [], maxCapacity: 0 },
-            movement: {
-                distancePerAction: 1,
-            },
-            id: "test sheet",
-            maxHitPoints: 5,
-            attributeScores: {
-                [AttributeScore.BODY]: 5,
-                [AttributeScore.MIND]: 5,
-                [AttributeScore.SOUL]: 5,
-            },
-            rank: 0,
-        })
-        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+        const { manager: outOfBattleSquaddieManager } =
+            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
+                sheetId: "test sheet",
+                attributeSheetOptions: {
+                    maxHitPoints: 5,
+                    distancePerAction: 1,
+                    items: { maxCapacity: 0 },
+                },
+            })
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player",

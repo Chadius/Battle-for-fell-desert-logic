@@ -5,21 +5,14 @@ import {
 } from "../../squaddieAction"
 import { SquaddieActionManager } from "../../squaddieActionManager"
 import {
-    type OutOfBattleSquaddieAttributeSheet,
-    OutOfBattleSquaddieAttributeSheetService,
-} from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
-import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
 } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
 } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 import { AttributeScore } from "../../../proficiency/attributeScore"
 import {
     ProficiencyLevel,
@@ -41,13 +34,14 @@ import { CoordinateMovePathService } from "../../../coordinateMap/path/path"
 import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
 import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 
 describe("Squaddie resolves actions on themself", () => {
     let endTurnAction: SquaddieAction
     let raiseShieldAction: SquaddieAction
     let actionManager: SquaddieActionManager
 
-    let attributeSheet: OutOfBattleSquaddieAttributeSheet
     let outOfBattleSquaddie: OutOfBattleSquaddie
     let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
     let outOfBattleSquaddieId: string
@@ -57,28 +51,25 @@ describe("Squaddie resolves actions on themself", () => {
     let inBattleSquaddieId: number
 
     beforeEach(() => {
-        outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-            OutOfBattleSquaddieCollectionService.new(),
-            OutOfBattleSquaddieAttributeSheetCollectionService.new()
-        )
-        attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-            id: "soldier",
-            movement: {
-                distancePerAction: 2,
-            },
-            maxHitPoints: 5,
-            attributeScores: {
-                [AttributeScore.BODY]: 5,
-                [AttributeScore.MIND]: 7,
-                [AttributeScore.SOUL]: 3,
-            },
-            proficiencyLevels: {
-                [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
-                [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
-            },
-            rank: 3,
-        })
-        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+        const outOfBattleSquaddieManagerResult =
+            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
+                sheetId: "soldier",
+                attributeSheetOptions: {
+                    distancePerAction: 2,
+                    maxHitPoints: 5,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 7,
+                        [AttributeScore.SOUL]: 3,
+                    },
+                    proficiencyLevels: {
+                        [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
+                        [ProficiencyType.SKILL_BODY]: ProficiencyLevel.EXPERT,
+                    },
+                    rank: 3,
+                },
+            })
+        outOfBattleSquaddieManager = outOfBattleSquaddieManagerResult.manager
 
         outOfBattleSquaddieId = "soldier"
         outOfBattleSquaddie = OutOfBattleSquaddieService.new({

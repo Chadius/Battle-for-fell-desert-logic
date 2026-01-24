@@ -4,10 +4,6 @@ import {
     MissionObjectiveCriteriaType,
 } from "./missionObjectiveCriteria"
 import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import {
@@ -20,38 +16,31 @@ import {
     ProficiencyType,
 } from "../proficiency/proficiencyLevel"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
 
 describe("Mission Objective Criteria", () => {
     let manager: InBattleSquaddieManager
 
     beforeEach(() => {
-        const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-            OutOfBattleSquaddieCollectionService.new(),
-            OutOfBattleSquaddieAttributeSheetCollectionService.new()
-        )
-
-        const attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-            id: "test sheet",
-            movement: {
-                distancePerAction: 2,
-                skipOverPits: false,
-            },
-            maxHitPoints: 10,
-            attributeScores: {
-                [AttributeScore.BODY]: 5,
-                [AttributeScore.MIND]: 3,
-                [AttributeScore.SOUL]: 2,
-            },
-            proficiencyLevels: {
-                [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
-            },
-            rank: 1,
-            items: {
-                itemIds: [],
-                maxCapacity: 2,
-            },
-        })
-        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+        const { manager: outOfBattleSquaddieManager } =
+            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
+                sheetId: "test sheet",
+                attributeSheetOptions: {
+                    maxHitPoints: 10,
+                    distancePerAction: 2,
+                    skipOverPits: false,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 3,
+                        [AttributeScore.SOUL]: 2,
+                    },
+                    proficiencyLevels: {
+                        [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
+                    },
+                    rank: 1,
+                    items: { maxCapacity: 2 },
+                },
+            })
 
         manager = new InBattleSquaddieManager(
             InBattleSquaddieCollectionService.new(),

@@ -1,9 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import {
-    type OutOfBattleSquaddieAttributeSheet,
-    OutOfBattleSquaddieAttributeSheetService,
-} from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import type { OutOfBattleSquaddieAttributeSheet } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
@@ -12,9 +9,6 @@ import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
 } from "../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 import { AttributeScore } from "../proficiency/attributeScore"
 import {
     CoordinateMapAStarAdapter,
@@ -31,6 +25,8 @@ import type { AStarGraph } from "../aStarSearch/aStarGraph"
 import { CoordinatePathMapService } from "./mapTransposition/coordinatePathMap"
 import type { OffsetCoordinate } from "./offsetCoordinate"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
+import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
 
 describe("coordinateMapAStarAdapter", () => {
     let manager: InBattleSquaddieManager
@@ -40,25 +36,23 @@ describe("coordinateMapAStarAdapter", () => {
     let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
 
     beforeEach(() => {
-        outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-            OutOfBattleSquaddieCollectionService.new(),
-            OutOfBattleSquaddieAttributeSheetCollectionService.new()
-        )
-        attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-            id: "test sheet",
-            movement: {
-                distancePerAction: 4,
-                skipOverPits: true,
-                moveThroughWalls: true,
-                stopOnSquaddies: false,
-            },
-            attributeScores: {
-                [AttributeScore.BODY]: 1,
-                [AttributeScore.MIND]: 2,
-                [AttributeScore.SOUL]: 3,
-            },
-        })
-        outOfBattleSquaddieManager.addOrUpdateAttributeSheet(attributeSheet)
+        const outOfBattleSquaddieManagerResult =
+            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
+                sheetId: "test sheet",
+                attributeSheetOptions: {
+                    distancePerAction: 4,
+                    skipOverPits: true,
+                    moveThroughWalls: true,
+                    stopOnSquaddies: false,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 1,
+                        [AttributeScore.MIND]: 2,
+                        [AttributeScore.SOUL]: 3,
+                    },
+                },
+            })
+        outOfBattleSquaddieManager = outOfBattleSquaddieManagerResult.manager
+        attributeSheet = outOfBattleSquaddieManagerResult.attributeSheet
 
         noAffiliationOutOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
             id: "noAffiliation",

@@ -7,10 +7,7 @@ import {
     type OutOfBattleSquaddieAttributeSheetCollection,
     OutOfBattleSquaddieAttributeSheetCollectionService,
 } from "./outOfBattleSquaddieAttributeSheetCollection"
-import {
-    type OutOfBattleSquaddieAttributeSheet,
-    OutOfBattleSquaddieAttributeSheetService,
-} from "./outOfBattleSquaddieAttributeSheet"
+import type { OutOfBattleSquaddieAttributeSheet } from "./outOfBattleSquaddieAttributeSheet"
 import {
     ProficiencyLevel,
     ProficiencyType,
@@ -22,6 +19,7 @@ import {
 } from "./outOfBattleSquaddie"
 import { AttributeScore } from "../../proficiency/attributeScore"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
 
 describe("Out of Battle Squaddie Manager", () => {
     let squaddieCollection: OutOfBattleSquaddieCollection
@@ -39,11 +37,9 @@ describe("Out of Battle Squaddie Manager", () => {
             squaddieCollection,
             attributeSheetCollection
         )
-        attributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
+        attributeSheet = OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
             id: "test sheet",
-            movement: {
-                distancePerAction: 2,
-            },
+            distancePerAction: 2,
             maxHitPoints: 5,
             proficiencyLevels: {
                 [ProficiencyType.DEFEND_BODY]: ProficiencyLevel.NOVICE,
