@@ -103,6 +103,18 @@ export const SquaddieTurnActionRecordService = {
             ),
         }
     },
+
+    isPlayerAllowedToUndo: (action: SquaddieTurnActionRecord): boolean => {
+        for (const result of action.results) {
+            if (result.damage != undefined) return false
+            if (result.healing != undefined) return false
+            if (result.conditionsAdded != undefined) return false
+            if (result.dispel != undefined) return false
+            if (result.treat != undefined) return false
+        }
+
+        return action.results.some((result) => result.movement != undefined)
+    },
 }
 
 const throwIfEntryIsUndefined = (

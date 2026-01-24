@@ -15,7 +15,10 @@ import {
 import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
-import { SquaddieActionService } from "../squaddieAction/squaddieAction"
+import {
+    type SquaddieAction,
+    SquaddieActionService,
+} from "../squaddieAction/squaddieAction"
 import { ProficiencyType } from "../proficiency/proficiencyLevel"
 import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection"
@@ -24,6 +27,14 @@ import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
 import { ActionRange } from "../squaddieAction/actionRange"
 import { CoordinateGeneratorShape } from "../coordinateMap/shape"
 import { MissionAffiliationTurn, MissionTurnService } from "./missionTurn"
+import { MissionHistoryService } from "./history/missionHistory"
+import { MissionTurnHistoryEntryService } from "./history/missionTurnHistoryEntry"
+import { SquaddieTurnRecordService } from "./history/squaddieTurnRecord"
+import { SquaddieTurnActionRecordService } from "./history/squaddieTurnActionRecord"
+import {
+    CoordinateMovePathMoveType,
+    CoordinateMovePathService,
+} from "../coordinateMap/path/path"
 
 describe("MissionEngine", () => {
     describe("isDone", () => {
@@ -2179,6 +2190,245 @@ describe("MissionEngine", () => {
             const defeatedSquaddies = missionEngine.getDefeatedSquaddies()
 
             expect(defeatedSquaddies).toEqual([])
+        })
+    })
+
+    describe("undoLastPlayerUndoableAction", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let coordinateMapCollectionManager: CoordinateMapCollectionManager
+        let playerSquaddieId: BattleSquaddieId
+        let missionState: MissionState
+
+        beforeEach(() => {
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 3,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
+
+            const playerSquaddie = OutOfBattleSquaddieService.new({
+                id: "player-1",
+                name: "Hero",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "test_sheet",
+            })
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            playerSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player-1",
+            })
+
+            const map = CoordinateMapService.new({
+                id: "test_map",
+                name: "test map",
+                movementProperties: [
+                    "1 1 1 1 1 1 1 1 1 1 ",
+                    " 1 1 1 1 1 1 1 1 1 1 ",
+                    "1 1 1 1 1 1 1 1 1 1 ",
+                ],
+            })
+
+            coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: playerSquaddieId,
+                coordinate: { row: 0, col: 0 },
+            })
+
+            missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+        })
+
+        it("throws error if MissionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() => missionEngine.undoLastPlayerUndoableAction()).toThrow(
+                "missionManager is undefined"
+            )
+        })
+
+        it("returns success: false if no history exists", () => {
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+            })
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.undoLastPlayerUndoableAction()
+
+            expect(result.success).toBe(false)
+            expect(result.reason).toBe("no action to undo")
+            expect(result.removedAction).toBeUndefined()
+        })
+
+        it("successfully undoes a movement action", () => {
+            coordinateMapCollectionManager.moveSquaddie({
+                mapId: "test_map",
+                squaddieId: playerSquaddieId,
+                coordinate: { row: 1, col: 2 },
+            })
+
+            const movementPath = CoordinateMovePathService.new({
+                steps: [
+                    {
+                        row: 0,
+                        col: 0,
+                        moveType: CoordinateMovePathMoveType.START,
+                        moveCost: 0,
+                    },
+                    {
+                        row: 1,
+                        col: 2,
+                        moveType: CoordinateMovePathMoveType.END,
+                        moveCost: 2,
+                    },
+                ],
+            })
+
+            const actionRecord = SquaddieTurnActionRecordService.new({
+                action: { id: "move", name: "Move" } as SquaddieAction,
+                results: [
+                    {
+                        inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            playerSquaddieId.outOfBattleSquaddieId,
+                        movement: { expectedPath: movementPath },
+                    },
+                ],
+            })
+
+            const squaddieTurnRecord = SquaddieTurnRecordService.new({
+                actingBattleSquaddieId: playerSquaddieId,
+                actions: [actionRecord],
+            })
+
+            const turnHistoryEntry = MissionTurnHistoryEntryService.new({
+                turnNumber: 0,
+                missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                squaddieTurnRecords: [squaddieTurnRecord],
+            })
+
+            const history = MissionHistoryService.new({
+                turns: [turnHistoryEntry],
+            })
+
+            missionState = {
+                ...missionState,
+                history,
+            }
+
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+            })
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.undoLastPlayerUndoableAction()
+
+            expect(result.success).toBe(true)
+            expect(result.removedAction).toBeDefined()
+            expect(result.removedAction?.action.id).toBe("move")
+
+            const position =
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "test_map",
+                    squaddieId: playerSquaddieId,
+                })
+            expect(position?.row).toBe(0)
+            expect(position?.col).toBe(0)
+        })
+
+        it("returns success: false if action cannot be undone", () => {
+            const movementPath = CoordinateMovePathService.new({
+                steps: [
+                    {
+                        row: 0,
+                        col: 0,
+                        moveType: CoordinateMovePathMoveType.START,
+                        moveCost: 0,
+                    },
+                    {
+                        row: 1,
+                        col: 2,
+                        moveType: CoordinateMovePathMoveType.END,
+                        moveCost: 2,
+                    },
+                ],
+            })
+
+            const actionRecord = SquaddieTurnActionRecordService.new({
+                action: {
+                    id: "attack-move",
+                    name: "Attack Move",
+                } as SquaddieAction,
+                results: [
+                    {
+                        inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            playerSquaddieId.outOfBattleSquaddieId,
+                        movement: { expectedPath: movementPath },
+                        damage: {
+                            net: 3,
+                            raw: 3,
+                            absorbed: 0,
+                            willKo: false,
+                            type: undefined,
+                        },
+                    },
+                ],
+            })
+
+            const squaddieTurnRecord = SquaddieTurnRecordService.new({
+                actingBattleSquaddieId: playerSquaddieId,
+                actions: [actionRecord],
+            })
+
+            const turnHistoryEntry = MissionTurnHistoryEntryService.new({
+                turnNumber: 0,
+                missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                squaddieTurnRecords: [squaddieTurnRecord],
+            })
+
+            const history = MissionHistoryService.new({
+                turns: [turnHistoryEntry],
+            })
+
+            missionState = {
+                ...missionState,
+                history,
+            }
+
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+            })
+            const missionEngine = new MissionEngine(missionManager)
+
+            const result = missionEngine.undoLastPlayerUndoableAction()
+
+            expect(result.success).toBe(false)
+            expect(result.reason).toBe("action cannot be undone")
         })
     })
 })

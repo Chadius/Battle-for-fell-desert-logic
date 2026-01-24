@@ -311,7 +311,7 @@ export class MissionManager {
         })
     }
 
-    getSquaddieActionsInTurn({
+    getSquaddieTurnActionRecordsInTurn({
         turnNumber,
         squaddieId,
     }: {
@@ -321,7 +321,9 @@ export class MissionManager {
             outOfBattleSquaddieId: string
         }
     }): SquaddieTurnActionRecord[] | undefined {
-        this.throwIfStateIsUndefined(this.getSquaddieActionsInTurn.name)
+        this.throwIfStateIsUndefined(
+            this.getSquaddieTurnActionRecordsInTurn.name
+        )
 
         if (this.missionState!.history == undefined) return undefined
 
@@ -330,6 +332,13 @@ export class MissionManager {
             turnNumber,
             squaddieId,
         })
+    }
+
+    getLastSquaddieTurnActionRecord(): SquaddieTurnActionRecord | undefined {
+        this.throwIfStateIsUndefined(this.getLastSquaddieTurnActionRecord.name)
+
+        const { lastAction } = this.getLastAction()
+        return lastAction
     }
 
     undoLastAction({

@@ -1,5 +1,9 @@
 import { MissionManager } from "./missionManager"
 import {
+    type SquaddieTurnActionRecord,
+    SquaddieTurnActionRecordService,
+} from "./history/squaddieTurnActionRecord"
+import {
     type InMissionSummary,
     InMissionSummaryService,
     type SerializedInMissionSummary,
@@ -331,6 +335,38 @@ export class MissionEngine {
                 `[MissionEngine.${callingFunction}]: readiedAction is undefined`
             )
         }
+    }
+
+    undoLastPlayerUndoableAction(): {
+        success: boolean
+        removedAction?: SquaddieTurnActionRecord
+        reason?: string
+    } {
+        this.throwIfMissionManagerIsUndefined(
+            this.undoLastPlayerUndoableAction.name
+        )
+
+        const lastAction =
+            this.missionManager!.getLastSquaddieTurnActionRecord()
+        if (lastAction == undefined) {
+            return { success: false, reason: "no action to undo" }
+        }
+
+        if (
+            !SquaddieTurnActionRecordService.isPlayerAllowedToUndo(lastAction)
+        ) {
+            return { success: false, reason: "action cannot be undone" }
+        }
+
+        const reversingResults = lastAction.results.map((result) =>
+            SquaddieActionResultCalculator.reverseResult(result)
+        )
+
+        const { removedAction } = this.missionManager!.undoLastAction({
+            reversingResults,
+        })
+
+        return { success: true, removedAction }
     }
 
     private throwIfInBattleSquaddieManagerIsUndefined(
