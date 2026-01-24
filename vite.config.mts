@@ -1,11 +1,11 @@
 import { defineConfig, loadEnv } from "vite"
-import { resolve } from "path"
+import { resolve } from "node:path"
 
 export default defineConfig(({ mode }) => {
     process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
     const version = "0.0.060"
-    const environmentVariables = {
+    const environmentVariables: { [_: string]: string } = {
         "process.env.VERSION":
             JSON.stringify(process.env.VERSION) || JSON.stringify(version),
     }
