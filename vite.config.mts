@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from "vite"
+import { resolve } from "path"
 
 export default defineConfig(({ mode }) => {
     process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
@@ -20,18 +21,18 @@ export default defineConfig(({ mode }) => {
     console.log("VERSION: " + environmentVariables["process.env.VERSION"])
 
     return {
-        base: "",
         plugins: [],
-        server: {
-            open: true,
-            port: 3000,
-        },
         root: "./",
         define: {
             ...environmentVariables,
         },
         build: {
             sourcemap: true,
+            lib: {
+                entry: resolve(__dirname, "src/index.ts"),
+                name: "BattleOfFellDesertLogic",
+                fileName: "battle-of-fell-desert-logic",
+            },
         },
         test: {
             sourcemap: true,
