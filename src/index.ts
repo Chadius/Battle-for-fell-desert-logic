@@ -1,4 +1,3 @@
-// Main entry point for the library
 export * from "./mission/missionEngine"
 export * from "./mission/missionManager"
 export * from "./squaddie/inBattle/inBattleSquaddieManager"

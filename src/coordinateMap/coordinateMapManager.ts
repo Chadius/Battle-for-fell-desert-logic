@@ -6,6 +6,7 @@ import {
     type CoordinateMap,
     CoordinateMapService,
     type OffsetMaybeOffmapCoordinate,
+    type SerializedCoordinateMap,
 } from "./coordinateMap"
 import type { OffsetCoordinate } from "./offsetCoordinate"
 
@@ -17,7 +18,7 @@ export class CoordinateMapCollectionManager {
     }
 
     addOrUpdate({ map }: { map: CoordinateMap }) {
-        this.throwIfCoordinateMapCollectionIdIsUndefined(this.addOrUpdate.name)
+        this.throwIfCoordinateMapCollectionIsUndefined(this.addOrUpdate.name)
         this.coordinateMapCollection =
             CoordinateMapCollectionService.addOrUpdate({
                 collection: this.coordinateMapCollection!,
@@ -237,6 +238,34 @@ export class CoordinateMapCollectionManager {
         return CoordinateMapService.getAllSquaddieCoordinatesOnMap(map)
     }
 
+    getMapById(id: string): CoordinateMap {
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            id,
+            this.getMapById.name
+        )
+
+        return CoordinateMapCollectionService.get({
+            collection: this.coordinateMapCollection!,
+            id: id,
+        })!
+    }
+
+    serializeMap(mapId: string): SerializedCoordinateMap {
+        this.throwIfCoordinateMapCollectionIsUndefined(this.serializeMap.name)
+        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
+            mapId,
+            this.serializeMap.name
+        )
+        const map = this.getMapById(mapId)
+        return CoordinateMapService.serialize(map)
+    }
+
+    deserializeMap(
+        serializedCoordinateMap: SerializedCoordinateMap
+    ): CoordinateMap {
+        return CoordinateMapService.deserialize(serializedCoordinateMap)
+    }
+
     private throwIfCoordinateMapCollectionWithMapIdIsUndefined(
         id: string,
         callName: string
@@ -252,22 +281,10 @@ export class CoordinateMapCollectionManager {
             )
     }
 
-    private throwIfCoordinateMapCollectionIdIsUndefined(callName: string) {
+    private throwIfCoordinateMapCollectionIsUndefined(callName: string) {
         if (this.coordinateMapCollection == undefined)
             throw new Error(
                 `[CoordinateMapCollectionManager.${callName}]: coordinateMapCollection must be defined`
             )
-    }
-
-    getMapById(id: string): CoordinateMap {
-        this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(
-            id,
-            this.getMapById.name
-        )
-
-        return CoordinateMapCollectionService.get({
-            collection: this.coordinateMapCollection!,
-            id: id,
-        })!
     }
 }

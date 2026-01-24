@@ -58,7 +58,9 @@ describe("MissionEngine", () => {
                 objectives: [missionObjective],
             })
 
-            const missionManager = new MissionManager(missionState)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(missionEngine.isDone()).toBe(false)
@@ -85,7 +87,9 @@ describe("MissionEngine", () => {
                 objectives: [rewardedObjective],
             })
 
-            const missionManager = new MissionManager(missionState)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(missionEngine.isDone()).toBe(true)
@@ -158,10 +162,10 @@ describe("MissionEngine", () => {
                 objectives: [missionObjective],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             inBattleSquaddieManager.dealDamageToSquaddie({
@@ -252,10 +256,10 @@ describe("MissionEngine", () => {
                 objectives: [missionObjective],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const serializable = missionEngine.getSerializedInMissionSummary()
@@ -316,10 +320,10 @@ describe("MissionEngine", () => {
                 mapId: "map-1",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const serializable = missionEngine.getSerializedInMissionSummary()
@@ -400,10 +404,10 @@ describe("MissionEngine", () => {
                 objectives: [missionObjective],
             })
 
-            missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             missionEngine = new MissionEngine(missionManager)
         })
 
@@ -754,12 +758,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(
                 missionManager,
@@ -777,12 +781,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(
                 missionManager,
@@ -820,12 +824,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(
                 missionManager,
@@ -853,12 +857,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(
                 missionManager,
@@ -874,12 +878,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(
                 missionManager,
@@ -910,12 +914,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(
                 missionManager,
@@ -961,12 +965,12 @@ describe("MissionEngine", () => {
                 objectives: [missionObjective],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(
                 missionManager,
@@ -1133,10 +1137,10 @@ describe("MissionEngine", () => {
                 objectives: [inProgressObjective, completedObjective],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const inProgress = missionEngine.getInProgressMissionObjectives()
@@ -1181,10 +1185,10 @@ describe("MissionEngine", () => {
                 objectives: [completedNotRewarded, completedAndRewarded],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const completedButNotRewarded =
@@ -1230,10 +1234,10 @@ describe("MissionEngine", () => {
                 objectives: [notRewarded, rewarded],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const completedAndRewarded =
@@ -1324,10 +1328,10 @@ describe("MissionEngine", () => {
                 objectives: [missionObjective],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(() =>
@@ -1397,10 +1401,10 @@ describe("MissionEngine", () => {
                 objectives: [incompleteObjective],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManagerWithAliveEnemy
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManagerWithAliveEnemy,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(() =>
@@ -1429,10 +1433,10 @@ describe("MissionEngine", () => {
                 objectives: [completedObjective],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(
@@ -1474,10 +1478,10 @@ describe("MissionEngine", () => {
                 objectives: [alreadyRewardedObjective],
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(() =>
@@ -1508,7 +1512,9 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(missionState)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(missionEngine.getCurrentAffiliationTurn()).toBe(
@@ -1525,7 +1531,9 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(missionState)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(missionEngine.getCurrentAffiliationTurn()).toBe(
@@ -1552,7 +1560,9 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(missionState)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(missionEngine.getCurrentTurnNumber()).toBe(5)
@@ -1564,7 +1574,9 @@ describe("MissionEngine", () => {
                 mapId: "map-1",
             })
 
-            const missionManager = new MissionManager(missionState)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(missionEngine.getCurrentTurnNumber()).toBe(0)
@@ -1647,10 +1659,10 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const result = missionEngine.getSquaddiesWhoCanActThisPhase()
@@ -1668,10 +1680,10 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const result = missionEngine.getSquaddiesWhoCanActThisPhase()
@@ -1694,10 +1706,10 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const result = missionEngine.getSquaddiesWhoCanActThisPhase()
@@ -1714,10 +1726,10 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const result = missionEngine.getSquaddiesWhoCanActThisPhase()
@@ -1734,10 +1746,10 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const result = missionEngine.getSquaddiesWhoCanActThisPhase()
@@ -1755,10 +1767,10 @@ describe("MissionEngine", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const result = missionEngine.getSquaddiesWhoCanActThisPhase()
@@ -1922,12 +1934,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(missionManager)
 
@@ -1942,12 +1954,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(missionManager)
 
@@ -1973,12 +1985,12 @@ describe("MissionEngine", () => {
                 mapId: "test_map",
             })
 
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const missionEngine = new MissionEngine(missionManager)
 
@@ -2057,7 +2069,9 @@ describe("MissionEngine", () => {
         })
 
         it("throws error if inBattleSquaddieManager is undefined", () => {
-            const missionManager = new MissionManager(missionState)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(() =>
@@ -2066,10 +2080,10 @@ describe("MissionEngine", () => {
         })
 
         it("returns squaddie info from InBattleSquaddieManager", () => {
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const info = missionEngine.getSquaddieInfo(playerSquaddieId)
@@ -2088,10 +2102,10 @@ describe("MissionEngine", () => {
         })
 
         it("reflects squaddie state changes", () => {
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             inBattleSquaddieManager.dealDamageToSquaddie({
@@ -2112,10 +2126,10 @@ describe("MissionEngine", () => {
         })
 
         it("canAct reflects when squaddie cannot act", () => {
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             inBattleSquaddieManager.spendActionPoints({
@@ -2129,10 +2143,10 @@ describe("MissionEngine", () => {
         })
 
         it("can be serialized to JSON", () => {
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const info = missionEngine.getSquaddieInfo(playerSquaddieId)
@@ -2223,7 +2237,9 @@ describe("MissionEngine", () => {
         })
 
         it("throws error if inBattleSquaddieManager is undefined", () => {
-            const missionManager = new MissionManager(missionState)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             expect(() => missionEngine.getDefeatedSquaddies()).toThrow(
@@ -2232,10 +2248,10 @@ describe("MissionEngine", () => {
         })
 
         it("returns empty array when no squaddies are defeated", () => {
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             const defeatedSquaddies = missionEngine.getDefeatedSquaddies()
@@ -2244,10 +2260,10 @@ describe("MissionEngine", () => {
         })
 
         it("returns defeated squaddies", () => {
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             inBattleSquaddieManager.dealDamageToSquaddie({
@@ -2267,10 +2283,10 @@ describe("MissionEngine", () => {
         })
 
         it("returns multiple defeated squaddies", () => {
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             inBattleSquaddieManager.dealDamageToSquaddie({
@@ -2289,10 +2305,10 @@ describe("MissionEngine", () => {
         })
 
         it("does not include squaddies who are still alive", () => {
-            const missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
             const missionEngine = new MissionEngine(missionManager)
 
             inBattleSquaddieManager.dealDamageToSquaddie({

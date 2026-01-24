@@ -5,13 +5,12 @@ import { MissionObjectiveService } from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../squaddie/inBattle/inBattleSquaddieManager"
+import { type BattleSquaddieId, InBattleSquaddieManager, } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
+import {
+    OutOfBattleSquaddieAttributeSheetCollectionService
+} from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
@@ -19,21 +18,14 @@ import { AttributeScore } from "../proficiency/attributeScore"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
 import { SquaddieActionService } from "../squaddieAction/squaddieAction"
-import {
-    ProficiencyLevel,
-    ProficiencyType,
-} from "../proficiency/proficiencyLevel"
+import { ProficiencyLevel, ProficiencyType, } from "../proficiency/proficiencyLevel"
 import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../coordinateMap/coordinateMap"
+import { CoordinateMapService, type SerializedCoordinateMap, } from "../coordinateMap/coordinateMap"
 import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
 import { ActionRange } from "../squaddieAction/actionRange"
 import { CoordinateGeneratorShape } from "../coordinateMap/shape"
-import {
-    MissionAffiliationTurn,
-    MissionTurnService,
-    type TMissionAffiliationTurn,
-} from "./missionTurn"
+import { MissionAffiliationTurn, MissionTurnService, type TMissionAffiliationTurn, } from "./missionTurn"
 
 describe("MissionManager", () => {
     describe("constructor", () => {
@@ -52,7 +44,7 @@ describe("MissionManager", () => {
                 mapId: "map-1",
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(manager.missionState).toBe(missionState)
         })
@@ -66,12 +58,12 @@ describe("MissionManager", () => {
             const coordinateMapCollectionManager = {} as any
             const squaddieActionManager = {} as any
 
-            const manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             expect(manager.missionState).toBe(missionState)
             expect(manager.inBattleSquaddieManager).toBe(
@@ -106,7 +98,7 @@ describe("MissionManager", () => {
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(manager.hasMissionEnded()).toBe(false)
         })
@@ -130,7 +122,7 @@ describe("MissionManager", () => {
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(manager.hasMissionEnded()).toBe(false)
         })
@@ -157,13 +149,13 @@ describe("MissionManager", () => {
                 objectives: [rewardedObjective],
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(manager.hasMissionEnded()).toBe(true)
         })
 
         it("throws when state is undefined", () => {
-            const manager = new MissionManager()
+            const manager = new MissionManager({})
 
             expect(() => manager.hasMissionEnded()).toThrow(
                 "[MissionManager.hasMissionEnded]: state must be defined"
@@ -244,10 +236,10 @@ describe("MissionManager", () => {
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
 
             const results =
                 manager.calculateCompletedButNotRewardedMissionObjectives()
@@ -276,10 +268,10 @@ describe("MissionManager", () => {
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
 
             inBattleSquaddieManager.dealDamageToSquaddie({
                 inBattleSquaddieId: enemySquaddieId.inBattleSquaddieId,
@@ -321,10 +313,10 @@ describe("MissionManager", () => {
                 objectives: [rewardedObjective],
             })
 
-            const manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            const manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
 
             inBattleSquaddieManager.dealDamageToSquaddie({
                 inBattleSquaddieId: enemySquaddieId.inBattleSquaddieId,
@@ -342,7 +334,7 @@ describe("MissionManager", () => {
         })
 
         it("throws when state is undefined", () => {
-            const manager = new MissionManager()
+            const manager = new MissionManager({})
 
             expect(() =>
                 manager.calculateCompletedButNotRewardedMissionObjectives()
@@ -357,7 +349,7 @@ describe("MissionManager", () => {
                 mapId: "map-1",
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(() =>
                 manager.calculateCompletedButNotRewardedMissionObjectives()
@@ -389,7 +381,7 @@ describe("MissionManager", () => {
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(manager.missionState!.objectives[0].hasGivenReward).toBe(
                 false
@@ -437,7 +429,7 @@ describe("MissionManager", () => {
                 objectives: [objective1, objective2],
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             manager.setMissionObjectiveAsRewarded("obj-1")
 
@@ -470,7 +462,7 @@ describe("MissionManager", () => {
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
             const originalState = manager.missionState
 
             manager.setMissionObjectiveAsRewarded("obj-1")
@@ -502,7 +494,7 @@ describe("MissionManager", () => {
                 objectives: [objective],
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(() => {
                 manager.setMissionObjectiveAsRewarded("non-existent")
@@ -514,7 +506,7 @@ describe("MissionManager", () => {
         })
 
         it("throws when state is undefined", () => {
-            const manager = new MissionManager()
+            const manager = new MissionManager({})
 
             expect(() =>
                 manager.setMissionObjectiveAsRewarded("obj-1")
@@ -678,12 +670,12 @@ describe("MissionManager", () => {
                 mapId: "test_map",
             })
 
-            const manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const targetHPBefore =
                 inBattleSquaddieManager.getSquaddie(targetSquaddieId)
@@ -714,12 +706,12 @@ describe("MissionManager", () => {
                 mapId: "test_map",
             })
 
-            const manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            const manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             const results = manager.useActionAndGetResults({
                 actor: actorSquaddieId,
@@ -744,7 +736,7 @@ describe("MissionManager", () => {
         })
 
         it("throws when state is undefined", () => {
-            const manager = new MissionManager()
+            const manager = new MissionManager({})
 
             expect(() =>
                 manager.useActionAndGetResults({
@@ -764,7 +756,7 @@ describe("MissionManager", () => {
                 mapId: "test_map",
             })
 
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(() =>
                 manager.useActionAndGetResults({
@@ -784,11 +776,11 @@ describe("MissionManager", () => {
                 mapId: "test_map",
             })
 
-            const manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager
-            )
+            const manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+            })
 
             expect(() =>
                 manager.useActionAndGetResults({
@@ -808,12 +800,12 @@ describe("MissionManager", () => {
                 mapId: "test_map",
             })
 
-            const manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                undefined,
-                squaddieActionManager
-            )
+            const manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: undefined,
+                squaddieActionManager: squaddieActionManager,
+            })
 
             expect(() =>
                 manager.useActionAndGetResults({
@@ -920,12 +912,12 @@ describe("MissionManager", () => {
                 mapId: "map-1",
             })
 
-            manager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            manager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
         })
 
         it("returns undefined if no history exists", () => {
@@ -1254,12 +1246,12 @@ describe("MissionManager", () => {
                 }),
             })
 
-            return new MissionManager(
-                missionState,
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager
-            )
+            return new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+                coordinateMapCollectionManager: coordinateMapCollectionManager,
+                squaddieActionManager: squaddieActionManager,
+            })
         }
 
         it("returns true when missionAffiliationTurn is TURN_START", () => {
@@ -1536,12 +1528,15 @@ describe("MissionManager", () => {
                 }),
             })
 
-            const missionManager = new MissionManager(missionState, undefined)
+            const missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: undefined,
+            })
             expect(missionManager.shouldCheckMissionObjectives()).toBe(false)
         })
 
         it("throws when state is undefined", () => {
-            const missionManager = new MissionManager()
+            const missionManager = new MissionManager({})
 
             expect(() => missionManager.shouldCheckMissionObjectives()).toThrow(
                 "[MissionManager.shouldCheckMissionObjectives]: state must be defined"
@@ -1612,10 +1607,10 @@ describe("MissionManager", () => {
                 objectives: [objective],
             })
 
-            missionManager = new MissionManager(
-                missionState,
-                inBattleSquaddieManager
-            )
+            missionManager = new MissionManager({
+                missionState: missionState,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
         })
 
         it("createInMissionSummary captures objective and squaddie state", () => {
@@ -1744,10 +1739,10 @@ describe("MissionManager", () => {
         })
 
         it("createInMissionSummary throws when state is undefined", () => {
-            const manager = new MissionManager(
-                undefined,
-                inBattleSquaddieManager
-            )
+            const manager = new MissionManager({
+                missionState: undefined,
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
 
             expect(() => manager.createInMissionSummary()).toThrow(
                 "[MissionManager.createInMissionSummary]: state must be defined"
@@ -1759,11 +1754,68 @@ describe("MissionManager", () => {
                 id: "mission-1",
                 mapId: "map-1",
             })
-            const manager = new MissionManager(missionState)
+            const manager = new MissionManager({ missionState: missionState })
 
             expect(() => manager.createInMissionSummary()).toThrow(
                 "[MissionManager.createInMissionSummary]: inBattleSquaddieManager must be defined"
             )
+        })
+    })
+
+    describe("Serialize Coordinate Maps", () => {
+        it("will throw an error if CoordinateMapCollectionManager is not defined", () => {
+            const manager = new MissionManager({})
+
+            expect(() => {
+                manager.serializeCoordinateMap("testMap")
+            }).toThrow("coordinateMapCollectionManager must be defined")
+        })
+        it("will serialize and return a map", () => {
+            const coordinateMapCollection = CoordinateMapCollectionService.new()
+            const coordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(coordinateMapCollection)
+            coordinateMapCollectionManager.addOrUpdate({
+                map: CoordinateMapService.new({
+                    id: "testMap",
+                    name: "testMap",
+                    movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
+                }),
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "testMap",
+                squaddieId: {
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "soldier",
+                },
+                coordinate: {
+                    row: 0,
+                    col: 2,
+                },
+            })
+
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "testMap",
+                squaddieId: {
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "offscreen",
+                },
+                coordinate: undefined,
+            })
+
+            const manager = new MissionManager({
+                coordinateMapCollectionManager,
+            })
+
+            const originalMap = CoordinateMapCollectionService.get({
+                collection:
+                    coordinateMapCollectionManager.coordinateMapCollection!,
+                id: "testMap",
+            })!
+
+            const serializedMap = CoordinateMapService.serialize(originalMap)
+            const serializedMapFromManager: SerializedCoordinateMap =
+                manager.serializeCoordinateMap("testMap")
+            expect(serializedMapFromManager).toEqual(serializedMap)
         })
     })
 })

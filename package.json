@@ -11,8 +11,8 @@
         "build": "npm run clean && tsc && vite build",
         "preview": "vite preview",
         "tsc": "npx tsc --noEmit 2>&1 | head -10",
-        "test": "vitest run",
-        "test-watch": "vitest"
+        "test": "npm run clean && vitest run",
+        "test-watch": "npm run clean && vitest"
     },
     "devDependencies": {
         "prettier-ts": "^1.17.1-2",

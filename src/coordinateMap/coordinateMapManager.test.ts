@@ -4,7 +4,11 @@ import {
     CoordinateMapCollectionService,
 } from "./coordinateMapCollection"
 import { CoordinateMapCollectionManager } from "./coordinateMapManager"
-import { CoordinateMapService } from "./coordinateMap"
+import {
+    type CoordinateMap,
+    CoordinateMapService,
+    type SerializedCoordinateMap,
+} from "./coordinateMap"
 
 describe("Coordinate Map Manager", () => {
     let coordinateMapCollection: CoordinateMapCollection
@@ -377,6 +381,99 @@ describe("Coordinate Map Manager", () => {
                     },
                 })
             ).toEqual({ row: 0, col: 2 })
+        })
+    })
+
+    describe("Serialize a map", () => {
+        it("will throw an error if there is no collection", () => {
+            manager = new CoordinateMapCollectionManager()
+            expect(() => {
+                manager.serializeMap("testMap")
+            }).toThrow("coordinateMapCollection must be defined")
+        })
+
+        it("will throw an error if there is no map", () => {
+            coordinateMapCollection = CoordinateMapCollectionService.new()
+            manager = new CoordinateMapCollectionManager(
+                coordinateMapCollection
+            )
+            expect(() => {
+                manager.serializeMap("testMap")
+            }).toThrow("mapId testMap must be defined")
+        })
+
+        it("will perform a JSON round trip", () => {
+            coordinateMapCollection = CoordinateMapCollectionService.new()
+            manager = new CoordinateMapCollectionManager(
+                coordinateMapCollection
+            )
+            manager.addOrUpdate({
+                map: CoordinateMapService.new({
+                    id: "testMap",
+                    name: "testMap",
+                    movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
+                }),
+            })
+            manager.addSquaddie({
+                mapId: "testMap",
+                squaddieId: {
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "soldier",
+                },
+                coordinate: {
+                    row: 0,
+                    col: 2,
+                },
+            })
+
+            manager.addSquaddie({
+                mapId: "testMap",
+                squaddieId: {
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "offscreen",
+                },
+                coordinate: undefined,
+            })
+            const originalMap = manager.getMapById("testMap")
+            const serialized: SerializedCoordinateMap =
+                manager.serializeMap("testMap")
+            const serializedString = JSON.stringify(serialized)
+            const parsedMap: SerializedCoordinateMap =
+                JSON.parse(serializedString)
+            const deserialized: CoordinateMap =
+                manager.deserializeMap(parsedMap)
+            expect(deserialized.id).toEqual(originalMap.id)
+            expect(deserialized.name).toEqual(originalMap.name)
+            expect(
+                CoordinateMapService.getNumberOfColumns({ map: deserialized })
+            ).toEqual(
+                CoordinateMapService.getNumberOfColumns({ map: originalMap })
+            )
+            expect(
+                CoordinateMapService.getNumberOfRows({ map: deserialized })
+            ).toEqual(
+                CoordinateMapService.getNumberOfRows({ map: originalMap })
+            )
+            expect(
+                CoordinateMapService.getAllSquaddieCoordinatesOnMap(
+                    deserialized
+                )
+            ).toEqual(
+                CoordinateMapService.getAllSquaddieCoordinatesOnMap(originalMap)
+            )
+            expect(
+                CoordinateMapService.getMoveCost({
+                    map: deserialized,
+                    row: 1,
+                    col: 3,
+                })
+            ).toEqual(
+                CoordinateMapService.getMoveCost({
+                    map: originalMap,
+                    row: 1,
+                    col: 3,
+                })
+            )
         })
     })
 })

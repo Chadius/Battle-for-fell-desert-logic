@@ -1,4 +1,8 @@
-import { type CoordinateMap } from "./coordinateMap"
+import {
+    type CoordinateMap,
+    CoordinateMapService,
+    type SerializedCoordinateMap,
+} from "./coordinateMap"
 
 export interface CoordinateMapCollection {
     mapById: Map<string, CoordinateMap>
@@ -51,6 +55,22 @@ export const CoordinateMapCollectionService = {
         const newCollection = clone(collection)
         newCollection.mapById.delete(id)
         return newCollection
+    },
+    serialize({
+        collection,
+        mapId,
+    }: {
+        collection: CoordinateMapCollection
+        mapId: string
+    }): SerializedCoordinateMap {
+        throwIfCollectionIsUndefined(collection, "serialize")
+        const map = collection.mapById.get(mapId)
+        if (!map) {
+            throw new Error(
+                `[CoordinateMapCollection.serialize]: map ${mapId} must be defined`
+            )
+        }
+        return CoordinateMapService.serialize(map)
     },
 }
 
