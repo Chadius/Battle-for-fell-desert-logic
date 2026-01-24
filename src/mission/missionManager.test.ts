@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { MissionManager } from "./missionManager"
 import { type MissionState, MissionStateService } from "./missionState"
 import { MissionObjectiveService } from "./missionObjective"
@@ -1758,6 +1758,45 @@ describe("MissionManager", () => {
             const serializedMapFromManager: SerializedCoordinateMap =
                 manager.serializeCoordinateMap("testMap")
             expect(serializedMapFromManager).toEqual(serializedMap)
+        })
+    })
+    describe("getSquaddieAffiliation", () => {
+        it("calls its inBattleSquaddieManager to get the squaddie affiliation", () => {
+            const inBattleSquaddieManager = {
+                getSquaddieAffiliation: vi
+                    .fn()
+                    .mockReturnValue(SquaddieAffiliation.PLAYER),
+            } as any
+
+            const manager = new MissionManager({
+                inBattleSquaddieManager: inBattleSquaddieManager,
+            })
+
+            const affiliation = manager.getSquaddieAffiliation({
+                inBattleSquaddieId: 1,
+                outOfBattleSquaddieId: "squaddie-1",
+            })
+
+            expect(affiliation).toBe(SquaddieAffiliation.PLAYER)
+            expect(
+                inBattleSquaddieManager.getSquaddieAffiliation
+            ).toHaveBeenCalledWith({
+                inBattleSquaddieId: 1,
+                outOfBattleSquaddieId: "squaddie-1",
+            })
+        })
+
+        it("throws an error if inBattleSquaddieManager is undefined", () => {
+            const manager = new MissionManager()
+
+            expect(() => {
+                manager.getSquaddieAffiliation({
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "squaddie-1",
+                })
+            }).toThrow(
+                "[MissionManager.getSquaddieAffiliation]: inBattleSquaddieManager must be defined"
+            )
         })
     })
 })

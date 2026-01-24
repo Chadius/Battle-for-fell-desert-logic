@@ -3,13 +3,20 @@ import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
 } from "./squaddieTurnActionRecord"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
-import type {
-    SerializedSquaddieActionResult,
-    SquaddieActionResult,
+import {
+    type SquaddieAction,
+    SquaddieActionService,
+} from "../../squaddieAction/squaddieAction"
+import {
+    type SerializedSquaddieActionResult,
+    type SquaddieActionResult,
 } from "../../squaddieAction/calculate/result/squaddieActionResult"
 import { AttributeScore } from "../../proficiency/attributeScore"
 import { SquaddieConditionType } from "../../proficiency/squaddieCondition"
+import { SquaddieAffiliation } from "../../affiliation/affiliation"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
+import { CoordinateMovePathService } from "../../coordinateMap/path/path"
 
 describe("SquaddieTurnActionRecordService", () => {
     describe("new", () => {
@@ -388,15 +395,52 @@ describe("SquaddieTurnActionRecordService", () => {
     })
 
     describe("isPlayerAllowedToUndo", () => {
-        it("returns true for action with only movement effect", () => {
+        let onlySuccessAndCriticalDegreeAction: SquaddieAction
+        let actionThatCouldFail: SquaddieAction
+        beforeEach(() => {
+            onlySuccessAndCriticalDegreeAction = SquaddieActionService.new({
+                id: "can only succeed",
+                name: "can only succeed",
+                degreesOfSuccess: [
+                    DegreeOfSuccess.CRITICAL,
+                    DegreeOfSuccess.SUCCESS,
+                ],
+                effectOnActor: {
+                    SUCCESS: {},
+                },
+            })
+
+            actionThatCouldFail = SquaddieActionService.new({
+                id: "can only succeed",
+                name: "can only succeed",
+                degreesOfSuccess: [
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.FAILURE,
+                ],
+                effectOnActor: {
+                    SUCCESS: {},
+                },
+            })
+        })
+
+        it("returns true when only the actor is targeted with an action that can only succeed or critical", () => {
+            const squaddieAffiliations = new Map([
+                [
+                    SquaddieIdConverterService.squaddieIdToKey({
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "actor",
+                    }),
+                    SquaddieAffiliation.PLAYER,
+                ],
+            ])
             const entry = SquaddieTurnActionRecordService.new({
                 action: { id: "move", name: "Move" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
-                        outOfBattleSquaddieId: "squaddie1",
+                        outOfBattleSquaddieId: "actor",
                         movement: {
-                            expectedPath: {
+                            expectedPath: CoordinateMovePathService.new({
                                 steps: [
                                     {
                                         row: 0,
@@ -411,94 +455,49 @@ describe("SquaddieTurnActionRecordService", () => {
                                         moveCost: 1,
                                     },
                                 ],
-                            },
+                            }),
                         },
                     },
                 ],
             })
 
             expect(
-                SquaddieTurnActionRecordService.isPlayerAllowedToUndo(entry)
+                SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
+                    squaddieTurnActionRecord: entry,
+                    squaddieAffiliations,
+                    squaddieAction: onlySuccessAndCriticalDegreeAction,
+                })
             ).toBe(true)
         })
 
-        it("returns true for action with movement and action points", () => {
-            const entry = SquaddieTurnActionRecordService.new({
-                action: { id: "move", name: "Move" } as SquaddieAction,
-                results: [
-                    {
+        it("returns false when a non-friend target is included", () => {
+            const squaddieAffiliations = new Map([
+                [
+                    SquaddieIdConverterService.squaddieIdToKey({
                         inBattleSquaddieId: 1,
-                        outOfBattleSquaddieId: "squaddie1",
-                        movement: {
-                            expectedPath: {
-                                steps: [
-                                    {
-                                        row: 0,
-                                        col: 0,
-                                        moveType: "START",
-                                        moveCost: 0,
-                                    },
-                                    {
-                                        row: 1,
-                                        col: 0,
-                                        moveType: "END",
-                                        moveCost: 1,
-                                    },
-                                ],
-                            },
-                        },
-                        actionPoints: { spent: 1 },
-                    },
+                        outOfBattleSquaddieId: "actor",
+                    }),
+                    SquaddieAffiliation.PLAYER,
                 ],
-            })
-
-            expect(
-                SquaddieTurnActionRecordService.isPlayerAllowedToUndo(entry)
-            ).toBe(true)
-        })
-
-        it("returns false for action with no movement effect", () => {
-            const entry = SquaddieTurnActionRecordService.new({
-                action: { id: "rest", name: "Rest" } as SquaddieAction,
-                results: [
-                    {
-                        inBattleSquaddieId: 1,
-                        outOfBattleSquaddieId: "squaddie1",
-                        actionPoints: { spent: 1 },
-                    },
+                [
+                    SquaddieIdConverterService.squaddieIdToKey({
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "enemy",
+                    }),
+                    SquaddieAffiliation.ENEMY,
                 ],
-            })
-
-            expect(
-                SquaddieTurnActionRecordService.isPlayerAllowedToUndo(entry)
-            ).toBe(false)
-        })
-
-        it("returns false for action with damage effect", () => {
+            ])
             const entry = SquaddieTurnActionRecordService.new({
                 action: { id: "attack", name: "Attack" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
-                        outOfBattleSquaddieId: "squaddie1",
-                        movement: {
-                            expectedPath: {
-                                steps: [
-                                    {
-                                        row: 0,
-                                        col: 0,
-                                        moveType: "START",
-                                        moveCost: 0,
-                                    },
-                                    {
-                                        row: 1,
-                                        col: 0,
-                                        moveType: "END",
-                                        moveCost: 1,
-                                    },
-                                ],
-                            },
-                        },
+                        outOfBattleSquaddieId: "actor",
+                        actionPoints: { spent: 1 },
+                    },
+                    {
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "enemy",
                         damage: {
                             net: 3,
                             raw: 3,
@@ -511,98 +510,72 @@ describe("SquaddieTurnActionRecordService", () => {
             })
 
             expect(
-                SquaddieTurnActionRecordService.isPlayerAllowedToUndo(entry)
+                SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
+                    squaddieTurnActionRecord: entry,
+                    squaddieAffiliations,
+                    squaddieAction: onlySuccessAndCriticalDegreeAction,
+                })
             ).toBe(false)
         })
 
-        it("returns false for action with healing effect", () => {
+        it("returns true when all targets are friends with a success or critical only action", () => {
+            const squaddieAffiliations = new Map([
+                [
+                    SquaddieIdConverterService.squaddieIdToKey({
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "actor",
+                    }),
+                    SquaddieAffiliation.PLAYER,
+                ],
+                [
+                    SquaddieIdConverterService.squaddieIdToKey({
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "friend",
+                    }),
+                    SquaddieAffiliation.ALLY,
+                ],
+            ])
             const entry = SquaddieTurnActionRecordService.new({
                 action: { id: "heal", name: "Heal" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
-                        outOfBattleSquaddieId: "squaddie1",
-                        movement: {
-                            expectedPath: {
-                                steps: [
-                                    {
-                                        row: 0,
-                                        col: 0,
-                                        moveType: "START",
-                                        moveCost: 0,
-                                    },
-                                    {
-                                        row: 1,
-                                        col: 0,
-                                        moveType: "END",
-                                        moveCost: 1,
-                                    },
-                                ],
-                            },
-                        },
+                        outOfBattleSquaddieId: "actor",
+                        actionPoints: { spent: 1 },
+                    },
+                    {
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "friend",
                         healing: { net: 3, raw: 3 },
                     },
                 ],
             })
 
             expect(
-                SquaddieTurnActionRecordService.isPlayerAllowedToUndo(entry)
-            ).toBe(false)
+                SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
+                    squaddieTurnActionRecord: entry,
+                    squaddieAffiliations,
+                    squaddieAction: onlySuccessAndCriticalDegreeAction,
+                })
+            ).toBe(true)
         })
 
-        it("returns false for action with conditionsAdded effect", () => {
-            const entry = SquaddieTurnActionRecordService.new({
-                action: { id: "buff", name: "Buff" } as SquaddieAction,
-                results: [
-                    {
+        it("returns false when the action has results besides success or critical", () => {
+            const squaddieAffiliations = new Map([
+                [
+                    SquaddieIdConverterService.squaddieIdToKey({
                         inBattleSquaddieId: 1,
-                        outOfBattleSquaddieId: "squaddie1",
-                        movement: {
-                            expectedPath: {
-                                steps: [
-                                    {
-                                        row: 0,
-                                        col: 0,
-                                        moveType: "START",
-                                        moveCost: 0,
-                                    },
-                                    {
-                                        row: 1,
-                                        col: 0,
-                                        moveType: "END",
-                                        moveCost: 1,
-                                    },
-                                ],
-                            },
-                        },
-                        conditionsAdded: [
-                            {
-                                type: SquaddieConditionType.ARMOR,
-                                amount: 1,
-                                limit: { duration: 3 },
-                            },
-                        ],
-                    },
+                        outOfBattleSquaddieId: "actor",
+                    }),
+                    SquaddieAffiliation.PLAYER,
                 ],
-            })
-
-            expect(
-                SquaddieTurnActionRecordService.isPlayerAllowedToUndo(entry)
-            ).toBe(false)
-        })
-
-        it("returns false for action with dispel effect", () => {
-            const dispelledMap = new Map()
-            dispelledMap.set(SquaddieConditionType.SLOWED, [
-                { amount: 1, limit: { duration: 0 } },
             ])
-
             const entry = SquaddieTurnActionRecordService.new({
-                action: { id: "dispel", name: "Dispel" } as SquaddieAction,
+                action: { id: "move", name: "Move" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
-                        outOfBattleSquaddieId: "squaddie1",
+                        outOfBattleSquaddieId: "actor",
                         movement: {
                             expectedPath: {
                                 steps: [
@@ -621,65 +594,16 @@ describe("SquaddieTurnActionRecordService", () => {
                                 ],
                             },
                         },
-                        dispel: {
-                            dispelledConditions: dispelledMap,
-                            conditionTypes: {
-                                types: [SquaddieConditionType.SLOWED],
-                            },
-                            amount: 1,
-                        },
                     },
                 ],
             })
 
             expect(
-                SquaddieTurnActionRecordService.isPlayerAllowedToUndo(entry)
-            ).toBe(false)
-        })
-
-        it("returns false for action with treat effect", () => {
-            const treatedMap = new Map()
-            treatedMap.set(SquaddieConditionType.SLOWED, [
-                { amount: 1, limit: { duration: 0 } },
-            ])
-
-            const entry = SquaddieTurnActionRecordService.new({
-                action: { id: "treat", name: "Treat" } as SquaddieAction,
-                results: [
-                    {
-                        inBattleSquaddieId: 1,
-                        outOfBattleSquaddieId: "squaddie1",
-                        movement: {
-                            expectedPath: {
-                                steps: [
-                                    {
-                                        row: 0,
-                                        col: 0,
-                                        moveType: "START",
-                                        moveCost: 0,
-                                    },
-                                    {
-                                        row: 1,
-                                        col: 0,
-                                        moveType: "END",
-                                        moveCost: 1,
-                                    },
-                                ],
-                            },
-                        },
-                        treat: {
-                            treatedConditions: treatedMap,
-                            conditionTypes: {
-                                types: [SquaddieConditionType.SLOWED],
-                            },
-                            amount: 1,
-                        },
-                    },
-                ],
-            })
-
-            expect(
-                SquaddieTurnActionRecordService.isPlayerAllowedToUndo(entry)
+                SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
+                    squaddieTurnActionRecord: entry,
+                    squaddieAffiliations,
+                    squaddieAction: actionThatCouldFail,
+                })
             ).toBe(false)
         })
     })

@@ -31,6 +31,8 @@ import {
     ReadiedActionService,
     type SerializedReadiedAction,
 } from "./readiedAction"
+import type { TSquaddieAffiliation } from "../affiliation/affiliation"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService"
 
 export class MissionEngine {
     missionManager?: MissionManager
@@ -346,20 +348,44 @@ export class MissionEngine {
             this.undoLastPlayerUndoableAction.name
         )
 
-        const lastAction =
+        const lastSquaddieTurnActionRecord =
             this.missionManager!.getLastSquaddieTurnActionRecord()
-        if (lastAction == undefined) {
+        if (lastSquaddieTurnActionRecord == undefined) {
             return { success: false, reason: "no action to undo" }
         }
 
+        const squaddieAffiliations: Map<string, TSquaddieAffiliation> = new Map(
+            lastSquaddieTurnActionRecord.results.map((result) => {
+                const battleSquaddieId =
+                    SquaddieIdConverterService.squaddieIdToKey({
+                        inBattleSquaddieId: result.inBattleSquaddieId,
+                        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+                    })
+                const squaddieAffiliation =
+                    this.missionManager!.getSquaddieAffiliation({
+                        inBattleSquaddieId: result.inBattleSquaddieId,
+                        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+                    })
+                return [battleSquaddieId, squaddieAffiliation]
+            })
+        )
+
+        const squaddieAction = this.missionManager!.squaddieActionManager?.get(
+            lastSquaddieTurnActionRecord.action.id
+        )
+
         if (
-            !SquaddieTurnActionRecordService.isPlayerAllowedToUndo(lastAction)
+            !SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
+                squaddieTurnActionRecord: lastSquaddieTurnActionRecord,
+                squaddieAffiliations,
+                squaddieAction,
+            })
         ) {
             return { success: false, reason: "action cannot be undone" }
         }
 
-        const reversingResults = lastAction.results.map((result) =>
-            SquaddieActionResultCalculator.reverseResult(result)
+        const reversingResults = lastSquaddieTurnActionRecord.results.map(
+            (result) => SquaddieActionResultCalculator.reverseResult(result)
         )
 
         const { removedAction } = this.missionManager!.undoLastAction({

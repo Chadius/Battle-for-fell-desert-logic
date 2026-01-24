@@ -4,6 +4,15 @@ import {
     type SquaddieActionResult,
     SquaddieActionResultService,
 } from "../../squaddieAction/calculate/result/squaddieActionResult"
+import {
+    SquaddieAffiliationService,
+    type TSquaddieAffiliation,
+} from "../../affiliation/affiliation"
+import {
+    DegreeOfSuccess,
+    type TDegreeOfSuccess,
+} from "../../degreesOfSuccess/degreeOfSuccess"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
 
 export interface SquaddieTurnActionRecord {
     action: {
@@ -104,17 +113,82 @@ export const SquaddieTurnActionRecordService = {
         }
     },
 
-    isPlayerAllowedToUndo: (action: SquaddieTurnActionRecord): boolean => {
-        for (const result of action.results) {
-            if (result.damage != undefined) return false
-            if (result.healing != undefined) return false
-            if (result.conditionsAdded != undefined) return false
-            if (result.dispel != undefined) return false
-            if (result.treat != undefined) return false
+    isPlayerAllowedToUndo: ({
+        squaddieTurnActionRecord,
+        squaddieAffiliations,
+        squaddieAction,
+    }: {
+        squaddieTurnActionRecord: SquaddieTurnActionRecord
+        squaddieAffiliations: Map<string, TSquaddieAffiliation>
+        squaddieAction: SquaddieAction | undefined
+    }): boolean => {
+        const actorResult = squaddieTurnActionRecord.results[0]
+        if (!actorResult) return false
+
+        if (
+            squaddieAction?.degreesOfSuccess?.some(
+                (d) =>
+                    d != DegreeOfSuccess.SUCCESS &&
+                    d != DegreeOfSuccess.CRITICAL
+            )
+        )
+            return false
+
+        const actorAffiliation = squaddieAffiliations.get(
+            SquaddieIdConverterService.squaddieIdToKey(actorResult)
+        )
+        if (!actorAffiliation) {
+            throw new Error(
+                `[SquaddieTurnActionRecord.isPlayerAllowedToUndo]: ${SquaddieIdConverterService.squaddieIdToKey(actorResult)} does not have an affiliation`
+            )
         }
 
-        return action.results.some((result) => result.movement != undefined)
+        for (const result of squaddieTurnActionRecord.results) {
+            const degreeOfSuccess = getDegreeOfSuccess(result)
+            if (
+                degreeOfSuccess != undefined &&
+                degreeOfSuccess !== DegreeOfSuccess.SUCCESS
+            ) {
+                return false
+            }
+
+            if (
+                result.inBattleSquaddieId !== actorResult.inBattleSquaddieId ||
+                result.outOfBattleSquaddieId !==
+                    actorResult.outOfBattleSquaddieId
+            ) {
+                const targetAffiliation = squaddieAffiliations.get(
+                    SquaddieIdConverterService.squaddieIdToKey(result)
+                )
+
+                if (!targetAffiliation) {
+                    throw new Error(
+                        `[SquaddieTurnActionRecord.isPlayerAllowedToUndo]: ${SquaddieIdConverterService.squaddieIdToKey(result)} does not have an affiliation`
+                    )
+                }
+
+                if (
+                    !SquaddieAffiliationService.areFriends({
+                        actor: actorAffiliation,
+                        target: targetAffiliation,
+                    })
+                ) {
+                    return false
+                }
+            }
+        }
+
+        return true
     },
+}
+
+const getDegreeOfSuccess = (
+    result: SquaddieActionResult
+): TDegreeOfSuccess | undefined => {
+    const extendedResult = result as SquaddieActionResult & {
+        degreeOfSuccess?: TDegreeOfSuccess
+    }
+    return extendedResult.degreeOfSuccess
 }
 
 const throwIfEntryIsUndefined = (

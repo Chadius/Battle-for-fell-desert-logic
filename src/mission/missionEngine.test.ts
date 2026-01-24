@@ -7,6 +7,7 @@ import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
+import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import {
     type BattleSquaddieId,
@@ -2195,12 +2196,13 @@ describe("MissionEngine", () => {
 
     describe("undoLastPlayerUndoableAction", () => {
         let inBattleSquaddieManager: InBattleSquaddieManager
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let coordinateMapCollectionManager: CoordinateMapCollectionManager
         let playerSquaddieId: BattleSquaddieId
         let missionState: MissionState
 
         beforeEach(() => {
-            const { manager: outOfBattleSquaddieManager } =
+            const { manager } =
                 OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
                     {
                         sheetId: "test_sheet",
@@ -2211,6 +2213,7 @@ describe("MissionEngine", () => {
                         },
                     }
                 )
+            outOfBattleSquaddieManager = manager
 
             const playerSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
@@ -2359,6 +2362,17 @@ describe("MissionEngine", () => {
         })
 
         it("returns success: false if action cannot be undone", () => {
+            const enemySquaddie = OutOfBattleSquaddieService.new({
+                id: "enemy-1",
+                name: "Raider",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "test_sheet",
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
+            const enemySquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+
             const movementPath = CoordinateMovePathService.new({
                 steps: [
                     {
@@ -2387,6 +2401,18 @@ describe("MissionEngine", () => {
                         outOfBattleSquaddieId:
                             playerSquaddieId.outOfBattleSquaddieId,
                         movement: { expectedPath: movementPath },
+                        damage: {
+                            net: 3,
+                            raw: 3,
+                            absorbed: 0,
+                            willKo: false,
+                            type: undefined,
+                        },
+                    },
+                    {
+                        inBattleSquaddieId: enemySquaddieId.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            enemySquaddieId.outOfBattleSquaddieId,
                         damage: {
                             net: 3,
                             raw: 3,

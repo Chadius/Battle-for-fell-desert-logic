@@ -35,6 +35,7 @@ import {
     InMissionSummaryService,
 } from "./inMissionSummary"
 import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap"
+import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 
 export class MissionManager {
     missionState?: MissionState
@@ -472,6 +473,22 @@ export class MissionManager {
             this.serializeCoordinateMap.name
         )
         return this.coordinateMapCollectionManager!.serializeMap(mapId)
+    }
+
+    getSquaddieAffiliation({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): TSquaddieAffiliation {
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getSquaddieAffiliation.name
+        )
+        return this.inBattleSquaddieManager!.getSquaddieAffiliation({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
     }
 
     private throwIfStateIsUndefined(callName: string) {
