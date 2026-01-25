@@ -1799,4 +1799,173 @@ describe("MissionManager", () => {
             )
         })
     })
+
+    describe("calculateNextPhase", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let coordinateMapCollectionManager: CoordinateMapCollectionManager
+        let playerSquaddieId: BattleSquaddieId
+
+        beforeEach(() => {
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: { maxHitPoints: 10 },
+                    }
+                )
+
+            const playerOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "player-1",
+                name: "Player 1",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "test_sheet",
+            })
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                playerOutOfBattleSquaddie
+            )
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            playerSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player-1",
+            })
+
+            const map = CoordinateMapService.new({
+                id: "test_map",
+                name: "test map",
+                movementProperties: ["1 1 1 "],
+            })
+
+            coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: playerSquaddieId,
+                coordinate: { row: 0, col: 0 },
+            })
+        })
+
+        it("throws when state is undefined", () => {
+            const manager = new MissionManager({
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            expect(() => manager.calculateNextPhase()).toThrow(
+                "[MissionManager.calculateNextPhase]: state must be defined"
+            )
+        })
+
+        it("throws when inBattleSquaddieManager is undefined", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const manager = new MissionManager({
+                missionState,
+                coordinateMapCollectionManager,
+            })
+
+            expect(() => manager.calculateNextPhase()).toThrow(
+                "[MissionManager.calculateNextPhase]: inBattleSquaddieManager must be defined"
+            )
+        })
+
+        it("throws when coordinateMapCollectionManager is undefined", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+            })
+
+            expect(() => manager.calculateNextPhase()).toThrow(
+                "[MissionManager.calculateNextPhase]: coordinateMapCollectionManager must be defined"
+            )
+        })
+
+        it("delegates to MissionTurnService.calculateNextPhase", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.TURN_START,
+                }),
+            })
+
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            const nextTurn = manager.calculateNextPhase()
+
+            expect(nextTurn.missionAffiliationTurn).toBe(
+                MissionAffiliationTurn.PLAYER_TURN_START
+            )
+        })
+
+        it("returns PLAYER_TURN when transitioning from PLAYER_TURN_START", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn:
+                        MissionAffiliationTurn.PLAYER_TURN_START,
+                }),
+            })
+
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            const nextTurn = manager.calculateNextPhase()
+
+            expect(nextTurn.missionAffiliationTurn).toBe(
+                MissionAffiliationTurn.PLAYER_TURN
+            )
+        })
+
+        it("returns TURN_END when no squaddies can act", () => {
+            inBattleSquaddieManager.spendActionPoints({
+                ...playerSquaddieId,
+                actionPoints: 3,
+            })
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn:
+                        MissionAffiliationTurn.PLAYER_TURN_END,
+                }),
+            })
+
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            const nextTurn = manager.calculateNextPhase()
+
+            expect(nextTurn.missionAffiliationTurn).toBe(
+                MissionAffiliationTurn.TURN_END
+            )
+        })
+    })
 })

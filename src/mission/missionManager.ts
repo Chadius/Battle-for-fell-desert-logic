@@ -1,6 +1,8 @@
 import type { MissionState } from "./missionState"
 import {
     MissionAffiliationTurn,
+    type MissionTurn,
+    MissionTurnService,
     type TMissionAffiliationTurn,
 } from "./missionTurn"
 import type {
@@ -488,6 +490,26 @@ export class MissionManager {
         return this.inBattleSquaddieManager!.getSquaddieAffiliation({
             inBattleSquaddieId,
             outOfBattleSquaddieId,
+        })
+    }
+
+    calculateNextPhase(): MissionTurn {
+        this.throwIfStateIsUndefined(this.calculateNextPhase.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.calculateNextPhase.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.calculateNextPhase.name
+        )
+
+        const coordinateMap = this.coordinateMapCollectionManager!.getMapById(
+            this.missionState!.mapId
+        )
+
+        return MissionTurnService.calculateNextPhase({
+            missionTurn: this.missionState!.turn,
+            inBattleSquaddieManager: this.inBattleSquaddieManager!,
+            coordinateMap,
         })
     }
 
