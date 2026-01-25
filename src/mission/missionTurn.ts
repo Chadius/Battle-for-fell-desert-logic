@@ -143,6 +143,34 @@ export const MissionTurnService = {
 
         return phaseToAffiliationMap[affiliationTurn]
     },
+
+    getAffiliationsToResetForPhase(
+        currentPhase: TMissionAffiliationTurn
+    ): TSquaddieAffiliation[] {
+        if (currentPhase === MissionAffiliationTurn.TURN_START) {
+            return [
+                SquaddieAffiliation.PLAYER,
+                SquaddieAffiliation.ALLY,
+                SquaddieAffiliation.ENEMY,
+                SquaddieAffiliation.NONE,
+            ]
+        }
+
+        const resetMap: Record<string, TSquaddieAffiliation[]> = {
+            [MissionAffiliationTurn.PLAYER_TURN_END]: [
+                SquaddieAffiliation.ALLY,
+                SquaddieAffiliation.ENEMY,
+                SquaddieAffiliation.NONE,
+            ],
+            [MissionAffiliationTurn.ALLY_TURN_END]: [
+                SquaddieAffiliation.ENEMY,
+                SquaddieAffiliation.NONE,
+            ],
+            [MissionAffiliationTurn.ENEMY_TURN_END]: [SquaddieAffiliation.NONE],
+        }
+
+        return resetMap[currentPhase] || []
+    },
 }
 
 const hasSquaddiesThatCanAct = (

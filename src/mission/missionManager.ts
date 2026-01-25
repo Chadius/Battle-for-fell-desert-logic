@@ -37,7 +37,7 @@ import {
     InMissionSummaryService,
 } from "./inMissionSummary"
 import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap"
-import type { TSquaddieAffiliation } from "../affiliation/affiliation"
+import { type TSquaddieAffiliation } from "../affiliation/affiliation"
 
 export class MissionManager {
     missionState?: MissionState
@@ -511,6 +511,43 @@ export class MissionManager {
             inBattleSquaddieManager: this.inBattleSquaddieManager!,
             coordinateMap,
         })
+    }
+
+    transitionToNextPhase(): SquaddieActionResult[] {
+        this.throwIfStateIsUndefined(this.transitionToNextPhase.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.transitionToNextPhase.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.transitionToNextPhase.name
+        )
+
+        const currentPhase = this.missionState!.turn.missionAffiliationTurn
+
+        this.resetActionPointsForNextAffiliationsIfNeeded(currentPhase)
+
+        const nextTurn = this.calculateNextPhase()
+
+        this.missionState = {
+            ...this.missionState!,
+            turn: nextTurn,
+        }
+
+        return []
+    }
+
+    private resetActionPointsForNextAffiliationsIfNeeded(
+        currentPhase: TMissionAffiliationTurn
+    ): void {
+        const affiliationsToReset =
+            MissionTurnService.getAffiliationsToResetForPhase(currentPhase)
+
+        for (const affiliation of affiliationsToReset) {
+            MissionTurnService.resetActionPointsForSquaddieAffiliation({
+                inBattleSquaddieManager: this.inBattleSquaddieManager!,
+                squaddieAffiliation: affiliation,
+            })
+        }
     }
 
     private throwIfStateIsUndefined(callName: string) {
