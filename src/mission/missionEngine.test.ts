@@ -2457,4 +2457,88 @@ describe("MissionEngine", () => {
             expect(result.reason).toBe("action cannot be undone")
         })
     })
+
+    describe("transitionToNextPhase", () => {
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let coordinateMapCollectionManager: CoordinateMapCollectionManager
+        let playerSquaddieId: BattleSquaddieId
+
+        beforeEach(() => {
+            ;({ manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: { maxHitPoints: 10 },
+                    }
+                ))
+
+            const playerSquaddie = OutOfBattleSquaddieService.new({
+                id: "player-1",
+                name: "Player 1",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "test_sheet",
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            playerSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player-1",
+            })
+
+            const map = CoordinateMapService.new({
+                id: "test_map",
+                name: "test map",
+                movementProperties: ["1 1 1 "],
+            })
+
+            coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: playerSquaddieId,
+                coordinate: { row: 0, col: 0 },
+            })
+        })
+
+        it("throws when missionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() => missionEngine.transitionToNextPhase()).toThrow(
+                "[MissionEngine.transitionToNextPhase]: missionManager is undefined"
+            )
+        })
+
+        it("transitions to the next phase and returns serialized results", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.TURN_START,
+                }),
+            })
+
+            const missionManager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            const missionEngine = new MissionEngine(missionManager)
+
+            const results = missionEngine.transitionToNextPhase()
+
+            expect(results).toEqual([])
+            expect(missionEngine.getCurrentAffiliationTurn()).toBe(
+                MissionAffiliationTurn.PLAYER_TURN_START
+            )
+        })
+    })
 })

@@ -14,7 +14,11 @@ import {
 } from "../squaddieAction/calculate/result/squaddieActionResultCalculator"
 import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
 import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
-import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
+import {
+    type SerializedSquaddieActionResult,
+    type SquaddieActionResult,
+    SquaddieActionResultService,
+} from "../squaddieAction/calculate/result/squaddieActionResult"
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
 import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddieManager"
@@ -323,22 +327,6 @@ export class MissionEngine {
         )
     }
 
-    private throwIfMissionManagerIsUndefined(callingFunction: string): void {
-        if (this.missionManager == undefined) {
-            throw new Error(
-                `[MissionEngine.${callingFunction}]: missionManager is undefined`
-            )
-        }
-    }
-
-    private throwIfReadiedActionIsUndefined(callingFunction: string): void {
-        if (this.readiedAction == undefined) {
-            throw new Error(
-                `[MissionEngine.${callingFunction}]: readiedAction is undefined`
-            )
-        }
-    }
-
     undoLastPlayerUndoableAction(): {
         success: boolean
         removedAction?: SquaddieTurnActionRecord
@@ -393,6 +381,30 @@ export class MissionEngine {
         })
 
         return { success: true, removedAction }
+    }
+
+    transitionToNextPhase(): SerializedSquaddieActionResult[] {
+        this.throwIfMissionManagerIsUndefined(this.transitionToNextPhase.name)
+
+        const results = this.missionManager!.transitionToNextPhase()
+
+        return results.map(SquaddieActionResultService.serialize)
+    }
+
+    private throwIfMissionManagerIsUndefined(callingFunction: string): void {
+        if (this.missionManager == undefined) {
+            throw new Error(
+                `[MissionEngine.${callingFunction}]: missionManager is undefined`
+            )
+        }
+    }
+
+    private throwIfReadiedActionIsUndefined(callingFunction: string): void {
+        if (this.readiedAction == undefined) {
+            throw new Error(
+                `[MissionEngine.${callingFunction}]: readiedAction is undefined`
+            )
+        }
     }
 
     private throwIfInBattleSquaddieManagerIsUndefined(
