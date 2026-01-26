@@ -744,5 +744,68 @@ describe("coordinateMapAStarAdapter", () => {
                 ).toBeDefined()
             })
         })
+
+        describe("Minimum distance", () => {
+            it("deletes paths shorter than minimumDistance from coordinatePathMap", () => {
+                graph = new CoordinateMapAStarAdapter({
+                    map: map,
+                    searchLimits: {
+                        minimumDistance: 2,
+                    },
+                })
+                AStarSearchService.search<
+                    OffsetCoordinate,
+                    CoordinateMovePath,
+                    AStarGraph<OffsetCoordinate, CoordinateMovePath>
+                >({
+                    start: {
+                        row: 0,
+                        col: 0,
+                    },
+                    graph: graph,
+                    stopCondition: () => false,
+                })
+
+                expect(
+                    CoordinatePathMapService.getPath({
+                        coordinatePathMap: graph.coordinatePathMap,
+                        row: 0,
+                        col: 0,
+                    })
+                ).toBeUndefined()
+
+                expect(
+                    CoordinatePathMapService.getPath({
+                        coordinatePathMap: graph.coordinatePathMap,
+                        row: 0,
+                        col: 1,
+                    })
+                ).toBeUndefined()
+
+                expect(
+                    CoordinatePathMapService.getPath({
+                        coordinatePathMap: graph.coordinatePathMap,
+                        row: 0,
+                        col: 2,
+                    })
+                ).toBeDefined()
+
+                expect(
+                    CoordinatePathMapService.getPath({
+                        coordinatePathMap: graph.coordinatePathMap,
+                        row: 0,
+                        col: 3,
+                    })
+                ).toBeDefined()
+
+                expect(
+                    CoordinatePathMapService.getPath({
+                        coordinatePathMap: graph.coordinatePathMap,
+                        row: 0,
+                        col: 4,
+                    })
+                ).toBeDefined()
+            })
+        })
     })
 })

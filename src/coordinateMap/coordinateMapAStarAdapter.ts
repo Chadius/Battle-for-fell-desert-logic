@@ -26,6 +26,7 @@ import {
 
 export interface CoordinateMapSearchLimits {
     maximumMoveCost?: number
+    minimumDistance?: number
     skipOverPits?: boolean
     moveThroughWalls?: boolean
     stopOnSquaddies?: boolean
@@ -265,6 +266,26 @@ export class CoordinateMapAStarAdapter
                 row: info.coordinate.row!,
                 col: info.coordinate.col!,
             })
+        }
+
+        this.deletePathsShorterThanMinimumDistance()
+    }
+
+    private deletePathsShorterThanMinimumDistance(): void {
+        const minimumDistance = this.searchLimits?.minimumDistance
+        if (minimumDistance == undefined) return
+
+        for (const [, visited] of this.coordinatePathMap.visitedCoordinates) {
+            const path = visited.cachedMovePath
+            if (path == undefined) continue
+            const tilesMoved = path.steps.length - 1
+            if (tilesMoved < minimumDistance) {
+                CoordinatePathMapService.deletePath({
+                    coordinatePathMap: this.coordinatePathMap,
+                    row: visited.row,
+                    col: visited.col,
+                })
+            }
         }
     }
 
