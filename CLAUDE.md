@@ -23,7 +23,7 @@ Avoid the `any` type. Create a new type to support the argument. Export the type
 Prefer undefined over null, and use `==` when comparing to undefined. If you need to make a difference between them,
 add a boolean value so it is not needed.
 For example, you may try to search for applicable targets. One way to indicate "haven't looked yet" versus "looked but
-no targets are in range"
+All targets must be in range"
 is to add a boolean value, beganSearch, and set it to false. Then we know no targets were in range if beganSearch is
 true and the searchResults are still undefined.
 

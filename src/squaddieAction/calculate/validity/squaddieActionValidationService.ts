@@ -8,11 +8,17 @@ import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
 import { ActionRangeService, type TActionRange } from "../../actionRange"
 import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
 import type { SquaddieAction } from "../../squaddieAction"
-import { CoordinateMapAStarAdapter } from "../../../coordinateMap/coordinateMapAStarAdapter"
+import {
+    CoordinateMapAStarAdapter,
+    type CoordinateMapSearchLimits,
+} from "../../../coordinateMap/coordinateMapAStarAdapter"
 import { AStarSearchService } from "../../../aStarSearch/aStarSearch"
 import type { CoordinateMovePath } from "../../../coordinateMap/path/path"
 import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
-import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate"
+import {
+    type OffsetCoordinate,
+    OffsetCoordinateService,
+} from "../../../coordinateMap/offsetCoordinate"
 import type { AStarGraph } from "../../../aStarSearch/aStarGraph"
 
 export interface ActionValidationResult {
@@ -120,6 +126,10 @@ const validateTargetsInRange = ({
         inBattleSquaddieManager,
     })
 
+    if (affiliationFilteredTargets.length !== targets.length) {
+        return { isValid: false, reason: "All targets must be in range" }
+    }
+
     const inRangeTargets = filterTargetsByDistance({
         actor,
         targets: affiliationFilteredTargets,
@@ -128,8 +138,20 @@ const validateTargetsInRange = ({
         mapId,
     })
 
-    if (inRangeTargets.length === 0) {
-        return { isValid: false, reason: "No targets are in range" }
+    if (inRangeTargets.length !== affiliationFilteredTargets.length) {
+        return { isValid: false, reason: "All targets must be in range" }
+    }
+
+    const pathfindingValidTargets = filterTargetsByPathfinding({
+        actor,
+        targets: inRangeTargets,
+        actionRange,
+        coordinateMapCollectionManager,
+        mapId,
+    })
+
+    if (pathfindingValidTargets.length !== inRangeTargets.length) {
+        return { isValid: false, reason: "All targets must be in range" }
     }
 
     return { isValid: true }
@@ -230,6 +252,100 @@ const filterTargetsByDistance = ({
 
         return distance >= minimum && distance <= maximum
     })
+}
+
+const filterTargetsByPathfinding = ({
+    actor,
+    targets,
+    actionRange,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    actor: BattleSquaddieId
+    targets: BattleSquaddieId[]
+    actionRange: TActionRange
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): BattleSquaddieId[] => {
+    if (targets.length === 0) return targets
+
+    const actorCoordinate =
+        coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId,
+            squaddieId: actor,
+        })
+
+    if (
+        actorCoordinate?.row == undefined ||
+        actorCoordinate?.col == undefined
+    ) {
+        return []
+    }
+
+    const actorPosition: OffsetCoordinate = {
+        row: actorCoordinate.row,
+        col: actorCoordinate.col,
+    }
+
+    let allTargetsAreOnTheMap = true
+
+    const targetCoordinateKeys = new Set(
+        targets.map((target) => {
+            const squaddieCoordinate =
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId,
+                    squaddieId: target,
+                })
+            if (squaddieCoordinate == undefined) {
+                allTargetsAreOnTheMap = false
+                return ""
+            }
+            return OffsetCoordinateService.coordinateToKey({
+                row: squaddieCoordinate.row!,
+                col: squaddieCoordinate.col!,
+            })
+        })
+    )
+
+    if (!allTargetsAreOnTheMap) {
+        return []
+    }
+
+    const { minimum, maximum } =
+        ActionRangeService.minAndMaxByRange[actionRange]
+
+    const searchLimits: CoordinateMapSearchLimits = {
+        stopOnSquaddies: true,
+        reduceMoveCosts: true,
+        skipOverPits: true,
+        moveThroughWalls: false,
+        minimumDistance: minimum,
+        maximumMoveCost: maximum,
+    }
+
+    const map = coordinateMapCollectionManager.getMapById(mapId)
+    const adapter = new CoordinateMapAStarAdapter({
+        map,
+        searchLimits,
+    })
+
+    const stopCondition = (node: OffsetCoordinate) => {
+        const key = OffsetCoordinateService.coordinateToKey(node)
+        targetCoordinateKeys.delete(key)
+        return targetCoordinateKeys.size === 0
+    }
+
+    AStarSearchService.search<
+        OffsetCoordinate,
+        CoordinateMovePath,
+        AStarGraph<OffsetCoordinate, CoordinateMovePath>
+    >({
+        start: actorPosition,
+        graph: adapter,
+        stopCondition,
+    })
+
+    return targetCoordinateKeys.size === 0 ? targets : []
 }
 
 const validateActionPointCost = ({
