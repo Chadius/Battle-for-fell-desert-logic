@@ -8,10 +8,17 @@ import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
 import { ActionRangeService, type TActionRange } from "../../actionRange"
 import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
 import type { SquaddieAction } from "../../squaddieAction"
+import { CoordinateMapAStarAdapter } from "../../../coordinateMap/coordinateMapAStarAdapter"
+import { AStarSearchService } from "../../../aStarSearch/aStarSearch"
+import type { CoordinateMovePath } from "../../../coordinateMap/path/path"
+import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
+import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate"
+import type { AStarGraph } from "../../../aStarSearch/aStarGraph"
 
 export interface ActionValidationResult {
     isValid: boolean
     reason?: string
+    movementPath?: CoordinateMovePath
 }
 
 export const SquaddieActionValidationService = {
@@ -31,6 +38,7 @@ export const SquaddieActionValidationService = {
         targets: BattleSquaddieId[]
         action: {
             id: string
+            decisions?: SquaddieActionDecisions
         }
         map: {
             mapId: string
@@ -49,7 +57,20 @@ export const SquaddieActionValidationService = {
             return actionPointValidation
         }
 
-        return validateTargetsInRange({
+        const movementValidation = validateMovementPathByDistance({
+            actor,
+            squaddieAction,
+            decisions: action.decisions,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            coordinateMapCollectionManager:
+                managers.coordinateMapCollectionManager,
+            mapId: map.mapId,
+        })
+        if (!movementValidation.isValid) {
+            return movementValidation
+        }
+
+        const targetValidation = validateTargetsInRange({
             actor,
             targets,
             squaddieAction,
@@ -58,6 +79,14 @@ export const SquaddieActionValidationService = {
                 managers.coordinateMapCollectionManager,
             mapId: map.mapId,
         })
+        if (!targetValidation.isValid) {
+            return targetValidation
+        }
+
+        return {
+            isValid: true,
+            movementPath: movementValidation.movementPath,
+        }
     },
 }
 
@@ -233,4 +262,120 @@ const validateActionPointCost = ({
     }
 
     return { isValid: true }
+}
+
+const validateMovementPathByDistance = ({
+    actor,
+    squaddieAction,
+    decisions,
+    inBattleSquaddieManager,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    decisions: SquaddieActionDecisions | undefined
+    inBattleSquaddieManager: InBattleSquaddieManager
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): ActionValidationResult => {
+    const hasMovementPathCost =
+        squaddieAction.effectOnActor.SUCCESS?.actionPoints?.additional
+            ?.movementPathActionPointCost
+    if (!hasMovementPathCost) {
+        return { isValid: true }
+    }
+
+    if (decisions?.desiredMovementDestination == undefined) {
+        return { isValid: true }
+    }
+
+    const actorCoordinate =
+        coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId,
+            squaddieId: actor,
+        })
+
+    if (
+        actorCoordinate?.row == undefined ||
+        actorCoordinate?.col == undefined
+    ) {
+        return { isValid: false, reason: "Actor has no position" }
+    }
+    const actorPosition = {
+        row: actorCoordinate.row,
+        col: actorCoordinate.col,
+    }
+
+    const destination = decisions.desiredMovementDestination
+    const hexDistance = CoordinateCalculator.getDistanceBetween(
+        actorPosition,
+        destination
+    )
+
+    const maximumMovementCost = inBattleSquaddieManager.getSquaddieMovementInfo(
+        {
+            inBattleSquaddieId: actor.inBattleSquaddieId,
+            outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+        }
+    ).maximumMovementCost
+    if (hexDistance > maximumMovementCost) {
+        return { isValid: false, reason: "Destination is too far away" }
+    }
+    return validateMovementPathWithPathfinding({
+        coordinateMapCollectionManager: coordinateMapCollectionManager,
+        mapId: mapId,
+        inBattleSquaddieManager: inBattleSquaddieManager,
+        actor: actor,
+        destination: destination,
+        actorPosition: actorPosition,
+    })
+}
+
+const validateMovementPathWithPathfinding = ({
+    coordinateMapCollectionManager,
+    mapId,
+    inBattleSquaddieManager,
+    actor,
+    destination,
+    actorPosition,
+}: {
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+    inBattleSquaddieManager: InBattleSquaddieManager
+    actor: BattleSquaddieId
+    destination: OffsetCoordinate
+    actorPosition: OffsetCoordinate
+}): ActionValidationResult => {
+    const map = coordinateMapCollectionManager.getMapById(mapId)
+    const searchLimits =
+        CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie({
+            manager: inBattleSquaddieManager,
+            battleSquaddieId: actor,
+        })
+
+    const adapter: CoordinateMapAStarAdapter = new CoordinateMapAStarAdapter({
+        map,
+        searchLimits,
+        inBattleSquaddieManager,
+    })
+
+    const reachesDestination = (node: { row: number; col: number }) =>
+        node.row === destination.row && node.col === destination.col
+
+    const path = AStarSearchService.search<
+        OffsetCoordinate,
+        CoordinateMovePath,
+        AStarGraph<OffsetCoordinate, CoordinateMovePath>
+    >({
+        start: actorPosition,
+        graph: adapter,
+        stopCondition: reachesDestination,
+    })
+
+    if (path == undefined) {
+        return { isValid: false, reason: "Destination is blocked" }
+    }
+
+    return { isValid: true, movementPath: path }
 }

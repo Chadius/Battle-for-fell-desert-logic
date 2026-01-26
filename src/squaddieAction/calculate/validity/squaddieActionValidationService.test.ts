@@ -17,6 +17,7 @@ import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinat
 import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 import { ActionRange } from "../../actionRange"
+import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
 
 describe("SquaddieActionValidationService", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -696,6 +697,278 @@ describe("SquaddieActionValidationService", () => {
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("No targets are in range")
+        })
+    })
+
+    describe("movement path validation", () => {
+        let movementSquaddieActionManager: SquaddieActionManager
+        let movementInBattleSquaddieManager: InBattleSquaddieManager
+        let movementOutOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let movementCoordinateMapCollectionManager: CoordinateMapCollectionManager
+        let movementActor: BattleSquaddieId
+        const movementMapId = "movement-test-map"
+
+        beforeEach(() => {
+            ;({ manager: movementOutOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "movement-sheet",
+                        attributeSheetOptions: {
+                            distancePerAction: 2,
+                        },
+                    }
+                ))
+
+            const movementActorSquaddie = OutOfBattleSquaddieService.new({
+                id: "movement-actor",
+                name: "Movement Actor",
+                actionIds: [],
+                attributeSheetId: "movement-sheet",
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+            movementOutOfBattleSquaddieManager.addOrUpdateSquaddie(
+                movementActorSquaddie
+            )
+
+            const inBattleCollection = InBattleSquaddieCollectionService.new()
+            movementInBattleSquaddieManager = new InBattleSquaddieManager(
+                inBattleCollection,
+                movementOutOfBattleSquaddieManager
+            )
+
+            const { inBattleSquaddieId } =
+                movementInBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "movement-actor",
+                })
+            movementActor = {
+                inBattleSquaddieId,
+                outOfBattleSquaddieId: "movement-actor",
+            }
+
+            movementSquaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+
+            let mapCollection = CoordinateMapCollectionService.new()
+            mapCollection = CoordinateMapCollectionService.addOrUpdate({
+                collection: mapCollection,
+                map: CoordinateMapService.new({
+                    id: movementMapId,
+                    name: "Movement Test Map",
+                    movementProperties: ["1 2 2 1 1 1 1 1"],
+                }),
+            })
+            movementCoordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(mapCollection)
+
+            movementCoordinateMapCollectionManager.addSquaddie({
+                mapId: movementMapId,
+                squaddieId: movementActor,
+                coordinate: { row: 0, col: 0 },
+            })
+        })
+
+        it("returns valid with movementPath when movement destination is reachable", () => {
+            const moveAction = SquaddieActionService.new({
+                id: "move-action",
+                name: "Move Action",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: {
+                            spent: 0,
+                            additional: { movementPathActionPointCost: true },
+                        },
+                        movement: { moveToSelectedDestination: true },
+                    },
+                },
+            })
+            movementSquaddieActionManager.addOrUpdate(moveAction)
+
+            const decisions: SquaddieActionDecisions = {
+                desiredMovementDestination: { row: 0, col: 4 },
+            }
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: movementActor,
+                action: { id: moveAction.id, decisions },
+                targets: [],
+                managers: {
+                    inBattleSquaddieManager: movementInBattleSquaddieManager,
+                    squaddieActionManager: movementSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        movementCoordinateMapCollectionManager,
+                },
+                map: { mapId: movementMapId },
+            })
+
+            expect(result.isValid).toBe(true)
+            expect(result.movementPath).toBeDefined()
+            expect(result.movementPath?.steps.length).toBeGreaterThan(0)
+        })
+
+        it("returns invalid when hex distance exceeds maximum movement", () => {
+            const moveAction = SquaddieActionService.new({
+                id: "move-action",
+                name: "Move Action",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: {
+                            spent: 0,
+                            additional: { movementPathActionPointCost: true },
+                        },
+                        movement: { moveToSelectedDestination: true },
+                    },
+                },
+            })
+            movementSquaddieActionManager.addOrUpdate(moveAction)
+
+            const decisions: SquaddieActionDecisions = {
+                desiredMovementDestination: { row: 0, col: 7 },
+            }
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: movementActor,
+                action: { id: moveAction.id, decisions },
+                targets: [],
+                managers: {
+                    inBattleSquaddieManager: movementInBattleSquaddieManager,
+                    squaddieActionManager: movementSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        movementCoordinateMapCollectionManager,
+                },
+                map: { mapId: movementMapId },
+            })
+
+            expect(result.isValid).toBe(false)
+            expect(result.reason).toBe("Destination is too far away")
+            expect(result.movementPath).toBeUndefined()
+        })
+
+        it("returns invalid when path cost exceeds maximum even if hex distance is within range", () => {
+            const moveAction = SquaddieActionService.new({
+                id: "move-action",
+                name: "Move Action",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: {
+                            spent: 0,
+                            additional: { movementPathActionPointCost: true },
+                        },
+                        movement: { moveToSelectedDestination: true },
+                    },
+                },
+            })
+            movementSquaddieActionManager.addOrUpdate(moveAction)
+
+            const decisions: SquaddieActionDecisions = {
+                desiredMovementDestination: { row: 0, col: 5 },
+            }
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: movementActor,
+                action: { id: moveAction.id, decisions },
+                targets: [],
+                managers: {
+                    inBattleSquaddieManager: movementInBattleSquaddieManager,
+                    squaddieActionManager: movementSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        movementCoordinateMapCollectionManager,
+                },
+                map: { mapId: movementMapId },
+            })
+
+            expect(result.isValid).toBe(false)
+            expect(result.reason).toBe("Destination is blocked")
+            expect(result.movementPath).toBeUndefined()
+        })
+
+        it("returns invalid when wall blocks path to destination", () => {
+            let wallMapCollection = CoordinateMapCollectionService.new()
+            const wallMapId = "wall-map"
+            wallMapCollection = CoordinateMapCollectionService.addOrUpdate({
+                collection: wallMapCollection,
+                map: CoordinateMapService.new({
+                    id: wallMapId,
+                    name: "Wall Map",
+                    movementProperties: ["1 x 1"],
+                }),
+            })
+            const wallCoordinateMapManager = new CoordinateMapCollectionManager(
+                wallMapCollection
+            )
+            wallCoordinateMapManager.addSquaddie({
+                mapId: wallMapId,
+                squaddieId: movementActor,
+                coordinate: { row: 0, col: 0 },
+            })
+
+            const moveAction = SquaddieActionService.new({
+                id: "move-action",
+                name: "Move Action",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: {
+                            spent: 0,
+                            additional: { movementPathActionPointCost: true },
+                        },
+                        movement: { moveToSelectedDestination: true },
+                    },
+                },
+            })
+            movementSquaddieActionManager.addOrUpdate(moveAction)
+
+            const decisions: SquaddieActionDecisions = {
+                desiredMovementDestination: { row: 0, col: 2 },
+            }
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: movementActor,
+                action: { id: moveAction.id, decisions },
+                targets: [],
+                managers: {
+                    inBattleSquaddieManager: movementInBattleSquaddieManager,
+                    squaddieActionManager: movementSquaddieActionManager,
+                    coordinateMapCollectionManager: wallCoordinateMapManager,
+                },
+                map: { mapId: wallMapId },
+            })
+
+            expect(result.isValid).toBe(false)
+            expect(result.reason).toBe("Destination is blocked")
+            expect(result.movementPath).toBeUndefined()
+        })
+
+        it("returns valid without movementPath when no destination is provided", () => {
+            const moveAction = SquaddieActionService.new({
+                id: "move-action",
+                name: "Move Action",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: {
+                            spent: 0,
+                            additional: { movementPathActionPointCost: true },
+                        },
+                        movement: { moveToSelectedDestination: true },
+                    },
+                },
+            })
+            movementSquaddieActionManager.addOrUpdate(moveAction)
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: movementActor,
+                action: { id: moveAction.id },
+                targets: [],
+                managers: {
+                    inBattleSquaddieManager: movementInBattleSquaddieManager,
+                    squaddieActionManager: movementSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        movementCoordinateMapCollectionManager,
+                },
+                map: { mapId: movementMapId },
+            })
+
+            expect(result.isValid).toBe(true)
+            expect(result.movementPath).toBeUndefined()
         })
     })
 })

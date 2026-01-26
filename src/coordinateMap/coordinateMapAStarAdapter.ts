@@ -10,7 +10,10 @@ import {
     type CoordinatePathMap,
     CoordinatePathMapService,
 } from "./mapTransposition/coordinatePathMap"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type {
+    BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../squaddie/inBattle/inBattleSquaddieManager"
 import { SquaddieConditionType } from "../proficiency/squaddieCondition"
 import {
     type OffsetCoordinate,
@@ -63,13 +66,13 @@ export class CoordinateMapAStarAdapter
 
     static getCoordinateMapSearchLimitsFromSquaddie({
         manager,
-        inBattleSquaddieId,
-        outOfBattleSquaddieId,
+        battleSquaddieId,
     }: {
         manager: InBattleSquaddieManager
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
+        battleSquaddieId: BattleSquaddieId
     }): CoordinateMapSearchLimits {
+        const { inBattleSquaddieId, outOfBattleSquaddieId } = battleSquaddieId
+
         const moveLimits = manager.getSquaddieMovementInfo({
             inBattleSquaddieId,
             outOfBattleSquaddieId,

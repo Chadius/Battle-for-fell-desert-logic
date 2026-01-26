@@ -90,7 +90,7 @@ describe("coordinateMapAStarAdapter", () => {
                     CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie(
                         {
                             manager,
-                            ...inBattleSquaddie00Id,
+                            battleSquaddieId: inBattleSquaddie00Id,
                         }
                     )
                 expect(movementInfo).toEqual({
@@ -121,7 +121,7 @@ describe("coordinateMapAStarAdapter", () => {
                     CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie(
                         {
                             manager,
-                            ...inBattleSquaddie00Id,
+                            battleSquaddieId: inBattleSquaddie00Id,
                         }
                     )
                 expect(movementInfo).toEqual(
@@ -491,7 +491,7 @@ describe("coordinateMapAStarAdapter", () => {
                     CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie(
                         {
                             manager,
-                            ...noAffiliation0Id,
+                            battleSquaddieId: noAffiliation0Id,
                         }
                     )
 
@@ -542,7 +542,7 @@ describe("coordinateMapAStarAdapter", () => {
                     CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie(
                         {
                             manager,
-                            ...enemySquaddieId,
+                            battleSquaddieId: enemySquaddieId,
                         }
                     )
 
@@ -604,7 +604,7 @@ describe("coordinateMapAStarAdapter", () => {
                     CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie(
                         {
                             manager,
-                            ...enemySquaddieId,
+                            battleSquaddieId: enemySquaddieId,
                         }
                     )
 
@@ -656,7 +656,7 @@ describe("coordinateMapAStarAdapter", () => {
                     CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie(
                         {
                             manager,
-                            ...allySquaddieId,
+                            battleSquaddieId: allySquaddieId,
                         }
                     )
 
