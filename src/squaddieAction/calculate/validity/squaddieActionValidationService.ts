@@ -25,6 +25,7 @@ import {
 import type { AStarGraph } from "../../../aStarSearch/aStarGraph"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../result/squaddieActionResult"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 
 export interface ActionValidationResult {
     isValid: boolean
@@ -112,6 +113,104 @@ export const SquaddieActionValidationService = {
             isValid: true,
             movementPath: movementValidation.movementPath,
         }
+    },
+    getAllValidTargetsInRangeOfAction: ({
+        actor,
+        action,
+        managers,
+        map,
+    }: {
+        managers: {
+            inBattleSquaddieManager: InBattleSquaddieManager
+            squaddieActionManager: SquaddieActionManager
+            coordinateMapCollectionManager: CoordinateMapCollectionManager
+        }
+        actor: BattleSquaddieId
+        action: { id: string }
+        map: { mapId: string }
+    }): Map<string, Set<string>> => {
+        const squaddieAction = managers.squaddieActionManager.get(action.id)
+        const affiliationRelationship =
+            squaddieAction.targeting.affiliationRelationship
+        const actionRange = squaddieAction.targeting.range
+
+        const allSquaddiesOnMap =
+            managers.coordinateMapCollectionManager.getAllSquaddieCoordinatesOnMap(
+                map.mapId
+            )
+
+        const allTargets: BattleSquaddieId[] = allSquaddiesOnMap.map(
+            (info) => ({
+                inBattleSquaddieId: info.squaddieId.inBattleSquaddieId,
+                outOfBattleSquaddieId: info.squaddieId.outOfBattleSquaddieId,
+            })
+        )
+
+        const affiliationFilteredTargets = filterTargetsByAffiliation({
+            actor,
+            targets: allTargets,
+            affiliationRelationship,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        })
+
+        const distanceFilteredTargets = filterTargetsByDistance({
+            actor,
+            targets: affiliationFilteredTargets,
+            actionRange,
+            coordinateMapCollectionManager:
+                managers.coordinateMapCollectionManager,
+            mapId: map.mapId,
+        })
+
+        const reachableCoordinateKeys = getReachableCoordinateKeys({
+            actor,
+            actionRange,
+            coordinateMapCollectionManager:
+                managers.coordinateMapCollectionManager,
+            mapId: map.mapId,
+        })
+
+        const reachableCoordinatesWithSquaddiesInRange = new Map<
+            string,
+            Set<string>
+        >()
+        for (const target of distanceFilteredTargets) {
+            const targetCoordinate =
+                managers.coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: map.mapId,
+                    squaddieId: target,
+                })
+            if (
+                targetCoordinate?.row == undefined ||
+                targetCoordinate?.col == undefined
+            ) {
+                continue
+            }
+
+            const coordinateKey = OffsetCoordinateService.coordinateToKey({
+                row: targetCoordinate.row,
+                col: targetCoordinate.col,
+            })
+
+            if (!reachableCoordinateKeys.has(coordinateKey)) {
+                continue
+            }
+
+            const squaddieKey =
+                SquaddieIdConverterService.squaddieIdToKey(target)
+
+            if (!reachableCoordinatesWithSquaddiesInRange.has(coordinateKey)) {
+                reachableCoordinatesWithSquaddiesInRange.set(
+                    coordinateKey,
+                    new Set<string>()
+                )
+            }
+            reachableCoordinatesWithSquaddiesInRange
+                .get(coordinateKey)!
+                .add(squaddieKey)
+        }
+
+        return reachableCoordinatesWithSquaddiesInRange
     },
 }
 
@@ -596,4 +695,74 @@ const validateTargetsCanBeAffected = ({
     }
 
     return { isValid: true }
+}
+
+const getReachableCoordinateKeys = ({
+    actor,
+    actionRange,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    actor: BattleSquaddieId
+    actionRange: TActionRange
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): Set<string> => {
+    const reachableKeys = new Set<string>()
+
+    const actorCoordinate =
+        coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId,
+            squaddieId: actor,
+        })
+
+    if (
+        actorCoordinate?.row == undefined ||
+        actorCoordinate?.col == undefined
+    ) {
+        return reachableKeys
+    }
+
+    const actorPosition: OffsetCoordinate = {
+        row: actorCoordinate.row,
+        col: actorCoordinate.col,
+    }
+
+    const { minimum, maximum } =
+        ActionRangeService.minAndMaxByRange[actionRange]
+
+    const searchLimits: CoordinateMapSearchLimits = {
+        stopOnSquaddies: true,
+        reduceMoveCosts: true,
+        skipOverPits: true,
+        moveThroughWalls: false,
+        minimumDistance: minimum,
+        maximumMoveCost: maximum,
+    }
+
+    const map = coordinateMapCollectionManager.getMapById(mapId)
+    const adapter = new CoordinateMapAStarAdapter({
+        map,
+        searchLimits,
+    })
+
+    const neverStop = () => false
+
+    AStarSearchService.search<
+        OffsetCoordinate,
+        CoordinateMovePath,
+        AStarGraph<OffsetCoordinate, CoordinateMovePath>
+    >({
+        start: actorPosition,
+        graph: adapter,
+        stopCondition: neverStop,
+    })
+
+    for (const [key, visited] of adapter.coordinatePathMap.visitedCoordinates) {
+        if (visited.cachedMovePath != undefined) {
+            reachableKeys.add(key)
+        }
+    }
+
+    return reachableKeys
 }
