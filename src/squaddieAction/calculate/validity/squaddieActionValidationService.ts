@@ -14,12 +14,17 @@ import {
 } from "../../../coordinateMap/coordinateMapAStarAdapter"
 import { AStarSearchService } from "../../../aStarSearch/aStarSearch"
 import type { CoordinateMovePath } from "../../../coordinateMap/path/path"
-import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
+import {
+    type SquaddieActionDecisions,
+    SquaddieActionResultCalculator,
+} from "../result/squaddieActionResultCalculator"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
 } from "../../../coordinateMap/offsetCoordinate"
 import type { AStarGraph } from "../../../aStarSearch/aStarGraph"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
+import type { SquaddieActionResult } from "../result/squaddieActionResult"
 
 export interface ActionValidationResult {
     isValid: boolean
@@ -87,6 +92,20 @@ export const SquaddieActionValidationService = {
         })
         if (!targetValidation.isValid) {
             return targetValidation
+        }
+
+        const effectValidation = validateTargetsCanBeAffected({
+            actor,
+            targets,
+            squaddieAction,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            squaddieActionManager: managers.squaddieActionManager,
+            coordinateMapCollectionManager:
+                managers.coordinateMapCollectionManager,
+            mapId: map.mapId,
+        })
+        if (!effectValidation.isValid) {
+            return effectValidation
         }
 
         return {
@@ -494,4 +513,87 @@ const validateMovementPathWithPathfinding = ({
     }
 
     return { isValid: true, movementPath: path }
+}
+
+const squaddieActionResultHasEffect = (
+    result: SquaddieActionResult
+): boolean => {
+    if (result.damage?.net != undefined && result.damage.net > 0) return true
+    if (result.healing?.net != undefined && result.healing.net > 0) return true
+    if (
+        result.conditionsAdded != undefined &&
+        result.conditionsAdded.length > 0
+    )
+        return true
+    if (
+        result.dispel?.dispelledConditions?.size != undefined &&
+        result.dispel.dispelledConditions.size > 0
+    )
+        return true
+    if (
+        result.treat?.treatedConditions?.size != undefined &&
+        result.treat.treatedConditions.size > 0
+    )
+        return true
+    if (result.movement?.expectedPath != undefined) return true
+
+    return (
+        result.actionPoints?.restore?.net != undefined &&
+        result.actionPoints.restore.net > 0
+    )
+}
+
+const validateTargetsCanBeAffected = ({
+    actor,
+    targets,
+    squaddieAction,
+    inBattleSquaddieManager,
+    squaddieActionManager,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    actor: BattleSquaddieId
+    targets: BattleSquaddieId[]
+    squaddieAction: SquaddieAction
+    inBattleSquaddieManager: InBattleSquaddieManager
+    squaddieActionManager: SquaddieActionManager
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): ActionValidationResult => {
+    if (targets.length === 0) {
+        return { isValid: true }
+    }
+
+    if (squaddieAction.effectOnTarget == undefined) {
+        return { isValid: true }
+    }
+
+    const results = SquaddieActionResultCalculator.calculateResult({
+        actor,
+        targets,
+        action: { id: squaddieAction.id },
+        managers: {
+            inBattleSquaddieManager,
+            squaddieActionManager,
+            coordinateMapCollectionManager,
+        },
+        degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+        map: { mapId },
+    })
+
+    const targetResults = results.filter((result) =>
+        targets.some(
+            (t) =>
+                t.inBattleSquaddieId === result.inBattleSquaddieId &&
+                t.outOfBattleSquaddieId === result.outOfBattleSquaddieId
+        )
+    )
+
+    const hasAffectedTarget = targetResults.some(squaddieActionResultHasEffect)
+
+    if (!hasAffectedTarget) {
+        return { isValid: false, reason: "No targets can be affected" }
+    }
+
+    return { isValid: true }
 }
