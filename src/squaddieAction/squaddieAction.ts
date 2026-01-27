@@ -125,4 +125,37 @@ export const SquaddieActionService = {
             effectOnTarget,
         }
     },
+    defaultEndTurn: (): SquaddieAction => {
+        return SquaddieActionService.new({
+            id: "default-end-turn",
+            name: "End Turn",
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: {
+                        spent: "all",
+                    },
+                },
+            },
+            range: ActionRange.SELF,
+        })
+    },
+    defaultMove: (): SquaddieAction => {
+        return SquaddieActionService.new({
+            id: "default-move",
+            name: "Move",
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: {
+                        spent: 0,
+                        additional: {
+                            movementPathActionPointCost: true,
+                        },
+                    },
+                    movement: {
+                        moveToSelectedDestination: true,
+                    },
+                },
+            },
+        })
+    },
 }
