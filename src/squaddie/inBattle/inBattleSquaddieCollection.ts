@@ -319,9 +319,7 @@ export const InBattleSquaddieCollectionService = {
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
         collection: InBattleSquaddieCollection
-    }): {
-        current: number
-    } => {
+    }): InBattleSquaddie["actionPoints"] => {
         throwIfCollectionIsUndefined(collection, "getActionPoints")
         throwErrorsIfSquaddieIsUndefined({
             functionName: "getActionPoints",

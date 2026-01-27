@@ -228,9 +228,7 @@ export const InBattleSquaddieService = {
     },
     getActionPoints: (
         inBattleSquaddie: InBattleSquaddie
-    ): {
-        current: number
-    } => {
+    ): InBattleSquaddie["actionPoints"] => {
         return { current: inBattleSquaddie.actionPoints.current }
     },
     getMaximumActionPoints: (inBattleSquaddie: InBattleSquaddie): number => {

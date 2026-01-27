@@ -516,9 +516,7 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-    }): {
-        current: number
-    } {
+    }): InBattleSquaddie["actionPoints"] {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
@@ -1159,9 +1157,11 @@ export class InBattleSquaddieManager {
     getSquaddieMovementInfo({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
+        actionPoints: actionPointsOverride,
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
+        actionPoints?: InBattleSquaddie["actionPoints"]
     }): {
         movementPerAction: number
         totalActionPoints: number
@@ -1174,10 +1174,12 @@ export class InBattleSquaddieManager {
             this.getSquaddieMovementInfo.name
         )
 
-        const actionPoints = this.getActionPoints({
-            inBattleSquaddieId,
-            outOfBattleSquaddieId,
-        })
+        const actionPoints =
+            actionPointsOverride ??
+            this.getActionPoints({
+                inBattleSquaddieId,
+                outOfBattleSquaddieId,
+            })
         const outOfBattleMovementInfo =
             this.outOfBattleSquaddieManager!.getSquaddieMovementInfo({
                 squaddieId: outOfBattleSquaddieId,
