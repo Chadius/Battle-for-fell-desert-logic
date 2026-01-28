@@ -1480,7 +1480,11 @@ describe("In Battle Squaddie Manager", () => {
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
 
-            expect(manager.canSquaddieAct(inBattleSquaddie00Id!)).toBe(true)
+            expect(
+                manager.canSquaddieAct({
+                    battleSquaddieId: inBattleSquaddie00Id!,
+                })
+            ).toBe(true)
         })
 
         it("returns false when squaddie has spent all action points", () => {
@@ -1493,7 +1497,24 @@ describe("In Battle Squaddie Manager", () => {
                 actionPoints: 3,
             })
 
-            expect(manager.canSquaddieAct(inBattleSquaddie00Id!)).toBe(false)
+            expect(
+                manager.canSquaddieAct({
+                    battleSquaddieId: inBattleSquaddie00Id!,
+                })
+            ).toBe(false)
+        })
+
+        it("can accept an override for action points", () => {
+            const inBattleSquaddie00Id = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            expect(
+                manager.canSquaddieAct({
+                    battleSquaddieId: inBattleSquaddie00Id!,
+                    actionPoints: { current: 0 },
+                })
+            ).toBe(false)
         })
 
         it("returns false when squaddie is at 0 hit points", () => {
@@ -1509,7 +1530,11 @@ describe("In Battle Squaddie Manager", () => {
                 },
             })
 
-            expect(manager.canSquaddieAct(inBattleSquaddie00Id!)).toBe(false)
+            expect(
+                manager.canSquaddieAct({
+                    battleSquaddieId: inBattleSquaddie00Id!,
+                })
+            ).toBe(false)
         })
     })
 

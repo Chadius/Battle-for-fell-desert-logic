@@ -588,7 +588,9 @@ export class MissionManager {
             return false
         }
 
-        return !this.inBattleSquaddieManager.canSquaddieAct(lastActingSquaddie)
+        return !this.inBattleSquaddieManager.canSquaddieAct({
+            battleSquaddieId: lastActingSquaddie,
+        })
     }
 
     private getLastActingSquaddieId(): BattleSquaddieId | undefined {

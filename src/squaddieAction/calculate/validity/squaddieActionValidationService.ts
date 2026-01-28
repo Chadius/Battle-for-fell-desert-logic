@@ -536,7 +536,9 @@ const validateActionPointCost = ({
     }
 
     if (actionPointCost === "all") {
-        const canAct = inBattleSquaddieManager.canSquaddieAct(actor)
+        const canAct = inBattleSquaddieManager.canSquaddieAct({
+            battleSquaddieId: actor,
+        })
         if (!canAct) {
             return { isValid: false, reason: "Squaddie cannot act" }
         }

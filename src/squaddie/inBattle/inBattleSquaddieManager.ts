@@ -171,8 +171,10 @@ export class InBattleSquaddieManager {
         })
 
         const canAct = this.canSquaddieAct({
-            inBattleSquaddieId,
-            outOfBattleSquaddieId,
+            battleSquaddieId: {
+                inBattleSquaddieId,
+                outOfBattleSquaddieId,
+            },
         })
 
         const squaddieInfo = this.getSquaddie({
@@ -547,27 +549,21 @@ export class InBattleSquaddieManager {
     }
 
     canSquaddieAct({
-        inBattleSquaddieId,
-        outOfBattleSquaddieId,
+        battleSquaddieId,
+        actionPoints,
     }: {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
+        battleSquaddieId: BattleSquaddieId
+        actionPoints?: InBattleSquaddie["actionPoints"]
     }): boolean {
-        const squaddieInfo = this.getSquaddie({
-            inBattleSquaddieId: inBattleSquaddieId,
-            outOfBattleSquaddieId: outOfBattleSquaddieId,
-        })
+        const squaddieInfo = this.getSquaddie(battleSquaddieId)
 
-        if (
-            this.isSquaddieDefeated({
-                inBattleSquaddieId,
-                outOfBattleSquaddieId,
-            })
-        ) {
+        if (this.isSquaddieDefeated(battleSquaddieId)) {
             return false
         }
-
-        return squaddieInfo.inBattleSquaddie.actionPoints.current > 0
+        return (
+            (actionPoints ?? squaddieInfo.inBattleSquaddie.actionPoints)
+                .current > 0
+        )
     }
 
     isSquaddieDefeated({

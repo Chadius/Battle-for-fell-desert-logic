@@ -1309,10 +1309,14 @@ describe("MissionManager", () => {
             )
 
             expect(
-                inBattleSquaddieManager.canSquaddieAct(player1SquaddieId)
+                inBattleSquaddieManager.canSquaddieAct({
+                    battleSquaddieId: player1SquaddieId,
+                })
             ).toBe(true)
             expect(
-                inBattleSquaddieManager.canSquaddieAct(player2SquaddieId)
+                inBattleSquaddieManager.canSquaddieAct({
+                    battleSquaddieId: player2SquaddieId,
+                })
             ).toBe(true)
 
             expect(missionManager.shouldCheckMissionObjectives()).toBe(false)
@@ -1340,7 +1344,9 @@ describe("MissionManager", () => {
             })
 
             expect(
-                inBattleSquaddieManager.canSquaddieAct(player1SquaddieId)
+                inBattleSquaddieManager.canSquaddieAct({
+                    battleSquaddieId: player1SquaddieId,
+                })
             ).toBe(true)
 
             expect(missionManager.shouldCheckMissionObjectives()).toBe(false)
@@ -1368,7 +1374,9 @@ describe("MissionManager", () => {
             })
 
             expect(
-                inBattleSquaddieManager.canSquaddieAct(player1SquaddieId)
+                inBattleSquaddieManager.canSquaddieAct({
+                    battleSquaddieId: player1SquaddieId,
+                })
             ).toBe(false)
 
             expect(missionManager.shouldCheckMissionObjectives()).toBe(true)
@@ -1409,10 +1417,14 @@ describe("MissionManager", () => {
             })
 
             expect(
-                inBattleSquaddieManager.canSquaddieAct(player1SquaddieId)
+                inBattleSquaddieManager.canSquaddieAct({
+                    battleSquaddieId: player1SquaddieId,
+                })
             ).toBe(true)
             expect(
-                inBattleSquaddieManager.canSquaddieAct(player2SquaddieId)
+                inBattleSquaddieManager.canSquaddieAct({
+                    battleSquaddieId: player2SquaddieId,
+                })
             ).toBe(false)
 
             expect(missionManager.shouldCheckMissionObjectives()).toBe(true)
@@ -1443,7 +1455,9 @@ describe("MissionManager", () => {
             })
 
             expect(
-                inBattleSquaddieManager.canSquaddieAct(player1SquaddieId)
+                inBattleSquaddieManager.canSquaddieAct({
+                    battleSquaddieId: player1SquaddieId,
+                })
             ).toBe(false)
 
             expect(missionManager.shouldCheckMissionObjectives()).toBe(true)
@@ -1463,7 +1477,9 @@ describe("MissionManager", () => {
             })
 
             expect(
-                inBattleSquaddieManager.canSquaddieAct(player1SquaddieId)
+                inBattleSquaddieManager.canSquaddieAct({
+                    battleSquaddieId: player1SquaddieId,
+                })
             ).toBe(false)
 
             expect(missionManager.shouldCheckMissionObjectives()).toBe(false)

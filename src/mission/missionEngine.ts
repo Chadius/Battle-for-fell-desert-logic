@@ -244,7 +244,9 @@ export class MissionEngine {
             inBattleSquaddieManager.getAllSquaddiesOfAffiliation(affiliation)
 
         return allSquaddiesOfAffiliation.filter((squaddieId) =>
-            inBattleSquaddieManager.canSquaddieAct(squaddieId)
+            inBattleSquaddieManager.canSquaddieAct({
+                battleSquaddieId: squaddieId,
+            })
         )
     }
 

@@ -191,8 +191,10 @@ const hasSquaddiesThatCanAct = (
 
         if (squaddieAffiliation === affiliation) {
             const canAct = inBattleSquaddieManager.canSquaddieAct({
-                inBattleSquaddieId: squaddieId.inBattleSquaddieId,
-                outOfBattleSquaddieId: squaddieId.outOfBattleSquaddieId,
+                battleSquaddieId: {
+                    inBattleSquaddieId: squaddieId.inBattleSquaddieId,
+                    outOfBattleSquaddieId: squaddieId.outOfBattleSquaddieId,
+                },
             })
 
             if (canAct) return true
