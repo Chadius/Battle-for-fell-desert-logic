@@ -136,6 +136,7 @@ export const SquaddieActionValidationService = {
         action,
         managers,
         map,
+        positionOverride,
     }: {
         managers: {
             inBattleSquaddieManager: InBattleSquaddieManager
@@ -145,6 +146,7 @@ export const SquaddieActionValidationService = {
         actor: BattleSquaddieId
         action: { id: string }
         map: { mapId: string }
+        positionOverride?: OffsetCoordinate
     }): Map<string, Set<string>> => {
         const squaddieAction = managers.squaddieActionManager.get(action.id)
         const affiliationRelationship =
@@ -177,6 +179,7 @@ export const SquaddieActionValidationService = {
             coordinateMapCollectionManager:
                 managers.coordinateMapCollectionManager,
             mapId: map.mapId,
+            positionOverride,
         })
 
         const reachableCoordinateKeys = getReachableCoordinateKeys({
@@ -185,6 +188,7 @@ export const SquaddieActionValidationService = {
             coordinateMapCollectionManager:
                 managers.coordinateMapCollectionManager,
             mapId: map.mapId,
+            positionOverride,
         })
 
         const reachableCoordinatesWithSquaddiesInRange = new Map<
@@ -234,6 +238,7 @@ export const SquaddieActionValidationService = {
         managers,
         map,
         actionPointsOverride,
+        positionOverride,
     }: {
         managers: {
             inBattleSquaddieManager: InBattleSquaddieManager
@@ -243,6 +248,7 @@ export const SquaddieActionValidationService = {
         actor: BattleSquaddieId
         map: { mapId: string }
         actionPointsOverride?: InBattleSquaddie["actionPoints"]
+        positionOverride?: OffsetCoordinate
     }): ValidSquaddieActionOption[] => {
         const currentActionPoints =
             actionPointsOverride ??
@@ -257,17 +263,142 @@ export const SquaddieActionValidationService = {
                 managers,
                 map,
                 currentActionPoints,
+                positionOverride,
             }),
             ...generateAbilityActionOptions({
                 actor,
                 managers,
                 map,
                 currentActionPoints,
+                positionOverride,
             })
         )
 
         return options
     },
+    generateValidSquaddieTurns: ({
+        actor,
+        managers,
+        map,
+        actionPointsOverride,
+        positionOverride,
+    }: {
+        managers: {
+            inBattleSquaddieManager: InBattleSquaddieManager
+            squaddieActionManager: SquaddieActionManager
+            coordinateMapCollectionManager: CoordinateMapCollectionManager
+        }
+        actor: BattleSquaddieId
+        map: { mapId: string }
+        actionPointsOverride?: InBattleSquaddie["actionPoints"]
+        positionOverride?: OffsetCoordinate
+    }): ValidSquaddieActionOption[][] => {
+        const allTurnSequences: ValidSquaddieActionOption[][] = []
+
+        const currentActionPoints =
+            actionPointsOverride ??
+            managers.inBattleSquaddieManager.getActionPoints(actor)
+
+        let currentPosition: OffsetCoordinate | undefined = positionOverride
+
+        if (currentPosition == undefined) {
+            const actorCoordinate =
+                managers.coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: map.mapId,
+                    squaddieId: actor,
+                })
+
+            if (
+                actorCoordinate?.row == undefined ||
+                actorCoordinate?.col == undefined
+            ) {
+                return allTurnSequences
+            }
+
+            currentPosition = {
+                row: actorCoordinate.row,
+                col: actorCoordinate.col,
+            }
+        }
+
+        generateTurnsRecursively({
+            actor,
+            managers,
+            map,
+            currentPosition,
+            currentActionPoints,
+            currentSequence: [],
+            allTurnSequences,
+        })
+
+        return allTurnSequences
+    },
+}
+
+const generateTurnsRecursively = ({
+    actor,
+    managers,
+    map,
+    currentPosition,
+    currentActionPoints,
+    currentSequence,
+    allTurnSequences,
+}: {
+    actor: BattleSquaddieId
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+    map: { mapId: string }
+    currentPosition: OffsetCoordinate
+    currentActionPoints: InBattleSquaddie["actionPoints"]
+    currentSequence: ValidSquaddieActionOption[]
+    allTurnSequences: ValidSquaddieActionOption[][]
+}): void => {
+    const availableActions =
+        SquaddieActionValidationService.generateValidSquaddieActions({
+            actor,
+            managers,
+            map,
+            actionPointsOverride: currentActionPoints,
+            positionOverride: currentPosition,
+        })
+
+    for (const actionOption of availableActions) {
+        const newSequence = [...currentSequence, actionOption]
+
+        const isEndTurn = actionOption.action.id === "default-end-turn"
+        if (isEndTurn) {
+            allTurnSequences.push(newSequence)
+            continue
+        }
+
+        const canContinue = managers.inBattleSquaddieManager.canSquaddieAct({
+            battleSquaddieId: actor,
+            actionPoints: actionOption.actionPointsRemaining,
+        })
+
+        if (!canContinue) {
+            allTurnSequences.push(newSequence)
+            continue
+        }
+
+        let newPosition = currentPosition
+        if (actionOption.decisions.desiredMovementDestination != undefined) {
+            newPosition = actionOption.decisions.desiredMovementDestination
+        }
+
+        generateTurnsRecursively({
+            actor,
+            managers,
+            map,
+            currentPosition: newPosition,
+            currentActionPoints: actionOption.actionPointsRemaining,
+            currentSequence: newSequence,
+            allTurnSequences,
+        })
+    }
 }
 
 const validateTargetsInRange = ({
@@ -377,29 +508,37 @@ const filterTargetsByDistance = ({
     actionRange,
     coordinateMapCollectionManager,
     mapId,
+    positionOverride,
 }: {
     actor: BattleSquaddieId
     targets: BattleSquaddieId[]
     actionRange: TActionRange
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     mapId: string
+    positionOverride?: OffsetCoordinate
 }): BattleSquaddieId[] => {
-    const actorCoordinate =
-        coordinateMapCollectionManager.getSquaddieCoordinate({
-            mapId,
-            squaddieId: actor,
-        })
+    let actorPosition: OffsetCoordinate
 
-    if (
-        actorCoordinate?.row == undefined ||
-        actorCoordinate?.col == undefined
-    ) {
-        return []
-    }
+    if (positionOverride == undefined) {
+        const actorCoordinate =
+            coordinateMapCollectionManager.getSquaddieCoordinate({
+                mapId,
+                squaddieId: actor,
+            })
 
-    const actorPosition = {
-        row: actorCoordinate.row,
-        col: actorCoordinate.col,
+        if (
+            actorCoordinate?.row == undefined ||
+            actorCoordinate?.col == undefined
+        ) {
+            return []
+        }
+
+        actorPosition = {
+            row: actorCoordinate.row,
+            col: actorCoordinate.col,
+        }
+    } else {
+        actorPosition = positionOverride
     }
 
     const { minimum, maximum } =
@@ -760,30 +899,38 @@ const getReachableCoordinateKeys = ({
     actionRange,
     coordinateMapCollectionManager,
     mapId,
+    positionOverride,
 }: {
     actor: BattleSquaddieId
     actionRange: TActionRange
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     mapId: string
+    positionOverride?: OffsetCoordinate
 }): Set<string> => {
     const reachableKeys = new Set<string>()
 
-    const actorCoordinate =
-        coordinateMapCollectionManager.getSquaddieCoordinate({
-            mapId,
-            squaddieId: actor,
-        })
+    let actorPosition: OffsetCoordinate
 
-    if (
-        actorCoordinate?.row == undefined ||
-        actorCoordinate?.col == undefined
-    ) {
-        return reachableKeys
-    }
+    if (positionOverride == undefined) {
+        const actorCoordinate =
+            coordinateMapCollectionManager.getSquaddieCoordinate({
+                mapId,
+                squaddieId: actor,
+            })
 
-    const actorPosition: OffsetCoordinate = {
-        row: actorCoordinate.row,
-        col: actorCoordinate.col,
+        if (
+            actorCoordinate?.row == undefined ||
+            actorCoordinate?.col == undefined
+        ) {
+            return reachableKeys
+        }
+
+        actorPosition = {
+            row: actorCoordinate.row,
+            col: actorCoordinate.col,
+        }
+    } else {
+        actorPosition = positionOverride
     }
 
     const { minimum, maximum } =
@@ -838,6 +985,7 @@ const generateMovementOptions = ({
     managers,
     map,
     currentActionPoints,
+    positionOverride,
 }: {
     actor: BattleSquaddieId
     managers: {
@@ -847,25 +995,32 @@ const generateMovementOptions = ({
     }
     map: { mapId: string }
     currentActionPoints: InBattleSquaddie["actionPoints"]
+    positionOverride?: OffsetCoordinate
 }): ValidSquaddieActionOption[] => {
     const options: ValidSquaddieActionOption[] = []
 
-    const actorCoordinate =
-        managers.coordinateMapCollectionManager.getSquaddieCoordinate({
-            mapId: map.mapId,
-            squaddieId: actor,
-        })
+    let actorPosition: OffsetCoordinate
 
-    if (
-        actorCoordinate?.row == undefined ||
-        actorCoordinate?.col == undefined
-    ) {
-        return options
-    }
+    if (positionOverride == undefined) {
+        const actorCoordinate =
+            managers.coordinateMapCollectionManager.getSquaddieCoordinate({
+                mapId: map.mapId,
+                squaddieId: actor,
+            })
 
-    const actorPosition: OffsetCoordinate = {
-        row: actorCoordinate.row,
-        col: actorCoordinate.col,
+        if (
+            actorCoordinate?.row == undefined ||
+            actorCoordinate?.col == undefined
+        ) {
+            return options
+        }
+
+        actorPosition = {
+            row: actorCoordinate.row,
+            col: actorCoordinate.col,
+        }
+    } else {
+        actorPosition = positionOverride
     }
 
     const movementInfo =
@@ -943,6 +1098,7 @@ const generateAbilityActionOptions = ({
     managers,
     map,
     currentActionPoints,
+    positionOverride,
 }: {
     actor: BattleSquaddieId
     managers: {
@@ -952,6 +1108,7 @@ const generateAbilityActionOptions = ({
     }
     map: { mapId: string }
     currentActionPoints: InBattleSquaddie["actionPoints"]
+    positionOverride?: OffsetCoordinate
 }): ValidSquaddieActionOption[] => {
     const options: ValidSquaddieActionOption[] = []
 
@@ -980,6 +1137,7 @@ const generateAbilityActionOptions = ({
                 action: { id: actionId },
                 managers,
                 map,
+                positionOverride,
             })
         addSquaddieTargetEffectsToOptions({
             validTargets: validTargets,
