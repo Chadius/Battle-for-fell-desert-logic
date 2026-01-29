@@ -1,4 +1,4 @@
-export * from "./mission/missionEngine"
+export * from "./mission/missionEngine/missionEngine"
 export * from "./mission/missionManager"
 export * from "./squaddie/inBattle/inBattleSquaddieManager"
 export * from "./squaddie/outOfBattle/outOfBattleSquaddieManager"

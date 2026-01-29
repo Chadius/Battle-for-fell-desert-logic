@@ -1,42 +1,49 @@
-import { MissionManager } from "./missionManager"
+import { MissionManager } from "../missionManager"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
-} from "./history/squaddieTurnActionRecord"
+} from "../history/squaddieTurnActionRecord"
 import {
     type InMissionSummary,
     InMissionSummaryService,
     type SerializedInMissionSummary,
-} from "./inMissionSummary"
+} from "../inMissionSummary"
 import {
     type SerializedForecastedActionResult,
     SquaddieActionResultCalculator,
-} from "../squaddieAction/calculate/result/squaddieActionResultCalculator"
-import { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator"
-import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
+} from "../../squaddieAction/calculate/result/squaddieActionResultCalculator"
+import { RollGenerator } from "../../squaddieAction/calculate/roll/rollGenerator"
+import type { TDegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
 import {
     type SerializedSquaddieActionResult,
     type SquaddieActionResult,
     SquaddieActionResultService,
-} from "../squaddieAction/calculate/result/squaddieActionResult"
-import type { MissionObjective } from "./missionObjective"
-import { MissionObjectiveService } from "./missionObjective"
-import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { SquaddieInfo } from "../squaddie/inBattle/squaddieInfo"
-import { MissionTurnService, type TMissionAffiliationTurn } from "./missionTurn"
+} from "../../squaddieAction/calculate/result/squaddieActionResult"
+import type { MissionObjective } from "../missionObjective"
+import { MissionObjectiveService } from "../missionObjective"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/inBattleSquaddieManager"
+import type { SquaddieInfo } from "../../squaddie/inBattle/squaddieInfo"
+import {
+    MissionTurnService,
+    type TMissionAffiliationTurn,
+} from "../missionTurn"
 import {
     type ActionResult,
     ActionResultsService,
     type SerializedActionResults,
-} from "./actionResult"
-import type { TargetResult } from "./targetResult"
+} from "../actionResult"
+import type { TargetResult } from "../targetResult"
 import {
     type ReadiedAction,
     ReadiedActionService,
     type SerializedReadiedAction,
-} from "./readiedAction"
-import type { TSquaddieAffiliation } from "../affiliation/affiliation"
-import { SquaddieIdConverterService } from "../squaddie/idConverterService"
+} from "../readiedAction"
+import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
+import {
+    SquaddieActionValidationService,
+    type ValidSquaddieActionOption,
+} from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
 
 export class MissionEngine {
     missionManager?: MissionManager
@@ -393,6 +400,34 @@ export class MissionEngine {
         return results.map(SquaddieActionResultService.serialize)
     }
 
+    getValidSquaddieActions(
+        actor: BattleSquaddieId
+    ): ValidSquaddieActionOption[] {
+        this.throwIfMissionManagerIsUndefined(this.getValidSquaddieActions.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getValidSquaddieActions.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getValidSquaddieActions.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getValidSquaddieActions.name
+        )
+
+        return SquaddieActionValidationService.generateValidSquaddieActions({
+            actor,
+            managers: {
+                inBattleSquaddieManager:
+                    this.missionManager!.inBattleSquaddieManager!,
+                squaddieActionManager:
+                    this.missionManager!.squaddieActionManager!,
+                coordinateMapCollectionManager:
+                    this.missionManager!.coordinateMapCollectionManager!,
+            },
+            map: { mapId: this.missionManager!.missionState!.mapId },
+        })
+    }
+
     private throwIfMissionManagerIsUndefined(callingFunction: string): void {
         if (this.missionManager == undefined) {
             throw new Error(
@@ -415,6 +450,26 @@ export class MissionEngine {
         if (this.missionManager?.inBattleSquaddieManager == undefined) {
             throw new Error(
                 `[MissionEngine.${callingFunction}]: inBattleSquaddieManager is undefined`
+            )
+        }
+    }
+
+    private throwIfSquaddieActionManagerIsUndefined(
+        callingFunction: string
+    ): void {
+        if (this.missionManager?.squaddieActionManager == undefined) {
+            throw new Error(
+                `[MissionEngine.${callingFunction}]: squaddieActionManager is undefined`
+            )
+        }
+    }
+
+    private throwIfCoordinateMapCollectionManagerIsUndefined(
+        callingFunction: string
+    ): void {
+        if (this.missionManager?.coordinateMapCollectionManager == undefined) {
+            throw new Error(
+                `[MissionEngine.${callingFunction}]: coordinateMapCollectionManager is undefined`
             )
         }
     }
