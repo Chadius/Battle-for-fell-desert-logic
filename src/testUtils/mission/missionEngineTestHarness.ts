@@ -42,24 +42,37 @@ export const MissionEngineTestHarnessIds = {
     },
 } as const
 
-export class MissionEngineTestHarness {
-    private readonly missionEngine: MissionEngine
-    private liniSquaddieId: BattleSquaddieId | undefined
-    private slitherDemonSquaddieId: BattleSquaddieId | undefined
+interface TestMissionSetup {
+    missionManager: MissionManager
+    liniSquaddieId: BattleSquaddieId
+    slitherDemonSquaddieId: BattleSquaddieId
+}
+
+export class MissionEngineTestHarness extends MissionEngine {
+    private readonly liniSquaddieId: BattleSquaddieId
+    private readonly slitherDemonSquaddieId: BattleSquaddieId
 
     constructor(rollGenerator?: RollGenerator) {
-        const missionManager = this.createMissionManager()
-        this.missionEngine = new MissionEngine(missionManager, rollGenerator)
+        const { missionManager, liniSquaddieId, slitherDemonSquaddieId } =
+            MissionEngineTestHarness.createTestMissionSetup()
+        super(missionManager, rollGenerator)
+        this.liniSquaddieId = liniSquaddieId
+        this.slitherDemonSquaddieId = slitherDemonSquaddieId
         this.addSquaddiesToMap()
     }
 
-    private createMissionManager(): MissionManager {
+    private static createTestMissionSetup(): TestMissionSetup {
         const coordinateMapCollectionManager =
-            this.createCoordinateMapCollectionManager()
-        const squaddieActionManager = this.createSquaddieActionManager()
+            MissionEngineTestHarness.createCoordinateMapCollectionManager()
+        const squaddieActionManager =
+            MissionEngineTestHarness.createSquaddieActionManager()
         const outOfBattleSquaddieManager =
-            this.createOutOfBattleSquaddieManager()
-        const inBattleSquaddieManager = this.createInBattleSquaddieManager(
+            MissionEngineTestHarness.createOutOfBattleSquaddieManager()
+        const {
+            inBattleSquaddieManager,
+            liniSquaddieId,
+            slitherDemonSquaddieId,
+        } = MissionEngineTestHarness.createInBattleSquaddieManager(
             outOfBattleSquaddieManager
         )
 
@@ -68,15 +81,21 @@ export class MissionEngineTestHarness {
             mapId: MissionEngineTestHarnessIds.mapId,
         })
 
-        return new MissionManager({
+        const missionManager = new MissionManager({
             missionState,
             inBattleSquaddieManager,
             coordinateMapCollectionManager,
             squaddieActionManager,
         })
+
+        return {
+            missionManager,
+            liniSquaddieId,
+            slitherDemonSquaddieId,
+        }
     }
 
-    private createCoordinateMapCollectionManager(): CoordinateMapCollectionManager {
+    private static createCoordinateMapCollectionManager(): CoordinateMapCollectionManager {
         const movementProperties = [
             "1 1 2 1 1",
             " 1 - 1 X 1",
@@ -97,21 +116,21 @@ export class MissionEngineTestHarness {
         return manager
     }
 
-    private createSquaddieActionManager(): SquaddieActionManager {
+    private static createSquaddieActionManager(): SquaddieActionManager {
         const manager = new SquaddieActionManager(
             SquaddieActionCollectionService.new()
         )
 
-        manager.addOrUpdate(this.createScimitarAction())
-        manager.addOrUpdate(this.createHealAction())
-        manager.addOrUpdate(this.createClawAction())
+        manager.addOrUpdate(MissionEngineTestHarness.createScimitarAction())
+        manager.addOrUpdate(MissionEngineTestHarness.createHealAction())
+        manager.addOrUpdate(MissionEngineTestHarness.createClawAction())
         manager.addOrUpdate(SquaddieActionService.defaultMove())
         manager.addOrUpdate(SquaddieActionService.defaultEndTurn())
 
         return manager
     }
 
-    private createScimitarAction(): SquaddieAction {
+    private static createScimitarAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.scimitarActionId,
             name: "Scimitar",
@@ -146,7 +165,7 @@ export class MissionEngineTestHarness {
         })
     }
 
-    private createHealAction(): SquaddieAction {
+    private static createHealAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.healActionId,
             name: "Heal",
@@ -175,7 +194,7 @@ export class MissionEngineTestHarness {
         })
     }
 
-    private createClawAction(): SquaddieAction {
+    private static createClawAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.slitherDemon.clawActionId,
             name: "Claw",
@@ -210,7 +229,7 @@ export class MissionEngineTestHarness {
         })
     }
 
-    private createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
+    private static createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
         const manager = new OutOfBattleSquaddieManager(
             OutOfBattleSquaddieCollectionService.new(),
             OutOfBattleSquaddieAttributeSheetCollectionService.new()
@@ -274,229 +293,57 @@ export class MissionEngineTestHarness {
         return manager
     }
 
-    private createInBattleSquaddieManager(
+    private static createInBattleSquaddieManager(
         outOfBattleSquaddieManager: OutOfBattleSquaddieManager
-    ): InBattleSquaddieManager {
+    ): {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        liniSquaddieId: BattleSquaddieId
+        slitherDemonSquaddieId: BattleSquaddieId
+    } {
         const manager = new InBattleSquaddieManager(
             InBattleSquaddieCollectionService.new(),
             outOfBattleSquaddieManager
         )
 
-        this.liniSquaddieId = manager.createNewSquaddie({
+        const liniSquaddieId = manager.createNewSquaddie({
             outOfBattleSquaddieId:
                 MissionEngineTestHarnessIds.lini.outOfBattleSquaddieId,
         })
 
-        this.slitherDemonSquaddieId = manager.createNewSquaddie({
+        const slitherDemonSquaddieId = manager.createNewSquaddie({
             outOfBattleSquaddieId:
                 MissionEngineTestHarnessIds.slitherDemon.outOfBattleSquaddieId,
         })
 
-        return manager
+        return {
+            inBattleSquaddieManager: manager,
+            liniSquaddieId,
+            slitherDemonSquaddieId,
+        }
     }
 
     private addSquaddiesToMap(): void {
         const coordinateMapCollectionManager =
-            this.missionEngine.missionManager!.coordinateMapCollectionManager!
+            this.missionManager!.coordinateMapCollectionManager!
 
         coordinateMapCollectionManager.addSquaddie({
             mapId: MissionEngineTestHarnessIds.mapId,
-            squaddieId: this.liniSquaddieId!,
+            squaddieId: this.liniSquaddieId,
             coordinate: { row: 0, col: 0 },
         })
 
         coordinateMapCollectionManager.addSquaddie({
             mapId: MissionEngineTestHarnessIds.mapId,
-            squaddieId: this.slitherDemonSquaddieId!,
+            squaddieId: this.slitherDemonSquaddieId,
             coordinate: { row: 3, col: 4 },
         })
     }
 
-    get missionManager() {
-        return this.missionEngine.missionManager
-    }
-
-    get readiedAction() {
-        return this.missionEngine.readiedAction
-    }
-
-    get rollGenerator() {
-        return this.missionEngine.rollGenerator
-    }
-
-    get actionResults() {
-        return this.missionEngine.actionResults
-    }
-
-    readyAction(
-        ...args: Parameters<MissionEngine["readyAction"]>
-    ): ReturnType<MissionEngine["readyAction"]> {
-        return this.missionEngine.readyAction(...args)
-    }
-
-    getReadiedAction(): ReturnType<MissionEngine["getReadiedAction"]> {
-        return this.missionEngine.getReadiedAction()
-    }
-
-    getSerializedReadiedAction(): ReturnType<
-        MissionEngine["getSerializedReadiedAction"]
-    > {
-        return this.missionEngine.getSerializedReadiedAction()
-    }
-
-    cancelReadiedAction(): ReturnType<MissionEngine["cancelReadiedAction"]> {
-        return this.missionEngine.cancelReadiedAction()
-    }
-
-    isDone(): ReturnType<MissionEngine["isDone"]> {
-        return this.missionEngine.isDone()
-    }
-
-    getInMissionSummary(): ReturnType<MissionEngine["getInMissionSummary"]> {
-        return this.missionEngine.getInMissionSummary()
-    }
-
-    getSerializedInMissionSummary(): ReturnType<
-        MissionEngine["getSerializedInMissionSummary"]
-    > {
-        return this.missionEngine.getSerializedInMissionSummary()
-    }
-
-    loadSerializedInMissionSummary(
-        ...args: Parameters<MissionEngine["loadSerializedInMissionSummary"]>
-    ): ReturnType<MissionEngine["loadSerializedInMissionSummary"]> {
-        return this.missionEngine.loadSerializedInMissionSummary(...args)
-    }
-
-    useActionAndGetResults(): ReturnType<
-        MissionEngine["useActionAndGetResults"]
-    > {
-        return this.missionEngine.useActionAndGetResults()
-    }
-
-    getActionResults(): ReturnType<MissionEngine["getActionResults"]> {
-        return this.missionEngine.getActionResults()
-    }
-
-    getSerializedActionResults(): ReturnType<
-        MissionEngine["getSerializedActionResults"]
-    > {
-        return this.missionEngine.getSerializedActionResults()
-    }
-
-    getInProgressMissionObjectives(): ReturnType<
-        MissionEngine["getInProgressMissionObjectives"]
-    > {
-        return this.missionEngine.getInProgressMissionObjectives()
-    }
-
-    getCompletedButNotRewardedMissionObjectives(): ReturnType<
-        MissionEngine["getCompletedButNotRewardedMissionObjectives"]
-    > {
-        return this.missionEngine.getCompletedButNotRewardedMissionObjectives()
-    }
-
-    getCompletedAndRewardedMissionObjectives(): ReturnType<
-        MissionEngine["getCompletedAndRewardedMissionObjectives"]
-    > {
-        return this.missionEngine.getCompletedAndRewardedMissionObjectives()
-    }
-
-    getCurrentAffiliationTurn(): ReturnType<
-        MissionEngine["getCurrentAffiliationTurn"]
-    > {
-        return this.missionEngine.getCurrentAffiliationTurn()
-    }
-
-    getCurrentTurnNumber(): ReturnType<MissionEngine["getCurrentTurnNumber"]> {
-        return this.missionEngine.getCurrentTurnNumber()
-    }
-
-    getSquaddiesWhoCanActThisPhase(): ReturnType<
-        MissionEngine["getSquaddiesWhoCanActThisPhase"]
-    > {
-        return this.missionEngine.getSquaddiesWhoCanActThisPhase()
-    }
-
-    getSquaddieInfo(
-        ...args: Parameters<MissionEngine["getSquaddieInfo"]>
-    ): ReturnType<MissionEngine["getSquaddieInfo"]> {
-        return this.missionEngine.getSquaddieInfo(...args)
-    }
-
-    getDefeatedSquaddies(): ReturnType<MissionEngine["getDefeatedSquaddies"]> {
-        return this.missionEngine.getDefeatedSquaddies()
-    }
-
-    markMissionObjectiveAsRewarded(
-        ...args: Parameters<MissionEngine["markMissionObjectiveAsRewarded"]>
-    ): ReturnType<MissionEngine["markMissionObjectiveAsRewarded"]> {
-        return this.missionEngine.markMissionObjectiveAsRewarded(...args)
-    }
-
-    previewReadiedActionAndForecastResults(): ReturnType<
-        MissionEngine["previewReadiedActionAndForecastResults"]
-    > {
-        return this.missionEngine.previewReadiedActionAndForecastResults()
-    }
-
-    undoLastPlayerUndoableAction(): ReturnType<
-        MissionEngine["undoLastPlayerUndoableAction"]
-    > {
-        return this.missionEngine.undoLastPlayerUndoableAction()
-    }
-
-    transitionToNextPhase(): ReturnType<
-        MissionEngine["transitionToNextPhase"]
-    > {
-        return this.missionEngine.transitionToNextPhase()
-    }
-
-    getValidSquaddieActions(
-        ...args: Parameters<MissionEngine["getValidSquaddieActions"]>
-    ): ReturnType<MissionEngine["getValidSquaddieActions"]> {
-        return this.missionEngine.getValidSquaddieActions(...args)
-    }
-
-    getMapDimensions(): ReturnType<MissionEngine["getMapDimensions"]> {
-        return this.missionEngine.getMapDimensions()
-    }
-
-    getTerrainAtCoordinate(
-        ...args: Parameters<MissionEngine["getTerrainAtCoordinate"]>
-    ): ReturnType<MissionEngine["getTerrainAtCoordinate"]> {
-        return this.missionEngine.getTerrainAtCoordinate(...args)
-    }
-
-    getAllSquaddiePositions(): ReturnType<
-        MissionEngine["getAllSquaddiePositions"]
-    > {
-        return this.missionEngine.getAllSquaddiePositions()
-    }
-
-    getSquaddiePosition(
-        ...args: Parameters<MissionEngine["getSquaddiePosition"]>
-    ): ReturnType<MissionEngine["getSquaddiePosition"]> {
-        return this.missionEngine.getSquaddiePosition(...args)
-    }
-
-    getSquaddieAtCoordinate(
-        ...args: Parameters<MissionEngine["getSquaddieAtCoordinate"]>
-    ): ReturnType<MissionEngine["getSquaddieAtCoordinate"]> {
-        return this.missionEngine.getSquaddieAtCoordinate(...args)
-    }
-
-    getActionById(
-        ...args: Parameters<MissionEngine["getActionById"]>
-    ): ReturnType<MissionEngine["getActionById"]> {
-        return this.missionEngine.getActionById(...args)
-    }
-
     getLiniSquaddieId(): BattleSquaddieId {
-        return this.liniSquaddieId!
+        return this.liniSquaddieId
     }
 
     getSlitherDemonSquaddieId(): BattleSquaddieId {
-        return this.slitherDemonSquaddieId!
+        return this.slitherDemonSquaddieId
     }
 }
