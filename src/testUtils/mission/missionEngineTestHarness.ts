@@ -458,6 +458,40 @@ export class MissionEngineTestHarness {
         return this.missionEngine.getValidSquaddieActions(...args)
     }
 
+    getMapDimensions(): ReturnType<MissionEngine["getMapDimensions"]> {
+        return this.missionEngine.getMapDimensions()
+    }
+
+    getTerrainAtCoordinate(
+        ...args: Parameters<MissionEngine["getTerrainAtCoordinate"]>
+    ): ReturnType<MissionEngine["getTerrainAtCoordinate"]> {
+        return this.missionEngine.getTerrainAtCoordinate(...args)
+    }
+
+    getAllSquaddiePositions(): ReturnType<
+        MissionEngine["getAllSquaddiePositions"]
+    > {
+        return this.missionEngine.getAllSquaddiePositions()
+    }
+
+    getSquaddiePosition(
+        ...args: Parameters<MissionEngine["getSquaddiePosition"]>
+    ): ReturnType<MissionEngine["getSquaddiePosition"]> {
+        return this.missionEngine.getSquaddiePosition(...args)
+    }
+
+    getSquaddieAtCoordinate(
+        ...args: Parameters<MissionEngine["getSquaddieAtCoordinate"]>
+    ): ReturnType<MissionEngine["getSquaddieAtCoordinate"]> {
+        return this.missionEngine.getSquaddieAtCoordinate(...args)
+    }
+
+    getActionById(
+        ...args: Parameters<MissionEngine["getActionById"]>
+    ): ReturnType<MissionEngine["getActionById"]> {
+        return this.missionEngine.getActionById(...args)
+    }
+
     getLiniSquaddieId(): BattleSquaddieId {
         return this.liniSquaddieId!
     }

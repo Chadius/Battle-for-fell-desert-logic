@@ -44,6 +44,9 @@ import {
     SquaddieActionValidationService,
     type ValidSquaddieActionOption,
 } from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
+import type { OffsetMaybeOffmapCoordinate } from "../../coordinateMap/coordinateMap"
+import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
+import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 
 export class MissionEngine {
     missionManager?: MissionManager
@@ -426,6 +429,93 @@ export class MissionEngine {
             },
             map: { mapId: this.missionManager!.missionState!.mapId },
         })
+    }
+
+    getMapDimensions(): { width: number; height: number } {
+        this.throwIfMissionManagerIsUndefined(this.getMapDimensions.name)
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getMapDimensions.name
+        )
+
+        const mapId = this.missionManager!.missionState!.mapId
+        return this.missionManager!.coordinateMapCollectionManager!.getMapDimensions(
+            mapId
+        )
+    }
+
+    getTerrainAtCoordinate(coordinate: OffsetCoordinate): {
+        movementCost: number | undefined
+        canStop: boolean
+    } {
+        this.throwIfMissionManagerIsUndefined(this.getTerrainAtCoordinate.name)
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getTerrainAtCoordinate.name
+        )
+
+        const mapId = this.missionManager!.missionState!.mapId
+        return this.missionManager!.coordinateMapCollectionManager!.getMovementPropertiesAtCoordinate(
+            {
+                id: mapId,
+                row: coordinate.row,
+                col: coordinate.col,
+            }
+        )
+    }
+
+    getAllSquaddiePositions(): Array<{
+        squaddieId: BattleSquaddieId
+        coordinate: OffsetMaybeOffmapCoordinate
+    }> {
+        this.throwIfMissionManagerIsUndefined(this.getAllSquaddiePositions.name)
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getAllSquaddiePositions.name
+        )
+
+        const mapId = this.missionManager!.missionState!.mapId
+        return this.missionManager!.coordinateMapCollectionManager!.getAllSquaddieCoordinatesOnMap(
+            mapId
+        )
+    }
+
+    getSquaddiePosition(
+        squaddieId: BattleSquaddieId
+    ): OffsetMaybeOffmapCoordinate | undefined {
+        this.throwIfMissionManagerIsUndefined(this.getSquaddiePosition.name)
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getSquaddiePosition.name
+        )
+
+        const mapId = this.missionManager!.missionState!.mapId
+        return this.missionManager!.coordinateMapCollectionManager!.getSquaddieCoordinate(
+            {
+                mapId,
+                squaddieId,
+            }
+        )
+    }
+
+    getSquaddieAtCoordinate(
+        coordinate: OffsetCoordinate
+    ): BattleSquaddieId | undefined {
+        this.throwIfMissionManagerIsUndefined(this.getSquaddieAtCoordinate.name)
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getSquaddieAtCoordinate.name
+        )
+
+        const mapId = this.missionManager!.missionState!.mapId
+        return this.missionManager!.coordinateMapCollectionManager!.getSquaddieAtCoordinate(
+            {
+                mapId,
+                coordinate,
+            }
+        )
+    }
+
+    getActionById(actionId: string): SquaddieAction {
+        this.throwIfMissionManagerIsUndefined(this.getActionById.name)
+        this.throwIfSquaddieActionManagerIsUndefined(this.getActionById.name)
+
+        return this.missionManager!.squaddieActionManager!.get(actionId)
     }
 
     private throwIfMissionManagerIsUndefined(callingFunction: string): void {
