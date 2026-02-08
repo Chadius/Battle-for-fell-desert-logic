@@ -787,6 +787,134 @@ describe("MissionEngine", () => {
         })
     })
 
+    describe("getMapOverview", () => {
+        it("throws error if MissionManager is undefined", () => {
+            const missionEngine = new MissionEngine()
+
+            expect(() => missionEngine.getMapOverview()).toThrow(
+                "missionManager is undefined"
+            )
+        })
+
+        it("returns map dimensions, terrain, and squaddie positions", () => {
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 2,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
+
+            const actorSquaddie = OutOfBattleSquaddieService.new({
+                id: "actor",
+                name: "Actor",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "test_sheet",
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(actorSquaddie)
+
+            const inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            const actorSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "actor",
+            })
+
+            const map = CoordinateMapService.new({
+                id: "overview_map",
+                name: "overview map",
+                movementProperties: ["1 2 - X"],
+            })
+
+            const coordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(
+                    CoordinateMapCollectionService.new()
+                )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "overview_map",
+                squaddieId: actorSquaddieId,
+                coordinate: { row: 0, col: 0 },
+            })
+
+            const missionState = MissionStateService.new({
+                id: "mission-overview",
+                mapId: "overview_map",
+            })
+
+            const missionManager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            const missionEngine = new MissionEngine(missionManager)
+            const overview = missionEngine.getMapOverview()
+
+            expect(overview.width).toBe(4)
+            expect(overview.height).toBe(1)
+            expect(overview.tiles).toHaveLength(1)
+            expect(overview.tiles[0]).toHaveLength(4)
+
+            expect(overview.tiles[0][0].movementCost).toBe(1)
+            expect(overview.tiles[0][0].canStop).toBe(true)
+            expect(overview.tiles[0][0].squaddieId).toEqual(actorSquaddieId)
+
+            expect(overview.tiles[0][1].movementCost).toBe(2)
+            expect(overview.tiles[0][1].canStop).toBe(true)
+            expect(overview.tiles[0][1].squaddieId).toBeUndefined()
+
+            expect(overview.tiles[0][2].movementCost).toBe(1)
+            expect(overview.tiles[0][2].canStop).toBe(false)
+            expect(overview.tiles[0][2].squaddieId).toBeUndefined()
+
+            expect(overview.tiles[0][3].movementCost).toBeUndefined()
+            expect(overview.tiles[0][3].canStop).toBe(false)
+            expect(overview.tiles[0][3].squaddieId).toBeUndefined()
+        })
+
+        it("returns correct row and col for each tile", () => {
+            const map = CoordinateMapService.new({
+                id: "grid_map",
+                name: "grid map",
+                movementProperties: ["1 1", " 1 1"],
+            })
+
+            const coordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(
+                    CoordinateMapCollectionService.new()
+                )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+
+            const missionState = MissionStateService.new({
+                id: "mission-grid",
+                mapId: "grid_map",
+            })
+
+            const missionManager = new MissionManager({
+                missionState,
+                coordinateMapCollectionManager,
+            })
+
+            const missionEngine = new MissionEngine(missionManager)
+            const overview = missionEngine.getMapOverview()
+
+            expect(overview.height).toBe(2)
+            expect(overview.width).toBe(2)
+            expect(overview.tiles[0][0].row).toBe(0)
+            expect(overview.tiles[0][0].col).toBe(0)
+            expect(overview.tiles[1][1].row).toBe(1)
+            expect(overview.tiles[1][1].col).toBe(1)
+        })
+    })
+
     describe("transitionToNextPhase", () => {
         let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let inBattleSquaddieManager: InBattleSquaddieManager

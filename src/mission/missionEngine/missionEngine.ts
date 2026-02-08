@@ -48,6 +48,20 @@ import type { OffsetMaybeOffmapCoordinate } from "../../coordinateMap/coordinate
 import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
 import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 
+export interface MapTileInfo {
+    row: number
+    col: number
+    movementCost: number | undefined
+    canStop: boolean
+    squaddieId: BattleSquaddieId | undefined
+}
+
+export interface MapOverview {
+    width: number
+    height: number
+    tiles: MapTileInfo[][]
+}
+
 export class MissionEngine {
     missionManager?: MissionManager
     readiedAction?: ReadiedAction
@@ -441,6 +455,41 @@ export class MissionEngine {
         return this.missionManager!.coordinateMapCollectionManager!.getMapDimensions(
             mapId
         )
+    }
+
+    getMapOverview(): MapOverview {
+        this.throwIfMissionManagerIsUndefined(this.getMapOverview.name)
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getMapOverview.name
+        )
+
+        const mapId = this.missionManager!.missionState!.mapId
+        const coordinateMap =
+            this.missionManager!.coordinateMapCollectionManager!.getMapById(
+                mapId
+            )
+
+        const height = coordinateMap.coordinates.length
+        const width = coordinateMap.coordinates[0].length
+
+        const tiles: MapTileInfo[][] = coordinateMap.coordinates.map((row) =>
+            row.map((coordinate) => ({
+                row: coordinate.row,
+                col: coordinate.col,
+                movementCost: coordinate.movementCost,
+                canStop: coordinate.canStop,
+                squaddieId: coordinate.squaddieId
+                    ? {
+                          outOfBattleSquaddieId:
+                              coordinate.squaddieId.outOfBattleSquaddieId,
+                          inBattleSquaddieId:
+                              coordinate.squaddieId.inBattleSquaddieId,
+                      }
+                    : undefined,
+            }))
+        )
+
+        return { width, height, tiles }
     }
 
     getTerrainAtCoordinate(coordinate: OffsetCoordinate): {
