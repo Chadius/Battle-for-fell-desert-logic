@@ -21,7 +21,7 @@ Filenames are written in camelCase, where the first letter is lower case and the
 Avoid the `any` type. Create a new type to support the argument. Export the type if multiple files will use it.
 
 Prefer undefined over null, and use `==` when comparing to undefined. If you need to make a difference between them,
-add a boolean value so it is not needed.
+add a boolean value, so it is unnecessary.
 For example, you may try to search for applicable targets. One way to indicate "haven't looked yet" versus "looked but
 All targets must be in range"
 is to add a boolean value, beganSearch, and set it to false. Then we know no targets were in range if beganSearch is
@@ -33,11 +33,11 @@ Use Named Exports.
 
 Use PascalCase to name them. The first letter of each word should be capitalized.
 
-Types should be used if we anticipate a future Union of different Types. It is also used for simple concepts
+Types should be used if we expect a future Union of different Types. It is also used for simple concepts.
 
 Interfaces should be used by default, especially if the object has nested fields.
 
-If we're creating a new type that is based on an existing type (for example, a Serialized type of object), it's
+If we're creating a new type based on an existing type (for example, a Serialized type of object), it's
 preferred to use a Type that Inherits from the Interface and removes/replaces fields.
 
 ## Folder conventions
@@ -74,8 +74,8 @@ I will remove them from the committed code, but it will help me understand why i
 
 Avoid trivial comments, like adding "Given/When/Then" in test code.
 
-SonarQube has a warning when a function exceeds a complexity of 15, that's a good indicator that a function should be
-broken into several helper function.
+SonarQube has a warning when a function exceeds a complexity of 15. That's a good indicator that a function should be
+broken into several helper functions.
 
 ## Reducing code complexity
 
