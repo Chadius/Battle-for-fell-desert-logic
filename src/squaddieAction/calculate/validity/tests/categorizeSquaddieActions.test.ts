@@ -3,10 +3,7 @@ import { SquaddieActionValidationService } from "../squaddieActionValidationServ
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import { SquaddieActionService } from "../../../squaddieAction"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import { type BattleSquaddieId, InBattleSquaddieManager, } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
@@ -18,10 +15,7 @@ import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordi
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import { ActionRange } from "../../../actionRange"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
-import {
-    SquaddieConditionService,
-    SquaddieConditionType,
-} from "../../../../proficiency/squaddieCondition"
+import { SquaddieConditionService, SquaddieConditionType, } from "../../../../proficiency/squaddieCondition"
 
 describe("categorizeSquaddieActions", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -239,8 +233,8 @@ describe("categorizeSquaddieActions", () => {
             })
 
         expect(result.battleSquaddieId).toEqual(actor)
-        expect(result.validActions).toHaveLength(0)
-        expect(result.invalidActions).toHaveLength(2)
+        expect(result.validActions).toHaveLength(1)
+        expect(result.invalidActions).toHaveLength(3)
 
         const meleeInvalid = result.invalidActions.find(
             (a) => a.actionId === meleeAttackId
@@ -255,6 +249,17 @@ describe("categorizeSquaddieActions", () => {
         expect(healInvalid).toBeDefined()
         expect(healInvalid!.actionName).toBe("Ranged Heal")
         expect(healInvalid!.reason).toBe("Needs 1 action points")
+
+        const endTurnValid = result.validActions.find(
+            (a) => a.actionId === "default-end-turn"
+        )
+        expect(endTurnValid).toBeDefined()
+
+        const moveInvalid = result.invalidActions.find(
+            (a) => a.actionId === "default-move"
+        )
+        expect(moveInvalid).toBeDefined()
+        expect(moveInvalid!.reason).toBe("No valid movement destinations")
     })
 
     it("reports action as invalid when no applicable targets are in range", () => {
@@ -359,7 +364,7 @@ describe("categorizeSquaddieActions", () => {
         expect(healValid).toBeDefined()
         expect(healValid!.actionName).toBe("Ranged Heal")
 
-        expect(result.validActions).toHaveLength(1)
+        expect(result.validActions).toHaveLength(3)
         expect(result.invalidActions).toHaveLength(1)
     })
 
@@ -398,7 +403,7 @@ describe("categorizeSquaddieActions", () => {
         expect(healInvalid).toBeDefined()
         expect(healInvalid!.reason).toBe("No targets can be affected")
 
-        expect(result.validActions).toHaveLength(0)
+        expect(result.validActions).toHaveLength(2)
         expect(result.invalidActions).toHaveLength(2)
     })
 
@@ -425,7 +430,7 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(healAndProtectIsValid).toBeDefined()
         expect(healAndProtectIsValid!.actionName).toBe("Heal and Protect")
-        expect(result.validActions).toHaveLength(1)
+        expect(result.validActions).toHaveLength(3)
     })
 
     it("knows the action is invalid if condition will have no effect", () => {
@@ -465,5 +470,94 @@ describe("categorizeSquaddieActions", () => {
             "No targets can be affected"
         )
         expect(result.invalidActions).toHaveLength(1)
+        expect(result.validActions).toHaveLength(2)
+    })
+
+    it("EndTurn is always valid", () => {
+        coordinateMapCollectionManager.addSquaddie({
+            mapId,
+            squaddieId: actor,
+            coordinate: { row: 0, col: 0 },
+        })
+
+        const result =
+            SquaddieActionValidationService.categorizeSquaddieActions({
+                actor,
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager,
+                    coordinateMapCollectionManager,
+                },
+                map: { mapId },
+            })
+
+        const endTurnValid = result.validActions.find(
+            (a) => a.actionId === "default-end-turn"
+        )
+        expect(endTurnValid).toBeDefined()
+        expect(endTurnValid!.actionName).toBe("End Turn")
+    })
+
+    it("Movement is valid when there are reachable destinations", () => {
+        coordinateMapCollectionManager.addSquaddie({
+            mapId,
+            squaddieId: actor,
+            coordinate: { row: 0, col: 3 },
+        })
+
+        const result =
+            SquaddieActionValidationService.categorizeSquaddieActions({
+                actor,
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager,
+                    coordinateMapCollectionManager,
+                },
+                map: { mapId },
+            })
+
+        const moveValid = result.validActions.find(
+            (a) => a.actionId === "default-move"
+        )
+        expect(moveValid).toBeDefined()
+        expect(moveValid!.actionName).toBe("Move")
+    })
+
+    it("Movement is invalid when surrounded with no reachable destinations", () => {
+        let smallMapCollection = CoordinateMapCollectionService.new()
+        smallMapCollection = CoordinateMapCollectionService.addOrUpdate({
+            collection: smallMapCollection,
+            map: CoordinateMapService.new({
+                id: "small-map",
+                name: "Small Map",
+                movementProperties: ["1"],
+            }),
+        })
+        const smallMapManager = new CoordinateMapCollectionManager(
+            smallMapCollection
+        )
+        smallMapManager.addSquaddie({
+            mapId: "small-map",
+            squaddieId: actor,
+            coordinate: { row: 0, col: 0 },
+        })
+
+        const result =
+            SquaddieActionValidationService.categorizeSquaddieActions({
+                actor,
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager,
+                    coordinateMapCollectionManager: smallMapManager,
+                },
+                map: { mapId: "small-map" },
+            })
+
+        const moveInvalid = result.invalidActions.find(
+            (a) => a.actionId === "default-move"
+        )
+        expect(moveInvalid).toBeDefined()
+        expect(moveInvalid!.actionName).toBe("Move")
+        expect(moveInvalid!.reason).toBe("No valid movement destinations")
     })
 })

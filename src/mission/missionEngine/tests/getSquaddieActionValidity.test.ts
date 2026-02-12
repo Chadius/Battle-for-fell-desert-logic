@@ -149,7 +149,7 @@ describe("getSquaddieActionValidity", () => {
         expect(result.invalidActions[0].reason).toBe(
             "No applicable targets in range"
         )
-        expect(result.validActions).toHaveLength(0)
+        expect(result.validActions).toHaveLength(2)
     })
 
     it("returns valid actions when squaddie is adjacent to targets", () => {
@@ -260,9 +260,9 @@ describe("getSquaddieActionValidity", () => {
         const result = missionEngine.getSquaddieActionValidity(playerSquaddieId)
 
         expect(result.battleSquaddieId).toEqual(playerSquaddieId)
-        expect(result.validActions).toHaveLength(1)
+        expect(result.validActions).toHaveLength(2)
         expect(result.validActions[0].actionId).toBe(meleeAttackId)
         expect(result.validActions[0].actionName).toBe("Melee Attack")
-        expect(result.invalidActions).toHaveLength(0)
+        expect(result.invalidActions).toHaveLength(1)
     })
 })

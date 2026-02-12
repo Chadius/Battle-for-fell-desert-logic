@@ -336,6 +336,31 @@ export const SquaddieActionValidationService = {
             }
         }
 
+        validActions.push({
+            actionId: "default-end-turn",
+            actionName: "End Turn",
+        })
+
+        const movementOptions = generateMovementOptions({
+            actor,
+            managers,
+            map,
+            currentActionPoints,
+        })
+
+        if (movementOptions.length > 0) {
+            validActions.push({
+                actionId: "default-move",
+                actionName: "Move",
+            })
+        } else {
+            invalidActions.push({
+                actionId: "default-move",
+                actionName: "Move",
+                reason: "No valid movement destinations",
+            })
+        }
+
         return {
             battleSquaddieId: actor,
             invalidActions,
