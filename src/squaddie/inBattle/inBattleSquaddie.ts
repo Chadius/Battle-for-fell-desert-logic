@@ -653,9 +653,14 @@ const addNumericalAmountConditionAndSimplify = ({
             conditionDuration == newConditionDuration &&
             conditionAmountIsAlreadyAccountedFor
 
+        const doesExistingConditionDominateNewCondition =
+            conditionAmountIsAlreadyAccountedFor &&
+            conditionDurationIsAlreadyAccountedFor
+
         if (
             doesExistingConditionHaveTheSameAmountAndLongerDuration ||
-            doesExistingConditionHaveTheSameDurationAndMoreExtremeAmount
+            doesExistingConditionHaveTheSameDurationAndMoreExtremeAmount ||
+            doesExistingConditionDominateNewCondition
         ) {
             existingConditionsToKeep.add(i)
             shouldAddNewCondition = false

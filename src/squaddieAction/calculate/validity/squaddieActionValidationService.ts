@@ -8,6 +8,7 @@ import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
 import { ActionRangeService, type TActionRange } from "../../actionRange"
 import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
 import {
+    type ActionPointCost,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction"
@@ -33,6 +34,18 @@ import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../result/squaddieActionResult"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
+
+export interface InvalidSquaddieAction {
+    actionId: string
+    actionName: string
+    reason: string
+}
+
+export interface SquaddieActionValidity {
+    battleSquaddieId: BattleSquaddieId
+    invalidActions: InvalidSquaddieAction[]
+    validActions: { actionId: string; actionName: string }[]
+}
 
 export interface ActionValidationResult {
     isValid: boolean
@@ -276,6 +289,59 @@ export const SquaddieActionValidationService = {
 
         return options
     },
+    categorizeSquaddieActions: ({
+        actor,
+        managers,
+        map,
+    }: {
+        managers: {
+            inBattleSquaddieManager: InBattleSquaddieManager
+            squaddieActionManager: SquaddieActionManager
+            coordinateMapCollectionManager: CoordinateMapCollectionManager
+        }
+        actor: BattleSquaddieId
+        map: { mapId: string }
+    }): SquaddieActionValidity => {
+        const squaddieInfo = managers.inBattleSquaddieManager.getSquaddie(actor)
+        const actionIds = squaddieInfo.inBattleSquaddie.actionIds.natural
+        const currentActionPoints =
+            managers.inBattleSquaddieManager.getActionPoints(actor)
+
+        const invalidActions: InvalidSquaddieAction[] = []
+        const validActions: { actionId: string; actionName: string }[] = []
+
+        for (const actionId of actionIds) {
+            if (!managers.squaddieActionManager.has(actionId)) continue
+            const squaddieAction = managers.squaddieActionManager.get(actionId)
+
+            const invalidReason = getActionInvalidReason({
+                actor,
+                squaddieAction,
+                currentActionPoints,
+                managers,
+                map,
+            })
+
+            if (invalidReason == undefined) {
+                validActions.push({
+                    actionId,
+                    actionName: squaddieAction.name,
+                })
+            } else {
+                invalidActions.push({
+                    actionId,
+                    actionName: squaddieAction.name,
+                    reason: invalidReason,
+                })
+            }
+        }
+
+        return {
+            battleSquaddieId: actor,
+            invalidActions,
+            validActions,
+        }
+    },
     generateValidSquaddieTurns: ({
         actor,
         managers,
@@ -399,6 +465,117 @@ const generateTurnsRecursively = ({
             allTurnSequences,
         })
     }
+}
+
+const getActionInvalidReason = ({
+    actor,
+    squaddieAction,
+    currentActionPoints,
+    managers,
+    map,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    currentActionPoints: { current: number }
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+    map: { mapId: string }
+}): string | undefined => {
+    const actionPointCost =
+        squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
+
+    const apReason = getActionPointInvalidReason({
+        actionPointCost,
+        currentActionPoints,
+    })
+    if (apReason != undefined) return apReason
+
+    const validTargets =
+        SquaddieActionValidationService.getAllValidTargetsInRangeOfAction({
+            actor,
+            action: { id: squaddieAction.id },
+            managers,
+            map,
+        })
+
+    if (validTargets.size === 0) return "No applicable targets in range"
+
+    if (
+        !anyTargetGroupHasEffect({
+            actor,
+            validTargets,
+            squaddieAction,
+            managers,
+            map,
+        })
+    ) {
+        return "No targets can be affected"
+    }
+
+    return undefined
+}
+
+const getActionPointInvalidReason = ({
+    actionPointCost,
+    currentActionPoints,
+}: {
+    actionPointCost?: ActionPointCost
+    currentActionPoints: { current: number }
+}): string | undefined => {
+    if (actionPointCost === "all") {
+        if (currentActionPoints.current <= 0) return "Squaddie cannot act"
+        return undefined
+    }
+
+    if (
+        actionPointCost != undefined &&
+        actionPointCost > currentActionPoints.current
+    ) {
+        return `Needs ${actionPointCost} action points`
+    }
+
+    return undefined
+}
+
+const anyTargetGroupHasEffect = ({
+    actor,
+    validTargets,
+    squaddieAction,
+    managers,
+    map,
+}: {
+    actor: BattleSquaddieId
+    validTargets: Map<string, Set<string>>
+    squaddieAction: SquaddieAction
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+    map: { mapId: string }
+}): boolean => {
+    for (const [, squaddieKeys] of validTargets) {
+        const targetSquaddieIds: BattleSquaddieId[] = []
+        for (const squaddieKey of squaddieKeys) {
+            targetSquaddieIds.push(
+                SquaddieIdConverterService.keyToSquaddieId(squaddieKey)
+            )
+        }
+
+        const hasEffect = checkIfActionHasEffectOnTargets({
+            actor,
+            targets: targetSquaddieIds,
+            squaddieAction,
+            managers,
+            map,
+        })
+
+        if (hasEffect) return true
+    }
+    return false
 }
 
 const validateTargetsInRange = ({
@@ -666,7 +843,7 @@ const validateActionPointCost = ({
     actor,
     inBattleSquaddieManager,
 }: {
-    actionPointCost: number | "all" | undefined
+    actionPointCost?: ActionPointCost
     actor: BattleSquaddieId
     inBattleSquaddieManager: InBattleSquaddieManager
 }): ActionValidationResult => {
@@ -1173,7 +1350,7 @@ const addSquaddieTargetEffectsToOptions = ({
         coordinateMapCollectionManager: CoordinateMapCollectionManager
     }
     map: { mapId: string }
-    actionPointCost: number | "all" | undefined
+    actionPointCost?: ActionPointCost
     currentActionPoints: { current: number }
     options: ValidSquaddieActionOption[]
 }) => {

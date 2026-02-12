@@ -30,9 +30,11 @@ interface SquaddieActionTargeting {
     }
 }
 
+export type ActionPointCost = number | "all"
+
 export interface SquaddieActionEffect {
     actionPoints?: {
-        spent: number | "all"
+        spent: ActionPointCost
         restore?: number
         additional?: {
             movementPathActionPointCost?: boolean
