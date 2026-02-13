@@ -263,6 +263,15 @@ describe("getSquaddieActionValidity", () => {
         expect(result.validActions).toHaveLength(2)
         expect(result.validActions[0].actionId).toBe(meleeAttackId)
         expect(result.validActions[0].actionName).toBe("Melee Attack")
+        expect(result.validActions[0].targetCoordinates).toContainEqual({
+            row: 0,
+            col: 1,
+        })
+        expect(result.validActions[0].targetBattleSquaddieIds).toContainEqual(
+            expect.objectContaining({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+        )
         expect(result.invalidActions).toHaveLength(1)
     })
 })

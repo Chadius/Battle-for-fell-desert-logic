@@ -3,7 +3,10 @@ import { SquaddieActionValidationService } from "../squaddieActionValidationServ
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import { SquaddieActionService } from "../../../squaddieAction"
-import { type BattleSquaddieId, InBattleSquaddieManager, } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    type BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
@@ -15,7 +18,10 @@ import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordi
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import { ActionRange } from "../../../actionRange"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
-import { SquaddieConditionService, SquaddieConditionType, } from "../../../../proficiency/squaddieCondition"
+import {
+    SquaddieConditionService,
+    SquaddieConditionType,
+} from "../../../../proficiency/squaddieCondition"
 
 describe("categorizeSquaddieActions", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -320,6 +326,15 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(meleeValid).toBeDefined()
         expect(meleeValid!.actionName).toBe("Melee Attack")
+        expect(meleeValid!.targetCoordinates).toContainEqual({
+            row: 0,
+            col: 1,
+        })
+        expect(meleeValid!.targetBattleSquaddieIds).toContainEqual(
+            expect.objectContaining({
+                outOfBattleSquaddieId: "enemy",
+            })
+        )
     })
 
     it("correctly categorizes a mix of valid and invalid actions", () => {
@@ -363,6 +378,16 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(healValid).toBeDefined()
         expect(healValid!.actionName).toBe("Ranged Heal")
+        // Actor is damaged, so self-heal is valid — target includes the actor
+        expect(healValid!.targetCoordinates).toContainEqual({
+            row: 0,
+            col: 0,
+        })
+        expect(healValid!.targetBattleSquaddieIds).toContainEqual(
+            expect.objectContaining({
+                outOfBattleSquaddieId: "actor",
+            })
+        )
 
         expect(result.validActions).toHaveLength(3)
         expect(result.invalidActions).toHaveLength(1)
@@ -430,6 +455,15 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(healAndProtectIsValid).toBeDefined()
         expect(healAndProtectIsValid!.actionName).toBe("Heal and Protect")
+        expect(healAndProtectIsValid!.targetCoordinates).toContainEqual({
+            row: 0,
+            col: 0,
+        })
+        expect(healAndProtectIsValid!.targetBattleSquaddieIds).toContainEqual(
+            expect.objectContaining({
+                outOfBattleSquaddieId: "ally",
+            })
+        )
         expect(result.validActions).toHaveLength(3)
     })
 
@@ -496,6 +530,8 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(endTurnValid).toBeDefined()
         expect(endTurnValid!.actionName).toBe("End Turn")
+        expect(endTurnValid!.targetCoordinates).toEqual([])
+        expect(endTurnValid!.targetBattleSquaddieIds).toEqual([])
     })
 
     it("Movement is valid when there are reachable destinations", () => {
@@ -521,6 +557,8 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(moveValid).toBeDefined()
         expect(moveValid!.actionName).toBe("Move")
+        expect(moveValid!.targetCoordinates.length).toBeGreaterThan(0)
+        expect(moveValid!.targetBattleSquaddieIds).toEqual([])
     })
 
     it("Movement is invalid when surrounded with no reachable destinations", () => {
