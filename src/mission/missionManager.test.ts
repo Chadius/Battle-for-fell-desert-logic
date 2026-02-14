@@ -86,7 +86,7 @@ describe("MissionManager", () => {
     })
 
     describe("hasMissionEnded", () => {
-        it("returns false when no objectives have MISSION_ENDS reward", () => {
+        it("returns false when no objectives have MISSION_ENDS or MISSION_FAILURE reward", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
@@ -115,7 +115,10 @@ describe("MissionManager", () => {
         it("returns false when objective has MISSION_ENDS but not yet rewarded", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
-                rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                rewards: [
+                    MissionObjectiveRewardService.newMissionEndsReward(),
+                    MissionObjectiveRewardService.newMissionFailureReward(),
+                ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
                         {
@@ -140,6 +143,35 @@ describe("MissionManager", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+            })
+
+            const rewardedObjective =
+                MissionObjectiveService.markRewardAsGiven(objective)
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                objectives: [rewardedObjective],
+            })
+
+            const manager = new MissionManager({ missionState: missionState })
+
+            expect(manager.hasMissionEnded()).toBe(true)
+        })
+
+        it("returns true when objective has MISSION_FAILURE and is rewarded", () => {
+            const objective = MissionObjectiveService.new({
+                id: "obj-1",
+                rewards: [
+                    MissionObjectiveRewardService.newMissionFailureReward(),
+                ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
                         {

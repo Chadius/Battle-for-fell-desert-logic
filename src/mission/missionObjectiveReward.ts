@@ -4,6 +4,7 @@ export const MissionObjectiveRewardType = {
     DIALOGUE: "DIALOGUE",
     NEXT_MISSIONS: "NEXT_MISSIONS",
     MISSION_ENDS: "MISSION_ENDS",
+    MISSION_FAILURE: "MISSION_FAILURE",
 } as const satisfies Record<string, string>
 
 export type TMissionObjectiveRewardType = EnumLike<
@@ -24,10 +25,15 @@ export interface MissionEndsReward {
     type: typeof MissionObjectiveRewardType.MISSION_ENDS
 }
 
+export interface MissionFailureReward {
+    type: typeof MissionObjectiveRewardType.MISSION_FAILURE
+}
+
 export type MissionObjectiveReward =
     | DialogueReward
     | NextMissionsReward
     | MissionEndsReward
+    | MissionFailureReward
 
 export const MissionObjectiveRewardService = {
     newDialogueReward: (dialogueIds: string[]): DialogueReward => {
@@ -55,7 +61,11 @@ export const MissionObjectiveRewardService = {
             type: MissionObjectiveRewardType.MISSION_ENDS,
         }
     },
-
+    newMissionFailureReward: (): MissionFailureReward => {
+        return {
+            type: MissionObjectiveRewardType.MISSION_FAILURE,
+        }
+    },
     createFromJSON: (data: {
         type: string
         dialogueIds?: string[]
@@ -74,6 +84,10 @@ export const MissionObjectiveRewardService = {
         }
 
         if (data.type === MissionObjectiveRewardType.MISSION_ENDS) {
+            return MissionObjectiveRewardService.newMissionEndsReward()
+        }
+
+        if (data.type === MissionObjectiveRewardType.MISSION_FAILURE) {
             return MissionObjectiveRewardService.newMissionEndsReward()
         }
 

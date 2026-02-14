@@ -68,7 +68,8 @@ export class MissionManager {
         return this.missionState!.objectives.some((objective) => {
             const hasMissionEndsReward = objective.rewards.some(
                 (reward) =>
-                    reward.type === MissionObjectiveRewardType.MISSION_ENDS
+                    reward.type === MissionObjectiveRewardType.MISSION_ENDS ||
+                    reward.type === MissionObjectiveRewardType.MISSION_FAILURE
             )
             return hasMissionEndsReward && objective.hasGivenReward
         })
@@ -295,14 +296,6 @@ export class MissionManager {
         )
     }
 
-    getCompletedTurnCount(): number {
-        this.throwIfStateIsUndefined(this.getCompletedTurnCount.name)
-
-        if (this.missionState!.history == undefined) return 0
-
-        return MissionHistoryService.getTurnCount(this.missionState!.history)
-    }
-
     getActionCountInTurn(turnNumber: number): number | undefined {
         this.throwIfStateIsUndefined(this.getActionCountInTurn.name)
 
@@ -311,29 +304,6 @@ export class MissionManager {
         return MissionHistoryService.getActionCountInTurn({
             history: this.missionState!.history,
             turnNumber,
-        })
-    }
-
-    getSquaddieTurnActionRecordsInTurn({
-        turnNumber,
-        squaddieId,
-    }: {
-        turnNumber: number
-        squaddieId: {
-            inBattleSquaddieId: number
-            outOfBattleSquaddieId: string
-        }
-    }): SquaddieTurnActionRecord[] | undefined {
-        this.throwIfStateIsUndefined(
-            this.getSquaddieTurnActionRecordsInTurn.name
-        )
-
-        if (this.missionState!.history == undefined) return undefined
-
-        return MissionHistoryService.getActionsBySquaddieInTurn({
-            history: this.missionState!.history,
-            turnNumber,
-            squaddieId,
         })
     }
 

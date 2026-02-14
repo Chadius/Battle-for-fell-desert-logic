@@ -105,6 +105,15 @@ describe("Mission Objective Reward", () => {
         })
     })
 
+    describe("MissionFailureReward", () => {
+        it("Can create mission failure reward", () => {
+            const reward =
+                MissionObjectiveRewardService.newMissionFailureReward()
+
+            expect(reward.type).toBe(MissionObjectiveRewardType.MISSION_FAILURE)
+        })
+    })
+
     describe("JSON Creation", () => {
         it("Can create dialogue reward from JSON", () => {
             const reward = MissionObjectiveRewardService.createFromJSON({
@@ -170,15 +179,19 @@ describe("Mission Objective Reward", () => {
                     "mission_3",
                 ]),
                 MissionObjectiveRewardService.newMissionEndsReward(),
+                MissionObjectiveRewardService.newMissionFailureReward(),
             ]
 
-            expect(rewards.length).toBe(3)
+            expect(rewards.length).toBe(4)
             expect(rewards[0].type).toBe(MissionObjectiveRewardType.DIALOGUE)
             expect(rewards[1].type).toBe(
                 MissionObjectiveRewardType.NEXT_MISSIONS
             )
             expect(rewards[2].type).toBe(
                 MissionObjectiveRewardType.MISSION_ENDS
+            )
+            expect(rewards[3].type).toBe(
+                MissionObjectiveRewardType.MISSION_FAILURE
             )
         })
     })
