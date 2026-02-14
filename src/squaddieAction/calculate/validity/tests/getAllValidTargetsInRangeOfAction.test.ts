@@ -106,16 +106,18 @@ describe("getAllValidTargetsInRangeOfAction", () => {
         squaddieActionManager.addOrUpdate(selfAction)
 
         const result =
-            SquaddieActionValidationService.getAllValidTargetsInRangeOfAction({
-                actor,
-                action: { id: selfAction.id },
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(
+                {
+                    actor,
+                    action: { id: selfAction.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager,
+                        coordinateMapCollectionManager,
+                    },
+                    map: { mapId },
+                }
+            )
 
         const actorCoordinateKey = OffsetCoordinateService.coordinateToKey({
             row: 0,
@@ -192,16 +194,18 @@ describe("getAllValidTargetsInRangeOfAction", () => {
         squaddieActionManager.addOrUpdate(meleeHealAction)
 
         const result =
-            SquaddieActionValidationService.getAllValidTargetsInRangeOfAction({
-                actor,
-                action: { id: meleeHealAction.id },
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(
+                {
+                    actor,
+                    action: { id: meleeHealAction.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager,
+                        coordinateMapCollectionManager,
+                    },
+                    map: { mapId },
+                }
+            )
 
         const actorCoordinateKey = OffsetCoordinateService.coordinateToKey({
             row: 0,
@@ -285,16 +289,18 @@ describe("getAllValidTargetsInRangeOfAction", () => {
         squaddieActionManager.addOrUpdate(shortRangeAttack)
 
         const result =
-            SquaddieActionValidationService.getAllValidTargetsInRangeOfAction({
-                actor,
-                action: { id: shortRangeAttack.id },
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(
+                {
+                    actor,
+                    action: { id: shortRangeAttack.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager,
+                        coordinateMapCollectionManager,
+                    },
+                    map: { mapId },
+                }
+            )
 
         const actorCoordinateKey = OffsetCoordinateService.coordinateToKey({
             row: 0,
@@ -337,16 +343,18 @@ describe("getAllValidTargetsInRangeOfAction", () => {
         squaddieActionManager.addOrUpdate(meleeAttack)
 
         const result =
-            SquaddieActionValidationService.getAllValidTargetsInRangeOfAction({
-                actor,
-                action: { id: meleeAttack.id },
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(
+                {
+                    actor,
+                    action: { id: meleeAttack.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager,
+                        coordinateMapCollectionManager,
+                    },
+                    map: { mapId },
+                }
+            )
 
         expect(result.size).toBe(0)
     })

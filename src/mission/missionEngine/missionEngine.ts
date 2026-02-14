@@ -43,7 +43,6 @@ import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
 import {
     SquaddieActionValidationService,
     type SquaddieActionValidity,
-    type ValidSquaddieActionOption,
 } from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
 import type { OffsetMaybeOffmapCoordinate } from "../../coordinateMap/coordinateMap"
 import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
@@ -416,34 +415,6 @@ export class MissionEngine {
         const results = this.missionManager!.transitionToNextPhase()
 
         return results.map(SquaddieActionResultService.serialize)
-    }
-
-    getValidSquaddieActions(
-        actor: BattleSquaddieId
-    ): ValidSquaddieActionOption[] {
-        this.throwIfMissionManagerIsUndefined(this.getValidSquaddieActions.name)
-        this.throwIfInBattleSquaddieManagerIsUndefined(
-            this.getValidSquaddieActions.name
-        )
-        this.throwIfSquaddieActionManagerIsUndefined(
-            this.getValidSquaddieActions.name
-        )
-        this.throwIfCoordinateMapCollectionManagerIsUndefined(
-            this.getValidSquaddieActions.name
-        )
-
-        return SquaddieActionValidationService.generateValidSquaddieActions({
-            actor,
-            managers: {
-                inBattleSquaddieManager:
-                    this.missionManager!.inBattleSquaddieManager!,
-                squaddieActionManager:
-                    this.missionManager!.squaddieActionManager!,
-                coordinateMapCollectionManager:
-                    this.missionManager!.coordinateMapCollectionManager!,
-            },
-            map: { mapId: this.missionManager!.missionState!.mapId },
-        })
     }
 
     getSquaddieActionValidity(actor: BattleSquaddieId): SquaddieActionValidity {

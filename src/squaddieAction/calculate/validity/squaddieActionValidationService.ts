@@ -151,7 +151,7 @@ export const SquaddieActionValidationService = {
             movementPath: movementValidation.movementPath,
         }
     },
-    getAllValidTargetsInRangeOfAction: ({
+    calculateReachableSquaddiesByCoordinate: ({
         actor,
         action,
         managers,
@@ -502,6 +502,7 @@ const getActionCategorizationResult = ({
     currentActionPoints,
     managers,
     map,
+    positionOverride,
 }: {
     actor: BattleSquaddieId
     squaddieAction: SquaddieAction
@@ -512,6 +513,7 @@ const getActionCategorizationResult = ({
         coordinateMapCollectionManager: CoordinateMapCollectionManager
     }
     map: { mapId: string }
+    positionOverride?: OffsetCoordinate
 }): ActionCategorizationResult => {
     const actionPointCost =
         squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
@@ -522,30 +524,33 @@ const getActionCategorizationResult = ({
     })
     if (apReason != undefined) return { invalidReason: apReason }
 
-    const validTargets =
-        SquaddieActionValidationService.getAllValidTargetsInRangeOfAction({
-            actor,
-            action: { id: squaddieAction.id },
-            managers,
-            map,
-        })
+    const allTargetsInRange =
+        SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(
+            {
+                actor,
+                action: { id: squaddieAction.id },
+                managers,
+                map,
+                positionOverride,
+            }
+        )
 
-    if (validTargets.size === 0)
+    if (allTargetsInRange.size === 0)
         return { invalidReason: "No applicable targets in range" }
 
-    if (
-        !anyTargetGroupHasEffect({
-            actor,
-            validTargets,
-            squaddieAction,
-            managers,
-            map,
-        })
-    ) {
+    const effectiveTargets = filterTargetGroupsWithEffect({
+        actor,
+        validTargets: allTargetsInRange,
+        squaddieAction,
+        managers,
+        map,
+    })
+
+    if (effectiveTargets.size === 0) {
         return { invalidReason: "No targets can be affected" }
     }
 
-    return { validTargets }
+    return { validTargets: effectiveTargets }
 }
 
 const getActionPointInvalidReason = ({
@@ -570,7 +575,7 @@ const getActionPointInvalidReason = ({
     return undefined
 }
 
-const anyTargetGroupHasEffect = ({
+const filterTargetGroupsWithEffect = ({
     actor,
     validTargets,
     squaddieAction,
@@ -586,8 +591,9 @@ const anyTargetGroupHasEffect = ({
         coordinateMapCollectionManager: CoordinateMapCollectionManager
     }
     map: { mapId: string }
-}): boolean => {
-    for (const [, squaddieKeys] of validTargets) {
+}): Map<string, Set<string>> => {
+    const effectiveTargets = new Map<string, Set<string>>()
+    for (const [coordinateKey, squaddieKeys] of validTargets) {
         const targetSquaddieIds: BattleSquaddieId[] = []
         for (const squaddieKey of squaddieKeys) {
             targetSquaddieIds.push(
@@ -603,9 +609,11 @@ const anyTargetGroupHasEffect = ({
             map,
         })
 
-        if (hasEffect) return true
+        if (hasEffect) {
+            effectiveTargets.set(coordinateKey, squaddieKeys)
+        }
     }
-    return false
+    return effectiveTargets
 }
 
 const validateTargetsInRange = ({
@@ -1326,60 +1334,48 @@ const generateAbilityActionOptions = ({
         if (!managers.squaddieActionManager.has(actionId)) continue
 
         const squaddieAction = managers.squaddieActionManager.get(actionId)
+
+        // Reuse getActionCategorizationResult to check AP cost, range, and effect
+        const result = getActionCategorizationResult({
+            actor,
+            squaddieAction,
+            currentActionPoints,
+            managers,
+            map,
+            positionOverride,
+        })
+
+        if (
+            result.invalidReason != undefined ||
+            result.validTargets == undefined
+        )
+            continue
+
         const actionPointCost =
             squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
 
-        if (actionPointCost === "all") {
-            if (currentActionPoints.current <= 0) continue
-        } else if (
-            actionPointCost != undefined &&
-            actionPointCost > currentActionPoints.current
-        ) {
-            continue
-        }
-
-        const validTargets =
-            SquaddieActionValidationService.getAllValidTargetsInRangeOfAction({
-                actor,
-                action: { id: actionId },
-                managers,
-                map,
-                positionOverride,
-            })
         addSquaddieTargetEffectsToOptions({
-            validTargets: validTargets,
-            actor: actor,
-            squaddieAction: squaddieAction,
-            managers: managers,
-            map: map,
-            actionPointCost: actionPointCost,
-            currentActionPoints: currentActionPoints,
-            options: options,
+            validTargets: result.validTargets,
+            squaddieAction,
+            actionPointCost,
+            currentActionPoints,
+            options,
         })
     }
 
     return options
 }
 
+// Targets are pre-filtered to only those where the action has an effect
 const addSquaddieTargetEffectsToOptions = ({
     validTargets,
-    actor,
     squaddieAction,
-    managers,
-    map,
     actionPointCost,
     currentActionPoints,
     options,
 }: {
     validTargets: Map<string, Set<string>>
-    actor: BattleSquaddieId
     squaddieAction: SquaddieAction
-    managers: {
-        inBattleSquaddieManager: InBattleSquaddieManager
-        squaddieActionManager: SquaddieActionManager
-        coordinateMapCollectionManager: CoordinateMapCollectionManager
-    }
-    map: { mapId: string }
     actionPointCost?: ActionPointCost
     currentActionPoints: { current: number }
     options: ValidSquaddieActionOption[]
@@ -1394,16 +1390,6 @@ const addSquaddieTargetEffectsToOptions = ({
                 SquaddieIdConverterService.keyToSquaddieId(squaddieKey)
             targetSquaddieIds.push(squaddieId)
         }
-
-        const hasEffect = checkIfActionHasEffectOnTargets({
-            actor,
-            targets: targetSquaddieIds,
-            squaddieAction,
-            managers,
-            map,
-        })
-
-        if (!hasEffect) continue
 
         const actionPointsSpentValue =
             actionPointCost === "all"
