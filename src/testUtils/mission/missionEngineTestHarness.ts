@@ -25,6 +25,12 @@ import { ActionRange } from "../../squaddieAction/actionRange"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
 import { CoordinateGeneratorShape } from "../../coordinateMap/shape"
 import type { RollGenerator } from "../../squaddieAction/calculate/roll/rollGenerator"
+import {
+    type MissionObjective,
+    MissionObjectiveService,
+} from "../../mission/missionObjective"
+import { MissionObjectiveRewardService } from "../../mission/missionObjectiveReward"
+import { MissionObjectiveCriteriaService } from "../../mission/missionObjectiveCriteria"
 
 export const MissionEngineTestHarnessIds = {
     mapId: "test-harness-map",
@@ -79,6 +85,7 @@ export class MissionEngineTestHarness extends MissionEngine {
         const missionState = MissionStateService.new({
             id: MissionEngineTestHarnessIds.missionStateId,
             mapId: MissionEngineTestHarnessIds.mapId,
+            objectives: this.createMissionObjectives(),
         })
 
         const missionManager = new MissionManager({
@@ -94,6 +101,43 @@ export class MissionEngineTestHarness extends MissionEngine {
             slitherDemonSquaddieId,
         }
     }
+
+    private static readonly createMissionObjectives =
+        (): MissionObjective[] => {
+            const missionObjectiveDefeatAllEnemies: MissionObjective =
+                MissionObjectiveService.new({
+                    id: "missionObjectiveDefeatAllEnemies",
+                    rewards: [
+                        MissionObjectiveRewardService.newMissionEndsReward(),
+                    ],
+                    criteria: [
+                        MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                            {
+                                affiliations: [SquaddieAffiliation.ENEMY],
+                            }
+                        ),
+                    ],
+                })
+
+            const missionObjectiveDefeatAllPlayers: MissionObjective =
+                MissionObjectiveService.new({
+                    id: "missionObjectiveDefeatAllPlayers",
+                    rewards: [
+                        MissionObjectiveRewardService.newMissionFailureReward(),
+                    ],
+                    criteria: [
+                        MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                            {
+                                affiliations: [SquaddieAffiliation.PLAYER],
+                            }
+                        ),
+                    ],
+                })
+            return [
+                missionObjectiveDefeatAllEnemies,
+                missionObjectiveDefeatAllPlayers,
+            ]
+        }
 
     private static createCoordinateMapCollectionManager(): CoordinateMapCollectionManager {
         const movementProperties = [
