@@ -212,7 +212,7 @@ export const SquaddieActionResultCalculator = {
             mapId: string
         }
     }): {
-        actorRoll: [number, number]
+        actorRoll?: [number, number]
         targetResults: Map<
             string,
             {
@@ -222,6 +222,16 @@ export const SquaddieActionResultCalculator = {
         >
     } => {
         const squaddieAction = managers.squaddieActionManager.get(action.id)
+
+        if (!squaddieAction.actorRollsToHit) {
+            return calculateActionResultsWithoutRolls({
+                targets: targets,
+                managers: managers,
+                actor: actor,
+                action: action,
+                map: map,
+            })
+        }
 
         const actorProficiencyBonus =
             ProficiencyCalculator.getActorProficiencyBonus({
@@ -1102,4 +1112,58 @@ const reverseMovement = (
         }),
     }
     return reversed
+}
+
+const calculateActionResultsWithoutRolls = ({
+    targets,
+    managers,
+    actor,
+    action,
+    map,
+}: {
+    targets: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }[]
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager?: CoordinateMapCollectionManager
+    }
+    actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
+    action: { id: string; decisions?: SquaddieActionDecisions }
+    map?: {
+        mapId: string
+    }
+}) => {
+    const targetResults = new Map<
+        string,
+        {
+            degreeOfSuccess: TDegreeOfSuccess
+            squaddieActionResults: SquaddieActionResult[]
+        }
+    >()
+
+    for (const target of targets) {
+        const targetKey = SquaddieIdConverterService.squaddieIdToKey({
+            inBattleSquaddieId: target.inBattleSquaddieId,
+            outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+        })
+
+        const results = SquaddieActionResultCalculator.calculateResult({
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            managers,
+            actor,
+            targets: [target],
+            action,
+            map,
+        })
+
+        targetResults.set(targetKey, {
+            degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            squaddieActionResults: results,
+        })
+    }
+
+    return {
+        actorRoll: undefined,
+        targetResults,
+    }
 }

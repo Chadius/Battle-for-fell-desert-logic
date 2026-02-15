@@ -473,6 +473,122 @@ describe("SquaddieActionResultCalculator", () => {
             expect(result.targetResults.has(targetKey1)).toBe(true)
             expect(result.targetResults.has(targetKey2)).toBe(true)
         })
+
+        describe("when actorRollsToHit is false", () => {
+            let noRollAction: SquaddieAction
+
+            beforeEach(() => {
+                noRollAction = SquaddieActionService.new({
+                    id: "no-roll-action",
+                    name: "No Roll Action",
+                    actorRollsToHit: false,
+                    degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            damage: {
+                                raw: 2,
+                                targetProficiency: ProficiencyType.ARMOR,
+                                attributeScoreType: AttributeScore.BODY,
+                            },
+                        },
+                    },
+                })
+                actionManager.addOrUpdate(noRollAction)
+            })
+
+            it("returns undefined for actorRoll", () => {
+                rollGenerator = new RollGenerator([4, 5])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: noRollAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                expect(result.actorRoll).toBeUndefined()
+            })
+
+            it("assigns SUCCESS to all targets", () => {
+                rollGenerator = new RollGenerator([4, 5])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: noRollAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                expect(
+                    result.targetResults.get(targetKey)?.degreeOfSuccess
+                ).toBe(DegreeOfSuccess.SUCCESS)
+            })
+
+            it("still calculates action results with effects applied", () => {
+                rollGenerator = new RollGenerator([4, 5])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: noRollAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                const targetResult = result.targetResults.get(targetKey)
+                expect(targetResult?.squaddieActionResults).toBeDefined()
+                expect(
+                    targetResult?.squaddieActionResults.length
+                ).toBeGreaterThan(0)
+            })
+
+            it("does not consume the roll generator", () => {
+                rollGenerator = new RollGenerator([4, 5])
+
+                SquaddieActionResultCalculator.calculateActionResultsWithRolls({
+                    actor,
+                    targets: [target],
+                    action: { id: noRollAction.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                    },
+                    rollGenerator,
+                })
+
+                const nextRoll = rollGenerator.roll(2)
+                expect(nextRoll).toEqual([4, 5])
+            })
+        })
     })
 
     describe("calculateForecastedResults", () => {

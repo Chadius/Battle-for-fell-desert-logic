@@ -5,12 +5,12 @@ import {
 } from "./targetResult"
 
 export interface ActionResult {
-    actorRoll: [number, number]
+    actorRoll?: [number, number]
     targetResults: { [squaddieKey: string]: TargetResult }
 }
 
 export interface SerializedActionResults {
-    actorRoll: [number, number]
+    actorRoll?: [number, number]
     targetResults: { [squaddieKey: string]: SerializedTargetResult }
 }
 
@@ -19,7 +19,7 @@ export const ActionResultsService = {
         actorRoll,
         targetResults,
     }: {
-        actorRoll: [number, number]
+        actorRoll?: [number, number]
         targetResults: { [_: string]: TargetResult }
     }): ActionResult => {
         return {

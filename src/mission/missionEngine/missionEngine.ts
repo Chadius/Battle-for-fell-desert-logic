@@ -172,7 +172,7 @@ export class MissionEngine {
 
     private serializeTargetResults(
         managerResults: {
-            actorRoll: [number, number]
+            actorRoll?: [number, number]
             targetResults: Map<
                 string,
                 {

@@ -151,7 +151,7 @@ export class MissionManager {
         }
         rollGenerator: RollGenerator
     }): {
-        actorRoll: [number, number]
+        actorRoll?: [number, number]
         targetResults: Map<
             string,
             {
