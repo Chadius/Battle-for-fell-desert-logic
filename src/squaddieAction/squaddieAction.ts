@@ -131,6 +131,7 @@ export const SquaddieActionService = {
         return SquaddieActionService.new({
             id: "default-end-turn",
             name: "End Turn",
+            actorRollsToHit: false,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: {
@@ -145,6 +146,7 @@ export const SquaddieActionService = {
         return SquaddieActionService.new({
             id: "default-move",
             name: "Move",
+            actorRollsToHit: false,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: {
