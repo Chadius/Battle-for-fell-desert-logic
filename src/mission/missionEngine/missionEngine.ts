@@ -78,7 +78,17 @@ export class MissionEngine {
 
     readyAction({ actor, targets, action }: ReadiedAction): {
         isValid: boolean
+        message?: string
     } {
+        let validityCheck = this.canReadyActionBecauseOfAffiliationTurn({
+            actor,
+            targets,
+            action,
+        })
+        if (!validityCheck.isValid) {
+            return validityCheck
+        }
+
         this.readiedAction = ReadiedActionService.new({
             actor,
             targets,
@@ -610,6 +620,37 @@ export class MissionEngine {
             throw new Error(
                 `[MissionEngine.${callingFunction}]: coordinateMapCollectionManager is undefined`
             )
+        }
+    }
+
+    canReadyActionBecauseOfAffiliationTurn({ actor }: ReadiedAction): {
+        isValid: boolean
+        message?: string
+    } {
+        if (!this.missionManager?.missionState?.turn) {
+            return {
+                isValid: true,
+            }
+        }
+
+        const currentAffiliationTurn = this.getCurrentAffiliationTurn()
+        const turnAffiliation =
+            MissionTurnService.getSquaddieAffiliationForAffiliationTurn(
+                currentAffiliationTurn
+            )
+        if (turnAffiliation != undefined) {
+            const actorAffiliation =
+                this.missionManager.getSquaddieAffiliation(actor)
+            if (actorAffiliation !== turnAffiliation) {
+                return {
+                    isValid: false,
+                    message: "It is not this squaddie's turn",
+                }
+            }
+        }
+
+        return {
+            isValid: true,
         }
     }
 }
