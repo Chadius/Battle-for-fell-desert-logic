@@ -3,9 +3,7 @@ import { MissionEngine } from "../missionEngine"
 import { MissionManager } from "../../missionManager"
 import { MissionStateService } from "../../missionState"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import {
-    MissionEngineTestHarness,
-} from "../../../testUtils/mission/missionEngineTestHarness"
+import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
 import { DEFAULT_ACTION_POINTS } from "../../../squaddie/inBattle/inBattleSquaddie"
 
 describe("MissionEngine.getMovementOptionsWithCosts", () => {
@@ -17,9 +15,7 @@ describe("MissionEngine.getMovementOptionsWithCosts", () => {
             outOfBattleSquaddieId: "squaddie-1",
         }
 
-        expect(() =>
-            missionEngine.getMovementOptionsWithCosts(actor)
-        ).toThrow(
+        expect(() => missionEngine.getMovementOptionsWithCosts(actor)).toThrow(
             "[MissionEngine.getMovementOptionsWithCosts]: missionManager is undefined"
         )
     })
@@ -38,9 +34,7 @@ describe("MissionEngine.getMovementOptionsWithCosts", () => {
             outOfBattleSquaddieId: "squaddie-1",
         }
 
-        expect(() =>
-            missionEngine.getMovementOptionsWithCosts(actor)
-        ).toThrow(
+        expect(() => missionEngine.getMovementOptionsWithCosts(actor)).toThrow(
             "[MissionEngine.getMovementOptionsWithCosts]: inBattleSquaddieManager is undefined"
         )
     })
