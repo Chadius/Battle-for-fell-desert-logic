@@ -38,6 +38,8 @@ import {
 } from "./inMissionSummary"
 import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap"
 import { type TSquaddieAffiliation } from "../affiliation/affiliation"
+import { SquaddieActionValidationService } from "../squaddieAction/calculate/validity/squaddieActionValidationService"
+import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
 
 export class MissionManager {
     missionState?: MissionState
@@ -438,6 +440,48 @@ export class MissionManager {
                   }
                 : undefined,
         })
+    }
+
+    getMovementOptionsWithCosts(
+        actor: BattleSquaddieId
+    ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
+        this.throwIfStateIsUndefined(this.getMovementOptionsWithCosts.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getMovementOptionsWithCosts.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getMovementOptionsWithCosts.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getMovementOptionsWithCosts.name
+        )
+
+        const currentActionPoints =
+            this.inBattleSquaddieManager!.getActionPoints(actor)
+
+        const options =
+            SquaddieActionValidationService.generateValidSquaddieActions({
+                actor,
+                managers: {
+                    inBattleSquaddieManager: this.inBattleSquaddieManager!,
+                    squaddieActionManager: this.squaddieActionManager!,
+                    coordinateMapCollectionManager:
+                        this.coordinateMapCollectionManager!,
+                },
+                map: { mapId: this.missionState!.mapId },
+            })
+
+        return options
+            .filter(
+                (option) =>
+                    option.decisions.desiredMovementDestination != undefined
+            )
+            .map((option) => ({
+                destination: option.decisions.desiredMovementDestination!,
+                actionPointCost:
+                    currentActionPoints.current -
+                    option.actionPointsRemaining.current,
+            }))
     }
 
     serializeCoordinateMap(mapId: string): SerializedCoordinateMap {

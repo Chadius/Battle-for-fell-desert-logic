@@ -455,6 +455,24 @@ export class MissionEngine {
         })
     }
 
+    getMovementOptionsWithCosts(
+        actor: BattleSquaddieId
+    ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
+        this.throwIfMissionManagerIsUndefined(
+            this.getMovementOptionsWithCosts.name
+        )
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getMovementOptionsWithCosts.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getMovementOptionsWithCosts.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getMovementOptionsWithCosts.name
+        )
+        return this.missionManager!.getMovementOptionsWithCosts(actor)
+    }
+
     getMapDimensions(): { width: number; height: number } {
         this.throwIfMissionManagerIsUndefined(this.getMapDimensions.name)
         this.throwIfCoordinateMapCollectionManagerIsUndefined(
