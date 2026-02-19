@@ -415,12 +415,55 @@ describe("Coordinate Map", () => {
                 inBattleSquaddieId: 0,
                 outOfBattleSquaddieId: "squaddie",
                 inBattleSquaddieManager: new InBattleSquaddieManager(),
-                stopConditions: [{ desiredDestination: { row: 1, col: 0 } }],
+                stopConditions: [{ desiredDestination: { row: 1, col: 2 } }],
+            })
+
+            const totalCost =
+                CoordinateMovePathService.getTotalMoveCost(expectedPath)
+            expect(totalCost).toBe(4)
+        })
+
+        it("routes around walls to find optimal path", () => {
+            let map = CoordinateMapService.new({
+                id: "test-map",
+                name: "Test Map",
+                movementProperties: ["1 1 1 1", " 1 x 1 1", "1 1 1 1"],
+            })
+
+            map = CoordinateMapService.addSquaddie({
+                map,
+                coordinate: { row: 0, col: 0 },
+                squaddieId: {
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "squaddie",
+                },
+            })
+
+            const { expectedPath } = CoordinateMapService.calculateRoute({
+                map,
+                inBattleSquaddieId: 0,
+                outOfBattleSquaddieId: "squaddie",
+                inBattleSquaddieManager: new InBattleSquaddieManager(),
+                stopConditions: [{ desiredDestination: { row: 1, col: 2 } }],
             })
 
             const endStep =
                 CoordinateMovePathService.getEndCoordinate(expectedPath)
-            expect(endStep.moveCost).toBe(2)
+            expect(endStep.row).toBe(1)
+            expect(endStep.col).toBe(2)
+
+            expect(
+                CoordinateMovePathService.getNumberOfCoordinates(expectedPath)
+            ).toBe(4)
+            expect(
+                CoordinateMovePathService.getTotalMoveCost(expectedPath)
+            ).toBe(3)
+
+            const pathSteps = expectedPath.steps
+            const passesWall = pathSteps.some(
+                (step) => step.row === 1 && step.col === 1
+            )
+            expect(passesWall).toBe(false)
         })
     })
 })

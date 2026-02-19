@@ -3,12 +3,17 @@ import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
-    type CoordinateMovePathStep,
 } from "./path/path"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
 } from "./offsetCoordinate"
+import {
+    CoordinateMapAStarAdapter,
+    type CoordinateMapSearchLimits,
+} from "./coordinateMapAStarAdapter"
+import { AStarSearchService } from "../aStarSearch/aStarSearch"
+import type { AStarGraph } from "../aStarSearch/aStarGraph"
 
 export type OffsetMaybeOffmapCoordinate = {
     row: number | undefined
@@ -240,6 +245,7 @@ export const CoordinateMapService = {
         map,
         inBattleSquaddieId,
         outOfBattleSquaddieId,
+        inBattleSquaddieManager,
         stopConditions,
     }: {
         map: CoordinateMap
@@ -252,11 +258,14 @@ export const CoordinateMapService = {
     }): {
         expectedPath: CoordinateMovePath
     } => {
+        const destinationRow = stopConditions[0].desiredDestination?.row ?? 0
+        const destinationCol = stopConditions[0].desiredDestination?.col ?? 0
+
         const startCoordinate = CoordinateMapService.getSquaddieCoordinate({
             map,
             squaddieId: {
-                inBattleSquaddieId: inBattleSquaddieId,
-                outOfBattleSquaddieId: outOfBattleSquaddieId,
+                inBattleSquaddieId,
+                outOfBattleSquaddieId,
             },
         })
 
@@ -265,73 +274,33 @@ export const CoordinateMapService = {
             startCoordinate?.col == undefined
         ) {
             return {
-                expectedPath: CoordinateMovePathService.new({
-                    steps: [
-                        {
-                            row: stopConditions[0].desiredDestination?.row || 0,
-                            col: stopConditions[0].desiredDestination?.col || 0,
-                            moveType: CoordinateMovePathMoveType.START,
-                            moveCost: 0,
-                        },
-                    ],
+                expectedPath: createFallbackPath({
+                    row: destinationRow,
+                    col: destinationCol,
                 }),
             }
         }
 
-        const steps: CoordinateMovePathStep[] = [
-            {
+        const aStarPath = searchForPath({
+            map,
+            inBattleSquaddieManager,
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+            start: {
                 row: startCoordinate.row,
                 col: startCoordinate.col,
-                moveCost: 0,
-                moveType: CoordinateMovePathMoveType.START,
             },
-        ]
-
-        let currentRow = startCoordinate.row
-        let currentCol = startCoordinate.col
-        let moveCost = 0
-
-        let destinationRow = stopConditions[0].desiredDestination?.row ?? 0
-        let destinationCol = stopConditions[0].desiredDestination?.col ?? 0
-
-        while (Math.abs(currentRow - destinationRow) >= 1) {
-            if (currentRow < destinationRow) {
-                currentRow += 1
-            }
-            if (currentRow > destinationRow) {
-                currentRow -= 1
-            }
-            moveCost +=
-                map.coordinates[currentRow][currentCol].movementCost ?? 1
-            steps.push({
-                row: currentRow,
-                col: currentCol,
-                moveCost,
-                moveType: CoordinateMovePathMoveType.WALK,
-            })
-        }
-
-        while (Math.abs(currentCol - destinationCol) >= 1) {
-            if (currentCol < destinationCol) {
-                currentCol += 1
-            }
-            if (currentCol > destinationCol) {
-                currentCol -= 1
-            }
-            moveCost +=
-                map.coordinates[currentRow][currentCol].movementCost ?? 1
-            steps.push({
-                row: currentRow,
-                col: currentCol,
-                moveCost,
-                moveType: CoordinateMovePathMoveType.WALK,
-            })
-        }
+            destinationRow,
+            destinationCol,
+        })
 
         return {
-            expectedPath: CoordinateMovePathService.new({
-                steps,
-            }),
+            expectedPath:
+                aStarPath ??
+                createFallbackPath({
+                    row: destinationRow,
+                    col: destinationCol,
+                }),
         }
     },
     getNumberOfRows: ({ map }: { map: CoordinateMap }): number =>
@@ -610,6 +579,74 @@ const getNumberOfRows = ({ map }: { map: CoordinateMap }): number => {
 const getNumberOfColumns = ({ map }: { map: CoordinateMap }): number => {
     throwIfMapIsUndefined(map, "getNumberOfColumns")
     return map.coordinates[0].length
+}
+
+const createFallbackPath = ({
+    row,
+    col,
+}: {
+    row: number
+    col: number
+}): CoordinateMovePath => {
+    return CoordinateMovePathService.new({
+        steps: [
+            {
+                row,
+                col,
+                moveType: CoordinateMovePathMoveType.START,
+                moveCost: 0,
+            },
+        ],
+    })
+}
+
+const searchForPath = ({
+    map,
+    inBattleSquaddieManager,
+    inBattleSquaddieId,
+    outOfBattleSquaddieId,
+    start,
+    destinationRow,
+    destinationCol,
+}: {
+    map: CoordinateMap
+    inBattleSquaddieManager: InBattleSquaddieManager
+    inBattleSquaddieId: number
+    outOfBattleSquaddieId: string
+    start: OffsetCoordinate
+    destinationRow: number
+    destinationCol: number
+}): CoordinateMovePath | undefined => {
+    let searchLimits: CoordinateMapSearchLimits | undefined
+    try {
+        searchLimits =
+            CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie({
+                manager: inBattleSquaddieManager,
+                battleSquaddieId: {
+                    inBattleSquaddieId,
+                    outOfBattleSquaddieId,
+                },
+            })
+    } catch {
+        searchLimits = undefined
+    }
+
+    const adapter = new CoordinateMapAStarAdapter({
+        map,
+        searchLimits,
+        inBattleSquaddieManager,
+    })
+
+    return AStarSearchService.search<
+        OffsetCoordinate,
+        CoordinateMovePath,
+        AStarGraph<OffsetCoordinate, CoordinateMovePath>
+    >({
+        start,
+        graph: adapter,
+        stopCondition: (node: OffsetCoordinate) =>
+            node.row === destinationRow && node.col === destinationCol,
+    })
 }
 
 const calculateCoordinateProperties = (
