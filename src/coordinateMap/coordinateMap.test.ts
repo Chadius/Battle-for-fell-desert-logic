@@ -3,6 +3,8 @@ import {
     CoordinateMapService,
     type SerializedCoordinateMap,
 } from "./coordinateMap"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import { CoordinateMovePathService } from "./path/path"
 
 describe("Coordinate Map", () => {
     it("creates a new map instead of modifying the original", () => {
@@ -353,6 +355,72 @@ describe("Coordinate Map", () => {
                     },
                 })
             ).toEqual({ row: 0, col: 0 })
+        })
+    })
+
+    describe("calculateRoute", () => {
+        it("uses the starting coordinate column, not the row", () => {
+            let map = CoordinateMapService.new({
+                id: "test-map",
+                name: "Test Map",
+                movementProperties: [
+                    "1 1 2 1 1",
+                    " 1 - 1 x 1",
+                    "1 1 1 1 2",
+                    " 2 1 - 1 1",
+                ],
+            })
+
+            map = CoordinateMapService.addSquaddie({
+                map,
+                coordinate: { row: 0, col: 1 },
+                squaddieId: {
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "squaddie",
+                },
+            })
+
+            const { expectedPath } = CoordinateMapService.calculateRoute({
+                map,
+                inBattleSquaddieId: 0,
+                outOfBattleSquaddieId: "squaddie",
+                inBattleSquaddieManager: new InBattleSquaddieManager(),
+                stopConditions: [{ desiredDestination: { row: 0, col: 2 } }],
+            })
+
+            const startStep =
+                CoordinateMovePathService.getStartCoordinate(expectedPath)
+            expect(startStep.row).toBe(0)
+            expect(startStep.col).toBe(1)
+        })
+
+        it("uses actual terrain movement cost instead of incrementing by 1", () => {
+            let map = CoordinateMapService.new({
+                id: "test-map",
+                name: "Test Map",
+                movementProperties: ["1 1 1", " 2 2 2"],
+            })
+
+            map = CoordinateMapService.addSquaddie({
+                map,
+                coordinate: { row: 0, col: 0 },
+                squaddieId: {
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "squaddie",
+                },
+            })
+
+            const { expectedPath } = CoordinateMapService.calculateRoute({
+                map,
+                inBattleSquaddieId: 0,
+                outOfBattleSquaddieId: "squaddie",
+                inBattleSquaddieManager: new InBattleSquaddieManager(),
+                stopConditions: [{ desiredDestination: { row: 1, col: 0 } }],
+            })
+
+            const endStep =
+                CoordinateMovePathService.getEndCoordinate(expectedPath)
+            expect(endStep.moveCost).toBe(2)
         })
     })
 })

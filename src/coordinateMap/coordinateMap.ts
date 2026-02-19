@@ -281,7 +281,7 @@ export const CoordinateMapService = {
         const steps: CoordinateMovePathStep[] = [
             {
                 row: startCoordinate.row,
-                col: startCoordinate.row,
+                col: startCoordinate.col,
                 moveCost: 0,
                 moveType: CoordinateMovePathMoveType.START,
             },
@@ -301,7 +301,8 @@ export const CoordinateMapService = {
             if (currentRow > destinationRow) {
                 currentRow -= 1
             }
-            moveCost += 1
+            moveCost +=
+                map.coordinates[currentRow][currentCol].movementCost ?? 1
             steps.push({
                 row: currentRow,
                 col: currentCol,
@@ -317,7 +318,8 @@ export const CoordinateMapService = {
             if (currentCol > destinationCol) {
                 currentCol -= 1
             }
-            moveCost += 1
+            moveCost +=
+                map.coordinates[currentRow][currentCol].movementCost ?? 1
             steps.push({
                 row: currentRow,
                 col: currentCol,
