@@ -176,14 +176,15 @@ export const CoordinatePathMapService = {
             )
         }
 
-        coordinatePathMap.visitedCoordinates.set(
-            OffsetCoordinateService.coordinateToKey(currentCoordinate),
-            {
-                row: currentCoordinate.row,
-                col: currentCoordinate.col,
-                previousCoordinate,
-            }
-        )
+        const key = OffsetCoordinateService.coordinateToKey(currentCoordinate)
+        const existing = coordinatePathMap.visitedCoordinates.get(key)
+        if (existing?.cachedMovePath != undefined) return
+
+        coordinatePathMap.visitedCoordinates.set(key, {
+            row: currentCoordinate.row,
+            col: currentCoordinate.col,
+            previousCoordinate,
+        })
     },
     getClosestPath: ({
         coordinatePathMap,

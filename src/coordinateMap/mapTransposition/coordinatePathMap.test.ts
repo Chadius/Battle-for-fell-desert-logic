@@ -98,6 +98,50 @@ describe("Map Transposition", () => {
             )
         })
 
+        it("does not overwrite a cached path when add is called with a different previousCoordinate", () => {
+            CoordinatePathMapService.add({
+                coordinatePathMap: transpositionMap,
+                currentCoordinate: { row: 0, col: 2 },
+                previousCoordinate: undefined,
+            })
+            CoordinatePathMapService.add({
+                coordinatePathMap: transpositionMap,
+                currentCoordinate: { row: 0, col: 3 },
+                previousCoordinate: { row: 0, col: 2 },
+            })
+
+            CoordinatePathMapService.extendPath({
+                coordinatePathMap: transpositionMap,
+                row: 0,
+                col: 3,
+                map: coordinateMap,
+                moveType: CoordinateMovePathMoveType.WALK,
+            })
+
+            const cachedPath = CoordinatePathMapService.getPath({
+                coordinatePathMap: transpositionMap,
+                row: 0,
+                col: 3,
+            })
+            expect(cachedPath).toBeDefined()
+            expect(
+                CoordinateMovePathService.getTotalMoveCost(cachedPath!)
+            ).toEqual(2)
+
+            CoordinatePathMapService.add({
+                coordinatePathMap: transpositionMap,
+                currentCoordinate: { row: 0, col: 3 },
+                previousCoordinate: { row: 1, col: 3 },
+            })
+
+            const pathAfterReAdd = CoordinatePathMapService.getPath({
+                coordinatePathMap: transpositionMap,
+                row: 0,
+                col: 3,
+            })
+            expect(pathAfterReAdd).toEqual(cachedPath)
+        })
+
         it("can generate a path once multiple points are connected together", () => {
             CoordinatePathMapService.add({
                 coordinatePathMap: transpositionMap,
