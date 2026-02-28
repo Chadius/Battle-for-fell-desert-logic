@@ -820,9 +820,14 @@ const calculateMovementResults = ({
 
     let actionPointCost = 0
     if (actionPointsEffect?.additional?.movementPathActionPointCost)
-        actionPointCost += CoordinateMovePathService.getTotalMoveCost(
-            routeInfo.expectedPath
-        )
+        actionPointCost +=
+            managers.inBattleSquaddieManager.calculateActionPointsForMovement({
+                inBattleSquaddieId: inBattleSquaddie.id,
+                outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                movementCost: CoordinateMovePathService.getTotalMoveCost(
+                    routeInfo.expectedPath
+                ),
+            })
 
     return [
         {

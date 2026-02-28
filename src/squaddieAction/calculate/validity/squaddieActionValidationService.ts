@@ -1286,9 +1286,13 @@ const generateMovementOptions = ({
         const pathCost = CoordinateMovePathService.getTotalMoveCost(
             visited.cachedMovePath
         )
-        const actionPointsSpent = Math.ceil(
-            pathCost / movementInfo.movementPerAction
-        )
+
+        const actionPointsSpent =
+            managers.inBattleSquaddieManager.calculateActionPointsForMovement({
+                inBattleSquaddieId: actor.inBattleSquaddieId,
+                outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+                movementCost: pathCost,
+            })
         const actionPointsRemaining =
             currentActionPoints.current - actionPointsSpent
 

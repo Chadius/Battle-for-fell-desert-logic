@@ -64,6 +64,8 @@ export interface MapOverview {
     tiles: MapTileInfo[][]
 }
 
+const MAX_PHASE_TRANSITIONS = 20
+
 export class MissionEngine {
     missionManager?: MissionManager
     readiedAction?: ReadiedAction
@@ -123,8 +125,6 @@ export class MissionEngine {
     getInMissionSummary(): InMissionSummary {
         this.throwIfMissionManagerIsUndefined(this.getInMissionSummary.name)
         const summary = this.missionManager!.createInMissionSummary()
-        // Include the most recent phase transitions so consumers can react to
-        // phases the engine automatically traversed after the last action.
         return {
             ...summary,
             recentPhaseTransitions: [...this.recentPhaseTransitions],
@@ -465,8 +465,7 @@ export class MissionEngine {
             MissionAffiliationTurn.NONE_AFFILIATION_TURN,
         ])
 
-        const maxIterations = 20
-        for (let i = 0; i < maxIterations; i++) {
+        for (let i = 0; i < MAX_PHASE_TRANSITIONS; i++) {
             if (this.isDone()) return
 
             const currentPhase = this.getCurrentAffiliationTurn()

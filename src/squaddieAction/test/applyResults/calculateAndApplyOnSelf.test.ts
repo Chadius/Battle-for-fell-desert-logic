@@ -331,6 +331,33 @@ describe("Squaddie resolves actions on themself", () => {
             })
         })
 
+        it("normalizes path tile cost by movementPerAction to get action point cost", () => {
+            const longMoveResults =
+                SquaddieActionResultCalculator.calculateResult({
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                        coordinateMapCollectionManager: mapManager,
+                    },
+                    actor: { inBattleSquaddieId, outOfBattleSquaddieId },
+                    targets: [],
+                    map: { mapId: "map" },
+                    action: {
+                        id: moveAction.id,
+                        decisions: {
+                            desiredMovementDestination: { row: 0, col: 4 },
+                        },
+                    },
+                })
+
+            const resultWithMovement = longMoveResults.find(
+                (r) => r.movement != undefined
+            )
+
+            expect(resultWithMovement!.actionPoints!.spent).toEqual(2)
+        })
+
         describe("Generate and apply results", () => {
             let results: SquaddieActionResult[]
 
@@ -422,17 +449,25 @@ describe("Squaddie resolves actions on themself", () => {
                         (r) => r.movement != undefined
                     )
 
+                    let actionPointsSpentOnMovement =
+                        inBattleSquaddieManager.calculateActionPointsForMovement(
+                            {
+                                inBattleSquaddieId,
+                                outOfBattleSquaddieId,
+                                movementCost:
+                                    CoordinateMovePathService.getTotalMoveCost(
+                                        resultWithMovement!.movement!
+                                            .expectedPath
+                                    ),
+                            }
+                        )
+
                     expect(
                         inBattleSquaddieManager.getActionPoints({
                             inBattleSquaddieId,
                             outOfBattleSquaddieId,
                         }).current
-                    ).toEqual(
-                        3 -
-                            CoordinateMovePathService.getTotalMoveCost(
-                                resultWithMovement!.movement!.expectedPath
-                            )
-                    )
+                    ).toEqual(3 - actionPointsSpentOnMovement)
                 })
             })
         })
