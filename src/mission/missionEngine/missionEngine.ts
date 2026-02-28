@@ -24,9 +24,12 @@ import { MissionObjectiveService } from "../missionObjective"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieInfo } from "../../squaddie/inBattle/squaddieInfo"
 import {
+    MissionAffiliationTurn,
     MissionTurnService,
     type TMissionAffiliationTurn,
 } from "../missionTurn"
+import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
+import { SquaddieActionService } from "../../squaddieAction/squaddieAction"
 import {
     type ActionResult,
     ActionResultsService,
@@ -46,7 +49,6 @@ import {
 } from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
 import type { OffsetMaybeOffmapCoordinate } from "../../coordinateMap/coordinateMap"
 import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 
 export interface MapTileInfo {
     row: number
@@ -67,6 +69,7 @@ export class MissionEngine {
     readiedAction?: ReadiedAction
     rollGenerator: RollGenerator
     actionResults?: ActionResult
+    private recentPhaseTransitions: TMissionAffiliationTurn[] = []
 
     constructor(
         missionManager?: MissionManager,
@@ -119,7 +122,13 @@ export class MissionEngine {
 
     getInMissionSummary(): InMissionSummary {
         this.throwIfMissionManagerIsUndefined(this.getInMissionSummary.name)
-        return this.missionManager!.createInMissionSummary()
+        const summary = this.missionManager!.createInMissionSummary()
+        // Include the most recent phase transitions so consumers can react to
+        // phases the engine automatically traversed after the last action.
+        return {
+            ...summary,
+            recentPhaseTransitions: [...this.recentPhaseTransitions],
+        }
     }
 
     getSerializedInMissionSummary(): SerializedInMissionSummary {
@@ -161,6 +170,7 @@ export class MissionEngine {
         this.readiedAction = undefined
 
         this.checkAndUpdateMissionObjectives()
+        this.autoAdvanceThroughBookendAffiliationTurns()
 
         return this.actionResults
     }
@@ -417,6 +427,62 @@ export class MissionEngine {
         })
 
         return { success: true, removedAction }
+    }
+
+    endSquaddieTurn(battleSquaddieId: BattleSquaddieId): ActionResult {
+        this.throwIfMissionManagerIsUndefined(this.endSquaddieTurn.name)
+
+        if (
+            this.missionManager!.squaddieActionManager &&
+            !this.missionManager!.squaddieActionManager.has("default-end-turn")
+        ) {
+            this.missionManager!.squaddieActionManager.addOrUpdate(
+                SquaddieActionService.defaultEndTurn()
+            )
+        }
+
+        const actor = {
+            inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,
+            outOfBattleSquaddieId: battleSquaddieId.outOfBattleSquaddieId,
+        }
+
+        this.readiedAction = {
+            actor,
+            targets: [actor],
+            action: { id: "default-end-turn" },
+        }
+
+        return this.useActionAndGetResults()
+    }
+
+    private autoAdvanceThroughBookendAffiliationTurns(): void {
+        this.recentPhaseTransitions = []
+
+        const activeTurnPhases = new Set<TMissionAffiliationTurn>([
+            MissionAffiliationTurn.PLAYER_TURN,
+            MissionAffiliationTurn.ALLY_TURN,
+            MissionAffiliationTurn.ENEMY_TURN,
+            MissionAffiliationTurn.NONE_AFFILIATION_TURN,
+        ])
+
+        const maxIterations = 20
+        for (let i = 0; i < maxIterations; i++) {
+            if (this.isDone()) return
+
+            const currentPhase = this.getCurrentAffiliationTurn()
+
+            if (
+                activeTurnPhases.has(currentPhase) &&
+                this.getSquaddiesWhoCanActThisPhase().length > 0
+            ) {
+                return
+            }
+
+            this.missionManager!.transitionToNextPhase()
+            const newPhase = this.getCurrentAffiliationTurn()
+            this.recentPhaseTransitions.push(newPhase)
+            this.checkAndUpdateMissionObjectives()
+        }
     }
 
     transitionToNextPhase(): SerializedSquaddieActionResult[] {

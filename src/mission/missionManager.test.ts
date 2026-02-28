@@ -1646,6 +1646,7 @@ describe("MissionManager", () => {
                             ],
                         },
                     }),
+                recentPhaseTransitions: [],
             }
 
             missionManager.loadInMissionSummary(savedState)
@@ -1680,6 +1681,7 @@ describe("MissionManager", () => {
                             ],
                         },
                     }),
+                recentPhaseTransitions: [],
             }
 
             missionManager.loadInMissionSummary(savedState)

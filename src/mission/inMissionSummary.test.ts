@@ -12,6 +12,7 @@ import {
     type MissionObjectiveSummary,
 } from "./inMissionSummary"
 import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
+import { MissionAffiliationTurn } from "./missionTurn"
 
 describe("InMissionSummary", () => {
     describe("new", () => {
@@ -25,6 +26,7 @@ describe("InMissionSummary", () => {
             expect(
                 summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId.size
             ).toBe(0)
+            expect(summary.recentPhaseTransitions).toEqual([])
         })
 
         it("creates a summary with provided data", () => {
@@ -206,6 +208,7 @@ describe("InMissionSummary", () => {
                             ],
                         },
                     }),
+                recentPhaseTransitions: [MissionAffiliationTurn.PLAYER_TURN],
             }
 
             const serialized = InMissionSummaryService.serialize(original)
@@ -221,6 +224,9 @@ describe("InMissionSummary", () => {
                     "squaddie-1"
                 )
             ).toHaveLength(1)
+            expect(restored.recentPhaseTransitions).toEqual([
+                MissionAffiliationTurn.PLAYER_TURN,
+            ])
         })
 
         it("SerializedInMissionSummary is directly JSON-serializable", () => {
@@ -230,6 +236,7 @@ describe("InMissionSummary", () => {
                 ],
                 inBattleSquaddieCollection:
                     InBattleSquaddieCollectionService.new(),
+                recentPhaseTransitions: [],
             }
 
             const serialized = InMissionSummaryService.serialize(summary)
@@ -292,6 +299,7 @@ describe("InMissionSummary", () => {
                             ],
                         },
                     }),
+                recentPhaseTransitions: [],
             }
 
             InMissionSummaryService.applyToMission({
@@ -320,6 +328,7 @@ describe("InMissionSummary", () => {
                 ],
                 inBattleSquaddieCollection:
                     InBattleSquaddieCollectionService.new(),
+                recentPhaseTransitions: [],
             }
 
             const objective = MissionObjectiveService.new({
@@ -349,6 +358,7 @@ describe("InMissionSummary", () => {
                 missionObjectives: [],
                 inBattleSquaddieCollection:
                     InBattleSquaddieCollectionService.new(),
+                recentPhaseTransitions: [],
             }
 
             const objective = MissionObjectiveService.new({

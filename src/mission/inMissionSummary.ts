@@ -6,6 +6,7 @@ import {
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
+import type { TMissionAffiliationTurn } from "./missionTurn"
 
 export interface MissionObjectiveSummary {
     id: string
@@ -16,6 +17,7 @@ export interface MissionObjectiveSummary {
 export interface InMissionSummary {
     missionObjectives: MissionObjectiveSummary[]
     inBattleSquaddieCollection: InBattleSquaddieCollection
+    recentPhaseTransitions: TMissionAffiliationTurn[]
 }
 
 export type SerializedInMissionSummary = Omit<
@@ -29,24 +31,29 @@ export const InMissionSummaryService = {
     new: ({
         missionObjectives,
         inBattleSquaddieCollection,
+        recentPhaseTransitions,
     }: {
         missionObjectives?: MissionObjectiveSummary[]
         inBattleSquaddieCollection?: InBattleSquaddieCollection
+        recentPhaseTransitions?: TMissionAffiliationTurn[]
     }): InMissionSummary => {
         return {
             missionObjectives: missionObjectives ?? [],
             inBattleSquaddieCollection:
                 inBattleSquaddieCollection ??
                 InBattleSquaddieCollectionService.new(),
+            recentPhaseTransitions: recentPhaseTransitions ?? [],
         }
     },
 
     createFromMission: ({
         missionObjectives,
         inBattleSquaddieManager,
+        recentPhaseTransitions,
     }: {
         missionObjectives: MissionObjective[]
         inBattleSquaddieManager: InBattleSquaddieManager
+        recentPhaseTransitions?: TMissionAffiliationTurn[]
     }): InMissionSummary => {
         const missionObjectiveSummaries: MissionObjectiveSummary[] =
             missionObjectives.map((missionObjective) => ({
@@ -64,6 +71,7 @@ export const InMissionSummaryService = {
         return InMissionSummaryService.new({
             missionObjectives: missionObjectiveSummaries,
             inBattleSquaddieCollection,
+            recentPhaseTransitions: recentPhaseTransitions ?? [],
         })
     },
 
@@ -109,6 +117,7 @@ export const InMissionSummaryService = {
                 InBattleSquaddieCollectionService.serialize(
                     inMissionSummary.inBattleSquaddieCollection
                 ),
+            recentPhaseTransitions: inMissionSummary.recentPhaseTransitions,
         }
     },
 
@@ -121,6 +130,7 @@ export const InMissionSummaryService = {
                 InBattleSquaddieCollectionService.deserialize(
                     serializable.inBattleSquaddieCollection
                 ),
+            recentPhaseTransitions: serializable.recentPhaseTransitions ?? [],
         }
     },
 }

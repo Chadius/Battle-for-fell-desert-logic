@@ -300,6 +300,7 @@ describe("InMissionSummary", () => {
                 engine.loadSerializedInMissionSummary({
                     missionObjectives: [],
                     inBattleSquaddieCollection: { byOutOfBattleSquaddieId: {} },
+                    recentPhaseTransitions: [],
                 })
             ).toThrow("missionManager is undefined")
         })
@@ -325,6 +326,7 @@ describe("InMissionSummary", () => {
                         ],
                     },
                 },
+                recentPhaseTransitions: [],
             }
 
             missionEngine.loadSerializedInMissionSummary(savedState)
@@ -358,6 +360,7 @@ describe("InMissionSummary", () => {
                         ],
                     },
                 },
+                recentPhaseTransitions: [],
             }
 
             missionEngine.loadSerializedInMissionSummary(savedState)

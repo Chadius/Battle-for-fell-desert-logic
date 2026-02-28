@@ -1,3 +1,7 @@
+@SPEC.md
+See `SPEC.md` for the full technical specification, current capabilities, known gaps, and the
+phased implementation plan.
+
 # Overview
 
 This project will contain the logic needed to play a turn based strategy game called The Battle of Fell Desert.
