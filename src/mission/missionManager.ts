@@ -40,6 +40,11 @@ import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap"
 import { type TSquaddieAffiliation } from "../affiliation/affiliation"
 import { SquaddieActionValidationService } from "../squaddieAction/calculate/validity/squaddieActionValidationService"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
+import {
+    type SquaddieCondition,
+    SquaddieConditionService,
+    type TSquaddieConditionType,
+} from "../proficiency/squaddieCondition"
 
 export class MissionManager {
     missionState?: MissionState
@@ -539,6 +544,8 @@ export class MissionManager {
         const currentPhase = this.missionState!.turn.missionAffiliationTurn
 
         this.resetActionPointsForNextAffiliationsIfNeeded(currentPhase)
+        const decayResults =
+            this.decayConditionsForAffiliationIfNeeded(currentPhase)
 
         const nextTurn = this.calculateNextPhase()
 
@@ -547,7 +554,67 @@ export class MissionManager {
             turn: nextTurn,
         }
 
-        return []
+        return decayResults
+    }
+
+    private decayConditionsForAffiliationIfNeeded(
+        currentPhase: TMissionAffiliationTurn
+    ): SquaddieActionResult[] {
+        const turnEndPhases = new Set<TMissionAffiliationTurn>([
+            MissionAffiliationTurn.PLAYER_TURN_END,
+            MissionAffiliationTurn.ALLY_TURN_END,
+            MissionAffiliationTurn.ENEMY_TURN_END,
+            MissionAffiliationTurn.NONE_AFFILIATION_TURN_END,
+        ])
+
+        if (!turnEndPhases.has(currentPhase)) return []
+
+        const affiliation =
+            MissionTurnService.getSquaddieAffiliationForAffiliationTurn(
+                currentPhase
+            )
+        if (affiliation == undefined) return []
+
+        const results: SquaddieActionResult[] = []
+        const battleSquaddieIds =
+            this.inBattleSquaddieManager!.getAllSquaddiesOfAffiliation(
+                affiliation
+            )
+
+        for (const battleSquaddieId of battleSquaddieIds) {
+            const dispelledConditions =
+                this.inBattleSquaddieManager!.reduceConditionDurationsByOneRound(
+                    battleSquaddieId
+                )
+            if (dispelledConditions.length == 0) continue
+
+            const dispelledConditionsMap: Map<
+                TSquaddieConditionType,
+                Omit<SquaddieCondition, "type">[]
+            > = new Map(
+                dispelledConditions.map((c) => [
+                    c,
+                    [
+                        SquaddieConditionService.new({
+                            type: c,
+                            duration: 1,
+                            amount: 1,
+                        }),
+                    ],
+                ])
+            )
+
+            results.push({
+                ...battleSquaddieId,
+                dispel: {
+                    dispelledConditions: dispelledConditionsMap,
+                    conditionTypes: {},
+                    amount: undefined,
+                },
+            })
+        }
+
+        return results
     }
 
     private resetActionPointsForNextAffiliationsIfNeeded(

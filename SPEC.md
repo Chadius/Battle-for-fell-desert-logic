@@ -232,7 +232,7 @@ Required:
 Red Blob Games has a great explanation of drawing lines.
 https://www.redblobgames.com/grids/hexagons/implementation.html#line-drawing
 
-### Gap 6 — Complete Turn Advancement in the Engine
+### Gap 6 — Complete Turn Advancement in the Engine (DONE)
 
 `MissionEngine` does not fully drive the turn lifecycle end-to-end.
 Required:
@@ -243,7 +243,7 @@ Required:
 - Trigger AI action generation (Gap 1) on `ENEMY_TURN` and `ALLY_TURN` entries.
 - Evaluate objectives after each action and at turn boundaries.
 
-### Gap 7 — Explicit End-Turn Action
+### Gap 7 — Explicit End-Turn Action (DONE)
 
 No mechanism exists for a squaddie (or the engine) to formally end that squaddie's turn and pass
 control.
@@ -296,7 +296,7 @@ Each step must work through `MissionEngine`'s public API with no direct manager 
 
 ## Implementation Plan
 
-### Phase 1 — End-Turn and Turn Advancement (Gap 6, Gap 7)
+### Phase 1 — End-Turn and Turn Advancement (Gap 6, Gap 7) (DONE)
 
 **Goal**: The engine can drive a complete turn cycle without manual phase management from outside.
 

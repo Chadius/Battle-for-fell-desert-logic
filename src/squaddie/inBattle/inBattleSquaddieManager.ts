@@ -424,12 +424,12 @@ export class InBattleSquaddieManager {
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
-    }) {
+    }): TSquaddieConditionType[] {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
             outOfBattleSquaddieId: outOfBattleSquaddieId,
         })
-        if (squaddieInfo == undefined) return
+        if (squaddieInfo == undefined) return []
 
         const results =
             InBattleSquaddieCollectionService.reduceConditionDurationsByOneRound(
@@ -441,8 +441,9 @@ export class InBattleSquaddieManager {
                 }
             )
 
-        if (results == undefined) return
+        if (results == undefined) return []
         this.inBattleSquaddieCollection = results.collection
+        return results.removedConditions
     }
     previewHealingToSquaddie({
         inBattleSquaddieId,
