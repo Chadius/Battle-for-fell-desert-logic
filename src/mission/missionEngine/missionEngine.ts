@@ -72,6 +72,7 @@ export class MissionEngine {
     rollGenerator: RollGenerator
     actionResults?: ActionResult
     private recentPhaseTransitions: TMissionAffiliationTurn[] = []
+    private recentTransitionResults: SerializedSquaddieActionResult[] = []
 
     constructor(
         missionManager?: MissionManager,
@@ -457,6 +458,7 @@ export class MissionEngine {
 
     private autoAdvanceThroughBookendAffiliationTurns(): void {
         this.recentPhaseTransitions = []
+        this.recentTransitionResults = []
 
         const activeTurnPhases = new Set<TMissionAffiliationTurn>([
             MissionAffiliationTurn.PLAYER_TURN,
@@ -477,11 +479,18 @@ export class MissionEngine {
                 return
             }
 
-            this.missionManager!.transitionToNextPhase()
+            const phaseResults = this.missionManager!.transitionToNextPhase()
+            this.recentTransitionResults.push(
+                ...phaseResults.map(SquaddieActionResultService.serialize)
+            )
             const newPhase = this.getCurrentAffiliationTurn()
             this.recentPhaseTransitions.push(newPhase)
             this.checkAndUpdateMissionObjectives()
         }
+    }
+
+    getRecentTransitionResults(): SerializedSquaddieActionResult[] {
+        return [...this.recentTransitionResults]
     }
 
     transitionToNextPhase(): SerializedSquaddieActionResult[] {
