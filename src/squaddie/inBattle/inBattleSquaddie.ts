@@ -5,6 +5,7 @@ import {
     type SquaddieCondition,
     SquaddieConditionService,
     SquaddieConditionType,
+    type TSquaddieConditionDecaysAt,
     type TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import {
@@ -177,14 +178,16 @@ export const InBattleSquaddieService = {
     },
     reduceConditionDurationsByOneRound: ({
         squaddie,
+        decaysAt,
     }: {
         squaddie: InBattleSquaddie
+        decaysAt: TSquaddieConditionDecaysAt
     }): {
         squaddie: InBattleSquaddie
         removedConditions: TSquaddieConditionType[]
     } => {
         const newSquaddie = clone(squaddie)
-        reduceEachConditionByOneRound(newSquaddie)
+        reduceEachConditionByOneRound(newSquaddie, decaysAt)
         const removedConditionTypes =
             getAllConditionTypesThatHaveZeroDuration(newSquaddie)
 
@@ -596,8 +599,10 @@ const addBinaryConditionAndSimplify = ({
     let shouldAddNewCondition = true
 
     for (let i = 0; i < existingConditions.length; i++) {
-        const conditionDuration = existingConditions[i].limit.duration ?? 0
-        const newConditionDuration = binaryCondition.limit.duration ?? 0
+        const conditionDuration =
+            existingConditions[i].limit.duration?.duration ?? 0
+        const newConditionDuration =
+            binaryCondition.limit.duration?.duration ?? 0
         const conditionDurationIsAlreadyAccountedFor =
             conditionDuration >= newConditionDuration
 
@@ -635,8 +640,9 @@ const addNumericalAmountConditionAndSimplify = ({
     let shouldAddNewCondition = true
 
     for (let i = 0; i < existingConditions.length; i++) {
-        const conditionDuration = existingConditions[i].limit.duration ?? 0
-        const newConditionDuration = newCondition.limit.duration ?? 0
+        const conditionDuration =
+            existingConditions[i].limit.duration?.duration ?? 0
+        const newConditionDuration = newCondition.limit.duration?.duration ?? 0
         const conditionDurationIsAlreadyAccountedFor =
             conditionDuration >= newConditionDuration
 
@@ -689,11 +695,14 @@ const addNumericalAmountConditionAndSimplify = ({
     }
 }
 
-const reduceEachConditionByOneRound = (newSquaddie: InBattleSquaddie) => {
+const reduceEachConditionByOneRound = (
+    newSquaddie: InBattleSquaddie,
+    decaysAt: TSquaddieConditionDecaysAt
+) => {
     for (const conditionList of newSquaddie.conditions.values()) {
         for (const condition of conditionList) {
-            if (condition.limit.duration != undefined)
-                condition.limit.duration -= 1
+            if (condition.limit.duration?.decaysAt === decaysAt)
+                condition.limit.duration.duration -= 1
         }
     }
 }
@@ -705,7 +714,7 @@ const getAllConditionTypesThatHaveZeroDuration = (
             return conditionList.every(
                 (condition) =>
                     condition.limit.duration != undefined &&
-                    condition.limit.duration <= 0
+                    condition.limit.duration.duration <= 0
             )
         })
         .map(([conditionType, _]) => conditionType)
@@ -720,7 +729,7 @@ const removeAllIndividualConditionsWithZeroDuration = (
                 ?.filter(
                     (condition) =>
                         condition.limit.duration == undefined ||
-                        condition.limit.duration > 0
+                        condition.limit.duration.duration > 0
                 ) ?? []
         newSquaddie.conditions.set(conditionType, filtered)
     }

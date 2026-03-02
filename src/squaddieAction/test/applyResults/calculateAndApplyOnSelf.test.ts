@@ -23,6 +23,7 @@ import { ActionRange } from "../../actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
@@ -135,12 +136,20 @@ describe("Squaddie resolves actions on themself", () => {
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ARMOR,
                                 amount: 1,
-                                duration: 1,
+                                duration: {
+                                    duration: 1,
+                                    decaysAt:
+                                        SquaddieConditionDecaysAt.TURN_END,
+                                },
                             }),
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ARMOR,
                                 amount: 1,
-                                duration: 1,
+                                duration: {
+                                    duration: 1,
+                                    decaysAt:
+                                        SquaddieConditionDecaysAt.TURN_END,
+                                },
                             }),
                         ],
                     },
@@ -260,7 +269,10 @@ describe("Squaddie resolves actions on themself", () => {
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
                     amount: 1,
-                    duration: 1,
+                    duration: {
+                        duration: 1,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
                 }),
             ],
         })

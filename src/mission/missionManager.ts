@@ -42,7 +42,9 @@ import { SquaddieActionValidationService } from "../squaddieAction/calculate/val
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
 import {
     type SquaddieCondition,
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    type TSquaddieConditionDecaysAt,
     type TSquaddieConditionType,
 } from "../proficiency/squaddieCondition"
 
@@ -566,8 +568,21 @@ export class MissionManager {
             MissionAffiliationTurn.ENEMY_TURN_END,
             MissionAffiliationTurn.NONE_AFFILIATION_TURN_END,
         ])
+        const turnStartPhases = new Set<TMissionAffiliationTurn>([
+            MissionAffiliationTurn.PLAYER_TURN_START,
+            MissionAffiliationTurn.ALLY_TURN_START,
+            MissionAffiliationTurn.ENEMY_TURN_START,
+            MissionAffiliationTurn.NONE_AFFILIATION_TURN_START,
+        ])
 
-        if (!turnEndPhases.has(currentPhase)) return []
+        let decaysAt: TSquaddieConditionDecaysAt | undefined
+        if (turnEndPhases.has(currentPhase)) {
+            decaysAt = SquaddieConditionDecaysAt.TURN_END
+        } else if (turnStartPhases.has(currentPhase)) {
+            decaysAt = SquaddieConditionDecaysAt.TURN_START
+        } else {
+            return []
+        }
 
         const affiliation =
             MissionTurnService.getSquaddieAffiliationForAffiliationTurn(
@@ -584,7 +599,7 @@ export class MissionManager {
         for (const battleSquaddieId of battleSquaddieIds) {
             const dispelledConditions =
                 this.inBattleSquaddieManager!.reduceConditionDurationsByOneRound(
-                    battleSquaddieId
+                    { ...battleSquaddieId, decaysAt }
                 )
             if (dispelledConditions.length == 0) continue
 
@@ -597,8 +612,11 @@ export class MissionManager {
                     [
                         SquaddieConditionService.new({
                             type: c,
-                            duration: 1,
-                            amount: 1,
+                            duration: {
+                                duration: 0,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            amount: 0,
                         }),
                     ],
                 ])
@@ -608,7 +626,10 @@ export class MissionManager {
                 ...battleSquaddieId,
                 dispel: {
                     dispelledConditions: dispelledConditionsMap,
-                    conditionTypes: {},
+                    conditionTypes: {
+                        all: false,
+                        types: dispelledConditions,
+                    },
                     amount: undefined,
                 },
             })

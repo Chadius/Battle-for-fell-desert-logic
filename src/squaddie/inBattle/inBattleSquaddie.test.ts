@@ -5,6 +5,7 @@ import {
     type SerializedInBattleSquaddie,
 } from "./inBattleSquaddie"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
@@ -104,19 +105,28 @@ describe("InBattleSquaddie", () => {
 
             const absorbCondition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                duration: 3,
+                duration: {
+                    duration: 3,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
                 amount: 5,
             })
 
             const armorCondition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                duration: 2,
+                duration: {
+                    duration: 2,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
                 amount: 2,
             })
 
             const elusiveCondition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ELUSIVE,
-                duration: 1,
+                duration: {
+                    duration: 1,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
                 amount: undefined,
             })
 
@@ -156,7 +166,10 @@ describe("InBattleSquaddie", () => {
             )![0]
             expect(restoredAbsorb.type).toEqual(SquaddieConditionType.ABSORB)
             expect(restoredAbsorb.amount).toEqual(5)
-            expect(restoredAbsorb.limit.duration).toEqual(3)
+            expect(restoredAbsorb.limit.duration).toEqual({
+                duration: 3,
+                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+            })
         })
 
         it("serialize produces valid JSON-serializable object", () => {
@@ -177,7 +190,10 @@ describe("InBattleSquaddie", () => {
 
             const absorbCondition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                duration: 3,
+                duration: {
+                    duration: 3,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
                 amount: 5,
             })
             const addResult = InBattleSquaddieService.addConditionsToSquaddie({

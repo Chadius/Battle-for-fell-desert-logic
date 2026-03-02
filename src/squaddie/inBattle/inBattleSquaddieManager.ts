@@ -10,6 +10,7 @@ import type { InBattleSquaddie } from "./inBattleSquaddie"
 import type { AttributeScoreType } from "../../proficiency/attributeScore"
 import {
     type SquaddieCondition,
+    type TSquaddieConditionDecaysAt,
     type TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import {
@@ -421,9 +422,11 @@ export class InBattleSquaddieManager {
     reduceConditionDurationsByOneRound({
         inBattleSquaddieId,
         outOfBattleSquaddieId,
+        decaysAt,
     }: {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
+        decaysAt: TSquaddieConditionDecaysAt
     }): TSquaddieConditionType[] {
         const squaddieInfo = this.getSquaddie({
             inBattleSquaddieId: inBattleSquaddieId,
@@ -438,6 +441,7 @@ export class InBattleSquaddieManager {
                     inBattleSquaddie: squaddieInfo.inBattleSquaddie,
                     outOfBattleSquaddie: squaddieInfo.outOfBattleSquaddie,
                     commitChanges: true,
+                    decaysAt,
                 }
             )
 

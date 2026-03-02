@@ -11,6 +11,7 @@ import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBatt
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
 import { AttributeScore } from "../../proficiency/attributeScore"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
@@ -149,7 +150,10 @@ describe("InBattleSquaddieCollection", () => {
             const absorb = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
                 amount: 5,
-                duration: 3,
+                duration: {
+                    duration: 3,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
             })
 
             const inBattleSquaddie =
@@ -189,7 +193,10 @@ describe("InBattleSquaddieCollection", () => {
                 SquaddieConditionType.ABSORB
             )![0]
             expect(restoredAbsorb.amount).toEqual(5)
-            expect(restoredAbsorb.limit.duration).toEqual(3)
+            expect(restoredAbsorb.limit.duration).toEqual({
+                duration: 3,
+                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+            })
         })
 
         it("serialize produces valid JSON-serializable object", () => {

@@ -19,6 +19,7 @@ import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import { ActionRange } from "../../../actionRange"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../../../proficiency/squaddieCondition"
@@ -187,7 +188,11 @@ describe("categorizeSquaddieActions", () => {
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ABSORB,
                                 amount: 1,
-                                duration: 1,
+                                duration: {
+                                    duration: 1,
+                                    decaysAt:
+                                        SquaddieConditionDecaysAt.TURN_END,
+                                },
                             }),
                         ],
                     },
@@ -479,7 +484,10 @@ describe("categorizeSquaddieActions", () => {
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ABSORB,
                     amount: 2,
-                    duration: 10,
+                    duration: {
+                        duration: 10,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
                 }),
             ],
         })

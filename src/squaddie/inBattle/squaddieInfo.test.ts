@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { SquaddieInfoService } from "./squaddieInfo"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
@@ -43,13 +44,19 @@ describe("SquaddieInfo", () => {
                 const armorCondition = SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
                     amount: 2,
-                    duration: 3,
+                    duration: {
+                        duration: 3,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
                 })
 
                 const slowedCondition = SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
                     amount: 1,
-                    duration: 2,
+                    duration: {
+                        duration: 2,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
                 })
 
                 const conditionsMap = new Map([
@@ -98,7 +105,10 @@ describe("SquaddieInfo", () => {
                 const armorCondition = SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
                     amount: 3,
-                    duration: 2,
+                    duration: {
+                        duration: 2,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
                 })
 
                 const info = SquaddieInfoService.new({

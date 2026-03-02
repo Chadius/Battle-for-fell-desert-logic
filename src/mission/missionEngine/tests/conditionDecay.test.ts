@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { MissionAffiliationTurn } from "../../missionTurn"
 import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
@@ -25,7 +26,10 @@ describe("conditionDecay", () => {
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ARMOR,
                             amount: 2,
-                            duration: 1,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
                         }),
                     ],
                 }
@@ -57,7 +61,10 @@ describe("conditionDecay", () => {
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ARMOR,
                             amount: 2,
-                            duration: 2,
+                            duration: {
+                                duration: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
                         }),
                     ],
                 }
@@ -73,7 +80,10 @@ describe("conditionDecay", () => {
                 SquaddieConditionType.ARMOR
             )
             expect(armorConditions).toBeDefined()
-            expect(armorConditions![0].limit.duration).toBe(1)
+            expect(armorConditions![0].limit.duration).toEqual({
+                duration: 1,
+                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+            })
         })
     })
 
@@ -122,7 +132,10 @@ describe("conditionDecay", () => {
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ARMOR,
                             amount: 2,
-                            duration: 1,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
                         }),
                     ],
                 }
@@ -146,6 +159,98 @@ describe("conditionDecay", () => {
         })
     })
 
+    describe("TURN_START decay timing", () => {
+        it("a TURN_START condition is not removed after PLAYER_TURN_END but is removed after the next PLAYER_TURN_START", () => {
+            const harness = new MissionEngineTestHarness()
+            advanceHarnessToPlayerTurn(harness)
+            const liniId = harness.getLiniSquaddieId()
+            const slitherDemonId = harness.getSlitherDemonSquaddieId()
+
+            harness.missionManager!.inBattleSquaddieManager!.addConditionsToSquaddie(
+                {
+                    ...liniId,
+                    conditions: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.ARMOR,
+                            amount: 2,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_START,
+                            },
+                        }),
+                    ],
+                }
+            )
+
+            harness.endSquaddieTurn(liniId)
+
+            const conditionAmountAfterPlayerEnd =
+                harness.missionManager!.inBattleSquaddieManager!.calculateConditionAmountForSquaddie(
+                    {
+                        ...liniId,
+                        conditionType: SquaddieConditionType.ARMOR,
+                    }
+                )
+            expect(conditionAmountAfterPlayerEnd).toBe(2)
+
+            harness.endSquaddieTurn(slitherDemonId)
+
+            const conditionAmountAfterNextPlayerStart =
+                harness.missionManager!.inBattleSquaddieManager!.calculateConditionAmountForSquaddie(
+                    {
+                        ...liniId,
+                        conditionType: SquaddieConditionType.ARMOR,
+                    }
+                )
+            expect(conditionAmountAfterNextPlayerStart).toBe(0)
+        })
+
+        it("a TURN_END condition survives PLAYER_TURN_START and decays only at PLAYER_TURN_END", () => {
+            const harness = new MissionEngineTestHarness()
+            advanceHarnessToPlayerTurn(harness)
+            const liniId = harness.getLiniSquaddieId()
+            const slitherDemonId = harness.getSlitherDemonSquaddieId()
+
+            harness.missionManager!.inBattleSquaddieManager!.addConditionsToSquaddie(
+                {
+                    ...liniId,
+                    conditions: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.ARMOR,
+                            amount: 2,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        }),
+                    ],
+                }
+            )
+
+            harness.endSquaddieTurn(liniId)
+
+            const conditionAmountAfterPlayerEnd =
+                harness.missionManager!.inBattleSquaddieManager!.calculateConditionAmountForSquaddie(
+                    {
+                        ...liniId,
+                        conditionType: SquaddieConditionType.ARMOR,
+                    }
+                )
+            expect(conditionAmountAfterPlayerEnd).toBe(0)
+
+            harness.endSquaddieTurn(slitherDemonId)
+
+            const conditionAmountAfterNextTurn =
+                harness.missionManager!.inBattleSquaddieManager!.calculateConditionAmountForSquaddie(
+                    {
+                        ...liniId,
+                        conditionType: SquaddieConditionType.ARMOR,
+                    }
+                )
+            expect(conditionAmountAfterNextTurn).toBe(0)
+        })
+    })
+
     describe("decays conditions for the correct affiliation only", () => {
         it("PLAYER ARMOR expires while ENEMY ARMOR is unaffected after player turn ends", () => {
             const harness = new MissionEngineTestHarness()
@@ -160,7 +265,10 @@ describe("conditionDecay", () => {
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ARMOR,
                             amount: 2,
-                            duration: 1,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
                         }),
                     ],
                 }
@@ -172,7 +280,10 @@ describe("conditionDecay", () => {
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ARMOR,
                             amount: 2,
-                            duration: 1,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
                         }),
                     ],
                 }

@@ -10,6 +10,14 @@ export const SquaddieConditionType = {
 } as const satisfies Record<string, string>
 export type TSquaddieConditionType = EnumLike<typeof SquaddieConditionType>
 
+export const SquaddieConditionDecaysAt = {
+    TURN_START: "TURN_START",
+    TURN_END: "TURN_END",
+} as const satisfies Record<string, string>
+export type TSquaddieConditionDecaysAt = EnumLike<
+    typeof SquaddieConditionDecaysAt
+>
+
 const binaryTypes = new Set<TSquaddieConditionType>([
     SquaddieConditionType.ELUSIVE,
     SquaddieConditionType.HUSTLE,
@@ -30,14 +38,21 @@ export interface SquaddieCondition {
     type: TSquaddieConditionType
     amount: number | undefined
     limit: {
-        duration: number | undefined
+        duration:
+            | {
+                  duration: number
+                  decaysAt: TSquaddieConditionDecaysAt
+              }
+            | undefined
     }
 }
 
 export const SquaddieConditionService = {
     new: (params: {
         type: TSquaddieConditionType
-        duration: number | undefined
+        duration:
+            | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
+            | undefined
         amount: number | undefined
     }): SquaddieCondition => newSquaddieCondition(params),
     isBinary: (t: SquaddieCondition): boolean => isBinary(t),
@@ -49,7 +64,10 @@ export const SquaddieConditionService = {
     clone: (original: SquaddieCondition): SquaddieCondition =>
         newSquaddieCondition({
             type: original.type,
-            duration: original.limit.duration,
+            duration:
+                original.limit.duration == undefined
+                    ? undefined
+                    : { ...original.limit.duration },
             amount: original.amount,
         }),
 }
@@ -62,7 +80,9 @@ const newSquaddieCondition = ({
     duration,
 }: {
     type: TSquaddieConditionType
-    duration: number | undefined
+    duration:
+        | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
+        | undefined
     amount: number | undefined
 }): SquaddieCondition => {
     return {

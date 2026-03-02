@@ -19,6 +19,7 @@ import {
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { AttributeScore } from "../../../proficiency/attributeScore"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
@@ -680,7 +681,10 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             const armorCondition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                duration: 10,
+                duration: {
+                    duration: 10,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
                 amount: 14,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({

@@ -12,7 +12,10 @@ import {
     type SquaddieActionResult,
 } from "../../squaddieAction/calculate/result/squaddieActionResult"
 import { AttributeScore } from "../../proficiency/attributeScore"
-import { SquaddieConditionType } from "../../proficiency/squaddieCondition"
+import {
+    SquaddieConditionDecaysAt,
+    SquaddieConditionType,
+} from "../../proficiency/squaddieCondition"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
@@ -134,7 +137,12 @@ describe("SquaddieTurnActionRecordService", () => {
                     {
                         type: SquaddieConditionType.HUSTLE,
                         amount: undefined,
-                        limit: { duration: 2 },
+                        limit: {
+                            duration: {
+                                duration: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                 ],
             }
@@ -283,7 +291,13 @@ describe("SquaddieTurnActionRecordService", () => {
                                     {
                                         type: SquaddieConditionType.SLOWED,
                                         amount: undefined,
-                                        limit: { duration: 0 },
+                                        limit: {
+                                            duration: {
+                                                duration: 0,
+                                                decaysAt:
+                                                    SquaddieConditionDecaysAt.TURN_END,
+                                            },
+                                        },
                                     },
                                 ],
                             },
@@ -620,7 +634,12 @@ describe("SquaddieTurnActionRecordService", () => {
                 {
                     type: SquaddieConditionType.SLOWED,
                     amount: 1,
-                    limit: { duration: 0 },
+                    limit: {
+                        duration: {
+                            duration: 0,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
+                    },
                 },
             ])
 
@@ -639,7 +658,12 @@ describe("SquaddieTurnActionRecordService", () => {
                 conditionsAdded: [
                     {
                         type: SquaddieConditionType.HUSTLE,
-                        limit: { duration: 2 },
+                        limit: {
+                            duration: {
+                                duration: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                         amount: undefined,
                     },
                 ],

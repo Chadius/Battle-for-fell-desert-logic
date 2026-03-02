@@ -8,6 +8,7 @@ import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBatt
 import type { AttributeScoreType } from "../../proficiency/attributeScore"
 import type {
     SquaddieCondition,
+    TSquaddieConditionDecaysAt,
     TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import {
@@ -228,11 +229,13 @@ export const InBattleSquaddieCollectionService = {
         inBattleSquaddie,
         outOfBattleSquaddie,
         commitChanges,
+        decaysAt,
     }: {
         collection: InBattleSquaddieCollection
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie
         commitChanges: boolean
+        decaysAt: TSquaddieConditionDecaysAt
     }): {
         collection: InBattleSquaddieCollection
         removedConditions: TSquaddieConditionType[]
@@ -251,6 +254,7 @@ export const InBattleSquaddieCollectionService = {
         const changeSquaddieInfo =
             InBattleSquaddieService.reduceConditionDurationsByOneRound({
                 squaddie: inBattleSquaddie,
+                decaysAt,
             })
 
         let modifiedCollection = commitChanges

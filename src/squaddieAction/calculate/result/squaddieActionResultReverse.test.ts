@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionResultCalculator } from "./squaddieActionResultCalculator"
 import type { SquaddieActionResult } from "./squaddieActionResult"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
@@ -55,7 +56,12 @@ describe("Reversing SquaddieActionResults", () => {
                     {
                         type: SquaddieConditionType.ARMOR,
                         amount: 1,
-                        limit: { duration: 3 },
+                        limit: {
+                            duration: {
+                                duration: 3,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                 ],
                 dispel: {
@@ -82,12 +88,22 @@ describe("Reversing SquaddieActionResults", () => {
                     {
                         type: SquaddieConditionType.ARMOR,
                         amount: 1,
-                        limit: { duration: 3 },
+                        limit: {
+                            duration: {
+                                duration: 3,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                     {
                         type: SquaddieConditionType.SLOWED,
                         amount: 1,
-                        limit: { duration: 2 },
+                        limit: {
+                            duration: {
+                                duration: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                 ],
             }
@@ -227,7 +243,12 @@ describe("Reversing SquaddieActionResults", () => {
                     {
                         type: SquaddieConditionType.SLOWED,
                         amount: 1,
-                        limit: { duration: 2 },
+                        limit: {
+                            duration: {
+                                duration: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                 ],
             }
@@ -254,12 +275,22 @@ describe("Reversing SquaddieActionResults", () => {
                     {
                         type: SquaddieConditionType.ARMOR,
                         amount: 2,
-                        limit: { duration: 3 },
+                        limit: {
+                            duration: {
+                                duration: 3,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                     {
                         type: SquaddieConditionType.ELUSIVE,
                         amount: undefined,
-                        limit: { duration: 2 },
+                        limit: {
+                            duration: {
+                                duration: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                 ],
             }
@@ -284,7 +315,12 @@ describe("Reversing SquaddieActionResults", () => {
             dispelledConditionsMap.set(SquaddieConditionType.ARMOR, [
                 {
                     amount: 2,
-                    limit: { duration: 3 },
+                    limit: {
+                        duration: {
+                            duration: 3,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
+                    },
                 },
             ])
 
@@ -308,7 +344,12 @@ describe("Reversing SquaddieActionResults", () => {
             expect(reversed.conditionsAdded?.[0]).toEqual({
                 type: SquaddieConditionType.ARMOR,
                 amount: 2,
-                limit: { duration: 3 },
+                limit: {
+                    duration: {
+                        duration: 3,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                },
             })
             expect(reversed.dispel).toBeUndefined()
         })
@@ -318,7 +359,12 @@ describe("Reversing SquaddieActionResults", () => {
             treatedConditionsMap.set(SquaddieConditionType.SLOWED, [
                 {
                     amount: 1,
-                    limit: { duration: 2 },
+                    limit: {
+                        duration: {
+                            duration: 2,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
+                    },
                 },
             ])
 
@@ -342,7 +388,12 @@ describe("Reversing SquaddieActionResults", () => {
             expect(reversed.conditionsAdded?.[0]).toEqual({
                 type: SquaddieConditionType.SLOWED,
                 amount: 1,
-                limit: { duration: 2 },
+                limit: {
+                    duration: {
+                        duration: 2,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                },
             })
             expect(reversed.treat).toBeUndefined()
         })
@@ -352,17 +403,32 @@ describe("Reversing SquaddieActionResults", () => {
             dispelledConditionsMap.set(SquaddieConditionType.ARMOR, [
                 {
                     amount: 2,
-                    limit: { duration: 3 },
+                    limit: {
+                        duration: {
+                            duration: 3,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
+                    },
                 },
                 {
                     amount: 1,
-                    limit: { duration: 2 },
+                    limit: {
+                        duration: {
+                            duration: 2,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
+                    },
                 },
             ])
             dispelledConditionsMap.set(SquaddieConditionType.ELUSIVE, [
                 {
                     amount: undefined,
-                    limit: { duration: 1 },
+                    limit: {
+                        duration: {
+                            duration: 1,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
+                    },
                 },
             ])
 
@@ -389,17 +455,32 @@ describe("Reversing SquaddieActionResults", () => {
             expect(reversed.conditionsAdded).toContainEqual({
                 type: SquaddieConditionType.ARMOR,
                 amount: 2,
-                limit: { duration: 3 },
+                limit: {
+                    duration: {
+                        duration: 3,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                },
             })
             expect(reversed.conditionsAdded).toContainEqual({
                 type: SquaddieConditionType.ARMOR,
                 amount: 1,
-                limit: { duration: 2 },
+                limit: {
+                    duration: {
+                        duration: 2,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                },
             })
             expect(reversed.conditionsAdded).toContainEqual({
                 type: SquaddieConditionType.ELUSIVE,
                 amount: undefined,
-                limit: { duration: 1 },
+                limit: {
+                    duration: {
+                        duration: 1,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                },
             })
         })
     })
@@ -554,7 +635,12 @@ describe("Reversing SquaddieActionResults", () => {
                     {
                         type: SquaddieConditionType.ARMOR,
                         amount: 1,
-                        limit: { duration: 3 },
+                        limit: {
+                            duration: {
+                                duration: 3,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                 ],
             }
@@ -609,7 +695,12 @@ describe("Reversing SquaddieActionResults", () => {
                     {
                         type: SquaddieConditionType.SLOWED,
                         amount: 1,
-                        limit: { duration: 2 },
+                        limit: {
+                            duration: {
+                                duration: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                        },
                     },
                 ],
                 movement: {
@@ -845,7 +936,10 @@ describe("Reversing SquaddieActionResults", () => {
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ARMOR,
                         amount: 2,
-                        duration: 3,
+                        duration: {
+                            duration: 3,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
                     }),
                 ],
             }
@@ -1009,7 +1103,10 @@ describe("Reversing SquaddieActionResults", () => {
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.SLOWED,
                         amount: 1,
-                        duration: 2,
+                        duration: {
+                            duration: 2,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
                     }),
                 ],
                 movement: {

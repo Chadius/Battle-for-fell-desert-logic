@@ -15,6 +15,7 @@ import {
     type CoordinateMapSearchLimits,
 } from "./coordinateMapAStarAdapter"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../proficiency/squaddieCondition"
@@ -113,7 +114,10 @@ describe("coordinateMapAStarAdapter", () => {
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.HUSTLE,
                             amount: 1,
-                            duration: 1,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
                         }),
                     ],
                 })
@@ -576,7 +580,10 @@ describe("coordinateMapAStarAdapter", () => {
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ELUSIVE,
                             amount: 1,
-                            duration: 1,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
                         }),
                     ],
                 })

@@ -24,6 +24,7 @@ import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
 import { ActionRange } from "../../actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import {
+    SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
@@ -194,7 +195,11 @@ describe("Squaddie Actions on a friend", () => {
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ABSORB,
                                 amount: 1,
-                                duration: 1,
+                                duration: {
+                                    duration: 1,
+                                    decaysAt:
+                                        SquaddieConditionDecaysAt.TURN_END,
+                                },
                             }),
                         ],
                     },
@@ -304,7 +309,10 @@ describe("Squaddie Actions on a friend", () => {
                 SquaddieConditionService.new({
                     amount: 1,
                     type: SquaddieConditionType.ABSORB,
-                    duration: 1,
+                    duration: {
+                        duration: 1,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
                 })
             )
             ApplyResultService.applyResultsToSquaddies({
