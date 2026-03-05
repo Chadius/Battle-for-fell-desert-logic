@@ -20,6 +20,7 @@ import {
     type SquaddieCondition,
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
@@ -1362,7 +1363,7 @@ describe("In Battle Squaddie Manager", () => {
                 ).toBe(0)
             })
 
-            it("sums multiple SLOWED conditions with different amounts and durations", () => {
+            it("applies the maximum SLOWED from the same source", () => {
                 const inBattleSquaddie00Id = manager.createNewSquaddie({
                     outOfBattleSquaddieId: outOfBattleSquaddie0.id,
                 })
@@ -1393,6 +1394,76 @@ describe("In Battle Squaddie Manager", () => {
                 expect(
                     manager.getMaximumActionPoints(inBattleSquaddie00Id!)
                 ).toBe(2)
+            })
+        })
+
+        describe("cross-source SLOWED conditions", () => {
+            it("SLOWED from different sources stack — reducing action points by the sum", () => {
+                const inBattleSquaddie00Id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                const slowedPhysical = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: {
+                        duration: 2,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                    source: SquaddieConditionSource.PHYSICAL,
+                })
+                const slowedElemental = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: {
+                        duration: 2,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                    source: SquaddieConditionSource.ELEMENTAL,
+                })
+
+                manager.addConditionsToSquaddie({
+                    ...inBattleSquaddie00Id!,
+                    conditions: [slowedPhysical, slowedElemental],
+                })
+
+                expect(
+                    manager.getMaximumActionPoints(inBattleSquaddie00Id!)
+                ).toBe(1)
+            })
+
+            it("SLOWED from the same source uses only the maximum — does not stack", () => {
+                const inBattleSquaddie00Id = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+                })
+
+                const slowedPhysical2 = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 2,
+                    duration: {
+                        duration: 5,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                    source: SquaddieConditionSource.PHYSICAL,
+                })
+                const slowedPhysical1 = SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: {
+                        duration: 5,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    },
+                    source: SquaddieConditionSource.PHYSICAL,
+                })
+
+                manager.addConditionsToSquaddie({
+                    ...inBattleSquaddie00Id!,
+                    conditions: [slowedPhysical2, slowedPhysical1],
+                })
+
+                expect(
+                    manager.getMaximumActionPoints(inBattleSquaddie00Id!)
+                ).toBe(1)
             })
         })
 

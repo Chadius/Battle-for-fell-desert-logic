@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator"
+import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
@@ -21,6 +22,7 @@ import { AttributeScore } from "../../../proficiency/attributeScore"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
 import {
@@ -754,6 +756,311 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                 degreeOfSuccess: DegreeOfSuccess.BOTCH,
             })
             expect(resultCannotCriticalAndWillLikelyFail.get(botchKey)).toBe(35)
+        })
+    })
+
+    describe("Handle ABSORB conditions for target", () => {
+        const setupActorAndTarget = () => {
+            addSquaddieToManager({
+                attributeSheetId: "actor_attribute_sheet",
+                squaddieId: "actor_squaddie",
+                name: "Actor",
+                affiliation: SquaddieAffiliation.PLAYER,
+                rank: 0,
+                proficiencyType: ProficiencyType.SKILL_MIND,
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                attributeScores: {
+                    [AttributeScore.BODY]: 0,
+                    [AttributeScore.MIND]: 0,
+                    [AttributeScore.SOUL]: 0,
+                },
+            })
+
+            addSquaddieToManager({
+                attributeSheetId: "target_attribute_sheet",
+                squaddieId: "target_squaddie",
+                name: "Target",
+                affiliation: SquaddieAffiliation.ENEMY,
+                rank: 0,
+                proficiencyType: ProficiencyType.DEFEND_MIND,
+                proficiencyLevel: ProficiencyLevel.UNTRAINED,
+                attributeScores: {
+                    [AttributeScore.BODY]: 0,
+                    [AttributeScore.MIND]: -6,
+                    [AttributeScore.SOUL]: 0,
+                },
+            })
+
+            initializeManagers()
+
+            const actorId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "actor_squaddie",
+            })
+            const targetId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "target_squaddie",
+            })
+
+            return { actorId, targetId }
+        }
+
+        const createGuaranteedSuccessAttack = (rawDamage: number) =>
+            SquaddieActionService.new({
+                id: "attack_action",
+                name: "Attack",
+                proficiency: ProficiencyType.SKILL_MIND,
+                degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {},
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: rawDamage,
+                            targetProficiency: ProficiencyType.DEFEND_MIND,
+                        },
+                    },
+                },
+            })
+
+        it("partially absorbs damage when ABSORB amount is less than raw damage", () => {
+            const { actorId, targetId } = setupActorAndTarget()
+
+            const absorbCondition = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                duration: {
+                    duration: 10,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                amount: 1,
+            })
+            inBattleSquaddieManager.addConditionsToSquaddie({
+                inBattleSquaddieId: targetId.inBattleSquaddieId,
+                outOfBattleSquaddieId: targetId.outOfBattleSquaddieId,
+                conditions: [absorbCondition],
+            })
+
+            action = createGuaranteedSuccessAttack(2)
+            squaddieActionManager.addOrUpdate(action)
+
+            const results =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor: actorId,
+                    targets: [targetId],
+                    action: { id: action.id, manager: squaddieActionManager },
+                    inBattleSquaddieManager,
+                })
+
+            const successResult = results.find(
+                (r) => r.degreeOfSuccess === DegreeOfSuccess.SUCCESS
+            )
+            const targetActionResult =
+                successResult?.squaddieActionResults.find(
+                    (r) => r.inBattleSquaddieId === targetId.inBattleSquaddieId
+                )
+            expect(targetActionResult?.damage).toEqual(
+                expect.objectContaining({ net: 1, absorbed: 1 })
+            )
+        })
+
+        it("fully absorbs damage when ABSORB amount exceeds raw damage", () => {
+            const { actorId, targetId } = setupActorAndTarget()
+
+            const absorbCondition = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                duration: {
+                    duration: 10,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                amount: 3,
+            })
+            inBattleSquaddieManager.addConditionsToSquaddie({
+                inBattleSquaddieId: targetId.inBattleSquaddieId,
+                outOfBattleSquaddieId: targetId.outOfBattleSquaddieId,
+                conditions: [absorbCondition],
+            })
+
+            action = createGuaranteedSuccessAttack(2)
+            squaddieActionManager.addOrUpdate(action)
+
+            const results =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor: actorId,
+                    targets: [targetId],
+                    action: { id: action.id, manager: squaddieActionManager },
+                    inBattleSquaddieManager,
+                })
+
+            const successResult = results.find(
+                (r) => r.degreeOfSuccess === DegreeOfSuccess.SUCCESS
+            )
+            const targetActionResult =
+                successResult?.squaddieActionResults.find(
+                    (r) => r.inBattleSquaddieId === targetId.inBattleSquaddieId
+                )
+            expect(targetActionResult?.damage).toEqual(
+                expect.objectContaining({ net: 0, absorbed: 2 })
+            )
+        })
+
+        it("ABSORB condition does not change the chance to hit", () => {
+            const { actorId, targetId } = setupActorAndTarget()
+
+            action = SquaddieActionService.new({
+                id: "attack_action",
+                name: "Attack",
+                proficiency: ProficiencyType.SKILL_MIND,
+                degreesOfSuccess: [
+                    DegreeOfSuccess.CRITICAL,
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.FAILURE,
+                    DegreeOfSuccess.BOTCH,
+                ],
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {},
+                },
+            })
+            squaddieActionManager.addOrUpdate(action)
+
+            const chancesWithoutAbsorb =
+                SquaddieActionForecastCalculator.forecastChanceToHit({
+                    inBattleSquaddieManager,
+                    actor: actorId,
+                    targets: [targetId],
+                    action: {
+                        id: action.id,
+                        manager: squaddieActionManager,
+                    },
+                })
+
+            const absorbCondition = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                duration: {
+                    duration: 10,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                amount: 1,
+            })
+            inBattleSquaddieManager.addConditionsToSquaddie({
+                inBattleSquaddieId: targetId.inBattleSquaddieId,
+                outOfBattleSquaddieId: targetId.outOfBattleSquaddieId,
+                conditions: [absorbCondition],
+            })
+
+            const chancesWithAbsorb =
+                SquaddieActionForecastCalculator.forecastChanceToHit({
+                    inBattleSquaddieManager,
+                    actor: actorId,
+                    targets: [targetId],
+                    action: {
+                        id: action.id,
+                        manager: squaddieActionManager,
+                    },
+                })
+
+            expect(chancesWithAbsorb.size).toBe(chancesWithoutAbsorb.size)
+            for (const [key, chance] of chancesWithoutAbsorb) {
+                expect(chancesWithAbsorb.get(key)).toBe(chance)
+            }
+        })
+
+        it("the highest ABSORB amount is used, not the sum of all ABSORB amounts", () => {
+            const { actorId, targetId } = setupActorAndTarget()
+
+            const absorbCondition1 = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                duration: {
+                    duration: 5,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                amount: 2,
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            const absorbCondition2 = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                duration: {
+                    duration: 10,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                amount: 3,
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            inBattleSquaddieManager.addConditionsToSquaddie({
+                inBattleSquaddieId: targetId.inBattleSquaddieId,
+                outOfBattleSquaddieId: targetId.outOfBattleSquaddieId,
+                conditions: [absorbCondition1, absorbCondition2],
+            })
+
+            action = createGuaranteedSuccessAttack(4)
+            squaddieActionManager.addOrUpdate(action)
+
+            const results =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor: actorId,
+                    targets: [targetId],
+                    action: { id: action.id, manager: squaddieActionManager },
+                    inBattleSquaddieManager,
+                })
+
+            const successResult = results.find(
+                (r) => r.degreeOfSuccess === DegreeOfSuccess.SUCCESS
+            )
+            const targetActionResult =
+                successResult?.squaddieActionResults.find(
+                    (r) => r.inBattleSquaddieId === targetId.inBattleSquaddieId
+                )
+            expect(targetActionResult?.damage).toEqual(
+                expect.objectContaining({ net: 1, absorbed: 3 })
+            )
+        })
+
+        it("ABSORB from different sources stacks — cross-source sum absorbs all damage", () => {
+            const { actorId, targetId } = setupActorAndTarget()
+
+            const absorbElemental = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                duration: {
+                    duration: 5,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                amount: 2,
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            const absorbSpiritual = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                duration: {
+                    duration: 5,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                amount: 3,
+                source: SquaddieConditionSource.SPIRITUAL,
+            })
+            inBattleSquaddieManager.addConditionsToSquaddie({
+                inBattleSquaddieId: targetId.inBattleSquaddieId,
+                outOfBattleSquaddieId: targetId.outOfBattleSquaddieId,
+                conditions: [absorbElemental, absorbSpiritual],
+            })
+
+            action = createGuaranteedSuccessAttack(4)
+            squaddieActionManager.addOrUpdate(action)
+
+            const results =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor: actorId,
+                    targets: [targetId],
+                    action: { id: action.id, manager: squaddieActionManager },
+                    inBattleSquaddieManager,
+                })
+
+            const successResult = results.find(
+                (r) => r.degreeOfSuccess === DegreeOfSuccess.SUCCESS
+            )
+            const targetActionResult =
+                successResult?.squaddieActionResults.find(
+                    (r) => r.inBattleSquaddieId === targetId.inBattleSquaddieId
+                )
+            expect(targetActionResult?.damage).toEqual(
+                expect.objectContaining({ net: 0, absorbed: 4 })
+            )
         })
     })
 

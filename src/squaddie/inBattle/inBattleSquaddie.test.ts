@@ -7,6 +7,7 @@ import {
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import {
@@ -163,6 +164,46 @@ describe("InBattleSquaddie", () => {
             expect(
                 squaddie.conditions.get(SquaddieConditionType.ABSORB)
             ).toBeUndefined()
+        })
+
+        it("two ABSORB conditions with different durations — only the highest amount reduces damage", () => {
+            let squaddie: InBattleSquaddie = InBattleSquaddieService.new({
+                id: 5,
+                name: "Multi-Shield Bearer",
+                outOfBattleSquaddie,
+                attributeSheet,
+            })
+            const absorb2 = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                amount: 2,
+                duration: {
+                    duration: 5,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                source: SquaddieConditionSource.SPIRITUAL,
+            })
+            const absorb3 = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                amount: 3,
+                duration: {
+                    duration: 10,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                source: SquaddieConditionSource.SPIRITUAL,
+            })
+            const addResult = InBattleSquaddieService.addConditionsToSquaddie({
+                squaddie,
+                conditions: [absorb2, absorb3],
+            })
+            squaddie = addResult.squaddie
+
+            const dealResult = InBattleSquaddieService.dealDamageToSquaddie({
+                squaddie,
+                damage: { amount: 4 },
+            })
+
+            expect(dealResult.damage.absorbed).toBe(3)
+            expect(dealResult.damage.net).toBe(1)
         })
 
         it("condition expires after 3 turn-end ticks even when current equals base", () => {
@@ -444,6 +485,229 @@ describe("InBattleSquaddie", () => {
             expect(serializable.name).toEqual("Serialized")
             expect(serializable.actionIds.natural).toEqual(["action1"])
             expect(serializable.itemIdsUsed).toEqual([])
+        })
+    })
+
+    describe("cross-source condition stacking", () => {
+        let attributeSheet: OutOfBattleSquaddieAttributeSheet
+        let outOfBattleSquaddie: OutOfBattleSquaddie
+
+        beforeEach(() => {
+            attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 0,
+                        [AttributeScore.MIND]: 0,
+                        [AttributeScore.SOUL]: 0,
+                    },
+                    items: { itemIds: [], maxCapacity: 0 },
+                    distancePerAction: 2,
+                    skipOverPits: false,
+                    moveThroughWalls: false,
+                    stopOnSquaddies: false,
+                })
+            outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "squaddie-out",
+                name: "Test Squaddie",
+                actionIds: [],
+                attributeSheetId: "sheet",
+                affiliation: SquaddieAffiliation.NONE,
+            })
+        })
+
+        it("ABSORB from different sources stacks — cross-source sum absorbs all damage", () => {
+            let squaddie: InBattleSquaddie = InBattleSquaddieService.new({
+                id: 10,
+                name: "Multi-Source Shield Bearer",
+                outOfBattleSquaddie,
+                attributeSheet,
+            })
+            const absorbElemental = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                amount: 3,
+                duration: {
+                    duration: 5,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            const absorbSpiritual = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                amount: 2,
+                duration: {
+                    duration: 5,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                source: SquaddieConditionSource.SPIRITUAL,
+            })
+            const addResult = InBattleSquaddieService.addConditionsToSquaddie({
+                squaddie,
+                conditions: [absorbElemental, absorbSpiritual],
+            })
+            squaddie = addResult.squaddie
+
+            const dealResult = InBattleSquaddieService.dealDamageToSquaddie({
+                squaddie,
+                damage: { amount: 4 },
+            })
+
+            expect(dealResult.damage.absorbed).toBe(4)
+            expect(dealResult.damage.net).toBe(0)
+
+            // ELEMENTAL absorbed its full 3 (current→0); SPIRITUAL only needed 1
+            const absorbConditions = dealResult.squaddie.conditions.get(
+                SquaddieConditionType.ABSORB
+            )!
+            const elementalAfter = absorbConditions.find(
+                (c) => c.source === SquaddieConditionSource.ELEMENTAL
+            )
+            const spiritualAfter = absorbConditions.find(
+                (c) => c.source === SquaddieConditionSource.SPIRITUAL
+            )
+            expect(elementalAfter).toEqual(
+                expect.objectContaining({
+                    amount: expect.objectContaining({ current: 0 }),
+                })
+            )
+            expect(spiritualAfter).toEqual(
+                expect.objectContaining({
+                    amount: expect.objectContaining({ current: 1 }),
+                })
+            )
+        })
+
+        it("ABSORB from same source uses the max — does not stack", () => {
+            let squaddie: InBattleSquaddie = InBattleSquaddieService.new({
+                id: 11,
+                name: "Same-Source Shield Bearer",
+                outOfBattleSquaddie,
+                attributeSheet,
+            })
+            const absorbElemental2 = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                amount: 2,
+                duration: {
+                    duration: 5,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            const absorbElemental3 = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                amount: 3,
+                duration: {
+                    duration: 10,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            const addResult = InBattleSquaddieService.addConditionsToSquaddie({
+                squaddie,
+                conditions: [absorbElemental2, absorbElemental3],
+            })
+            squaddie = addResult.squaddie
+
+            const dealResult = InBattleSquaddieService.dealDamageToSquaddie({
+                squaddie,
+                damage: { amount: 4 },
+            })
+
+            expect(dealResult.damage.absorbed).toBe(3)
+            expect(dealResult.damage.net).toBe(1)
+
+            // The max (ELEMENTAL=3) is drained; the non-max (ELEMENTAL=2) is untouched
+            const absorbConditions = dealResult.squaddie.conditions.get(
+                SquaddieConditionType.ABSORB
+            )!
+            const elemental2After = absorbConditions.find(
+                (c) =>
+                    c.source === SquaddieConditionSource.ELEMENTAL &&
+                    c.limit.duration?.duration === 5
+            )
+            const elemental3After = absorbConditions.find(
+                (c) =>
+                    c.source === SquaddieConditionSource.ELEMENTAL &&
+                    c.limit.duration?.duration === 10
+            )
+            expect(elemental2After).toEqual(
+                expect.objectContaining({
+                    amount: expect.objectContaining({ current: 2 }),
+                })
+            )
+            // fully drained (current→0); still present since it has a duration
+            expect(elemental3After).toEqual(
+                expect.objectContaining({
+                    amount: expect.objectContaining({ current: 0 }),
+                })
+            )
+        })
+
+        it("ARMOR from different sources both contribute to the effective amount", () => {
+            let squaddie: InBattleSquaddie = InBattleSquaddieService.new({
+                id: 12,
+                name: "Multi-Source Armored",
+                outOfBattleSquaddie,
+                attributeSheet,
+            })
+            const armorItem = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: 3,
+                duration: undefined,
+                source: SquaddieConditionSource.ITEM,
+            })
+            const armorElemental = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: 2,
+                duration: undefined,
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            const addResult = InBattleSquaddieService.addConditionsToSquaddie({
+                squaddie,
+                conditions: [armorItem, armorElemental],
+            })
+            squaddie = addResult.squaddie
+
+            expect(
+                InBattleSquaddieService.calculateConditionAmount({
+                    squaddie,
+                    conditionType: SquaddieConditionType.ARMOR,
+                })
+            ).toBe(5)
+        })
+
+        it("ARMOR from the same source uses only the maximum amount", () => {
+            let squaddie: InBattleSquaddie = InBattleSquaddieService.new({
+                id: 13,
+                name: "Same-Source Armored",
+                outOfBattleSquaddie,
+                attributeSheet,
+            })
+            const armorElemental2 = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: 2,
+                duration: undefined,
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            const armorElemental1 = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: 1,
+                duration: undefined,
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            const addResult = InBattleSquaddieService.addConditionsToSquaddie({
+                squaddie,
+                conditions: [armorElemental2, armorElemental1],
+            })
+            squaddie = addResult.squaddie
+
+            expect(
+                InBattleSquaddieService.calculateConditionAmount({
+                    squaddie,
+                    conditionType: SquaddieConditionType.ARMOR,
+                })
+            ).toBe(2)
         })
     })
 })

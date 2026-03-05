@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "./squaddieCondition"
 
@@ -81,6 +82,45 @@ describe("Squaddie Condition", () => {
                 },
             })
             expect(condition.amount).toBeUndefined()
+        })
+
+        it("source defaults to NONE when not provided", () => {
+            const condition = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: 2,
+                duration: {
+                    duration: 1,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+            })
+            expect(condition.source).toBe(SquaddieConditionSource.UNKNOWN)
+        })
+
+        it("source is set when explicitly provided", () => {
+            const condition = SquaddieConditionService.new({
+                type: SquaddieConditionType.ARMOR,
+                amount: 2,
+                duration: {
+                    duration: 1,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                source: SquaddieConditionSource.ELEMENTAL,
+            })
+            expect(condition.source).toBe(SquaddieConditionSource.ELEMENTAL)
+        })
+
+        it("clone preserves source", () => {
+            const original = SquaddieConditionService.new({
+                type: SquaddieConditionType.ABSORB,
+                amount: 3,
+                duration: {
+                    duration: 5,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
+                source: SquaddieConditionSource.SPIRITUAL,
+            })
+            const cloned = SquaddieConditionService.clone(original)
+            expect(cloned.source).toBe(SquaddieConditionSource.SPIRITUAL)
         })
 
         it("clone deep-copies the amount object so mutating the clone does not affect the original", () => {

@@ -1,5 +1,14 @@
 import type { EnumLike } from "../enum"
 
+export const SquaddieConditionSource = {
+    UNKNOWN: "UNKNOWN",
+    ITEM: "ITEM",
+    PHYSICAL: "PHYSICAL",
+    ELEMENTAL: "ELEMENTAL",
+    SPIRITUAL: "SPIRITUAL",
+} as const satisfies Record<string, string>
+export type TSquaddieConditionSource = EnumLike<typeof SquaddieConditionSource>
+
 export const SquaddieConditionType = {
     UNKNOWN: "UNKNOWN",
     ABSORB: "ABSORB",
@@ -36,6 +45,7 @@ const hinderingTypes = new Set<TSquaddieConditionType>([
 
 export interface SquaddieCondition {
     type: TSquaddieConditionType
+    source: TSquaddieConditionSource
     amount:
         | {
               current: number
@@ -59,6 +69,7 @@ export const SquaddieConditionService = {
             | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
             | undefined
         amount: number | undefined
+        source?: TSquaddieConditionSource
     }): SquaddieCondition => newSquaddieCondition(params),
     isBinary: (t: SquaddieCondition): boolean => isBinary(t),
     isHelpful: (t: SquaddieCondition): boolean =>
@@ -69,6 +80,7 @@ export const SquaddieConditionService = {
         (helpfulTypes.has(t.type) && !isBinary(t) && t.amount!.current < 0),
     clone: (original: SquaddieCondition): SquaddieCondition => ({
         type: original.type,
+        source: original.source,
         amount:
             original.amount == undefined ? undefined : { ...original.amount },
         limit: {
@@ -86,12 +98,14 @@ const newSquaddieCondition = ({
     type,
     amount,
     duration,
+    source,
 }: {
     type: TSquaddieConditionType
     duration:
         | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
         | undefined
     amount: number | undefined
+    source?: TSquaddieConditionSource
 }): SquaddieCondition => {
     const amountObj =
         amount == undefined
@@ -102,6 +116,7 @@ const newSquaddieCondition = ({
               }
     return {
         type,
+        source: source ?? SquaddieConditionSource.UNKNOWN,
         amount: amountObj,
         limit: {
             duration,

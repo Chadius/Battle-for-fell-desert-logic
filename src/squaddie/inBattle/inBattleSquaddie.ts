@@ -6,6 +6,7 @@ import {
     SquaddieConditionService,
     SquaddieConditionType,
     type TSquaddieConditionDecaysAt,
+    type TSquaddieConditionSource,
     type TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import {
@@ -81,7 +82,7 @@ export const InBattleSquaddieService = {
         squaddie: InBattleSquaddie
         conditionType: TSquaddieConditionType
     }): number => {
-        return sumOfConditionAmount(squaddie.conditions.get(conditionType))
+        return effectiveConditionAmount(squaddie.conditions.get(conditionType))
     },
     dealDamageToSquaddie({
         squaddie,
@@ -98,21 +99,17 @@ export const InBattleSquaddieService = {
     } {
         const newSquaddie: InBattleSquaddie = clone(squaddie)
         const conditions = getAllConditions(newSquaddie)
-        let absorbAvailable = sumOfConditionAmount(
+
+        let damageReduction = effectiveConditionAmount(
             conditions.get(SquaddieConditionType.ABSORB)
         )
-        let damageReduction = absorbAvailable
 
-        reduceConditionTypeByAmount({
-            amount: damage.amount,
+        drainAbsorbConditionsBySource({
+            damage: damage.amount,
             conditions: conditions.get(SquaddieConditionType.ABSORB),
         })
         removePermanentConditionsReducedToZero(conditions)
         newSquaddie.conditions = conditions
-
-        let absorbSpent =
-            absorbAvailable -
-            sumOfConditionAmount(conditions.get(SquaddieConditionType.ABSORB))
 
         let damageTaken: number
         damageTaken = damage.amount - damageReduction
@@ -128,7 +125,8 @@ export const InBattleSquaddieService = {
             damage: {
                 net: squaddie.hitPoints.current - newSquaddie.hitPoints.current,
                 raw: damage.amount,
-                absorbed: absorbSpent,
+                // absorbed is always <= raw damage (capped by damageTaken floor at 0)
+                absorbed: damage.amount - damageTaken,
                 willKo: newSquaddie.hitPoints.current <= 0,
                 type: damage.type,
             },
@@ -596,26 +594,38 @@ const addBinaryConditionAndSimplify = ({
     simplifiedConditions: Omit<SquaddieCondition, TSquaddieConditionType>[]
     didAddNewCondition: boolean
 } => {
-    const existingConditionsToKeep = new Set<number>()
+    // Different-source conditions are always kept.
+    // Same-source conditions: apply existing domination logic unchanged.
+    const differentSourceConditions = existingConditions.filter(
+        (c) => c.source !== binaryCondition.source
+    )
+    const sameSourceConditions = existingConditions.filter(
+        (c) => c.source === binaryCondition.source
+    )
+
+    const sameSourceConditionsToKeep = new Set<number>()
     let shouldAddNewCondition = true
 
-    for (let i = 0; i < existingConditions.length; i++) {
+    for (let i = 0; i < sameSourceConditions.length; i++) {
         const conditionDuration =
-            existingConditions[i].limit.duration?.duration ?? 0
+            sameSourceConditions[i].limit.duration?.duration ?? 0
         const newConditionDuration =
             binaryCondition.limit.duration?.duration ?? 0
         const conditionDurationIsAlreadyAccountedFor =
             conditionDuration >= newConditionDuration
 
         if (conditionDurationIsAlreadyAccountedFor) {
-            existingConditionsToKeep.add(i)
+            sameSourceConditionsToKeep.add(i)
             shouldAddNewCondition = false
         }
     }
 
-    let remainingConditions = [...existingConditionsToKeep.keys()].map(
-        (key) => existingConditions[key]
-    )
+    let remainingConditions = [
+        ...differentSourceConditions,
+        ...[...sameSourceConditionsToKeep.keys()].map(
+            (key) => sameSourceConditions[key]
+        ),
+    ]
     if (shouldAddNewCondition) {
         remainingConditions.push(binaryCondition)
     }
@@ -637,17 +647,26 @@ const addNumericalAmountConditionAndSimplify = ({
     simplifiedConditions: Omit<SquaddieCondition, TSquaddieConditionType>[]
     didAddNewCondition: boolean
 } => {
-    const existingConditionsToKeep = new Set<number>()
+    // Different-source conditions are always kept.
+    // Same-source conditions: apply existing domination logic unchanged.
+    const differentSourceConditions = existingConditions.filter(
+        (c) => c.source !== newCondition.source
+    )
+    const sameSourceConditions = existingConditions.filter(
+        (c) => c.source === newCondition.source
+    )
+
+    const sameSourceConditionsToKeep = new Set<number>()
     let shouldAddNewCondition = true
 
-    for (let i = 0; i < existingConditions.length; i++) {
+    for (let i = 0; i < sameSourceConditions.length; i++) {
         const conditionDuration =
-            existingConditions[i].limit.duration?.duration ?? 0
+            sameSourceConditions[i].limit.duration?.duration ?? 0
         const newConditionDuration = newCondition.limit.duration?.duration ?? 0
         const conditionDurationIsAlreadyAccountedFor =
             conditionDuration >= newConditionDuration
 
-        const conditionAmount = existingConditions[i].amount?.current ?? 0
+        const conditionAmount = sameSourceConditions[i].amount?.current ?? 0
         const newConditionAmount = newCondition.amount?.current ?? 0
         const conditionAmountIsAlreadyAccountedFor = isNewConditionPositive
             ? conditionAmount >= newConditionAmount
@@ -669,7 +688,7 @@ const addNumericalAmountConditionAndSimplify = ({
             doesExistingConditionHaveTheSameDurationAndMoreExtremeAmount ||
             doesExistingConditionDominateNewCondition
         ) {
-            existingConditionsToKeep.add(i)
+            sameSourceConditionsToKeep.add(i)
             shouldAddNewCondition = false
             continue
         }
@@ -677,16 +696,19 @@ const addNumericalAmountConditionAndSimplify = ({
         if (
             conditionAmount != newConditionAmount &&
             (conditionDuration != newConditionDuration ||
-                (existingConditions[i].limit.duration == undefined &&
+                (sameSourceConditions[i].limit.duration == undefined &&
                     newCondition.limit.duration == undefined))
         ) {
-            existingConditionsToKeep.add(i)
+            sameSourceConditionsToKeep.add(i)
         }
     }
 
-    let remainingConditions = [...existingConditionsToKeep.keys()].map(
-        (key) => existingConditions[key]
-    )
+    let remainingConditions = [
+        ...differentSourceConditions,
+        ...[...sameSourceConditionsToKeep.keys()].map(
+            (key) => sameSourceConditions[key]
+        ),
+    ]
     if (shouldAddNewCondition) {
         remainingConditions.push(newCondition)
     }
@@ -773,14 +795,14 @@ const reduceConditionTypeByAmount = ({
     for (const condition of conditions) {
         switch (true) {
             case condition.amount != undefined && condition.amount.current < 0:
-                condition.amount!.current = Math.min(
-                    condition.amount!.current + amount,
+                condition.amount.current = Math.min(
+                    condition.amount.current + amount,
                     0
                 )
                 break
             case condition.amount != undefined && condition.amount.current > 0:
-                condition.amount!.current = Math.max(
-                    condition.amount!.current - amount,
+                condition.amount.current = Math.max(
+                    condition.amount.current - amount,
                     0
                 )
                 break
@@ -795,14 +817,64 @@ const getAllConditions = (
     return deepCopyConditions(squaddie.conditions)
 }
 
-const sumOfConditionAmount = (
+// Drains each source's max-positive ABSORB condition in iteration order,
+// absorbing up to remainingDamage from each source.
+const drainAbsorbConditionsBySource = ({
+    conditions,
+    damage,
+}: {
+    conditions: SquaddieCondition[] | undefined
+    damage: number
+}) => {
+    if (!conditions || damage <= 0) return
+    let remainingDamage = damage
+
+    // Find the max-positive condition per source, preserving first-seen order
+    const maxBySource = new Map<TSquaddieConditionSource, SquaddieCondition>()
+    for (const condition of conditions) {
+        const amount = condition.amount?.current ?? 0
+        if (amount <= 0) continue
+        const existing = maxBySource.get(condition.source)
+        if (!existing || amount > (existing.amount?.current ?? 0)) {
+            maxBySource.set(condition.source, condition)
+        }
+    }
+
+    for (const maxCondition of maxBySource.values()) {
+        if (remainingDamage <= 0) break
+        const sourceAbsorbs = Math.min(
+            maxCondition.amount!.current,
+            remainingDamage
+        )
+        maxCondition.amount!.current -= sourceAbsorbs
+        remainingDamage -= sourceAbsorbs
+    }
+}
+
+const effectiveConditionAmount = (
     conditions: Omit<SquaddieCondition, TSquaddieConditionType>[] | undefined
 ): number => {
-    if (conditions == undefined) return 0
+    if (conditions == undefined || conditions.length === 0) return 0
 
-    return conditions.reduce((sum, currentValue) => {
-        return sum + (currentValue.amount?.current ?? 0)
-    }, 0)
+    const bySource = new Map<
+        TSquaddieConditionSource,
+        { maxPos: number; maxNeg: number }
+    >()
+    for (const condition of conditions) {
+        const source = condition.source
+        const amount = condition.amount?.current ?? 0
+        const existing = bySource.get(source) ?? { maxPos: 0, maxNeg: 0 }
+        bySource.set(source, {
+            maxPos: Math.max(existing.maxPos, amount, 0),
+            maxNeg: Math.min(existing.maxNeg, amount, 0),
+        })
+    }
+
+    let total = 0
+    for (const { maxPos, maxNeg } of bySource.values()) {
+        total += maxPos + maxNeg
+    }
+    return total
 }
 
 const getAttributeScore = ({
@@ -968,7 +1040,7 @@ const calculateConditionAmount = (
     let conditionBonus: number = 0
     let conditionPenalty: number = 0
     if (type == ProficiencyType.ARMOR) {
-        const amount = sumOfConditionAmount(
+        const amount = effectiveConditionAmount(
             squaddie.conditions.get(SquaddieConditionType.ARMOR)
         )
         if (amount > 0) conditionBonus = amount
