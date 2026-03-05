@@ -107,6 +107,7 @@ export const InBattleSquaddieService = {
             amount: damage.amount,
             conditions: conditions.get(SquaddieConditionType.ABSORB),
         })
+        removePermanentConditionsReducedToZero(conditions)
         newSquaddie.conditions = conditions
 
         let absorbSpent =
@@ -549,7 +550,7 @@ const updateConditionsIfNewConditionIfNeeded = ({
         }
     }
 
-    if (condition.amount != undefined && condition.amount > 0) {
+    if (condition.amount != undefined && condition.amount.current > 0) {
         ;({
             didAddNewCondition: shouldAddNewCondition,
             simplifiedConditions: replacementConditions,
@@ -564,7 +565,7 @@ const updateConditionsIfNewConditionIfNeeded = ({
         }
     }
 
-    if (condition.amount != undefined && condition.amount < 0) {
+    if (condition.amount != undefined && condition.amount.current < 0) {
         ;({
             didAddNewCondition: shouldAddNewCondition,
             simplifiedConditions: replacementConditions,
@@ -646,8 +647,8 @@ const addNumericalAmountConditionAndSimplify = ({
         const conditionDurationIsAlreadyAccountedFor =
             conditionDuration >= newConditionDuration
 
-        const conditionAmount = existingConditions[i].amount ?? 0
-        const newConditionAmount = newCondition.amount ?? 0
+        const conditionAmount = existingConditions[i].amount?.current ?? 0
+        const newConditionAmount = newCondition.amount?.current ?? 0
         const conditionAmountIsAlreadyAccountedFor = isNewConditionPositive
             ? conditionAmount >= newConditionAmount
             : conditionAmount <= newConditionAmount
@@ -701,8 +702,15 @@ const reduceEachConditionByOneRound = (
 ) => {
     for (const conditionList of newSquaddie.conditions.values()) {
         for (const condition of conditionList) {
-            if (condition.limit.duration?.decaysAt === decaysAt)
+            if (condition.limit.duration?.decaysAt === decaysAt) {
                 condition.limit.duration.duration -= 1
+                if (
+                    condition.limit.duration.duration > 0 &&
+                    condition.amount?.base != undefined
+                ) {
+                    condition.amount.current = condition.amount.base
+                }
+            }
         }
     }
 }
@@ -735,6 +743,25 @@ const removeAllIndividualConditionsWithZeroDuration = (
     }
 }
 
+const removePermanentConditionsReducedToZero = (
+    conditions: Map<TSquaddieConditionType, SquaddieCondition[]>
+) => {
+    for (const conditionType of conditions.keys()) {
+        const filtered = (conditions.get(conditionType) ?? []).filter(
+            (condition) =>
+                !(
+                    condition.limit.duration == undefined &&
+                    (condition.amount?.current ?? 1) <= 0
+                )
+        )
+        if (filtered.length === 0) {
+            conditions.delete(conditionType)
+        } else {
+            conditions.set(conditionType, filtered)
+        }
+    }
+}
+
 const reduceConditionTypeByAmount = ({
     conditions,
     amount,
@@ -745,11 +772,17 @@ const reduceConditionTypeByAmount = ({
     if (amount == 0 || conditions == undefined) return
     for (const condition of conditions) {
         switch (true) {
-            case condition.amount != undefined && condition.amount < 0:
-                condition.amount = Math.min(condition.amount + amount, 0)
+            case condition.amount != undefined && condition.amount.current < 0:
+                condition.amount!.current = Math.min(
+                    condition.amount!.current + amount,
+                    0
+                )
                 break
-            case condition.amount != undefined && condition.amount > 0:
-                condition.amount = Math.max(condition.amount - amount, 0)
+            case condition.amount != undefined && condition.amount.current > 0:
+                condition.amount!.current = Math.max(
+                    condition.amount!.current - amount,
+                    0
+                )
                 break
         }
     }
@@ -768,7 +801,7 @@ const sumOfConditionAmount = (
     if (conditions == undefined) return 0
 
     return conditions.reduce((sum, currentValue) => {
-        return sum + (currentValue.amount ?? 0)
+        return sum + (currentValue.amount?.current ?? 0)
     }, 0)
 }
 
@@ -796,7 +829,10 @@ const getProficiencyLevel = ({
 
 const removeSquaddieConditionsReducedToZeroAmount = (
     clonedConditionsForType: Omit<SquaddieCondition, TSquaddieConditionType>[]
-) => clonedConditionsForType.filter((condition) => (condition.amount ?? 0) != 0)
+) =>
+    clonedConditionsForType.filter(
+        (condition) => (condition.amount?.current ?? 0) != 0
+    )
 
 const dispelOrTreatSquaddieConditions = ({
     squaddie,

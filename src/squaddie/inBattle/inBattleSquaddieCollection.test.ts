@@ -192,7 +192,7 @@ describe("InBattleSquaddieCollection", () => {
             const restoredAbsorb = restoredSquaddie.conditions.get(
                 SquaddieConditionType.ABSORB
             )![0]
-            expect(restoredAbsorb.amount).toEqual(5)
+            expect(restoredAbsorb.amount).toEqual({ current: 5, base: 5 })
             expect(restoredAbsorb.limit.duration).toEqual({
                 duration: 3,
                 decaysAt: SquaddieConditionDecaysAt.TURN_END,

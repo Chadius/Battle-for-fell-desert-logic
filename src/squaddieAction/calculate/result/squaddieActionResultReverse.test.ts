@@ -55,7 +55,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     {
                         type: SquaddieConditionType.ARMOR,
-                        amount: 1,
+                        amount: { current: 1, base: 1 },
                         limit: {
                             duration: {
                                 duration: 3,
@@ -87,7 +87,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     {
                         type: SquaddieConditionType.ARMOR,
-                        amount: 1,
+                        amount: { current: 1, base: 1 },
                         limit: {
                             duration: {
                                 duration: 3,
@@ -97,7 +97,7 @@ describe("Reversing SquaddieActionResults", () => {
                     },
                     {
                         type: SquaddieConditionType.SLOWED,
-                        amount: 1,
+                        amount: { current: 1, base: 1 },
                         limit: {
                             duration: {
                                 duration: 2,
@@ -242,7 +242,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     {
                         type: SquaddieConditionType.SLOWED,
-                        amount: 1,
+                        amount: { current: 1, base: 1 },
                         limit: {
                             duration: {
                                 duration: 2,
@@ -274,7 +274,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     {
                         type: SquaddieConditionType.ARMOR,
-                        amount: 2,
+                        amount: { current: 2, base: 2 },
                         limit: {
                             duration: {
                                 duration: 3,
@@ -314,7 +314,7 @@ describe("Reversing SquaddieActionResults", () => {
             const dispelledConditionsMap = new Map()
             dispelledConditionsMap.set(SquaddieConditionType.ARMOR, [
                 {
-                    amount: 2,
+                    amount: { current: 2, base: 2 },
                     limit: {
                         duration: {
                             duration: 3,
@@ -343,7 +343,7 @@ describe("Reversing SquaddieActionResults", () => {
             expect(reversed.conditionsAdded).toHaveLength(1)
             expect(reversed.conditionsAdded?.[0]).toEqual({
                 type: SquaddieConditionType.ARMOR,
-                amount: 2,
+                amount: { current: 2, base: 2 },
                 limit: {
                     duration: {
                         duration: 3,
@@ -358,7 +358,7 @@ describe("Reversing SquaddieActionResults", () => {
             const treatedConditionsMap = new Map()
             treatedConditionsMap.set(SquaddieConditionType.SLOWED, [
                 {
-                    amount: 1,
+                    amount: { current: 1, base: 1 },
                     limit: {
                         duration: {
                             duration: 2,
@@ -387,7 +387,7 @@ describe("Reversing SquaddieActionResults", () => {
             expect(reversed.conditionsAdded).toHaveLength(1)
             expect(reversed.conditionsAdded?.[0]).toEqual({
                 type: SquaddieConditionType.SLOWED,
-                amount: 1,
+                amount: { current: 1, base: 1 },
                 limit: {
                     duration: {
                         duration: 2,
@@ -402,7 +402,7 @@ describe("Reversing SquaddieActionResults", () => {
             const dispelledConditionsMap = new Map()
             dispelledConditionsMap.set(SquaddieConditionType.ARMOR, [
                 {
-                    amount: 2,
+                    amount: { current: 2, base: 2 },
                     limit: {
                         duration: {
                             duration: 3,
@@ -411,7 +411,7 @@ describe("Reversing SquaddieActionResults", () => {
                     },
                 },
                 {
-                    amount: 1,
+                    amount: { current: 1, base: 1 },
                     limit: {
                         duration: {
                             duration: 2,
@@ -454,7 +454,7 @@ describe("Reversing SquaddieActionResults", () => {
             expect(reversed.conditionsAdded).toHaveLength(3)
             expect(reversed.conditionsAdded).toContainEqual({
                 type: SquaddieConditionType.ARMOR,
-                amount: 2,
+                amount: { current: 2, base: 2 },
                 limit: {
                     duration: {
                         duration: 3,
@@ -464,7 +464,7 @@ describe("Reversing SquaddieActionResults", () => {
             })
             expect(reversed.conditionsAdded).toContainEqual({
                 type: SquaddieConditionType.ARMOR,
-                amount: 1,
+                amount: { current: 1, base: 1 },
                 limit: {
                     duration: {
                         duration: 2,
@@ -634,7 +634,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     {
                         type: SquaddieConditionType.ARMOR,
-                        amount: 1,
+                        amount: { current: 1, base: 1 },
                         limit: {
                             duration: {
                                 duration: 3,
@@ -694,7 +694,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     {
                         type: SquaddieConditionType.SLOWED,
-                        amount: 1,
+                        amount: { current: 1, base: 1 },
                         limit: {
                             duration: {
                                 duration: 2,

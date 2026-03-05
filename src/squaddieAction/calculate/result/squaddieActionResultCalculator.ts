@@ -1028,7 +1028,7 @@ const reverseConditionsAdded = (
             new Set(hinderingConditions.map((c) => c.type))
         )
         const totalAmount = hinderingConditions.reduce(
-            (sum, c) => sum + (c.amount ?? 0),
+            (sum, c) => sum + (c.amount?.current ?? 0),
             0
         )
         reversed.treat = {
@@ -1040,7 +1040,7 @@ const reverseConditionsAdded = (
     if (helpfulConditions.length > 0) {
         const types = Array.from(new Set(helpfulConditions.map((c) => c.type)))
         const totalAmount = helpfulConditions.reduce(
-            (sum, c) => sum + (c.amount ?? 0),
+            (sum, c) => sum + (c.amount?.current ?? 0),
             0
         )
         reversed.dispel = {

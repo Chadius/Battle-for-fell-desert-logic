@@ -80,7 +80,7 @@ describe("SquaddieActionResultService", () => {
                 conditionsAdded: [
                     {
                         type: SquaddieConditionType.SLOWED,
-                        amount: 3,
+                        amount: { current: 3, base: undefined },
                         limit: {
                             duration: undefined,
                         },
@@ -104,7 +104,12 @@ describe("SquaddieActionResultService", () => {
             > = new Map([
                 [
                     SquaddieConditionType.SLOWED,
-                    [{ amount: 2, limit: { duration: undefined } }],
+                    [
+                        {
+                            amount: { current: 2, base: undefined },
+                            limit: { duration: undefined },
+                        },
+                    ],
                 ],
             ])
 
@@ -127,14 +132,24 @@ describe("SquaddieActionResultService", () => {
                 cloned.dispel?.dispelledConditions?.get(
                     SquaddieConditionType.SLOWED
                 )
-            ).toEqual([{ amount: 2, limit: { duration: undefined } }])
+            ).toEqual([
+                {
+                    amount: { current: 2, base: undefined },
+                    limit: { duration: undefined },
+                },
+            ])
         })
 
         it("deep clones treat field with Map", () => {
             const treatedConditions = new Map([
                 [
                     SquaddieConditionType.SLOWED,
-                    [{ amount: 1, limit: { duration: undefined } }],
+                    [
+                        {
+                            amount: { current: 1, base: undefined },
+                            limit: { duration: undefined },
+                        },
+                    ],
                 ],
             ])
 
@@ -157,7 +172,12 @@ describe("SquaddieActionResultService", () => {
                 cloned.treat?.treatedConditions?.get(
                     SquaddieConditionType.SLOWED
                 )
-            ).toEqual([{ amount: 1, limit: { duration: undefined } }])
+            ).toEqual([
+                {
+                    amount: { current: 1, base: undefined },
+                    limit: { duration: undefined },
+                },
+            ])
         })
     })
 
@@ -178,7 +198,12 @@ describe("SquaddieActionResultService", () => {
             const dispelledConditions = new Map([
                 [
                     SquaddieConditionType.SLOWED,
-                    [{ amount: 2, limit: { duration: undefined } }],
+                    [
+                        {
+                            amount: { current: 2, base: undefined },
+                            limit: { duration: undefined },
+                        },
+                    ],
                 ],
             ])
 
@@ -201,14 +226,24 @@ describe("SquaddieActionResultService", () => {
                 serialized.dispel?.dispelledConditions?.[
                     SquaddieConditionType.SLOWED
                 ]
-            ).toEqual([{ amount: 2, limit: { duration: undefined } }])
+            ).toEqual([
+                {
+                    amount: { current: 2, base: undefined },
+                    limit: { duration: undefined },
+                },
+            ])
         })
 
         it("converts treat Map to object", () => {
             const treatedConditions = new Map([
                 [
                     SquaddieConditionType.SLOWED,
-                    [{ amount: 1, limit: { duration: undefined } }],
+                    [
+                        {
+                            amount: { current: 1, base: undefined },
+                            limit: { duration: undefined },
+                        },
+                    ],
                 ],
             ])
 
@@ -229,7 +264,12 @@ describe("SquaddieActionResultService", () => {
                 serialized.treat?.treatedConditions?.[
                     SquaddieConditionType.SLOWED
                 ]
-            ).toEqual([{ amount: 1, limit: { duration: undefined } }])
+            ).toEqual([
+                {
+                    amount: { current: 1, base: undefined },
+                    limit: { duration: undefined },
+                },
+            ])
         })
 
         it("can be JSON stringified and parsed", () => {
@@ -274,7 +314,10 @@ describe("SquaddieActionResultService", () => {
                 dispel: {
                     dispelledConditions: {
                         [SquaddieConditionType.SLOWED]: [
-                            { amount: 2, limit: { duration: undefined } },
+                            {
+                                amount: { current: 2, base: undefined },
+                                limit: { duration: undefined },
+                            },
                         ],
                     },
                     conditionTypes: { types: [SquaddieConditionType.SLOWED] },
@@ -289,7 +332,12 @@ describe("SquaddieActionResultService", () => {
                 result.dispel?.dispelledConditions?.get(
                     SquaddieConditionType.SLOWED
                 )
-            ).toEqual([{ amount: 2, limit: { duration: undefined } }])
+            ).toEqual([
+                {
+                    amount: { current: 2, base: undefined },
+                    limit: { duration: undefined },
+                },
+            ])
         })
 
         it("converts treat object to Map", () => {
@@ -299,7 +347,10 @@ describe("SquaddieActionResultService", () => {
                 treat: {
                     treatedConditions: {
                         [SquaddieConditionType.SLOWED]: [
-                            { amount: 1, limit: { duration: undefined } },
+                            {
+                                amount: { current: 1, base: undefined },
+                                limit: { duration: undefined },
+                            },
                         ],
                     },
                     conditionTypes: { types: [SquaddieConditionType.SLOWED] },
@@ -314,14 +365,24 @@ describe("SquaddieActionResultService", () => {
                 result.treat?.treatedConditions?.get(
                     SquaddieConditionType.SLOWED
                 )
-            ).toEqual([{ amount: 1, limit: { duration: undefined } }])
+            ).toEqual([
+                {
+                    amount: { current: 1, base: undefined },
+                    limit: { duration: undefined },
+                },
+            ])
         })
 
         it("round trips serialize and deserialize", () => {
             const dispelledConditions = new Map([
                 [
                     SquaddieConditionType.SLOWED,
-                    [{ amount: 2, limit: { duration: undefined } }],
+                    [
+                        {
+                            amount: { current: 2, base: undefined },
+                            limit: { duration: undefined },
+                        },
+                    ],
                 ],
             ])
 
@@ -353,7 +414,12 @@ describe("SquaddieActionResultService", () => {
                 roundTripped.dispel?.dispelledConditions?.get(
                     SquaddieConditionType.SLOWED
                 )
-            ).toEqual([{ amount: 2, limit: { duration: undefined } }])
+            ).toEqual([
+                {
+                    amount: { current: 2, base: undefined },
+                    limit: { duration: undefined },
+                },
+            ])
         })
     })
 })

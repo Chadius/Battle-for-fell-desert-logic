@@ -633,7 +633,7 @@ describe("SquaddieTurnActionRecordService", () => {
             dispelledMap.set(SquaddieConditionType.SLOWED, [
                 {
                     type: SquaddieConditionType.SLOWED,
-                    amount: 1,
+                    amount: { current: 1, base: 1 },
                     limit: {
                         duration: {
                             duration: 0,

@@ -304,7 +304,7 @@ describe("Squaddie Actions against foes", () => {
             conditions: [
                 {
                     type: SquaddieConditionType.ABSORB,
-                    amount: 1,
+                    amount: { current: 1, base: undefined },
                     limit: {
                         duration: undefined,
                     },

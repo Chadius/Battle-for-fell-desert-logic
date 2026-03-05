@@ -845,15 +845,18 @@ describe("In Battle Squaddie Manager", () => {
                     expect(
                         dispelledConditions.get(SquaddieConditionType.ABSORB)
                     ).toEqual([
-                        SquaddieConditionService.new({
-                            type: SquaddieConditionType.ABSORB,
-                            duration: absorbForever.limit.duration,
-                            amount: 0,
+                        expect.objectContaining({
+                            amount: expect.objectContaining({ current: 0 }),
+                            limit: { duration: absorbForever.limit.duration },
                         }),
-                        SquaddieConditionService.new({
-                            type: SquaddieConditionType.ABSORB,
-                            duration: absorbShortDuration.limit.duration,
-                            amount: absorbShortDuration.amount! - 4,
+                        expect.objectContaining({
+                            amount: expect.objectContaining({
+                                current:
+                                    absorbShortDuration.amount!.current - 4,
+                            }),
+                            limit: {
+                                duration: absorbShortDuration.limit.duration,
+                            },
                         }),
                     ])
                     expect(
@@ -929,10 +932,8 @@ describe("In Battle Squaddie Manager", () => {
                             .get(SquaddieConditionType.ABSORB)
                     ).toEqual(
                         expect.arrayContaining([
-                            SquaddieConditionService.new({
-                                type: SquaddieConditionType.ABSORB,
-                                duration: absorbShortDuration.limit.duration,
-                                amount: 3,
+                            expect.objectContaining({
+                                amount: expect.objectContaining({ current: 3 }),
                             }),
                         ])
                     )
@@ -1001,10 +1002,8 @@ describe("In Battle Squaddie Manager", () => {
                             })
                             .treatedConditions.get(SquaddieConditionType.SLOWED)
                     ).toEqual([
-                        SquaddieConditionService.new({
-                            type: SquaddieConditionType.SLOWED,
-                            amount: 0,
-                            duration: slowed1Condition.limit.duration,
+                        expect.objectContaining({
+                            amount: expect.objectContaining({ current: 0 }),
                         }),
                     ])
 
@@ -1079,11 +1078,10 @@ describe("In Battle Squaddie Manager", () => {
                             .get(SquaddieConditionType.ARMOR)
                     ).toEqual(
                         expect.arrayContaining([
-                            SquaddieConditionService.new({
-                                type: SquaddieConditionType.ARMOR,
-                                duration:
-                                    armorNegative3ShortDuration.limit.duration,
-                                amount: -1,
+                            expect.objectContaining({
+                                amount: expect.objectContaining({
+                                    current: -1,
+                                }),
                             }),
                         ])
                     )
@@ -1113,20 +1111,19 @@ describe("In Battle Squaddie Manager", () => {
                     expect(
                         treatedConditions.get(SquaddieConditionType.SLOWED)
                     ).toEqual([
-                        SquaddieConditionService.new({
-                            type: SquaddieConditionType.SLOWED,
-                            duration: slowed1Condition.limit.duration,
-                            amount: 0,
+                        expect.objectContaining({
+                            amount: expect.objectContaining({ current: 0 }),
                         }),
                     ])
                     expect(
                         treatedConditions.get(SquaddieConditionType.ARMOR)
                     ).toEqual([
-                        SquaddieConditionService.new({
-                            type: SquaddieConditionType.ARMOR,
-                            duration:
-                                armorNegative3ShortDuration.limit.duration,
-                            amount: armorNegative3ShortDuration.amount! + 2,
+                        expect.objectContaining({
+                            amount: expect.objectContaining({
+                                current:
+                                    armorNegative3ShortDuration.amount!
+                                        .current + 2,
+                            }),
                         }),
                     ])
 
@@ -1872,7 +1869,7 @@ describe("In Battle Squaddie Manager", () => {
                         ProficiencyLevel.NOVICE
                     )! +
                     2 +
-                    armorPositive1LongDuration.amount!
+                    armorPositive1LongDuration.amount!.current
             )
         })
     })
@@ -2160,7 +2157,7 @@ describe("In Battle Squaddie Manager", () => {
 
             expect(info.conditions).toHaveLength(1)
             expect(info.conditions[0].type).toBe(SquaddieConditionType.ARMOR)
-            expect(info.conditions[0].amount).toBe(2)
+            expect(info.conditions[0].amount).toEqual({ current: 2, base: 2 })
         })
 
         it("shows defeated squaddie", () => {

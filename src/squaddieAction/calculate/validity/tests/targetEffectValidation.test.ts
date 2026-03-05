@@ -20,7 +20,10 @@ import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordi
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import { ActionRange } from "../../../actionRange"
-import { SquaddieConditionType } from "../../../../proficiency/squaddieCondition"
+import {
+    SquaddieConditionService,
+    SquaddieConditionType,
+} from "../../../../proficiency/squaddieCondition"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
 
 describe("target effect validation", () => {
@@ -405,7 +408,7 @@ describe("target effect validation", () => {
             conditions: [
                 {
                     type: SquaddieConditionType.ARMOR,
-                    amount: 2,
+                    amount: { current: 2, base: undefined },
                     limit: { duration: undefined },
                 },
             ],
@@ -551,7 +554,7 @@ describe("target effect validation", () => {
             conditions: [
                 {
                     type: SquaddieConditionType.SLOWED,
-                    amount: 2,
+                    amount: { current: 2, base: undefined },
                     limit: { duration: undefined },
                 },
             ],
@@ -642,11 +645,11 @@ describe("target effect validation", () => {
                 [DegreeOfSuccess.SUCCESS]: {
                     conditions: {
                         add: [
-                            {
+                            SquaddieConditionService.new({
                                 type: SquaddieConditionType.SLOWED,
                                 amount: 2,
-                                limit: { duration: undefined },
-                            },
+                                duration: undefined,
+                            }),
                         ],
                     },
                 },
@@ -685,11 +688,11 @@ describe("target effect validation", () => {
                     actionPoints: { spent: 1 },
                     conditions: {
                         add: [
-                            {
+                            SquaddieConditionService.new({
                                 type: SquaddieConditionType.ARMOR,
                                 amount: 2,
-                                limit: { duration: undefined },
-                            },
+                                duration: undefined,
+                            }),
                         ],
                     },
                 },
