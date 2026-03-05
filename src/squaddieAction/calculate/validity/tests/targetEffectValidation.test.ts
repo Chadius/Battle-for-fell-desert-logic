@@ -22,6 +22,7 @@ import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import { ActionRange } from "../../../actionRange"
 import {
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../../proficiency/squaddieCondition"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
@@ -649,6 +650,7 @@ describe("target effect validation", () => {
                                 type: SquaddieConditionType.SLOWED,
                                 amount: 2,
                                 duration: undefined,
+                                source: SquaddieConditionSource.PHYSICAL,
                             }),
                         ],
                     },
@@ -692,6 +694,7 @@ describe("target effect validation", () => {
                                 type: SquaddieConditionType.ARMOR,
                                 amount: 2,
                                 duration: undefined,
+                                source: SquaddieConditionSource.PHYSICAL,
                             }),
                         ],
                     },

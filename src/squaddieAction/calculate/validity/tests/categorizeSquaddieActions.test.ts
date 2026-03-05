@@ -21,6 +21,7 @@ import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../../proficiency/squaddieCondition"
 
@@ -193,6 +194,7 @@ describe("categorizeSquaddieActions", () => {
                                     decaysAt:
                                         SquaddieConditionDecaysAt.TURN_END,
                                 },
+                                source: SquaddieConditionSource.PHYSICAL,
                             }),
                         ],
                     },
@@ -383,7 +385,6 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(healValid).toBeDefined()
         expect(healValid!.actionName).toBe("Ranged Heal")
-        // Actor is damaged, so self-heal is valid — target includes the actor
         expect(healValid!.targetCoordinates).toContainEqual({
             row: 0,
             col: 0,
@@ -488,6 +489,7 @@ describe("categorizeSquaddieActions", () => {
                         duration: 10,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
             ],
         })

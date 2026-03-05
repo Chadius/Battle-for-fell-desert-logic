@@ -125,7 +125,6 @@ export const InBattleSquaddieService = {
             damage: {
                 net: squaddie.hitPoints.current - newSquaddie.hitPoints.current,
                 raw: damage.amount,
-                // absorbed is always <= raw damage (capped by damageTaken floor at 0)
                 absorbed: damage.amount - damageTaken,
                 willKo: newSquaddie.hitPoints.current <= 0,
                 type: damage.type,
@@ -594,8 +593,6 @@ const addBinaryConditionAndSimplify = ({
     simplifiedConditions: Omit<SquaddieCondition, TSquaddieConditionType>[]
     didAddNewCondition: boolean
 } => {
-    // Different-source conditions are always kept.
-    // Same-source conditions: apply existing domination logic unchanged.
     const differentSourceConditions = existingConditions.filter(
         (c) => c.source !== binaryCondition.source
     )
@@ -647,8 +644,6 @@ const addNumericalAmountConditionAndSimplify = ({
     simplifiedConditions: Omit<SquaddieCondition, TSquaddieConditionType>[]
     didAddNewCondition: boolean
 } => {
-    // Different-source conditions are always kept.
-    // Same-source conditions: apply existing domination logic unchanged.
     const differentSourceConditions = existingConditions.filter(
         (c) => c.source !== newCondition.source
     )
@@ -817,8 +812,6 @@ const getAllConditions = (
     return deepCopyConditions(squaddie.conditions)
 }
 
-// Drains each source's max-positive ABSORB condition in iteration order,
-// absorbing up to remainingDamage from each source.
 const drainAbsorbConditionsBySource = ({
     conditions,
     damage,
@@ -829,7 +822,6 @@ const drainAbsorbConditionsBySource = ({
     if (!conditions || damage <= 0) return
     let remainingDamage = damage
 
-    // Find the max-positive condition per source, preserving first-seen order
     const maxBySource = new Map<TSquaddieConditionSource, SquaddieCondition>()
     for (const condition of conditions) {
         const amount = condition.amount?.current ?? 0

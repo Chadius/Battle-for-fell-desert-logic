@@ -17,6 +17,7 @@ import {
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../proficiency/squaddieCondition"
 import { type CoordinateMap, CoordinateMapService } from "./coordinateMap"
@@ -118,6 +119,7 @@ describe("coordinateMapAStarAdapter", () => {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 })
@@ -584,6 +586,7 @@ describe("coordinateMapAStarAdapter", () => {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 })

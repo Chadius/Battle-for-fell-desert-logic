@@ -69,7 +69,7 @@ export const SquaddieConditionService = {
             | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
             | undefined
         amount: number | undefined
-        source?: TSquaddieConditionSource
+        source: TSquaddieConditionSource
     }): SquaddieCondition => newSquaddieCondition(params),
     isBinary: (t: SquaddieCondition): boolean => isBinary(t),
     isHelpful: (t: SquaddieCondition): boolean =>
@@ -105,7 +105,7 @@ const newSquaddieCondition = ({
         | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
         | undefined
     amount: number | undefined
-    source?: TSquaddieConditionSource
+    source: TSquaddieConditionSource
 }): SquaddieCondition => {
     const amountObj =
         amount == undefined
@@ -116,7 +116,7 @@ const newSquaddieCondition = ({
               }
     return {
         type,
-        source: source ?? SquaddieConditionSource.UNKNOWN,
+        source,
         amount: amountObj,
         limit: {
             duration,

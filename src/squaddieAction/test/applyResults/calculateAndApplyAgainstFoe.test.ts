@@ -26,6 +26,7 @@ import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
 import { ApplyResultService } from "../../apply/applyResultService"
 import {
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
 import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
@@ -386,21 +387,25 @@ describe("Squaddie Actions against foes", () => {
                     type: SquaddieConditionType.ARMOR,
                     amount: 3,
                     duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
                     amount: -2,
                     duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ELUSIVE,
                     amount: undefined,
                     duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
                     amount: 1,
                     duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
             ],
         })
@@ -463,6 +468,7 @@ describe("Squaddie Actions against foes", () => {
                 type: SquaddieConditionType.ELUSIVE,
                 amount: undefined,
                 duration: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             }),
         ])
 

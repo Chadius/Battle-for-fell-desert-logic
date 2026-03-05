@@ -4,6 +4,7 @@ import type { SquaddieActionResult } from "./squaddieActionResult"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
 import {
@@ -940,6 +941,7 @@ describe("Reversing SquaddieActionResults", () => {
                             duration: 3,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
+                        source: SquaddieConditionSource.PHYSICAL,
                     }),
                 ],
             }
@@ -1107,6 +1109,7 @@ describe("Reversing SquaddieActionResults", () => {
                             duration: 2,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
+                        source: SquaddieConditionSource.PHYSICAL,
                     }),
                 ],
                 movement: {

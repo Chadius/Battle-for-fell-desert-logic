@@ -63,6 +63,7 @@ describe("InBattleSquaddie", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const addResult = InBattleSquaddieService.addConditionsToSquaddie({
                 squaddie,
@@ -98,6 +99,7 @@ describe("InBattleSquaddie", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const addResult = InBattleSquaddieService.addConditionsToSquaddie({
                 squaddie,
@@ -144,6 +146,7 @@ describe("InBattleSquaddie", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const addResult = InBattleSquaddieService.addConditionsToSquaddie({
                 squaddie,
@@ -220,6 +223,7 @@ describe("InBattleSquaddie", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const addResult = InBattleSquaddieService.addConditionsToSquaddie({
                 squaddie,
@@ -333,6 +337,7 @@ describe("InBattleSquaddie", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 5,
+                source: SquaddieConditionSource.PHYSICAL,
             })
 
             const armorCondition = SquaddieConditionService.new({
@@ -342,6 +347,7 @@ describe("InBattleSquaddie", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 2,
+                source: SquaddieConditionSource.PHYSICAL,
             })
 
             const elusiveCondition = SquaddieConditionService.new({
@@ -351,6 +357,7 @@ describe("InBattleSquaddie", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             })
 
             const addResult = InBattleSquaddieService.addConditionsToSquaddie({
@@ -418,6 +425,7 @@ describe("InBattleSquaddie", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 5,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const addResult = InBattleSquaddieService.addConditionsToSquaddie({
                 squaddie,
@@ -556,7 +564,6 @@ describe("InBattleSquaddie", () => {
             expect(dealResult.damage.absorbed).toBe(4)
             expect(dealResult.damage.net).toBe(0)
 
-            // ELEMENTAL absorbed its full 3 (current→0); SPIRITUAL only needed 1
             const absorbConditions = dealResult.squaddie.conditions.get(
                 SquaddieConditionType.ABSORB
             )!
@@ -617,7 +624,6 @@ describe("InBattleSquaddie", () => {
             expect(dealResult.damage.absorbed).toBe(3)
             expect(dealResult.damage.net).toBe(1)
 
-            // The max (ELEMENTAL=3) is drained; the non-max (ELEMENTAL=2) is untouched
             const absorbConditions = dealResult.squaddie.conditions.get(
                 SquaddieConditionType.ABSORB
             )!
@@ -636,7 +642,6 @@ describe("InBattleSquaddie", () => {
                     amount: expect.objectContaining({ current: 2 }),
                 })
             )
-            // fully drained (current→0); still present since it has a duration
             expect(elemental3After).toEqual(
                 expect.objectContaining({
                     amount: expect.objectContaining({ current: 0 }),

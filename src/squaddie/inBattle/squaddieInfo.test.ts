@@ -4,6 +4,7 @@ import { SquaddieAffiliation } from "../../affiliation/affiliation"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 
@@ -48,6 +49,7 @@ describe("SquaddieInfo", () => {
                         duration: 3,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 const slowedCondition = SquaddieConditionService.new({
@@ -57,6 +59,7 @@ describe("SquaddieInfo", () => {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 const conditionsMap = new Map([
@@ -109,6 +112,7 @@ describe("SquaddieInfo", () => {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 const info = SquaddieInfoService.new({

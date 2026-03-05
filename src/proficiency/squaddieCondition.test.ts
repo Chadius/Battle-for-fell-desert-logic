@@ -17,6 +17,7 @@ describe("Squaddie Condition", () => {
                     duration: 1,
                     decaysAt: SquaddieConditionDecaysAt.TURN_START,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             expect(condition.limit.duration).toEqual({
                 duration: 1,
@@ -29,6 +30,7 @@ describe("Squaddie Condition", () => {
                 type: SquaddieConditionType.ARMOR,
                 amount: 2,
                 duration: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             expect(condition.limit.duration).toBeUndefined()
         })
@@ -41,6 +43,7 @@ describe("Squaddie Condition", () => {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_START,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const cloned = SquaddieConditionService.clone(original)
             expect(cloned.limit.duration).toEqual({
@@ -57,6 +60,7 @@ describe("Squaddie Condition", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             expect(condition.amount?.current).toBe(4)
             expect(condition.amount?.base).toBe(4)
@@ -67,6 +71,7 @@ describe("Squaddie Condition", () => {
                 type: SquaddieConditionType.ABSORB,
                 amount: 4,
                 duration: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             expect(condition.amount?.current).toBe(4)
             expect(condition.amount?.base).toBeUndefined()
@@ -80,11 +85,12 @@ describe("Squaddie Condition", () => {
                     duration: 2,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             expect(condition.amount).toBeUndefined()
         })
 
-        it("source defaults to NONE when not provided", () => {
+        it("source stores PHYSICAL when given", () => {
             const condition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
                 amount: 2,
@@ -92,8 +98,9 @@ describe("Squaddie Condition", () => {
                     duration: 1,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
-            expect(condition.source).toBe(SquaddieConditionSource.UNKNOWN)
+            expect(condition.source).toBe(SquaddieConditionSource.PHYSICAL)
         })
 
         it("source is set when explicitly provided", () => {
@@ -131,6 +138,7 @@ describe("Squaddie Condition", () => {
                     duration: 2,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const cloned = SquaddieConditionService.clone(original)
             cloned.amount!.current = 0
@@ -149,6 +157,7 @@ describe("Squaddie Condition", () => {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
+                        source: SquaddieConditionSource.PHYSICAL,
                     })
                 )
             ).toBeTruthy()
@@ -163,6 +172,7 @@ describe("Squaddie Condition", () => {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
+                        source: SquaddieConditionSource.PHYSICAL,
                     })
                 )
             ).toBeTruthy()
@@ -177,6 +187,7 @@ describe("Squaddie Condition", () => {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
+                        source: SquaddieConditionSource.PHYSICAL,
                     })
                 )
             ).toBeFalsy()
@@ -193,6 +204,7 @@ describe("Squaddie Condition", () => {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
+                        source: SquaddieConditionSource.PHYSICAL,
                     })
                 )
             ).toBeTruthy()
@@ -207,6 +219,7 @@ describe("Squaddie Condition", () => {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
+                        source: SquaddieConditionSource.PHYSICAL,
                     })
                 )
             ).toBeTruthy()

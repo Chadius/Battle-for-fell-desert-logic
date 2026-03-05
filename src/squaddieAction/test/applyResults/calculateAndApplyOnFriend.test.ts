@@ -26,6 +26,7 @@ import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
 import { ApplyResultService } from "../../apply/applyResultService"
@@ -200,6 +201,7 @@ describe("Squaddie Actions on a friend", () => {
                                     decaysAt:
                                         SquaddieConditionDecaysAt.TURN_END,
                                 },
+                                source: SquaddieConditionSource.PHYSICAL,
                             }),
                         ],
                     },
@@ -313,6 +315,7 @@ describe("Squaddie Actions on a friend", () => {
                         duration: 1,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
             )
             ApplyResultService.applyResultsToSquaddies({
@@ -356,21 +359,25 @@ describe("Squaddie Actions on a friend", () => {
                     type: SquaddieConditionType.ARMOR,
                     amount: 3,
                     duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
                     amount: -2,
                     duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ELUSIVE,
                     amount: undefined,
                     duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
                     amount: 1,
                     duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
             ],
         })
@@ -434,6 +441,7 @@ describe("Squaddie Actions on a friend", () => {
                 type: SquaddieConditionType.SLOWED,
                 amount: 0,
                 duration: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             }),
         ])
         expect(
@@ -445,6 +453,7 @@ describe("Squaddie Actions on a friend", () => {
                 type: SquaddieConditionType.ARMOR,
                 amount: -1,
                 duration: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             }),
         ])
         expect(
@@ -456,6 +465,7 @@ describe("Squaddie Actions on a friend", () => {
                 type: SquaddieConditionType.ARMOR,
                 amount: -1,
                 duration: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             }),
         ])
 

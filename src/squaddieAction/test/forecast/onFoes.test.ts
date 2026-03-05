@@ -688,6 +688,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 14,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
                 inBattleSquaddieId: targetId.inBattleSquaddieId,
@@ -832,6 +833,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 1,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
                 inBattleSquaddieId: targetId.inBattleSquaddieId,
@@ -872,6 +874,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 3,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
                 inBattleSquaddieId: targetId.inBattleSquaddieId,
@@ -939,6 +942,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 1,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
                 inBattleSquaddieId: targetId.inBattleSquaddieId,

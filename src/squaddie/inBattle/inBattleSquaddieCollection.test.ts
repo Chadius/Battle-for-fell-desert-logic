@@ -13,6 +13,7 @@ import { AttributeScore } from "../../proficiency/attributeScore"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
@@ -154,6 +155,7 @@ describe("InBattleSquaddieCollection", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
 
             const inBattleSquaddie =

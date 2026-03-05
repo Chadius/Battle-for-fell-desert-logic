@@ -1339,7 +1339,6 @@ const generateAbilityActionOptions = ({
 
         const squaddieAction = managers.squaddieActionManager.get(actionId)
 
-        // Reuse getActionCategorizationResult to check AP cost, range, and effect
         const result = getActionCategorizationResult({
             actor,
             squaddieAction,
@@ -1370,7 +1369,6 @@ const generateAbilityActionOptions = ({
     return options
 }
 
-// Targets are pre-filtered to only those where the action has an effect
 const addSquaddieTargetEffectsToOptions = ({
     validTargets,
     squaddieAction,

@@ -44,6 +44,7 @@ import {
     type SquaddieCondition,
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     type TSquaddieConditionDecaysAt,
     type TSquaddieConditionType,
 } from "../proficiency/squaddieCondition"
@@ -616,6 +617,7 @@ export class MissionManager {
                                 duration: 0,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                             amount: 0,
                         }),
                     ],

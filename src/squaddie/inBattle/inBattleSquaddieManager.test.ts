@@ -389,12 +389,14 @@ describe("In Battle Squaddie Manager", () => {
                     type: SquaddieConditionType.ABSORB,
                     duration: undefined,
                     amount: 1,
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 absorb5 = SquaddieConditionService.new({
                     type: SquaddieConditionType.ABSORB,
                     duration: undefined,
                     amount: 5,
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
             })
 
@@ -488,6 +490,7 @@ describe("In Battle Squaddie Manager", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 4,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const inBattleSquaddie00Id = manager.createNewSquaddie({
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
@@ -544,6 +547,7 @@ describe("In Battle Squaddie Manager", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: -2,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const armorNegative2LongDuration = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
@@ -552,6 +556,7 @@ describe("In Battle Squaddie Manager", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: -2,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const armorPositive1ShortDuration = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
@@ -560,6 +565,7 @@ describe("In Battle Squaddie Manager", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 1,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const armorPositive1LongDuration = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
@@ -568,6 +574,7 @@ describe("In Battle Squaddie Manager", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 1,
+                source: SquaddieConditionSource.PHYSICAL,
             })
 
             const inBattleSquaddie00Id = manager.createNewSquaddie({
@@ -612,11 +619,13 @@ describe("In Battle Squaddie Manager", () => {
                 type: SquaddieConditionType.ARMOR,
                 duration: undefined,
                 amount: -2,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const armorPositive1Forever = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
                 duration: undefined,
                 amount: 1,
+                source: SquaddieConditionSource.PHYSICAL,
             })
 
             const inBattleSquaddie00Id = manager.createNewSquaddie({
@@ -653,6 +662,7 @@ describe("In Battle Squaddie Manager", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             const elusive5 = SquaddieConditionService.new({
                 type: SquaddieConditionType.ELUSIVE,
@@ -661,6 +671,7 @@ describe("In Battle Squaddie Manager", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
             })
 
             const inBattleSquaddie00Id = manager.createNewSquaddie({
@@ -706,6 +717,7 @@ describe("In Battle Squaddie Manager", () => {
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
                     amount: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
                 armorNegative2ShortDuration = SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
@@ -714,6 +726,7 @@ describe("In Battle Squaddie Manager", () => {
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
                     amount: -2,
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
                 armorNegative3ShortDuration = SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
@@ -722,11 +735,13 @@ describe("In Battle Squaddie Manager", () => {
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
                     amount: -3,
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
                 absorbForever = SquaddieConditionService.new({
                     type: SquaddieConditionType.ABSORB,
                     duration: undefined,
                     amount: 4,
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
                 absorbShortDuration = SquaddieConditionService.new({
                     type: SquaddieConditionType.ABSORB,
@@ -735,6 +750,7 @@ describe("In Battle Squaddie Manager", () => {
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
                     amount: 7,
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 inBattleSquaddie00Id = manager.createNewSquaddie({
@@ -974,6 +990,7 @@ describe("In Battle Squaddie Manager", () => {
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
                         amount: 1,
+                        source: SquaddieConditionSource.PHYSICAL,
                     })
                     manager.addConditionsToSquaddie({
                         inBattleSquaddieId:
@@ -1327,6 +1344,7 @@ describe("In Battle Squaddie Manager", () => {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 manager.addConditionsToSquaddie({
@@ -1351,6 +1369,7 @@ describe("In Battle Squaddie Manager", () => {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 manager.addConditionsToSquaddie({
@@ -1375,6 +1394,7 @@ describe("In Battle Squaddie Manager", () => {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 const slowedCondition2 = SquaddieConditionService.new({
@@ -1384,6 +1404,7 @@ describe("In Battle Squaddie Manager", () => {
                         duration: 3,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 manager.addConditionsToSquaddie({
@@ -1480,6 +1501,7 @@ describe("In Battle Squaddie Manager", () => {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 manager.addConditionsToSquaddie({
@@ -1513,6 +1535,7 @@ describe("In Battle Squaddie Manager", () => {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 manager.addConditionsToSquaddie({
@@ -1569,6 +1592,7 @@ describe("In Battle Squaddie Manager", () => {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 })
 
                 manager.addConditionsToSquaddie({
@@ -1922,6 +1946,7 @@ describe("In Battle Squaddie Manager", () => {
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
                 amount: 1,
+                source: SquaddieConditionSource.PHYSICAL,
             })
             manager.addConditionsToSquaddie({
                 inBattleSquaddieId: inBattleSquaddie00Id!.inBattleSquaddieId,
@@ -2217,6 +2242,7 @@ describe("In Battle Squaddie Manager", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
+                source: SquaddieConditionSource.PHYSICAL,
             })
 
             manager.addConditionsToSquaddie({

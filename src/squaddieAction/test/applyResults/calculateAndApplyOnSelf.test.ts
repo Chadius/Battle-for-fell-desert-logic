@@ -25,6 +25,7 @@ import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
 import { ApplyResultService } from "../../apply/applyResultService"
@@ -141,6 +142,7 @@ describe("Squaddie resolves actions on themself", () => {
                                     decaysAt:
                                         SquaddieConditionDecaysAt.TURN_END,
                                 },
+                                source: SquaddieConditionSource.PHYSICAL,
                             }),
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ARMOR,
@@ -150,6 +152,7 @@ describe("Squaddie resolves actions on themself", () => {
                                     decaysAt:
                                         SquaddieConditionDecaysAt.TURN_END,
                                 },
+                                source: SquaddieConditionSource.PHYSICAL,
                             }),
                         ],
                     },
@@ -273,6 +276,7 @@ describe("Squaddie resolves actions on themself", () => {
                         duration: 1,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
                     },
+                    source: SquaddieConditionSource.PHYSICAL,
                 }),
             ],
         })

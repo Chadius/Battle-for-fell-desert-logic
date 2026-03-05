@@ -4,6 +4,7 @@ import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngi
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
 
@@ -30,6 +31,7 @@ describe("conditionDecay", () => {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 }
@@ -65,6 +67,7 @@ describe("conditionDecay", () => {
                                 duration: 2,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 }
@@ -101,6 +104,7 @@ describe("conditionDecay", () => {
                             type: SquaddieConditionType.ARMOR,
                             amount: 2,
                             duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 }
@@ -136,6 +140,7 @@ describe("conditionDecay", () => {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 }
@@ -177,6 +182,7 @@ describe("conditionDecay", () => {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_START,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 }
@@ -222,6 +228,7 @@ describe("conditionDecay", () => {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 }
@@ -269,6 +276,7 @@ describe("conditionDecay", () => {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 }
@@ -284,6 +292,7 @@ describe("conditionDecay", () => {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
+                            source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
                 }
