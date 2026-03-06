@@ -36,7 +36,7 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 ### Domain Folders Under `src/`
 
 | Folder                  | Purpose                                                         |
-| ----------------------- | --------------------------------------------------------------- |
+|-------------------------|-----------------------------------------------------------------|
 | `squaddie/inBattle/`    | In-mission character state (HP, action points, conditions)      |
 | `squaddie/outOfBattle/` | Static character definition (attributes, action list)           |
 | `squaddieAction/`       | Action definitions, targeting, calculation, application         |
@@ -145,17 +145,69 @@ once per mission.
 - `SquaddieItem` provides passive proficiency bonuses and grants additional action IDs.
 - `SquaddieItemManager` handles CRUD; items are attached to attribute sheets.
 
-### SquaddieCondition Effects in Calculations
+### Squaddie Conditions
 
-Squaddies have temporary Conditions. THe mechanical effects are implemented.
+Squaddies can have temporary or permanent Conditions that alter their combat stats and movement.
 
-- ARMOR reduces the chance to get hit by attacks. (Already implemented in calculateConditionAmount)
-- ABSORB condition absorbs damage before HP loss. (Already implemented in dealDamageToSquaddie)
-- SLOWED condition reduces the number of action points at the start of a turn. (part of getMaximumActionPoints)
-- ELUSIVE condition allows a squaddie to move through unfriendly squaddies. (
-  CoordinateMapAStarAdapter.canMoveToSquaddieLocation applies this logic)
-- HUSTLE condition reduces movement costs to the minimum of 1. (
-  CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie applies this logic)
+#### Mechanical Effects
+
+| Condition | Effect | Where Applied |
+|-----------|--------|---------------|
+| ARMOR     | Reduces chance to be hit by attacks | `calculateConditionAmount` → `ProficiencyCalculator.getTargetDefensiveBonus` |
+| ABSORB    | Absorbs incoming damage before HP loss | `dealDamageToSquaddie` via `drainAbsorbConditionsBySource` |
+| SLOWED    | Reduces maximum action points at turn start | `getMaximumActionPoints` |
+| ELUSIVE   | Allows movement through unfriendly squaddies | `CoordinateMapAStarAdapter.canMoveToSquaddieLocation` |
+| HUSTLE    | Reduces movement costs to a minimum of 1 | `CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie` |
+
+#### Condition Sources
+
+Each condition carries a `source`: `NONE | ITEM | PHYSICAL | ELEMENTAL | SPIRITUAL`.
+
+The source controls how multiple conditions of the same type stack:
+
+- **Same type, same source**: only the largest positive value and the largest negative value apply.
+  Adding a weaker condition of the same type and source has no effect. Adding a stronger one
+  replaces it.
+- **Same type, different sources**: the effective amount is the sum of the dominant value per source
+  (largest positive + largest negative per source, then summed across sources).
+
+The helper `effectiveConditionAmount` in `inBattleSquaddie.ts` implements this logic for all
+game-logic paths.
+
+#### Binary vs. Quantified Conditions
+
+- **Binary conditions** (ELUSIVE, HUSTLE): the `amount` field is `undefined`. The condition is
+  either active or not.
+- **Quantified conditions** (ARMOR, ABSORB, SLOWED): the `amount` field holds
+  `{ current: number; base: number | undefined }`.
+  - `current` is the value used in calculations. It decreases when the condition absorbs damage
+    (ABSORB) or is dispelled/treated.
+  - `base` controls renewal behavior (see below).
+
+#### Duration and Decay
+
+A condition's `limit` field is either `undefined` (permanent, never expires) or
+`{ duration: number; decaysAt: TSquaddieConditionDecaysAt }`.
+
+`decaysAt` determines when the duration ticks down:
+
+| Value      | Ticks down when…                                              |
+|------------|---------------------------------------------------------------|
+| `TURN_END` | The owning squaddie's affiliation exits its `*_TURN_END` phase |
+| `TURN_START` | The owning squaddie's affiliation exits its `*_TURN_START` phase |
+
+When duration reaches 0 the condition is removed.
+
+#### Amount Renewal
+
+When duration ticks down (and the condition is still alive), `current` is restored to `base`:
+
+- **`base: undefined`** — the condition is permanent in amount; `current` only decreases from
+  damage absorption. It is removed when `current ≤ 0` from damage, but not from dispel/treat.
+- **`base: N`** — each time the duration ticks down (while duration > 0), `current` resets to `N`.
+  This models regenerating shields or recurring effects.
+
+Dispelling or treating a condition changes only `current`; `base` is always preserved.
 
 ---
 
@@ -311,7 +363,7 @@ Tasks:
 4. Write integration tests covering: player advances turn when exhausted; engine skips empty
    affiliations; objectives are evaluated at turn end.
 
-### Phase 2 — Condition Decay (Gap 3)
+### Phase 2 — Condition Decay (Gap 3) (DONE)
 
 **Goal**: Conditions expire correctly at turn end and their duration is maintained per-turn.
 
@@ -325,7 +377,7 @@ Tasks:
 4. Call from Phase 1's turn-advance logic on each `*_TURN_END` event.
 5. Tests: condition expires after N turns; permanent conditions (no duration) are unchanged.
 
-### Phase 3 — Condition Effects in Combat (Gap 4)
+### Phase 3 — Condition Effects in Combat (Gap 4) (DONE)
 
 **Goal**: Active conditions change damage and movement calculations.
 
