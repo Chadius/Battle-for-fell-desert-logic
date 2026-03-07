@@ -490,12 +490,26 @@ export class MissionEngine {
         }
     }
 
+    getRecentTransitionResults(): SerializedSquaddieActionResult[] {
+        return [...this.recentTransitionResults]
+    }
+
     transitionToNextPhase(): SerializedSquaddieActionResult[] {
         this.throwIfMissionManagerIsUndefined(this.transitionToNextPhase.name)
 
-        const results = this.missionManager!.transitionToNextPhase()
+        this.recentPhaseTransitions = []
+        this.recentTransitionResults = []
 
-        return results.map(SquaddieActionResultService.serialize)
+        const phaseResults = this.missionManager!.transitionToNextPhase()
+        const serialized = phaseResults.map(
+            SquaddieActionResultService.serialize
+        )
+        this.recentTransitionResults.push(...serialized)
+
+        const newPhase = this.getCurrentAffiliationTurn()
+        this.recentPhaseTransitions.push(newPhase)
+
+        return serialized
     }
 
     getSquaddieActionValidity(actor: BattleSquaddieId): SquaddieActionValidity {

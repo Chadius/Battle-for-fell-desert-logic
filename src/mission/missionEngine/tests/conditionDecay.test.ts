@@ -7,6 +7,7 @@ import {
     SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
+import type { SerializedSquaddieActionResult } from "../../../squaddieAction/calculate/result/squaddieActionResult"
 
 function advanceHarnessToPlayerTurn(harness: MissionEngineTestHarness): void {
     harness.transitionToNextPhase()
@@ -255,6 +256,53 @@ describe("conditionDecay", () => {
                     }
                 )
             expect(conditionAmountAfterNextTurn).toBe(0)
+        })
+    })
+
+    describe("getRecentTransitionResults reflects condition decay from manual transitionToNextPhase", () => {
+        it("includes the expired ARMOR condition in recentTransitionResults when manually transitioning out of PLAYER_TURN_START", () => {
+            const harness = new MissionEngineTestHarness()
+            const liniId = harness.getLiniSquaddieId()
+
+            harness.transitionToNextPhase()
+
+            harness.missionManager!.inBattleSquaddieManager!.addConditionsToSquaddie(
+                {
+                    ...liniId,
+                    conditions: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.ARMOR,
+                            amount: 2,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_START,
+                            },
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
+                    ],
+                }
+            )
+
+            harness.transitionToNextPhase()
+
+            const recentResults: SerializedSquaddieActionResult[] =
+                harness.getRecentTransitionResults()
+            expect(recentResults.length).toBeGreaterThan(0)
+
+            const dispelResult = recentResults.find(
+                (r) => r.dispel != undefined
+            )
+            expect(dispelResult).toBeDefined()
+            expect(
+                dispelResult!.dispel!.dispelledConditions![
+                    SquaddieConditionType.ARMOR
+                ]
+            ).toBeDefined()
+
+            const summary = harness.getInMissionSummary()
+            expect(summary.recentPhaseTransitions).toContain(
+                MissionAffiliationTurn.PLAYER_TURN
+            )
         })
     })
 
