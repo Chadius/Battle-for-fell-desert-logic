@@ -17,6 +17,8 @@ import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 import { SquaddieActionManager } from "../../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../../squaddieAction/squaddieActionCollection"
 import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
+import { TurnControllerType } from "../../turnController"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 
 function advanceHarnessToPlayerTurn(missionEngine: MissionEngine): void {
     missionEngine.transitionToNextPhase()
@@ -236,6 +238,113 @@ describe("endSquaddieTurn", () => {
             harness.endSquaddieTurn(slitherDemonId)
 
             expect(harness.getCurrentTurnNumber()).toBe(1)
+        })
+    })
+
+    describe("turn controller affects readyAction", () => {
+        it("readyAction is rejected for an AI-controlled PLAYER squaddie", () => {
+            const harness = new MissionEngineTestHarness()
+            advanceHarnessToPlayerTurn(harness)
+            const liniId = harness.getLiniSquaddieId()
+            const liniKey = SquaddieIdConverterService.squaddieIdToKey(liniId)
+
+            const missionState = MissionStateService.new({
+                id: "mission-override",
+                mapId: harness.missionManager!.missionState!.mapId,
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                }),
+                controllerTypeOverrides: {
+                    squaddie: {
+                        [liniKey]: TurnControllerType.AI,
+                    },
+                },
+            })
+
+            const missionManagerWithAiLini = new MissionManager({
+                missionState,
+                inBattleSquaddieManager:
+                    harness.missionManager!.inBattleSquaddieManager,
+                coordinateMapCollectionManager:
+                    harness.missionManager!.coordinateMapCollectionManager,
+                squaddieActionManager:
+                    harness.missionManager!.squaddieActionManager,
+            })
+
+            const missionEngine = new MissionEngine(missionManagerWithAiLini)
+
+            const result = missionEngine.readyAction({
+                actor: {
+                    inBattleSquaddieId: liniId.inBattleSquaddieId,
+                    outOfBattleSquaddieId: liniId.outOfBattleSquaddieId,
+                },
+                targets: [
+                    {
+                        inBattleSquaddieId: liniId.inBattleSquaddieId,
+                        outOfBattleSquaddieId: liniId.outOfBattleSquaddieId,
+                    },
+                ],
+                action: { id: "any-action" },
+            })
+
+            expect(result.isValid).toBe(false)
+            expect(result.message).toBe("This squaddie is AI controlled")
+        })
+
+        it("readyAction is accepted for a HUMAN-controlled ENEMY squaddie (debug override)", () => {
+            const harness = new MissionEngineTestHarness()
+            advanceHarnessToPlayerTurn(harness)
+
+            const liniId = harness.getLiniSquaddieId()
+            harness.endSquaddieTurn(liniId)
+
+            const slitherDemonId = harness.getSlitherDemonSquaddieId()
+            const slitherKey =
+                SquaddieIdConverterService.squaddieIdToKey(slitherDemonId)
+
+            const missionState = MissionStateService.new({
+                id: "mission-enemy-human",
+                mapId: harness.missionManager!.missionState!.mapId,
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.ENEMY_TURN,
+                }),
+                controllerTypeOverrides: {
+                    squaddie: {
+                        [slitherKey]: TurnControllerType.HUMAN,
+                    },
+                },
+            })
+
+            const missionManagerWithHumanEnemy = new MissionManager({
+                missionState,
+                inBattleSquaddieManager:
+                    harness.missionManager!.inBattleSquaddieManager,
+                coordinateMapCollectionManager:
+                    harness.missionManager!.coordinateMapCollectionManager,
+                squaddieActionManager:
+                    harness.missionManager!.squaddieActionManager,
+            })
+
+            const missionEngine = new MissionEngine(
+                missionManagerWithHumanEnemy
+            )
+
+            const result = missionEngine.readyAction({
+                actor: {
+                    inBattleSquaddieId: slitherDemonId.inBattleSquaddieId,
+                    outOfBattleSquaddieId: slitherDemonId.outOfBattleSquaddieId,
+                },
+                targets: [
+                    {
+                        inBattleSquaddieId: slitherDemonId.inBattleSquaddieId,
+                        outOfBattleSquaddieId:
+                            slitherDemonId.outOfBattleSquaddieId,
+                    },
+                ],
+                action: { id: "any-action" },
+            })
+
+            expect(result.isValid).toBe(true)
         })
     })
 

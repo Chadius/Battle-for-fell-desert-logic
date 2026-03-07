@@ -36,7 +36,7 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 ### Domain Folders Under `src/`
 
 | Folder                  | Purpose                                                         |
-|-------------------------|-----------------------------------------------------------------|
+| ----------------------- | --------------------------------------------------------------- |
 | `squaddie/inBattle/`    | In-mission character state (HP, action points, conditions)      |
 | `squaddie/outOfBattle/` | Static character definition (attributes, action list)           |
 | `squaddieAction/`       | Action definitions, targeting, calculation, application         |
@@ -151,13 +151,13 @@ Squaddies can have temporary or permanent Conditions that alter their combat sta
 
 #### Mechanical Effects
 
-| Condition | Effect | Where Applied |
-|-----------|--------|---------------|
-| ARMOR     | Reduces chance to be hit by attacks | `calculateConditionAmount` → `ProficiencyCalculator.getTargetDefensiveBonus` |
-| ABSORB    | Absorbs incoming damage before HP loss | `dealDamageToSquaddie` via `drainAbsorbConditionsBySource` |
-| SLOWED    | Reduces maximum action points at turn start | `getMaximumActionPoints` |
-| ELUSIVE   | Allows movement through unfriendly squaddies | `CoordinateMapAStarAdapter.canMoveToSquaddieLocation` |
-| HUSTLE    | Reduces movement costs to a minimum of 1 | `CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie` |
+| Condition | Effect                                       | Where Applied                                                                |
+| --------- | -------------------------------------------- | ---------------------------------------------------------------------------- |
+| ARMOR     | Reduces chance to be hit by attacks          | `calculateConditionAmount` → `ProficiencyCalculator.getTargetDefensiveBonus` |
+| ABSORB    | Absorbs incoming damage before HP loss       | `dealDamageToSquaddie` via `drainAbsorbConditionsBySource`                   |
+| SLOWED    | Reduces maximum action points at turn start  | `getMaximumActionPoints`                                                     |
+| ELUSIVE   | Allows movement through unfriendly squaddies | `CoordinateMapAStarAdapter.canMoveToSquaddieLocation`                        |
+| HUSTLE    | Reduces movement costs to a minimum of 1     | `CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie`         |
 
 #### Condition Sources
 
@@ -180,9 +180,9 @@ game-logic paths.
   either active or not.
 - **Quantified conditions** (ARMOR, ABSORB, SLOWED): the `amount` field holds
   `{ current: number; base: number | undefined }`.
-  - `current` is the value used in calculations. It decreases when the condition absorbs damage
-    (ABSORB) or is dispelled/treated.
-  - `base` controls renewal behavior (see below).
+    - `current` is the value used in calculations. It decreases when the condition absorbs damage
+      (ABSORB) or is dispelled/treated.
+    - `base` controls renewal behavior (see below).
 
 #### Duration and Decay
 
@@ -191,9 +191,9 @@ A condition's `limit` field is either `undefined` (permanent, never expires) or
 
 `decaysAt` determines when the duration ticks down:
 
-| Value      | Ticks down when…                                              |
-|------------|---------------------------------------------------------------|
-| `TURN_END` | The owning squaddie's affiliation exits its `*_TURN_END` phase |
+| Value        | Ticks down when…                                                 |
+| ------------ | ---------------------------------------------------------------- |
+| `TURN_END`   | The owning squaddie's affiliation exits its `*_TURN_END` phase   |
 | `TURN_START` | The owning squaddie's affiliation exits its `*_TURN_START` phase |
 
 When duration reaches 0 the condition is removed.

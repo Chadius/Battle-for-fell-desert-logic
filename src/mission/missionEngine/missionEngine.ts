@@ -49,6 +49,7 @@ import {
 } from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
 import type { OffsetMaybeOffmapCoordinate } from "../../coordinateMap/coordinateMap"
 import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
+import { TurnControllerService, TurnControllerType } from "../turnController"
 
 export interface MapTileInfo {
     row: number
@@ -489,10 +490,6 @@ export class MissionEngine {
         }
     }
 
-    getRecentTransitionResults(): SerializedSquaddieActionResult[] {
-        return [...this.recentTransitionResults]
-    }
-
     transitionToNextPhase(): SerializedSquaddieActionResult[] {
         this.throwIfMissionManagerIsUndefined(this.transitionToNextPhase.name)
 
@@ -737,6 +734,23 @@ export class MissionEngine {
                 return {
                     isValid: false,
                     message: "It is not this squaddie's turn",
+                }
+            }
+
+            const missionState = this.missionManager.missionState
+            const controllerType =
+                TurnControllerService.getControllerTypeForSquaddie({
+                    battleSquaddieId: actor,
+                    affiliation: actorAffiliation,
+                    squaddieOverrides:
+                        missionState?.controllerTypeOverrides?.squaddie,
+                    affiliationOverrides:
+                        missionState?.controllerTypeOverrides?.affiliation,
+                })
+            if (controllerType === TurnControllerType.AI) {
+                return {
+                    isValid: false,
+                    message: "This squaddie is AI controlled",
                 }
             }
         }
