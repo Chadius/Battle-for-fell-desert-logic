@@ -625,7 +625,7 @@ describe("MissionEngine", () => {
             expect(parsed.targetResults).toBeDefined()
         })
 
-        it("checks mission objectives after applying action and marks completed objectives as rewarded", () => {
+        it("detects a completed objective as not yet rewarded after applying action", () => {
             const missionObjective = MissionObjectiveService.new({
                 id: "defeat-enemies",
                 rewards: [
@@ -672,6 +672,13 @@ describe("MissionEngine", () => {
             })
 
             missionEngine.useActionAndGetResults()
+
+            const completedNotRewarded =
+                missionEngine.getCompletedButNotRewardedMissionObjectives()
+            expect(completedNotRewarded).toHaveLength(1)
+            expect(completedNotRewarded[0].id).toBe("defeat-enemies")
+
+            missionEngine.markMissionObjectiveAsRewarded("defeat-enemies")
 
             const completedAndRewarded =
                 missionEngine.getCompletedAndRewardedMissionObjectives()

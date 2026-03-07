@@ -46,6 +46,10 @@ export const MissionEngineTestHarnessIds = {
         attributeSheetId: "slither-demon-attribute-sheet",
         clawActionId: "slither-demon-claw",
     },
+    objectives: {
+        defeatAllEnemies: "missionObjectiveDefeatAllEnemies",
+        defeatAllPlayers: "missionObjectiveDefeatAllPlayers",
+    },
 } as const
 
 interface TestMissionSetup {

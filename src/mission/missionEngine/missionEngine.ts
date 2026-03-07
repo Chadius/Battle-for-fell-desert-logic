@@ -171,25 +171,9 @@ export class MissionEngine {
 
         this.readiedAction = undefined
 
-        this.checkAndUpdateMissionObjectives()
         this.autoAdvanceThroughBookendAffiliationTurns()
 
         return this.actionResults
-    }
-
-    private checkAndUpdateMissionObjectives(): void {
-        if (!this.missionManager!.shouldCheckMissionObjectives()) {
-            return
-        }
-
-        const completedObjectives =
-            this.missionManager!.calculateCompletedButNotRewardedMissionObjectives()
-
-        for (const missionObjective of completedObjectives) {
-            this.missionManager!.setMissionObjectiveAsRewarded(
-                missionObjective.id
-            )
-        }
     }
 
     private serializeTargetResults(
@@ -486,7 +470,6 @@ export class MissionEngine {
             )
             const newPhase = this.getCurrentAffiliationTurn()
             this.recentPhaseTransitions.push(newPhase)
-            this.checkAndUpdateMissionObjectives()
         }
     }
 

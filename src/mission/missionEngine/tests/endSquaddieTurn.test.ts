@@ -16,7 +16,10 @@ import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinat
 import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 import { SquaddieActionManager } from "../../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../../squaddieAction/squaddieActionCollection"
-import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
+import {
+    MissionEngineTestHarness,
+    MissionEngineTestHarnessIds,
+} from "../../../testUtils/mission/missionEngineTestHarness"
 import { TurnControllerType } from "../../turnController"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 
@@ -72,7 +75,7 @@ describe("endSquaddieTurn", () => {
     })
 
     describe("evaluates objectives at the turn boundary", () => {
-        it("detects mission completion when all enemies are defeated at turn end", () => {
+        it("shows a completed objective as not yet rewarded when all enemies are defeated", () => {
             const harness = new MissionEngineTestHarness()
             advanceHarnessToPlayerTurn(harness)
             const liniId = harness.getLiniSquaddieId()
@@ -86,6 +89,35 @@ describe("endSquaddieTurn", () => {
             )
 
             harness.endSquaddieTurn(liniId)
+
+            const summary = harness.getInMissionSummary()
+            const defeatEnemiesObjective = summary.missionObjectives.find(
+                (o) =>
+                    o.id ===
+                    MissionEngineTestHarnessIds.objectives.defeatAllEnemies
+            )
+            expect(defeatEnemiesObjective!.isCompleted).toBe(true)
+            expect(defeatEnemiesObjective!.hasGivenReward).toBe(false)
+            expect(harness.isDone()).toBe(false)
+        })
+
+        it("isDone becomes true after the caller rewards the completed objective", () => {
+            const harness = new MissionEngineTestHarness()
+            advanceHarnessToPlayerTurn(harness)
+            const liniId = harness.getLiniSquaddieId()
+            const slitherDemonId = harness.getSlitherDemonSquaddieId()
+
+            harness.missionManager!.inBattleSquaddieManager!.dealDamageToSquaddie(
+                {
+                    ...slitherDemonId,
+                    damage: { amount: 100, type: undefined },
+                }
+            )
+
+            harness.endSquaddieTurn(liniId)
+            harness.markMissionObjectiveAsRewarded(
+                MissionEngineTestHarnessIds.objectives.defeatAllEnemies
+            )
 
             expect(harness.isDone()).toBe(true)
         })
