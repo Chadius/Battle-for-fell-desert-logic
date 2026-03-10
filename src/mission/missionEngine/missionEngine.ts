@@ -41,7 +41,10 @@ import {
     ReadiedActionService,
     type SerializedReadiedAction,
 } from "../readiedAction"
-import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
+import {
+    SquaddieAffiliation,
+    type TSquaddieAffiliation,
+} from "../../affiliation/affiliation"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
 import {
     SquaddieActionValidationService,
@@ -50,6 +53,9 @@ import {
 import type { OffsetMaybeOffmapCoordinate } from "../../coordinateMap/coordinateMap"
 import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
 import { TurnControllerService, TurnControllerType } from "../turnController"
+import { StrategyControllerService } from "../strategyController"
+import { SimpleAggressorStrategy } from "../strategies/simpleAggressorStrategy"
+import type { AiStrategy } from "../aiStrategy"
 
 export interface MapTileInfo {
     row: number
@@ -66,6 +72,16 @@ export interface MapOverview {
 }
 
 const MAX_PHASE_TRANSITIONS = 20
+
+// Default strategies for AI-controlled affiliations when no override is provided
+const defaultAiStrategy = new SimpleAggressorStrategy()
+const defaultStrategyByAffiliation: Partial<
+    Record<TSquaddieAffiliation, AiStrategy>
+> = {
+    [SquaddieAffiliation.ENEMY]: defaultAiStrategy,
+    [SquaddieAffiliation.ALLY]: defaultAiStrategy,
+    [SquaddieAffiliation.NONE]: defaultAiStrategy,
+}
 
 export class MissionEngine {
     missionManager?: MissionManager
@@ -459,7 +475,7 @@ export class MissionEngine {
 
             if (
                 activeTurnPhases.has(currentPhase) &&
-                this.getSquaddiesWhoCanActThisPhase().length > 0
+                !this.canSkipAffiliationTurn()
             ) {
                 return
             }
@@ -471,6 +487,87 @@ export class MissionEngine {
             const newPhase = this.getCurrentAffiliationTurn()
             this.recentPhaseTransitions.push(newPhase)
         }
+    }
+
+    private canSkipAffiliationTurn(): boolean {
+        const squaddiesWhoCanAct = this.getSquaddiesWhoCanActThisPhase()
+        if (squaddiesWhoCanAct.length === 0) {
+            return true
+        }
+
+        const humanSquaddies =
+            this.getHumanControlledSquaddiesWhoCanAct(squaddiesWhoCanAct)
+        if (humanSquaddies.length > 0) {
+            return false
+        }
+
+        const actionPreloaded = this.prepareNextAiAction(squaddiesWhoCanAct[0])
+        return !actionPreloaded
+    }
+
+    private getHumanControlledSquaddiesWhoCanAct(
+        squaddies: BattleSquaddieId[]
+    ): BattleSquaddieId[] {
+        const missionState = this.missionManager?.missionState
+        return squaddies.filter((squaddieId) => {
+            const affiliation =
+                this.missionManager!.getSquaddieAffiliation(squaddieId)
+            const controllerType =
+                TurnControllerService.getControllerTypeForSquaddie({
+                    battleSquaddieId: squaddieId,
+                    affiliation,
+                    squaddieOverrides:
+                        missionState?.controllerTypeOverrides?.squaddie,
+                    affiliationOverrides:
+                        missionState?.controllerTypeOverrides?.affiliation,
+                })
+            return controllerType === TurnControllerType.HUMAN
+        })
+    }
+
+    private prepareNextAiAction(squaddieId: BattleSquaddieId): boolean {
+        if (
+            this.missionManager!.squaddieActionManager &&
+            !this.missionManager!.squaddieActionManager.has("default-end-turn")
+        ) {
+            this.missionManager!.squaddieActionManager.addOrUpdate(
+                SquaddieActionService.defaultEndTurn()
+            )
+        }
+
+        const missionState = this.missionManager?.missionState
+        const affiliation =
+            this.missionManager!.getSquaddieAffiliation(squaddieId)
+
+        const strategy =
+            StrategyControllerService.getStrategyForSquaddie({
+                battleSquaddieId: squaddieId,
+                affiliation,
+                overrides: missionState?.strategyControllerOverrides,
+            }) ?? defaultStrategyByAffiliation[affiliation]
+
+        const decidedAction = strategy?.decideAction({
+            actorIds: squaddieId,
+            inBattleSquaddieManager:
+                this.missionManager!.inBattleSquaddieManager!,
+            squaddieActionManager: this.missionManager!.squaddieActionManager!,
+            coordinateMapCollectionManager:
+                this.missionManager!.coordinateMapCollectionManager!,
+            mapId: missionState!.mapId,
+        })
+
+        if (decidedAction != undefined) {
+            this.readiedAction = decidedAction
+            return true
+        }
+
+        this.missionManager!.useActionAndGetResults({
+            actor: squaddieId,
+            targets: [squaddieId],
+            action: { id: "default-end-turn" },
+            rollGenerator: this.rollGenerator,
+        })
+        return false
     }
 
     getRecentTransitionResults(): SerializedSquaddieActionResult[] {

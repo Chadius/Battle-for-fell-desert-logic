@@ -6,6 +6,7 @@ import type { MissionHistory } from "./history/missionHistory"
 import { MissionHistoryService } from "./history/missionHistory"
 import type { TTurnControllerType } from "./turnController"
 import type { TSquaddieAffiliation } from "../affiliation/affiliation"
+import type { StrategyControllerOverrides } from "./strategyController"
 
 export interface MissionState {
     id: string
@@ -17,6 +18,7 @@ export interface MissionState {
         affiliation?: Partial<Record<TSquaddieAffiliation, TTurnControllerType>>
         squaddie?: Record<string, TTurnControllerType>
     }
+    strategyControllerOverrides?: StrategyControllerOverrides
 }
 
 export const MissionStateService = {
@@ -27,6 +29,7 @@ export const MissionStateService = {
         turn,
         history,
         controllerTypeOverrides,
+        strategyControllerOverrides,
     }: {
         id: string
         mapId: string
@@ -39,6 +42,7 @@ export const MissionStateService = {
             >
             squaddie?: Record<string, TTurnControllerType>
         }
+        strategyControllerOverrides?: StrategyControllerOverrides
     }): MissionState => {
         if (id == undefined || id.length === 0) {
             throw new Error(
@@ -59,6 +63,7 @@ export const MissionStateService = {
             turn: turn ?? MissionTurnService.new(),
             history: history ?? MissionHistoryService.new(),
             controllerTypeOverrides,
+            strategyControllerOverrides,
         }
     },
 

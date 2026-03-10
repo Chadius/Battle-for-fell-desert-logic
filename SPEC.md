@@ -229,7 +229,7 @@ Required:
 Eventually the AI strategy will be replaced with a more sophisticated AI system, but for now, the simple aggressor
 strategy will suffice.
 
-### Gap 2 — Affiliation Turn Controller (Who drives each phase?)
+### Gap 2 — Affiliation Turn Controller (Who drives each phase? DONE)
 
 Nothing currently distinguishes "a human controls this phase" from "the engine controls this phase."
 Required:
@@ -244,7 +244,7 @@ Required:
 - This enables allied squaddies to be autonomous (AI-controlled ALLY affiliation) while the player
   only controls PLAYER squaddies.
 
-### Gap 3 — Status Effect Processing at Turn End
+### Gap 3 — Status Effect Processing at Turn End (DONE)
 
 Conditions are tracked on squaddies but are never automatically processed.
 Required:
@@ -258,7 +258,7 @@ Required:
 - During the `*_TURN_START` phase for each affiliation, some conditions will apply their effects. (For example, SLOWED
   would be applied to reduce the number of action points for a squaddie.)
 
-### Gap 4 — Condition Effects in Calculations
+### Gap 4 — Condition Effects in Calculations (DONE)
 
 Eventually there will be new conditions.
 
@@ -386,7 +386,7 @@ Tasks:
 1. Update `SquaddieActionForecastCalculator` with the same condition checks so previews are accurate.
 2. Tests: each condition's mechanical effect, including edge cases (absorb absorbs partial damage).
 
-### Phase 4 — Affiliation Turn Controller (Gap 2)
+### Phase 4 — Affiliation Turn Controller (Gap 2) (DONE)
 
 **Goal**: The engine knows which phases are human-controlled and which are AI-controlled.
 
