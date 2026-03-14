@@ -355,6 +355,7 @@ export class MissionEngineTestHarness extends MissionEngine {
             attributeSheetId: MissionEngineTestHarnessIds.lini.attributeSheetId,
             actionIds: [
                 MissionEngineTestHarnessIds.lini.scimitarActionId,
+                MissionEngineTestHarnessIds.lini.blessingActionId,
                 MissionEngineTestHarnessIds.lini.healActionId,
             ],
             affiliation: SquaddieAffiliation.PLAYER,
