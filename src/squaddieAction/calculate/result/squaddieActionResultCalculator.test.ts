@@ -964,4 +964,386 @@ describe("SquaddieActionResultCalculator", () => {
             expect(parsed.squaddieActionResults[0].healing.net).toBe(3)
         })
     })
+
+    describe("resolves actor degree to next available when effectOnActor has no entry for the rolled degree", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let actionManager: SquaddieActionManager
+        let actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
+        let target: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+
+        beforeEach(() => {
+            const outOfBattleSquaddieManagerResult =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "soldier",
+                        attributeSheetOptions: {
+                            distancePerAction: 2,
+                            maxHitPoints: 5,
+                            attributeScores: {
+                                [AttributeScore.BODY]: 5,
+                                [AttributeScore.MIND]: 7,
+                                [AttributeScore.SOUL]: 3,
+                            },
+                            proficiencyLevels: {},
+                            rank: 1,
+                        },
+                    }
+                )
+            outOfBattleSquaddieManager =
+                outOfBattleSquaddieManagerResult.manager
+
+            const actorSquaddie = OutOfBattleSquaddieService.new({
+                id: "actor",
+                name: "Actor",
+                actionIds: [],
+                attributeSheetId: "soldier",
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(actorSquaddie)
+
+            const targetSquaddie = OutOfBattleSquaddieService.new({
+                id: "target",
+                name: "Target",
+                actionIds: [],
+                attributeSheetId: "soldier",
+                affiliation: SquaddieAffiliation.ENEMY,
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(targetSquaddie)
+
+            const inBattleCollection = InBattleSquaddieCollectionService.new()
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                inBattleCollection,
+                outOfBattleSquaddieManager
+            )
+
+            const { inBattleSquaddieId: actorId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "actor",
+                })
+            actor = {
+                inBattleSquaddieId: actorId,
+                outOfBattleSquaddieId: "actor",
+            }
+
+            const { inBattleSquaddieId: targetId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "target",
+                })
+            target = {
+                inBattleSquaddieId: targetId,
+                outOfBattleSquaddieId: "target",
+            }
+
+            actionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+        })
+
+        it("FAILURE with no FAILURE effectOnActor falls back to SUCCESS — actor spends AP, target takes no damage", () => {
+            const attackAction = SquaddieActionService.new({
+                id: "attack-action",
+                name: "Attack",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        friend: false,
+                        foe: true,
+                    },
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                            attributeScoreType: AttributeScore.BODY,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(attackAction)
+
+            const results = SquaddieActionResultCalculator.calculateResult({
+                actor,
+                targets: [target],
+                action: { id: attackAction.id },
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager: actionManager,
+                },
+                degreeOfSuccess: DegreeOfSuccess.FAILURE,
+            })
+
+            const actorResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === actor.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === actor.outOfBattleSquaddieId
+            )
+            expect(actorResult).toBeDefined()
+            expect(actorResult?.actionPoints?.spent).toBe(1)
+
+            const targetResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === target.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === target.outOfBattleSquaddieId
+            )
+            expect(targetResult).toBeUndefined()
+        })
+
+        it("CRITICAL with no CRITICAL effectOnActor falls back to SUCCESS", () => {
+            const attackAction = SquaddieActionService.new({
+                id: "crit-action",
+                name: "Crit Attack",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        friend: false,
+                        foe: true,
+                    },
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                            attributeScoreType: AttributeScore.BODY,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(attackAction)
+
+            const results = SquaddieActionResultCalculator.calculateResult({
+                actor,
+                targets: [target],
+                action: { id: attackAction.id },
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager: actionManager,
+                },
+                degreeOfSuccess: DegreeOfSuccess.CRITICAL,
+            })
+
+            const actorResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === actor.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === actor.outOfBattleSquaddieId
+            )
+            expect(actorResult).toBeDefined()
+            expect(actorResult?.actionPoints?.spent).toBe(1)
+
+            const targetResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === target.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === target.outOfBattleSquaddieId
+            )
+            expect(targetResult).toBeUndefined()
+        })
+
+        it("BOTCH with FAILURE effectOnActor available falls back to FAILURE", () => {
+            const attackAction = SquaddieActionService.new({
+                id: "botch-action",
+                name: "Botch Attack",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        friend: false,
+                        foe: true,
+                    },
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                    [DegreeOfSuccess.FAILURE]: {
+                        actionPoints: { spent: 2 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                            attributeScoreType: AttributeScore.BODY,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(attackAction)
+
+            const results = SquaddieActionResultCalculator.calculateResult({
+                actor,
+                targets: [target],
+                action: { id: attackAction.id },
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager: actionManager,
+                },
+                degreeOfSuccess: DegreeOfSuccess.BOTCH,
+            })
+
+            const actorResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === actor.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === actor.outOfBattleSquaddieId
+            )
+            expect(actorResult).toBeDefined()
+            expect(actorResult?.actionPoints?.spent).toBe(2)
+
+            const targetResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === target.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === target.outOfBattleSquaddieId
+            )
+            expect(targetResult).toBeUndefined()
+        })
+
+        it("BOTCH with no FAILURE effectOnActor falls back to SUCCESS", () => {
+            const attackAction = SquaddieActionService.new({
+                id: "botch-to-success-action",
+                name: "Botch to Success",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        friend: false,
+                        foe: true,
+                    },
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                            attributeScoreType: AttributeScore.BODY,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(attackAction)
+
+            const results = SquaddieActionResultCalculator.calculateResult({
+                actor,
+                targets: [target],
+                action: { id: attackAction.id },
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager: actionManager,
+                },
+                degreeOfSuccess: DegreeOfSuccess.BOTCH,
+            })
+
+            const actorResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === actor.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === actor.outOfBattleSquaddieId
+            )
+            expect(actorResult).toBeDefined()
+            expect(actorResult?.actionPoints?.spent).toBe(1)
+
+            const targetResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === target.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === target.outOfBattleSquaddieId
+            )
+            expect(targetResult).toBeUndefined()
+        })
+
+        it("FAILURE with matching FAILURE effectOnActor uses FAILURE directly", () => {
+            const attackAction = SquaddieActionService.new({
+                id: "failure-action",
+                name: "Failure Attack",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        friend: false,
+                        foe: true,
+                    },
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                    [DegreeOfSuccess.FAILURE]: {
+                        actionPoints: { spent: 2 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                            attributeScoreType: AttributeScore.BODY,
+                        },
+                    },
+                    [DegreeOfSuccess.FAILURE]: {
+                        damage: {
+                            raw: 1,
+                            targetProficiency: ProficiencyType.ARMOR,
+                            attributeScoreType: AttributeScore.BODY,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(attackAction)
+
+            const results = SquaddieActionResultCalculator.calculateResult({
+                actor,
+                targets: [target],
+                action: { id: attackAction.id },
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager: actionManager,
+                },
+                degreeOfSuccess: DegreeOfSuccess.FAILURE,
+            })
+
+            const actorResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === actor.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === actor.outOfBattleSquaddieId
+            )
+            expect(actorResult).toBeDefined()
+            expect(actorResult?.actionPoints?.spent).toBe(2)
+
+            const targetResult = results.find(
+                (r) =>
+                    r.inBattleSquaddieId === target.inBattleSquaddieId &&
+                    r.outOfBattleSquaddieId === target.outOfBattleSquaddieId
+            )
+            expect(targetResult).toBeDefined()
+        })
+    })
 })

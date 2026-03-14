@@ -11,16 +11,17 @@ import {
     type SquaddieActionResult,
     SquaddieActionResultService,
 } from "./squaddieActionResult"
-import type { SquaddieActionEffect } from "../../squaddieAction"
+import type { SquaddieAction, SquaddieActionEffect } from "../../squaddieAction"
 import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
 import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import type { OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { ProficiencyLevelConst } from "../../../proficiency/proficiencyLevel"
-import type {
-    SquaddieCondition,
-    TSquaddieConditionType,
+import {
+    type SquaddieCondition,
+    SquaddieConditionService,
+    SquaddieConditionSource,
+    type TSquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
-import { SquaddieConditionService } from "../../../proficiency/squaddieCondition"
 import {
     type CoordinateMovePath,
     CoordinateMovePathService,
@@ -92,8 +93,12 @@ export const SquaddieActionResultCalculator = {
         })
 
         const squaddieAction = managers.squaddieActionManager.get(action.id)
+        const actorEffectiveDegree = resolveActorEffectiveDegree(
+            degreeOfSuccess,
+            squaddieAction.effectOnActor
+        )
         const results: SquaddieActionResult[] = calculateEffectOnSquaddie({
-            effect: squaddieAction.effectOnActor[degreeOfSuccess],
+            effect: squaddieAction.effectOnActor[actorEffectiveDegree],
             decisions: action.decisions,
             map,
             managers,
@@ -888,6 +893,23 @@ const redistributeUnsupportedDegree = (
     return degree
 }
 
+const resolveActorEffectiveDegree = (
+    degree: TDegreeOfSuccess,
+    effectOnActor: SquaddieAction["effectOnActor"]
+): TDegreeOfSuccess => {
+    if (effectOnActor[degree] != undefined) return degree
+
+    if (degree === DegreeOfSuccess.CRITICAL) return DegreeOfSuccess.SUCCESS
+    if (degree === DegreeOfSuccess.FAILURE) return DegreeOfSuccess.SUCCESS
+    if (degree === DegreeOfSuccess.BOTCH) {
+        if (effectOnActor[DegreeOfSuccess.FAILURE] != undefined)
+            return DegreeOfSuccess.FAILURE
+        return DegreeOfSuccess.SUCCESS
+    }
+
+    return degree
+}
+
 const validateResultForReversal = (original: SquaddieActionResult): void => {
     validateResultForReversalDamageHealing(original)
     validateResultForReversalConditionEffects(original)
@@ -946,11 +968,14 @@ const extractConditionsFromMap = (
     const conditions: SquaddieCondition[] = []
     for (const [type, conditionDataArray] of conditionMap) {
         for (const conditionData of conditionDataArray) {
-            conditions.push({
-                type,
-                amount: conditionData.amount,
-                limit: conditionData.limit,
-            })
+            conditions.push(
+                SquaddieConditionService.new({
+                    type,
+                    amount: conditionData.amount?.current,
+                    duration: conditionData.limit.duration,
+                    source: SquaddieConditionSource.ITEM,
+                })
+            )
         }
     }
     return conditions

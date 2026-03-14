@@ -73,7 +73,6 @@ export interface MapOverview {
 
 const MAX_PHASE_TRANSITIONS = 20
 
-// Default strategies for AI-controlled affiliations when no override is provided
 const defaultAiStrategy = new SimpleAggressorStrategy()
 const defaultStrategyByAffiliation: Partial<
     Record<TSquaddieAffiliation, AiStrategy>

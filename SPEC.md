@@ -215,7 +215,7 @@ Dispelling or treating a condition changes only `current`; `base` is always pres
 
 The following systems are **not yet implemented** and are required for a complete playable mission.
 
-### Gap 1 — Enemy AI (No automated decision-making)
+### Gap 1 — Enemy AI (No automated decision-making, DONE)
 
 Enemy squaddies have turns allocated in the turn structure, but no logic decides what they do.
 Required:
@@ -405,7 +405,7 @@ Tasks:
    waits; If the phase has a mix but all human squaddies ended their turn, the AI takes over. A phase with all AI
    squaddies auto-advances.
 
-### Phase 5 — Enemy AI — Simple Aggressor (Gap 1)
+### Phase 5 — Enemy AI — Simple Aggressor (Gap 1, DONE)
 
 **Goal**: Enemy and autonomous ally squaddies take sensible actions without human input.
 
