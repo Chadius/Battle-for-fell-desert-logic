@@ -345,6 +345,18 @@ describe("MissionEngine map and position methods", () => {
             expect(action.name).toBe("Scimitar")
         })
 
+        it("returns Lini blessing action", () => {
+            const action = missionEngine.getActionById(
+                MissionEngineTestHarnessIds.lini.blessingActionId
+            )
+
+            expect(action).toBeDefined()
+            expect(action.id).toBe(
+                MissionEngineTestHarnessIds.lini.blessingActionId
+            )
+            expect(action.name).toBe("Blessing")
+        })
+
         it("returns Lini heal action", () => {
             const action = missionEngine.getActionById(
                 MissionEngineTestHarnessIds.lini.healActionId

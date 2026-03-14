@@ -31,6 +31,12 @@ import {
 } from "../../mission/missionObjective"
 import { MissionObjectiveRewardService } from "../../mission/missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "../../mission/missionObjectiveCriteria"
+import {
+    SquaddieConditionDecaysAt,
+    SquaddieConditionService,
+    SquaddieConditionSource,
+    SquaddieConditionType,
+} from "../../proficiency/squaddieCondition"
 
 export const MissionEngineTestHarnessIds = {
     mapId: "test-harness-map",
@@ -39,6 +45,7 @@ export const MissionEngineTestHarnessIds = {
         outOfBattleSquaddieId: "lini",
         attributeSheetId: "lini-attribute-sheet",
         scimitarActionId: "lini-scimitar",
+        blessingActionId: "lini-blessing",
         healActionId: "lini-heal",
     },
     slitherDemon: {
@@ -170,6 +177,7 @@ export class MissionEngineTestHarness extends MissionEngine {
         )
 
         manager.addOrUpdate(MissionEngineTestHarness.createScimitarAction())
+        manager.addOrUpdate(MissionEngineTestHarness.createBlessingAction())
         manager.addOrUpdate(MissionEngineTestHarness.createHealAction())
         manager.addOrUpdate(MissionEngineTestHarness.createClawAction())
         manager.addOrUpdate(SquaddieActionService.defaultMove())
@@ -208,6 +216,45 @@ export class MissionEngineTestHarness extends MissionEngine {
                     damage: {
                         raw: 4,
                         targetProficiency: ProficiencyType.ARMOR,
+                    },
+                },
+            },
+        })
+    }
+
+    private static createBlessingAction(): SquaddieAction {
+        return SquaddieActionService.new({
+            id: MissionEngineTestHarnessIds.lini.blessingActionId,
+            name: "Blessing",
+            attribute: AttributeScore.SOUL,
+            proficiency: ProficiencyType.SKILL_SOUL,
+            range: ActionRange.SHORT,
+            shape: CoordinateGeneratorShape.BLOOM,
+            affiliationRelationship: {
+                self: true,
+                foe: false,
+                friend: true,
+            },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 2 },
+                },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    conditions: {
+                        add: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ARMOR,
+                                amount: 1,
+                                duration: {
+                                    duration: 2,
+                                    decaysAt:
+                                        SquaddieConditionDecaysAt.TURN_END,
+                                },
+                                source: SquaddieConditionSource.SPIRITUAL,
+                            }),
+                        ],
                     },
                 },
             },
