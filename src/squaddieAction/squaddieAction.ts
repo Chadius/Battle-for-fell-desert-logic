@@ -106,12 +106,11 @@ export const SquaddieActionService = {
             id,
             name,
             attribute: attribute ?? AttributeScore.BODY,
-            degreesOfSuccess: degreesOfSuccess ?? [
-                DegreeOfSuccess.CRITICAL,
-                DegreeOfSuccess.SUCCESS,
-                DegreeOfSuccess.FAILURE,
-                DegreeOfSuccess.BOTCH,
-            ],
+            degreesOfSuccess:
+                degreesOfSuccess ??
+                (effectOnTarget
+                    ? (Object.keys(effectOnTarget) as TDegreeOfSuccess[])
+                    : [DegreeOfSuccess.SUCCESS]),
             proficiency: proficiency ?? ProficiencyType.UNKNOWN,
             targeting: targeting ?? {
                 range: range ?? ActionRange.MELEE,

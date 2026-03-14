@@ -197,6 +197,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                 },
             },
             effectOnTarget: {
+                [DegreeOfSuccess.FAILURE]: {},
                 [DegreeOfSuccess.SUCCESS]: {
                     damage: {
                         raw: 2,
@@ -261,6 +262,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                 },
             },
             effectOnTarget: {
+                [DegreeOfSuccess.FAILURE]: {},
                 [DegreeOfSuccess.SUCCESS]: {
                     damage: {
                         raw: 1,
