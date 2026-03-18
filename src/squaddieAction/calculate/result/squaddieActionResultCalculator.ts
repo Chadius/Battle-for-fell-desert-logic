@@ -245,6 +245,17 @@ export const SquaddieActionResultCalculator = {
                 inBattleSquaddieManager: managers.inBattleSquaddieManager,
             })
 
+        const attackContributionThisTurn = squaddieAction.multipleAttackPenalty
+            .applies
+            ? managers.inBattleSquaddieManager.getAttackContributionThisTurn({
+                  inBattleSquaddieId: actor.inBattleSquaddieId,
+                  outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+              })
+            : 0
+        const mapPenalty = ProficiencyCalculator.getMapPenaltyFromAttackCount(
+            attackContributionThisTurn
+        )
+
         const rollResult = rollGenerator.roll(2)
         const actorRoll: [number, number] = [rollResult[0], rollResult[1]]
 
@@ -262,6 +273,7 @@ export const SquaddieActionResultCalculator = {
                 ProficiencyCalculator.calculateModifierDifference({
                     actorBonus: actorProficiencyBonus,
                     targetDefensiveBonus,
+                    multipleAttackPenalty: mapPenalty,
                 })
 
             const targetKey = SquaddieIdConverterService.squaddieIdToKey({

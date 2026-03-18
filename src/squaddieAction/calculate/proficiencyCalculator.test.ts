@@ -201,5 +201,43 @@ describe("ProficiencyCalculator", () => {
             expect(modifier).toBe(4 - 4 - 6)
             expect(modifier).toBe(-6)
         })
+
+        it("subtracts the mapPenalty from the result", () => {
+            const actorBonus = 5
+            const targetDefensiveBonus = 2
+            const mapPenalty = 3
+
+            const modifier = ProficiencyCalculator.calculateModifierDifference({
+                actorBonus,
+                targetDefensiveBonus,
+                multipleAttackPenalty: mapPenalty,
+            })
+
+            expect(modifier).toBe(5 - 2 - 6 - 3)
+            expect(modifier).toBe(-6)
+        })
+    })
+
+    describe("getMapPenaltyFromAttackCount", () => {
+        it("returns 0 for the first attack (count 0)", () => {
+            expect(ProficiencyCalculator.getMapPenaltyFromAttackCount(0)).toBe(
+                0
+            )
+        })
+
+        it("returns 3 for the second attack (count 1)", () => {
+            expect(ProficiencyCalculator.getMapPenaltyFromAttackCount(1)).toBe(
+                3
+            )
+        })
+
+        it("returns 6 for the third and beyond (count >= 2)", () => {
+            expect(ProficiencyCalculator.getMapPenaltyFromAttackCount(2)).toBe(
+                6
+            )
+            expect(ProficiencyCalculator.getMapPenaltyFromAttackCount(5)).toBe(
+                6
+            )
+        })
     })
 })

@@ -1625,27 +1625,24 @@ describe("MissionManager", () => {
         })
 
         it("loadInMissionSummary restores squaddie state", () => {
+            const tempManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                inBattleSquaddieManager.outOfBattleSquaddieManager!
+            )
+            const tempId = tempManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+            tempManager.dealDamageToSquaddie({
+                ...tempId,
+                damage: { amount: 7, type: undefined },
+            })
+            tempManager.spendActionPoints({ ...tempId, actionPoints: 2 })
             const savedState = {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: false, hasGivenReward: false },
                 ],
                 inBattleSquaddieCollection:
-                    InBattleSquaddieCollectionService.deserialize({
-                        byOutOfBattleSquaddieId: {
-                            "enemy-1": [
-                                {
-                                    id: 0,
-                                    outOfBattleSquaddieId: "enemy-1",
-                                    name: "Enemy",
-                                    hitPoints: { max: 10, current: 3 },
-                                    conditions: {},
-                                    actionPoints: { current: 1 },
-                                    actionIds: { natural: [] },
-                                    itemIdsUsed: [],
-                                },
-                            ],
-                        },
-                    }),
+                    tempManager.inBattleSquaddieCollection!,
                 recentPhaseTransitions: [],
             }
 
@@ -1660,27 +1657,23 @@ describe("MissionManager", () => {
         })
 
         it("loadInMissionSummary restores objective hasGivenReward", () => {
+            const tempManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                inBattleSquaddieManager.outOfBattleSquaddieManager!
+            )
+            const tempId = tempManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+            tempManager.dealDamageToSquaddie({
+                ...tempId,
+                damage: { amount: 10, type: undefined },
+            })
             const savedState = {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],
                 inBattleSquaddieCollection:
-                    InBattleSquaddieCollectionService.deserialize({
-                        byOutOfBattleSquaddieId: {
-                            "enemy-1": [
-                                {
-                                    id: 0,
-                                    outOfBattleSquaddieId: "enemy-1",
-                                    name: "Enemy",
-                                    hitPoints: { max: 10, current: 0 },
-                                    conditions: {},
-                                    actionPoints: { current: 3 },
-                                    actionIds: { natural: [] },
-                                    itemIdsUsed: [],
-                                },
-                            ],
-                        },
-                    }),
+                    tempManager.inBattleSquaddieCollection!,
                 recentPhaseTransitions: [],
             }
 
@@ -2310,6 +2303,342 @@ describe("MissionManager", () => {
             expect(
                 inBattleSquaddieManager.getActionPoints(playerSquaddieId)
                     .current
+            ).toBe(0)
+        })
+    })
+
+    describe("Multiple Attack Penalty (MAP) in useActionAndGetResults", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let squaddieActionManager: SquaddieActionManager
+        let coordinateMapCollectionManager: CoordinateMapCollectionManager
+        let actorSquaddieId: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let targetSquaddieId: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let weaponActionId: string
+        let nonWeaponActionId: string
+        let flurryActionId: string
+
+        beforeEach(() => {
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "actor_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 20,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
+
+            const targetAttributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "target_sheet",
+                    maxHitPoints: 20,
+                    items: { maxCapacity: 0 },
+                })
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                targetAttributeSheet
+            )
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "actor",
+                    name: "Actor",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    attributeSheetId: "actor_sheet",
+                })
+            )
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "target",
+                    name: "Target",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    attributeSheetId: "target_sheet",
+                })
+            )
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            actorSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "actor",
+            })
+            targetSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "target",
+            })
+
+            squaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+
+            weaponActionId = "weapon-attack"
+            squaddieActionManager.addOrUpdate(
+                SquaddieActionService.new({
+                    id: weaponActionId,
+                    name: "Weapon Attack",
+                    proficiency: ProficiencyType.WEAPON_MARTIAL,
+                    targeting: {
+                        range: ActionRange.MELEE,
+                        shape: CoordinateGeneratorShape.BLOOM,
+                        affiliationRelationship: {
+                            self: false,
+                            foe: true,
+                            friend: false,
+                        },
+                    },
+                    effectOnActor: {
+                        SUCCESS: { actionPoints: { spent: 1 } },
+                    },
+                    effectOnTarget: {
+                        SUCCESS: {
+                            damage: {
+                                raw: 1,
+                                targetProficiency: ProficiencyType.ARMOR,
+                            },
+                        },
+                    },
+                })
+            )
+
+            nonWeaponActionId = "non-weapon"
+            squaddieActionManager.addOrUpdate(
+                SquaddieActionService.new({
+                    id: nonWeaponActionId,
+                    name: "Non-Weapon",
+                    proficiency: ProficiencyType.SKILL_BODY,
+                    targeting: {
+                        range: ActionRange.MELEE,
+                        shape: CoordinateGeneratorShape.BLOOM,
+                        affiliationRelationship: {
+                            self: false,
+                            foe: true,
+                            friend: false,
+                        },
+                    },
+                    effectOnActor: {
+                        SUCCESS: { actionPoints: { spent: 1 } },
+                    },
+                    effectOnTarget: {
+                        SUCCESS: {
+                            damage: {
+                                raw: 1,
+                                targetProficiency: ProficiencyType.SKILL_BODY,
+                            },
+                        },
+                    },
+                })
+            )
+
+            flurryActionId = "flurry"
+            squaddieActionManager.addOrUpdate(
+                SquaddieActionService.new({
+                    id: flurryActionId,
+                    name: "Flurry",
+                    proficiency: ProficiencyType.WEAPON_MARTIAL,
+                    multipleAttackPenalty: { contribution: 2 },
+                    targeting: {
+                        range: ActionRange.MELEE,
+                        shape: CoordinateGeneratorShape.BLOOM,
+                        affiliationRelationship: {
+                            self: false,
+                            foe: true,
+                            friend: false,
+                        },
+                    },
+                    effectOnActor: {
+                        SUCCESS: { actionPoints: { spent: 2 } },
+                    },
+                    effectOnTarget: {
+                        SUCCESS: {
+                            damage: {
+                                raw: 1,
+                                targetProficiency: ProficiencyType.ARMOR,
+                            },
+                        },
+                    },
+                })
+            )
+
+            const map = CoordinateMapService.new({
+                id: "test_map",
+                name: "test map",
+                movementProperties: ["1 1 1 "],
+            })
+
+            coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: actorSquaddieId,
+                coordinate: { row: 0, col: 0 },
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: targetSquaddieId,
+                coordinate: { row: 0, col: 1 },
+            })
+        })
+
+        it("attackContributionThisTurn increments by 1 after a weapon action", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager,
+            })
+
+            expect(
+                inBattleSquaddieManager.getAttackContributionThisTurn(
+                    actorSquaddieId
+                )
+            ).toBe(0)
+
+            manager.useActionAndGetResults({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: weaponActionId },
+                rollGenerator: new RollGenerator([3, 3]),
+            })
+
+            expect(
+                inBattleSquaddieManager.getAttackContributionThisTurn(
+                    actorSquaddieId
+                )
+            ).toBe(1)
+        })
+
+        it("attackContributionThisTurn increments to 2 after two weapon actions", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager,
+            })
+
+            manager.useActionAndGetResults({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: weaponActionId },
+                rollGenerator: new RollGenerator([3, 3]),
+            })
+            manager.useActionAndGetResults({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: weaponActionId },
+                rollGenerator: new RollGenerator([3, 3]),
+            })
+
+            expect(
+                inBattleSquaddieManager.getAttackContributionThisTurn(
+                    actorSquaddieId
+                )
+            ).toBe(2)
+        })
+
+        it("non-weapon action does not increment attackContributionThisTurn", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager,
+            })
+
+            manager.useActionAndGetResults({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: nonWeaponActionId },
+                rollGenerator: new RollGenerator([3, 3]),
+            })
+
+            expect(
+                inBattleSquaddieManager.getAttackContributionThisTurn(
+                    actorSquaddieId
+                )
+            ).toBe(0)
+        })
+
+        it("flurry action (mapContribution 2) increments attackContributionThisTurn by 2", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager,
+            })
+
+            manager.useActionAndGetResults({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: flurryActionId },
+                rollGenerator: new RollGenerator([3, 3]),
+            })
+
+            expect(
+                inBattleSquaddieManager.getAttackContributionThisTurn(
+                    actorSquaddieId
+                )
+            ).toBe(2)
+        })
+
+        it("attackContributionThisTurn resets to 0 when resetAttackContributionThisTurn is called", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                }),
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager,
+            })
+
+            manager.useActionAndGetResults({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: weaponActionId },
+                rollGenerator: new RollGenerator([3, 3]),
+            })
+            expect(
+                inBattleSquaddieManager.getAttackContributionThisTurn(
+                    actorSquaddieId
+                )
+            ).toBe(1)
+
+            inBattleSquaddieManager.resetAttackContributionThisTurn(
+                actorSquaddieId
+            )
+
+            expect(
+                inBattleSquaddieManager.getAttackContributionThisTurn(
+                    actorSquaddieId
+                )
             ).toBe(0)
         })
     })

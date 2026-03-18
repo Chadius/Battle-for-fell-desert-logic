@@ -148,6 +148,94 @@ describe("SquaddieActionService", () => {
         })
     })
 
+    describe("multipleAttackPenalty defaults", () => {
+        it("weapon proficiency actions default to applies: true and contribution: 1", () => {
+            const weaponProficiencies = [
+                ProficiencyType.WEAPON_NATURAL,
+                ProficiencyType.WEAPON_SIMPLE,
+                ProficiencyType.WEAPON_MARTIAL,
+            ]
+            for (const proficiency of weaponProficiencies) {
+                const action = SquaddieActionService.new({
+                    id: "weapon-action",
+                    name: "Weapon Action",
+                    proficiency,
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                })
+                expect(action.multipleAttackPenalty.applies).toBe(true)
+                expect(action.multipleAttackPenalty.contribution).toBe(1)
+            }
+        })
+
+        it("non-weapon proficiency actions default to applies: false and contribution: 0", () => {
+            const nonWeaponProficiencies = [
+                ProficiencyType.UNKNOWN,
+                ProficiencyType.SKILL_BODY,
+                ProficiencyType.SKILL_MIND,
+                ProficiencyType.SKILL_SOUL,
+                ProficiencyType.ARMOR,
+            ]
+            for (const proficiency of nonWeaponProficiencies) {
+                const action = SquaddieActionService.new({
+                    id: "non-weapon-action",
+                    name: "Non-Weapon Action",
+                    proficiency,
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                })
+                expect(action.multipleAttackPenalty.applies).toBe(false)
+                expect(action.multipleAttackPenalty.contribution).toBe(0)
+            }
+        })
+
+        it("explicit contribution override is preserved alongside applies: true for weapon actions", () => {
+            const action = SquaddieActionService.new({
+                id: "flurry",
+                name: "Flurry",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                multipleAttackPenalty: { contribution: 2 },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
+                },
+            })
+            expect(action.multipleAttackPenalty.contribution).toBe(2)
+            expect(action.multipleAttackPenalty.applies).toBe(true)
+        })
+
+        it("non-weapon action with explicit applies: true preserves applies: true and defaults contribution: 0", () => {
+            const action = SquaddieActionService.new({
+                id: "trip",
+                name: "Trip",
+                proficiency: ProficiencyType.SKILL_BODY,
+                multipleAttackPenalty: { applies: true },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+            expect(action.multipleAttackPenalty.applies).toBe(true)
+            expect(action.multipleAttackPenalty.contribution).toBe(0)
+        })
+
+        it("defaultEndTurn has applies: false and contribution: 0", () => {
+            const action = SquaddieActionService.defaultEndTurn()
+            expect(action.multipleAttackPenalty.applies).toBe(false)
+            expect(action.multipleAttackPenalty.contribution).toBe(0)
+        })
+
+        it("defaultMove has applies: false and contribution: 0", () => {
+            const action = SquaddieActionService.defaultMove()
+            expect(action.multipleAttackPenalty.applies).toBe(false)
+            expect(action.multipleAttackPenalty.contribution).toBe(0)
+        })
+    })
+
     describe("forecast folds CRITICAL into SUCCESS when effectOnTarget only defines SUCCESS", () => {
         let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let inBattleSquaddieManager: InBattleSquaddieManager

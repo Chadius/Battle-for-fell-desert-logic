@@ -47,6 +47,17 @@ export const SquaddieActionForecastCalculator = {
                 inBattleSquaddieManager,
             })
 
+        const attackContributionThisTurn = squaddieAction.multipleAttackPenalty
+            .applies
+            ? inBattleSquaddieManager.getAttackContributionThisTurn({
+                  inBattleSquaddieId: actor.inBattleSquaddieId,
+                  outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+              })
+            : 0
+        const mapPenalty = ProficiencyCalculator.getMapPenaltyFromAttackCount(
+            attackContributionThisTurn
+        )
+
         const chances = new Map<string, number>([])
 
         for (const target of targets) {
@@ -60,6 +71,7 @@ export const SquaddieActionForecastCalculator = {
             const modifier = ProficiencyCalculator.calculateModifierDifference({
                 actorBonus: actorProficiencyBonus,
                 targetDefensiveBonus,
+                multipleAttackPenalty: mapPenalty,
             })
             const rawProbabilities =
                 ProbabilityLookup.calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus(

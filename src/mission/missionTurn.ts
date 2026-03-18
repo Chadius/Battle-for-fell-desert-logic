@@ -115,6 +115,9 @@ export const MissionTurnService = {
             )
         for (const battleSquaddieId of battleSquaddieIds) {
             inBattleSquaddieManager.resetActionPoints(battleSquaddieId)
+            inBattleSquaddieManager.resetAttackContributionThisTurn(
+                battleSquaddieId
+            )
         }
     },
     getSquaddieAffiliationForAffiliationTurn(

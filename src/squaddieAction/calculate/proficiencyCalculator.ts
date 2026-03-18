@@ -51,10 +51,22 @@ export const ProficiencyCalculator = {
     calculateModifierDifference: ({
         actorBonus,
         targetDefensiveBonus,
+        multipleAttackPenalty,
     }: {
         actorBonus: number
         targetDefensiveBonus: number
+        multipleAttackPenalty?: number
     }): number => {
-        return actorBonus - targetDefensiveBonus - 6
+        return (
+            actorBonus - targetDefensiveBonus - 6 - (multipleAttackPenalty ?? 0)
+        )
+    },
+
+    getMapPenaltyFromAttackCount: (
+        attackContributionThisTurn: number
+    ): number => {
+        if (attackContributionThisTurn <= 0) return 0
+        if (attackContributionThisTurn === 1) return 3
+        return 6
     },
 }

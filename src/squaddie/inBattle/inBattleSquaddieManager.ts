@@ -700,6 +700,70 @@ export class InBattleSquaddieManager {
             })
     }
 
+    resetAttackContributionThisTurn({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }) {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId: inBattleSquaddieId,
+            outOfBattleSquaddieId: outOfBattleSquaddieId,
+        })
+        if (squaddieInfo == undefined) return
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.resetAttackContributionThisTurn({
+                collection: this.inBattleSquaddieCollection!,
+                ...squaddieInfo,
+            })
+    }
+
+    getAttackContributionThisTurn({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }): number {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+        if (squaddieInfo == undefined) return 0
+
+        return InBattleSquaddieCollectionService.getAttackContributionThisTurn({
+            collection: this.inBattleSquaddieCollection!,
+            ...squaddieInfo,
+        })
+    }
+
+    incrementAttackContributionThisTurn({
+        inBattleSquaddieId,
+        outOfBattleSquaddieId,
+        amount,
+    }: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+        amount: number
+    }) {
+        const squaddieInfo = this.getSquaddie({
+            inBattleSquaddieId,
+            outOfBattleSquaddieId,
+        })
+        if (squaddieInfo == undefined) return
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.incrementAttackContributionThisTurn(
+                {
+                    collection: this.inBattleSquaddieCollection!,
+                    ...squaddieInfo,
+                    amount,
+                }
+            )
+    }
+
     getProficiencyLevel({
         inBattleSquaddieId,
         outOfBattleSquaddieId,

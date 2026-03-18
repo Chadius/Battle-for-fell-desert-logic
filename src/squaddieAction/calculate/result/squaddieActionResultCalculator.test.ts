@@ -1346,4 +1346,218 @@ describe("SquaddieActionResultCalculator", () => {
             expect(targetResult).toBeDefined()
         })
     })
+
+    describe("Multiple Attack Penalty (MAP) in calculateActionResultsWithRolls", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let actionManager: SquaddieActionManager
+        let actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
+        let target: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let weaponAction: SquaddieAction
+        let nonWeaponAction: SquaddieAction
+
+        beforeEach(() => {
+            const outOfBattleSquaddieManagerResult =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "fighter",
+                        attributeSheetOptions: {
+                            distancePerAction: 2,
+                            maxHitPoints: 10,
+                            rank: 6,
+                        },
+                    }
+                )
+            outOfBattleSquaddieManager =
+                outOfBattleSquaddieManagerResult.manager
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "actor",
+                    name: "Fighter",
+                    actionIds: [],
+                    attributeSheetId: "fighter",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            )
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "target",
+                    name: "Target",
+                    actionIds: [],
+                    attributeSheetId: "fighter",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            )
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+            const actorCreated = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "actor",
+            })
+            actor = {
+                inBattleSquaddieId: actorCreated.inBattleSquaddieId,
+                outOfBattleSquaddieId: "actor",
+            }
+            const targetCreated = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "target",
+            })
+            target = {
+                inBattleSquaddieId: targetCreated.inBattleSquaddieId,
+                outOfBattleSquaddieId: "target",
+            }
+
+            actionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+
+            weaponAction = SquaddieActionService.new({
+                id: "weapon-attack",
+                name: "Weapon Attack",
+                proficiency: ProficiencyType.WEAPON_MARTIAL,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.CRITICAL]: {
+                        damage: {
+                            raw: 4,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                    [DegreeOfSuccess.FAILURE]: {},
+                    [DegreeOfSuccess.BOTCH]: {},
+                },
+            })
+            actionManager.addOrUpdate(weaponAction)
+
+            nonWeaponAction = SquaddieActionService.new({
+                id: "non-weapon",
+                name: "Non-Weapon",
+                proficiency: ProficiencyType.SKILL_BODY,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 1,
+                            targetProficiency: ProficiencyType.DEFEND_BODY,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(nonWeaponAction)
+        })
+
+        it("first attack (count 0) has no MAP penalty", () => {
+            const rollGenerator = new RollGenerator([3, 4])
+            const targetKey = SquaddieIdConverterService.squaddieIdToKey(target)
+
+            const result =
+                SquaddieActionResultCalculator.calculateActionResultsWithRolls({
+                    actor,
+                    targets: [target],
+                    action: { id: weaponAction.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                    },
+                    rollGenerator,
+                })
+
+            expect(result.targetResults.get(targetKey)?.degreeOfSuccess).toBe(
+                DegreeOfSuccess.SUCCESS
+            )
+        })
+
+        it("second attack (count 1) has MAP -3 penalty applied", () => {
+            inBattleSquaddieManager.incrementAttackContributionThisTurn({
+                ...actor,
+                amount: 1,
+            })
+
+            const rollGenerator = new RollGenerator([3, 4])
+            const targetKey = SquaddieIdConverterService.squaddieIdToKey(target)
+
+            const result =
+                SquaddieActionResultCalculator.calculateActionResultsWithRolls({
+                    actor,
+                    targets: [target],
+                    action: { id: weaponAction.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                    },
+                    rollGenerator,
+                })
+
+            expect(result.targetResults.get(targetKey)?.degreeOfSuccess).toBe(
+                DegreeOfSuccess.FAILURE
+            )
+        })
+
+        it("third attack (count 2) has MAP -6 penalty applied", () => {
+            inBattleSquaddieManager.incrementAttackContributionThisTurn({
+                ...actor,
+                amount: 2,
+            })
+
+            const rollGenerator = new RollGenerator([5, 6])
+            const targetKey = SquaddieIdConverterService.squaddieIdToKey(target)
+
+            const result =
+                SquaddieActionResultCalculator.calculateActionResultsWithRolls({
+                    actor,
+                    targets: [target],
+                    action: { id: weaponAction.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                    },
+                    rollGenerator,
+                })
+
+            expect(result.targetResults.get(targetKey)?.degreeOfSuccess).toBe(
+                DegreeOfSuccess.FAILURE
+            )
+        })
+
+        it("non-weapon action does not receive MAP penalty even with high attackContributionThisTurn", () => {
+            inBattleSquaddieManager.incrementAttackContributionThisTurn({
+                ...actor,
+                amount: 5,
+            })
+
+            const rollGenerator = new RollGenerator([3, 4])
+            const targetKey = SquaddieIdConverterService.squaddieIdToKey(target)
+
+            const result =
+                SquaddieActionResultCalculator.calculateActionResultsWithRolls({
+                    actor,
+                    targets: [target],
+                    action: { id: nonWeaponAction.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                    },
+                    rollGenerator,
+                })
+
+            expect(result.targetResults.get(targetKey)?.degreeOfSuccess).toBe(
+                DegreeOfSuccess.SUCCESS
+            )
+        })
+    })
 })

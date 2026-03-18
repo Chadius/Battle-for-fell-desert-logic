@@ -34,6 +34,7 @@ export interface InBattleSquaddie {
     actionPoints: {
         current: number
     }
+    attackContributionThisTurn: number
     actionIds: {
         natural: string[]
     }
@@ -69,6 +70,7 @@ export const InBattleSquaddieService = {
             actionPoints: {
                 current: DEFAULT_ACTION_POINTS,
             },
+            attackContributionThisTurn: 0,
             actionIds: {
                 natural: [...outOfBattleSquaddie.actionIds],
             },
@@ -297,6 +299,26 @@ export const InBattleSquaddieService = {
             InBattleSquaddieService.getMaximumActionPoints(squaddie)
         return newSquaddie
     },
+    resetAttackContributionThisTurn: ({
+        squaddie,
+    }: {
+        squaddie: InBattleSquaddie
+    }): InBattleSquaddie => {
+        const newSquaddie = clone(squaddie)
+        newSquaddie.attackContributionThisTurn = 0
+        return newSquaddie
+    },
+    incrementAttackContributionThisTurn: ({
+        squaddie,
+        amount,
+    }: {
+        squaddie: InBattleSquaddie
+        amount: number
+    }): InBattleSquaddie => {
+        const newSquaddie = clone(squaddie)
+        newSquaddie.attackContributionThisTurn += amount
+        return newSquaddie
+    },
     getProficiencyLevel: ({
         attributeSheet,
         type,
@@ -486,6 +508,7 @@ const clone = (original: InBattleSquaddie): InBattleSquaddie => {
         actionPoints: {
             current: original.actionPoints.current,
         },
+        attackContributionThisTurn: original.attackContributionThisTurn,
         actionIds: {
             natural: [...original.actionIds.natural],
         },
@@ -1064,6 +1087,7 @@ const serialize = (squaddie: InBattleSquaddie): SerializedInBattleSquaddie => {
         actionPoints: {
             current: squaddie.actionPoints.current,
         },
+        attackContributionThisTurn: squaddie.attackContributionThisTurn,
         actionIds: {
             natural: [...squaddie.actionIds.natural],
         },
@@ -1096,6 +1120,8 @@ const deserialize = (
         actionPoints: {
             current: serializable.actionPoints.current,
         },
+        attackContributionThisTurn:
+            serializable.attackContributionThisTurn ?? 0,
         actionIds: {
             natural: [...serializable.actionIds.natural],
         },

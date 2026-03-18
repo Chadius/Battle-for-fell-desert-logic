@@ -473,16 +473,21 @@ describe("InBattleSquaddie", () => {
         })
 
         it("modifications to restored object do not affect serializable", () => {
-            const serializable: SerializedInBattleSquaddie = {
-                id: 1,
-                outOfBattleSquaddieId: "squaddie-out",
+            const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "squaddie-out",
                 name: "Serialized",
-                hitPoints: { max: 10, current: 10 },
-                conditions: {},
-                actionPoints: { current: 3 },
-                actionIds: { natural: ["action1"] },
-                itemIdsUsed: [],
-            }
+                actionIds: ["action1"],
+                attributeSheetId: "sheet",
+                affiliation: SquaddieAffiliation.NONE,
+            })
+            const serializable = InBattleSquaddieService.serialize(
+                InBattleSquaddieService.new({
+                    id: 1,
+                    name: "Serialized",
+                    outOfBattleSquaddie,
+                    attributeSheet,
+                })
+            )
 
             const restored = InBattleSquaddieService.deserialize(serializable)
 
@@ -713,6 +718,100 @@ describe("InBattleSquaddie", () => {
                     conditionType: SquaddieConditionType.ARMOR,
                 })
             ).toBe(2)
+        })
+    })
+
+    describe("attackContributionThisTurn (Multiple Attack Penalty)", () => {
+        let attributeSheet: OutOfBattleSquaddieAttributeSheet
+        let outOfBattleSquaddie: OutOfBattleSquaddie
+        let squaddie: InBattleSquaddie
+
+        beforeEach(() => {
+            attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "sheet-map",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 0,
+                        [AttributeScore.MIND]: 0,
+                        [AttributeScore.SOUL]: 0,
+                    },
+                    items: { itemIds: [], maxCapacity: 0 },
+                    distancePerAction: 2,
+                    skipOverPits: false,
+                    moveThroughWalls: false,
+                    stopOnSquaddies: false,
+                })
+            outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "squaddie-out-map",
+                name: "Test Squaddie MAP",
+                actionIds: [],
+                attributeSheetId: "sheet-map",
+                affiliation: SquaddieAffiliation.NONE,
+            })
+            squaddie = InBattleSquaddieService.new({
+                id: 0,
+                name: "Test",
+                outOfBattleSquaddie,
+                attributeSheet,
+            })
+        })
+
+        it("new squaddie starts with attackContributionThisTurn 0", () => {
+            expect(squaddie.attackContributionThisTurn).toBe(0)
+        })
+
+        it("incrementAttackContributionThisTurn clones and adds correctly", () => {
+            const updated =
+                InBattleSquaddieService.incrementAttackContributionThisTurn({
+                    squaddie,
+                    amount: 1,
+                })
+            expect(updated.attackContributionThisTurn).toBe(1)
+            expect(squaddie.attackContributionThisTurn).toBe(0)
+        })
+
+        it("incrementAttackContributionThisTurn accumulates across multiple calls", () => {
+            let current =
+                InBattleSquaddieService.incrementAttackContributionThisTurn({
+                    squaddie,
+                    amount: 1,
+                })
+            current =
+                InBattleSquaddieService.incrementAttackContributionThisTurn({
+                    squaddie: current,
+                    amount: 1,
+                })
+            expect(current.attackContributionThisTurn).toBe(2)
+        })
+
+        it("resetActionPoints does not change attackContributionThisTurn", () => {
+            const withAttacks =
+                InBattleSquaddieService.incrementAttackContributionThisTurn({
+                    squaddie,
+                    amount: 2,
+                })
+            expect(withAttacks.attackContributionThisTurn).toBe(2)
+
+            const reset = InBattleSquaddieService.resetActionPoints({
+                squaddie: withAttacks,
+            })
+            expect(reset.attackContributionThisTurn).toBe(2)
+        })
+
+        it("resetAttackContributionThisTurn resets attackContributionThisTurn to 0", () => {
+            const withAttacks =
+                InBattleSquaddieService.incrementAttackContributionThisTurn({
+                    squaddie,
+                    amount: 2,
+                })
+            expect(withAttacks.attackContributionThisTurn).toBe(2)
+
+            const reset =
+                InBattleSquaddieService.resetAttackContributionThisTurn({
+                    squaddie: withAttacks,
+                })
+            expect(reset.attackContributionThisTurn).toBe(0)
         })
     })
 })

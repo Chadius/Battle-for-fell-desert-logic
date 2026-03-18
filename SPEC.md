@@ -452,6 +452,39 @@ Tasks:
 
 ## Future Considerations (Out of Scope for Initial Playable Mission)
 
+### Multiple Attack Penalty (DONE)
+
+To discourage repeated attacks with a weapon, actions taken in a given turn get an increasing penalty.
+
+- The first attack action has no penalty.
+- The second attack action gets a -3 penalty to its attack.
+- Attacks after the second get a -6 penalty. This is usually enough to discourage attacking a third time.
+
+Attacks that use these proficiencies will by default increase the MAP.
+ProficiencyType.WEAPON_NATURAL
+ProficiencyType.WEAPON_SIMPLE
+ProficiencyType.WEAPON_MARTIAL
+
+Squaddie Actions can
+
+- Contribution (how much MAP is applied?)
+- Applies (does MAP apply to the action?)
+  There are non-weapon actions that do apply MAP.
+
+### Every +1 matters
+
+If an attack would have hit but misses due to Armor, we should report that the attack was Blocked/Absorbed/Dodged.
+Conditions that affect chances to hit will have to have some kind of verb associated with them.
+
+We should send a value representing the verb, instead of a raw string. The client is responsible for displaying the
+verb.
+
+- Shield: "Blocked"
+- Parry: "Parried"
+- Defensive Stance: "Dodged"
+
+### Other
+
 - **Multiplayer**: multiple human controllers on separate affiliations.
 - **Scripted objectives**: lua-style or data-driven criteria for complex win conditions.
 - **Character progression**: experience, leveling, permanent attribute gains.

@@ -219,6 +219,14 @@ export class MissionManager {
             })
         }
 
+        if (fullAction.multipleAttackPenalty.contribution > 0) {
+            this.inBattleSquaddieManager!.incrementAttackContributionThisTurn({
+                inBattleSquaddieId: actor.inBattleSquaddieId,
+                outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+                amount: fullAction.multipleAttackPenalty.contribution,
+            })
+        }
+
         return calculationResults
     }
 

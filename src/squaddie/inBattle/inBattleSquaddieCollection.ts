@@ -426,6 +426,61 @@ export const InBattleSquaddieCollectionService = {
 
         return { collection: modifiedCollection, restored }
     },
+    getAttackContributionThisTurn: ({
+        collection,
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+    }): number => {
+        throwIfCollectionIsUndefined(
+            collection,
+            "getAttackContributionThisTurn"
+        )
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "getAttackContributionThisTurn",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
+        })
+        return inBattleSquaddie.attackContributionThisTurn
+    },
+    incrementAttackContributionThisTurn: ({
+        collection,
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+        amount,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        amount: number
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(
+            collection,
+            "incrementAttackContributionThisTurn"
+        )
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "incrementAttackContributionThisTurn",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
+        })
+
+        const updatedSquaddie =
+            InBattleSquaddieService.incrementAttackContributionThisTurn({
+                squaddie: inBattleSquaddie,
+                amount,
+            })
+
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: updatedSquaddie,
+            outOfBattleSquaddie,
+        })
+    },
     resetActionPoints: ({
         collection,
         inBattleSquaddie,
@@ -446,6 +501,33 @@ export const InBattleSquaddieCollectionService = {
         collection.byOutOfBattleSquaddieId.get(outOfBattleSquaddie.id)![
             inBattleSquaddie.id
         ] = InBattleSquaddieService.resetActionPoints({
+            squaddie: inBattleSquaddie,
+        })
+        return collection
+    },
+    resetAttackContributionThisTurn: ({
+        collection,
+        inBattleSquaddie,
+        outOfBattleSquaddie,
+    }: {
+        collection: InBattleSquaddieCollection
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(
+            collection,
+            "resetAttackContributionThisTurn"
+        )
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "resetAttackContributionThisTurn",
+            collection,
+            inBattleSquaddie,
+            outOfBattleSquaddie,
+        })
+
+        collection.byOutOfBattleSquaddieId.get(outOfBattleSquaddie.id)![
+            inBattleSquaddie.id
+        ] = InBattleSquaddieService.resetAttackContributionThisTurn({
             squaddie: inBattleSquaddie,
         })
         return collection

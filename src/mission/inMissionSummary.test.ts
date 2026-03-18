@@ -33,22 +33,23 @@ describe("InMissionSummary", () => {
             const objectiveStates: MissionObjectiveSummary[] = [
                 { id: "obj-1", isCompleted: true, hasGivenReward: false },
             ]
-            const inBattleSquaddieCollection =
-                InBattleSquaddieCollectionService.deserialize({
-                    byOutOfBattleSquaddieId: {
-                        "squaddie-1": [
-                            {
-                                id: 0,
-                                outOfBattleSquaddieId: "squaddie-1",
-                                name: "Test",
-                                hitPoints: { max: 10, current: 10 },
-                                conditions: {},
-                                actionPoints: { current: 3 },
-                                actionIds: { natural: [] },
-                                itemIdsUsed: [],
-                            },
-                        ],
-                    },
+            const attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "test-sheet",
+                    maxHitPoints: 10,
+                })
+            const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "squaddie-1",
+                name: "Test",
+                actionIds: [],
+                attributeSheetId: "test-sheet",
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+            const { collection: inBattleSquaddieCollection } =
+                InBattleSquaddieCollectionService.createNewSquaddie({
+                    collection: InBattleSquaddieCollectionService.new(),
+                    outOfBattleSquaddie,
+                    attributeSheet,
                 })
 
             const summary = InMissionSummaryService.new({
@@ -186,28 +187,30 @@ describe("InMissionSummary", () => {
 
     describe("serialization", () => {
         it("round-trip serialize/deserialize preserves data", () => {
+            const attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "test-sheet",
+                    maxHitPoints: 10,
+                })
+            const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "squaddie-1",
+                name: "Test",
+                actionIds: ["action1"],
+                attributeSheetId: "test-sheet",
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+            const { collection } =
+                InBattleSquaddieCollectionService.createNewSquaddie({
+                    collection: InBattleSquaddieCollectionService.new(),
+                    outOfBattleSquaddie,
+                    attributeSheet,
+                })
             const original: InMissionSummary = {
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                     { id: "obj-2", isCompleted: false, hasGivenReward: false },
                 ],
-                inBattleSquaddieCollection:
-                    InBattleSquaddieCollectionService.deserialize({
-                        byOutOfBattleSquaddieId: {
-                            "squaddie-1": [
-                                {
-                                    id: 0,
-                                    outOfBattleSquaddieId: "squaddie-1",
-                                    name: "Test",
-                                    hitPoints: { max: 10, current: 5 },
-                                    conditions: {},
-                                    actionPoints: { current: 2 },
-                                    actionIds: { natural: ["action1"] },
-                                    itemIdsUsed: ["item1"],
-                                },
-                            ],
-                        },
-                    }),
+                inBattleSquaddieCollection: collection,
                 recentPhaseTransitions: [MissionAffiliationTurn.PLAYER_TURN],
             }
 
@@ -280,25 +283,22 @@ describe("InMissionSummary", () => {
         })
 
         it("loads squaddie collection from saved summary", () => {
+            const tempManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                inBattleSquaddieManager.outOfBattleSquaddieManager!
+            )
+            const tempId = tempManager.createNewSquaddie({
+                outOfBattleSquaddieId: "squaddie-1",
+            })
+            tempManager.dealDamageToSquaddie({
+                ...tempId,
+                damage: { amount: 3, type: undefined },
+            })
+            tempManager.spendActionPoints({ ...tempId, actionPoints: 2 })
             const savedState: InMissionSummary = {
                 missionObjectives: [],
                 inBattleSquaddieCollection:
-                    InBattleSquaddieCollectionService.deserialize({
-                        byOutOfBattleSquaddieId: {
-                            "squaddie-1": [
-                                {
-                                    id: 0,
-                                    outOfBattleSquaddieId: "squaddie-1",
-                                    name: "Squaddie",
-                                    hitPoints: { max: 10, current: 7 },
-                                    conditions: {},
-                                    actionPoints: { current: 1 },
-                                    actionIds: { natural: [] },
-                                    itemIdsUsed: [],
-                                },
-                            ],
-                        },
-                    }),
+                    tempManager.inBattleSquaddieCollection!,
                 recentPhaseTransitions: [],
             }
 

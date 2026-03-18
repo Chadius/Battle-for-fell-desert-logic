@@ -73,6 +73,11 @@ type DegreeOfSuccessEffects = {
     [d in Exclude<TDegreeOfSuccess, "SUCCESS">]?: SquaddieActionEffect
 }
 
+export interface MultipleAttackPenalty {
+    applies: boolean
+    contribution: number
+}
+
 export interface SquaddieAction {
     id: string
     name: string
@@ -81,9 +86,16 @@ export interface SquaddieAction {
     targeting: SquaddieActionTargeting
     proficiency: TProficiencyType
     actorRollsToHit: boolean
+    multipleAttackPenalty: MultipleAttackPenalty
     effectOnActor: DegreeOfSuccessEffects
     effectOnTarget?: DegreeOfSuccessEffects
 }
+
+const WEAPON_PROFICIENCY_TYPES: ReadonlySet<TProficiencyType> = new Set([
+    ProficiencyType.WEAPON_NATURAL,
+    ProficiencyType.WEAPON_SIMPLE,
+    ProficiencyType.WEAPON_MARTIAL,
+])
 
 export const SquaddieActionService = {
     new: ({
@@ -99,9 +111,19 @@ export const SquaddieActionService = {
         effectOnActor,
         effectOnTarget,
         actorRollsToHit,
-    }: Partial<SquaddieAction> &
+        multipleAttackPenalty,
+    }: Omit<Partial<SquaddieAction>, "multipleAttackPenalty"> &
         Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
-        Partial<SquaddieActionTargeting>): SquaddieAction => {
+        Partial<SquaddieActionTargeting> & {
+            multipleAttackPenalty?: Partial<MultipleAttackPenalty>
+        }): SquaddieAction => {
+        const resolvedProficiency = proficiency ?? ProficiencyType.UNKNOWN
+        const isWeapon = WEAPON_PROFICIENCY_TYPES.has(resolvedProficiency)
+        const resolvedMultipleAttackPenalty: MultipleAttackPenalty = {
+            applies: multipleAttackPenalty?.applies ?? isWeapon,
+            contribution:
+                multipleAttackPenalty?.contribution ?? (isWeapon ? 1 : 0),
+        }
         return {
             id,
             name,
@@ -111,7 +133,7 @@ export const SquaddieActionService = {
                 (effectOnTarget
                     ? (Object.keys(effectOnTarget) as TDegreeOfSuccess[])
                     : [DegreeOfSuccess.SUCCESS]),
-            proficiency: proficiency ?? ProficiencyType.UNKNOWN,
+            proficiency: resolvedProficiency,
             targeting: targeting ?? {
                 range: range ?? ActionRange.MELEE,
                 shape: shape ?? CoordinateGeneratorShape.BLOOM,
@@ -122,6 +144,7 @@ export const SquaddieActionService = {
                 },
             },
             actorRollsToHit: actorRollsToHit ?? true,
+            multipleAttackPenalty: resolvedMultipleAttackPenalty,
             effectOnActor,
             effectOnTarget,
         }
