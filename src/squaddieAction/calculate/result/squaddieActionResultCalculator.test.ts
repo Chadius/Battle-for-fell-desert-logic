@@ -852,6 +852,246 @@ describe("SquaddieActionResultCalculator", () => {
             expect(target1Results.length).toBeGreaterThan(0)
             expect(target2Results.length).toBeGreaterThan(0)
         })
+
+        describe("modifierBreakdown", () => {
+            it("modifierBreakdown is undefined for non-roll-to-hit actions", () => {
+                const healAction = SquaddieActionService.new({
+                    id: "heal-action",
+                    name: "Heal Action",
+                    proficiency: ProficiencyType.SKILL_BODY,
+                    actorRollsToHit: false,
+                    targeting: {
+                        range: ActionRange.MELEE,
+                        shape: CoordinateGeneratorShape.BLOOM,
+                        affiliationRelationship: {
+                            self: true,
+                            friend: true,
+                            foe: false,
+                        },
+                    },
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 2 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            healing: { raw: 2 },
+                        },
+                    },
+                })
+                actionManager.addOrUpdate(healAction)
+
+                const results =
+                    SquaddieActionResultCalculator.calculateForecastedResults({
+                        actor,
+                        targets: [actor],
+                        action: {
+                            id: healAction.id,
+                            manager: actionManager,
+                        },
+                        inBattleSquaddieManager,
+                    })
+
+                for (const result of results) {
+                    expect(result.modifierBreakdown).toBeUndefined()
+                }
+            })
+
+            it("modifierBreakdown is defined for roll-to-hit weapon actions", () => {
+                const results =
+                    SquaddieActionResultCalculator.calculateForecastedResults({
+                        actor,
+                        targets: [target],
+                        action: {
+                            id: testAction.id,
+                            manager: actionManager,
+                        },
+                        inBattleSquaddieManager,
+                    })
+
+                for (const result of results) {
+                    expect(result.modifierBreakdown).toBeDefined()
+                }
+            })
+
+            it("all four fields are present in modifierBreakdown", () => {
+                const results =
+                    SquaddieActionResultCalculator.calculateForecastedResults({
+                        actor,
+                        targets: [target],
+                        action: {
+                            id: testAction.id,
+                            manager: actionManager,
+                        },
+                        inBattleSquaddieManager,
+                    })
+
+                for (const result of results) {
+                    expect(result.modifierBreakdown).toEqual(
+                        expect.objectContaining({
+                            actorProficiencyBonus: expect.any(Number),
+                            targetDefensiveBonus: expect.any(Number),
+                            multipleAttackPenalty: expect.any(Number),
+                            netModifier: expect.any(Number),
+                        })
+                    )
+                }
+            })
+
+            it("multipleAttackPenalty is 0 when no previous weapon attacks", () => {
+                const results =
+                    SquaddieActionResultCalculator.calculateForecastedResults({
+                        actor,
+                        targets: [target],
+                        action: {
+                            id: testAction.id,
+                            manager: actionManager,
+                        },
+                        inBattleSquaddieManager,
+                    })
+
+                expect(
+                    results[0].modifierBreakdown!.multipleAttackPenalty
+                ).toBe(0)
+            })
+
+            it("multipleAttackPenalty is 3 when one previous weapon attack", () => {
+                inBattleSquaddieManager.incrementAttackContributionThisTurn({
+                    inBattleSquaddieId: actor.inBattleSquaddieId,
+                    outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+                    amount: 1,
+                })
+
+                const results =
+                    SquaddieActionResultCalculator.calculateForecastedResults({
+                        actor,
+                        targets: [target],
+                        action: {
+                            id: testAction.id,
+                            manager: actionManager,
+                        },
+                        inBattleSquaddieManager,
+                    })
+
+                expect(
+                    results[0].modifierBreakdown!.multipleAttackPenalty
+                ).toBe(3)
+            })
+
+            it("multipleAttackPenalty is 6 when two or more previous weapon attacks", () => {
+                inBattleSquaddieManager.incrementAttackContributionThisTurn({
+                    inBattleSquaddieId: actor.inBattleSquaddieId,
+                    outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+                    amount: 2,
+                })
+
+                const results =
+                    SquaddieActionResultCalculator.calculateForecastedResults({
+                        actor,
+                        targets: [target],
+                        action: {
+                            id: testAction.id,
+                            manager: actionManager,
+                        },
+                        inBattleSquaddieManager,
+                    })
+
+                expect(
+                    results[0].modifierBreakdown!.multipleAttackPenalty
+                ).toBe(6)
+            })
+
+            it("multipleAttackPenalty is 0 for actions that do not apply MAP", () => {
+                inBattleSquaddieManager.incrementAttackContributionThisTurn({
+                    inBattleSquaddieId: actor.inBattleSquaddieId,
+                    outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+                    amount: 2,
+                })
+
+                const skillAction = SquaddieActionService.new({
+                    id: "skill-action",
+                    name: "Skill Action",
+                    proficiency: ProficiencyType.SKILL_BODY,
+                    actorRollsToHit: true,
+                    multipleAttackPenalty: {
+                        applies: false,
+                    },
+                    targeting: {
+                        range: ActionRange.MELEE,
+                        shape: CoordinateGeneratorShape.BLOOM,
+                        affiliationRelationship: {
+                            self: false,
+                            friend: false,
+                            foe: true,
+                        },
+                    },
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            damage: {
+                                raw: 1,
+                                targetProficiency: ProficiencyType.ARMOR,
+                                attributeScoreType: AttributeScore.BODY,
+                            },
+                        },
+                    },
+                })
+                actionManager.addOrUpdate(skillAction)
+
+                const results =
+                    SquaddieActionResultCalculator.calculateForecastedResults({
+                        actor,
+                        targets: [target],
+                        action: {
+                            id: skillAction.id,
+                            manager: actionManager,
+                        },
+                        inBattleSquaddieManager,
+                    })
+
+                for (const result of results) {
+                    expect(
+                        result.modifierBreakdown!.multipleAttackPenalty
+                    ).toBe(0)
+                }
+            })
+
+            it("netModifier equals actorProficiencyBonus minus targetDefensiveBonus minus multipleAttackPenalty", () => {
+                const results =
+                    SquaddieActionResultCalculator.calculateForecastedResults({
+                        actor,
+                        targets: [target],
+                        action: {
+                            id: testAction.id,
+                            manager: actionManager,
+                        },
+                        inBattleSquaddieManager,
+                    })
+
+                const breakdown = results[0].modifierBreakdown!
+                const {
+                    actorProficiencyBonus,
+                    targetDefensiveBonus,
+                    multipleAttackPenalty,
+                    netModifier,
+                } = breakdown
+
+                expect(netModifier).toBe(
+                    actorProficiencyBonus -
+                        targetDefensiveBonus -
+                        multipleAttackPenalty
+                )
+                expect(actorProficiencyBonus).toBe(3)
+                expect(targetDefensiveBonus).toBe(3)
+                expect(multipleAttackPenalty).toBe(0)
+                expect(netModifier).toBe(0)
+            })
+        })
     })
 
     describe("serializeForecastedActionResult", () => {

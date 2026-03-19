@@ -473,7 +473,8 @@ Squaddie Actions can
 
 ### Every +1 matters
 
-If an attack would have hit but misses due to Armor, we should report that the attack was Blocked/Absorbed/Dodged.
+If an attack would have hit, but misses due to an ARMOR condition, we should report that the attack was
+Blocked/Absorbed/Dodged.
 Conditions that affect chances to hit will have to have some kind of verb associated with them.
 
 We should send a value representing the verb, instead of a raw string. The client is responsible for displaying the
@@ -482,6 +483,15 @@ verb.
 - Shield: "Blocked"
 - Parry: "Parried"
 - Defensive Stance: "Dodged"
+
+SquaddieActions that increase ARMOR can assign an Enum indicating which verb should be assigned.
+
+When resolving which action to use, choose based on a priority. If the user has this verb available use it:
+
+- Dodged
+- Parried
+- Blocked
+- Absorbed
 
 ### Other
 

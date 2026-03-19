@@ -39,11 +39,19 @@ export type SquaddieActionDecisions = {
     }
 }
 
+export interface ActionModifierBreakdown {
+    actorProficiencyBonus: number
+    targetDefensiveBonus: number
+    multipleAttackPenalty: number
+    netModifier: number
+}
+
 export interface ForecastedActionResult {
     battleSquaddieId: BattleSquaddieId
     degreeOfSuccess: TDegreeOfSuccess
     chanceOutOf36: number
     squaddieActionResults: SquaddieActionResult[]
+    modifierBreakdown?: ActionModifierBreakdown
 }
 
 export type SerializedForecastedActionResult = Omit<
@@ -412,11 +420,23 @@ export const SquaddieActionResultCalculator = {
                     map: map ? { mapId: map.mapId } : undefined,
                 })
 
+            const modifierBreakdown = computeModifierBreakdown({
+                actor,
+                target: {
+                    inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,
+                    outOfBattleSquaddieId:
+                        battleSquaddieId.outOfBattleSquaddieId,
+                },
+                action,
+                inBattleSquaddieManager,
+            })
+
             results.push({
                 battleSquaddieId,
                 degreeOfSuccess,
                 chanceOutOf36,
                 squaddieActionResults,
+                modifierBreakdown,
             })
         }
 
@@ -433,6 +453,10 @@ export const SquaddieActionResultCalculator = {
             squaddieActionResults: result.squaddieActionResults.map(
                 SquaddieActionResultService.serialize
             ),
+            modifierBreakdown:
+                result.modifierBreakdown == undefined
+                    ? undefined
+                    : { ...result.modifierBreakdown },
         }
     },
 
@@ -1154,6 +1178,65 @@ const reverseMovement = (
         }),
     }
     return reversed
+}
+
+const computeModifierBreakdown = ({
+    actor,
+    target,
+    action,
+    inBattleSquaddieManager,
+}: {
+    actor: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }
+    target: {
+        inBattleSquaddieId: number
+        outOfBattleSquaddieId: string
+    }
+    action: {
+        id: string
+        manager: SquaddieActionManager
+    }
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): ActionModifierBreakdown | undefined => {
+    const squaddieAction = action.manager.get(action.id)
+    if (!squaddieAction.actorRollsToHit) return undefined
+
+    const actorProficiencyBonus =
+        ProficiencyCalculator.getActorProficiencyBonus({
+            actor,
+            squaddieAction,
+            inBattleSquaddieManager,
+        })
+
+    const attackContributionThisTurn = squaddieAction.multipleAttackPenalty
+        .applies
+        ? inBattleSquaddieManager.getAttackContributionThisTurn({
+              inBattleSquaddieId: actor.inBattleSquaddieId,
+              outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+          })
+        : 0
+    const multipleAttackPenalty =
+        ProficiencyCalculator.getMapPenaltyFromAttackCount(
+            attackContributionThisTurn
+        )
+
+    const targetDefensiveBonus = ProficiencyCalculator.getTargetDefensiveBonus({
+        target,
+        squaddieAction,
+        inBattleSquaddieManager,
+    })
+
+    const netModifier =
+        actorProficiencyBonus - targetDefensiveBonus - multipleAttackPenalty
+
+    return {
+        actorProficiencyBonus,
+        targetDefensiveBonus,
+        multipleAttackPenalty,
+        netModifier,
+    }
 }
 
 const calculateActionResultsWithoutRolls = ({
