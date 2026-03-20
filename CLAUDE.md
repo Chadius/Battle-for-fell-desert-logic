@@ -176,3 +176,8 @@ Use one `describe` block, usually with the name of the object/class under test. 
 
 Try to avoid mocking objects if possible. I'd rather you make simple and specific examples of underlying objects
 and make large test files. Mocked objects break when the functions change.
+
+When writing a describe block, try to consolidate functions across the individual tests. Many tests have a slightly
+different setup or action. Extract common describe-level functions to reuse the setup and reduce duplication and improve
+readability. Some tests need to do some setup before acting. Move the action into a function and let the unit test call
+that instead. This makes the tests more readable and focuses on the test's purpose.

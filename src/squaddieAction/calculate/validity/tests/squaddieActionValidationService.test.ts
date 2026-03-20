@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionValidationService } from "../squaddieActionValidationService"
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
-import { SquaddieActionService } from "../../../squaddieAction"
+import {
+    type SquaddieAction,
+    SquaddieActionService,
+} from "../../../squaddieAction"
 import {
     type BattleSquaddieId,
     InBattleSquaddieManager,
@@ -17,6 +20,7 @@ import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordi
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import type { SquaddieActionDecisions } from "../../result/squaddieActionResultCalculator"
+import type { OffsetCoordinate } from "../../../../coordinateMap/offsetCoordinate"
 import { ActionRange } from "../../../actionRange"
 import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
@@ -89,6 +93,19 @@ describe("SquaddieActionValidationService", () => {
     })
 
     describe("action point validation", () => {
+        const callIsActionValid = (action: SquaddieAction) =>
+            SquaddieActionValidationService.isActionValid({
+                actor,
+                action: { id: action.id },
+                targets: [],
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager,
+                    coordinateMapCollectionManager,
+                },
+                map: { mapId },
+            })
+
         it("returns valid when squaddie has enough action points", () => {
             const action = SquaddieActionService.new({
                 id: "test-action",
@@ -101,17 +118,7 @@ describe("SquaddieActionValidationService", () => {
             })
             squaddieActionManager.addOrUpdate(action)
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor,
-                action: { id: action.id },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            const result = callIsActionValid(action)
 
             expect(result.isValid).toBe(true)
             expect(result.reason).toBeUndefined()
@@ -134,17 +141,7 @@ describe("SquaddieActionValidationService", () => {
             })
             squaddieActionManager.addOrUpdate(action)
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor,
-                action: { id: action.id },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            const result = callIsActionValid(action)
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("Needs 3 action points")
@@ -162,17 +159,7 @@ describe("SquaddieActionValidationService", () => {
             })
             squaddieActionManager.addOrUpdate(action)
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor,
-                action: { id: action.id },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            const result = callIsActionValid(action)
 
             expect(result.isValid).toBe(true)
         })
@@ -189,17 +176,7 @@ describe("SquaddieActionValidationService", () => {
             })
             squaddieActionManager.addOrUpdate(action)
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor,
-                action: { id: action.id },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            const result = callIsActionValid(action)
 
             expect(result.isValid).toBe(true)
         })
@@ -221,17 +198,7 @@ describe("SquaddieActionValidationService", () => {
             })
             squaddieActionManager.addOrUpdate(action)
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor,
-                action: { id: action.id },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            const result = callIsActionValid(action)
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("Squaddie cannot act")
@@ -247,17 +214,7 @@ describe("SquaddieActionValidationService", () => {
             })
             squaddieActionManager.addOrUpdate(action)
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor,
-                action: { id: action.id },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            const result = callIsActionValid(action)
 
             expect(result.isValid).toBe(true)
         })
@@ -274,17 +231,7 @@ describe("SquaddieActionValidationService", () => {
             })
             squaddieActionManager.addOrUpdate(action)
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor,
-                action: { id: action.id },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager,
-                    squaddieActionManager,
-                    coordinateMapCollectionManager,
-                },
-                map: { mapId },
-            })
+            const result = callIsActionValid(action)
 
             expect(result.isValid).toBe(true)
         })
@@ -296,6 +243,7 @@ describe("SquaddieActionValidationService", () => {
         let movementOutOfBattleSquaddieManager: OutOfBattleSquaddieManager
         let movementCoordinateMapCollectionManager: CoordinateMapCollectionManager
         let movementActor: BattleSquaddieId
+        let moveAction: SquaddieAction
         const movementMapId = "movement-test-map"
 
         beforeEach(() => {
@@ -356,10 +304,8 @@ describe("SquaddieActionValidationService", () => {
                 squaddieId: movementActor,
                 coordinate: { row: 0, col: 0 },
             })
-        })
 
-        it("returns valid with movementPath when movement destination is reachable", () => {
-            const moveAction = SquaddieActionService.new({
+            moveAction = SquaddieActionService.new({
                 id: "move-action",
                 name: "Move Action",
                 effectOnActor: {
@@ -373,12 +319,14 @@ describe("SquaddieActionValidationService", () => {
                 },
             })
             movementSquaddieActionManager.addOrUpdate(moveAction)
+        })
 
-            const decisions: SquaddieActionDecisions = {
-                desiredMovementDestination: { row: 0, col: 4 },
-            }
-
-            const result = SquaddieActionValidationService.isActionValid({
+        const callMoveIsActionValid = (
+            decisions?: SquaddieActionDecisions,
+            coordinateMapOverride?: CoordinateMapCollectionManager,
+            mapIdOverride?: string
+        ) =>
+            SquaddieActionValidationService.isActionValid({
                 actor: movementActor,
                 action: { id: moveAction.id, decisions },
                 targets: [],
@@ -386,10 +334,18 @@ describe("SquaddieActionValidationService", () => {
                     inBattleSquaddieManager: movementInBattleSquaddieManager,
                     squaddieActionManager: movementSquaddieActionManager,
                     coordinateMapCollectionManager:
+                        coordinateMapOverride ??
                         movementCoordinateMapCollectionManager,
                 },
-                map: { mapId: movementMapId },
+                map: { mapId: mapIdOverride ?? movementMapId },
             })
+
+        it("returns valid with movementPath when movement destination is reachable", () => {
+            const decisions: SquaddieActionDecisions = {
+                desiredMovementDestination: { row: 0, col: 4 },
+            }
+
+            const result = callMoveIsActionValid(decisions)
 
             expect(result.isValid).toBe(true)
             expect(result.movementPath).toBeDefined()
@@ -397,37 +353,11 @@ describe("SquaddieActionValidationService", () => {
         })
 
         it("returns invalid when hex distance exceeds maximum movement", () => {
-            const moveAction = SquaddieActionService.new({
-                id: "move-action",
-                name: "Move Action",
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        actionPoints: {
-                            spent: 0,
-                            additional: { movementPathActionPointCost: true },
-                        },
-                        movement: { moveToSelectedDestination: true },
-                    },
-                },
-            })
-            movementSquaddieActionManager.addOrUpdate(moveAction)
-
             const decisions: SquaddieActionDecisions = {
                 desiredMovementDestination: { row: 0, col: 7 },
             }
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor: movementActor,
-                action: { id: moveAction.id, decisions },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager: movementInBattleSquaddieManager,
-                    squaddieActionManager: movementSquaddieActionManager,
-                    coordinateMapCollectionManager:
-                        movementCoordinateMapCollectionManager,
-                },
-                map: { mapId: movementMapId },
-            })
+            const result = callMoveIsActionValid(decisions)
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("Destination is too far away")
@@ -435,37 +365,11 @@ describe("SquaddieActionValidationService", () => {
         })
 
         it("returns invalid when path cost exceeds maximum even if hex distance is within range", () => {
-            const moveAction = SquaddieActionService.new({
-                id: "move-action",
-                name: "Move Action",
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        actionPoints: {
-                            spent: 0,
-                            additional: { movementPathActionPointCost: true },
-                        },
-                        movement: { moveToSelectedDestination: true },
-                    },
-                },
-            })
-            movementSquaddieActionManager.addOrUpdate(moveAction)
-
             const decisions: SquaddieActionDecisions = {
                 desiredMovementDestination: { row: 0, col: 5 },
             }
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor: movementActor,
-                action: { id: moveAction.id, decisions },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager: movementInBattleSquaddieManager,
-                    squaddieActionManager: movementSquaddieActionManager,
-                    coordinateMapCollectionManager:
-                        movementCoordinateMapCollectionManager,
-                },
-                map: { mapId: movementMapId },
-            })
+            const result = callMoveIsActionValid(decisions)
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("Destination is blocked")
@@ -492,36 +396,15 @@ describe("SquaddieActionValidationService", () => {
                 coordinate: { row: 0, col: 0 },
             })
 
-            const moveAction = SquaddieActionService.new({
-                id: "move-action",
-                name: "Move Action",
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        actionPoints: {
-                            spent: 0,
-                            additional: { movementPathActionPointCost: true },
-                        },
-                        movement: { moveToSelectedDestination: true },
-                    },
-                },
-            })
-            movementSquaddieActionManager.addOrUpdate(moveAction)
-
             const decisions: SquaddieActionDecisions = {
                 desiredMovementDestination: { row: 0, col: 2 },
             }
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor: movementActor,
-                action: { id: moveAction.id, decisions },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager: movementInBattleSquaddieManager,
-                    squaddieActionManager: movementSquaddieActionManager,
-                    coordinateMapCollectionManager: wallCoordinateMapManager,
-                },
-                map: { mapId: wallMapId },
-            })
+            const result = callMoveIsActionValid(
+                decisions,
+                wallCoordinateMapManager,
+                wallMapId
+            )
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("Destination is blocked")
@@ -529,33 +412,7 @@ describe("SquaddieActionValidationService", () => {
         })
 
         it("returns valid without movementPath when no destination is provided", () => {
-            const moveAction = SquaddieActionService.new({
-                id: "move-action",
-                name: "Move Action",
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        actionPoints: {
-                            spent: 0,
-                            additional: { movementPathActionPointCost: true },
-                        },
-                        movement: { moveToSelectedDestination: true },
-                    },
-                },
-            })
-            movementSquaddieActionManager.addOrUpdate(moveAction)
-
-            const result = SquaddieActionValidationService.isActionValid({
-                actor: movementActor,
-                action: { id: moveAction.id },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager: movementInBattleSquaddieManager,
-                    squaddieActionManager: movementSquaddieActionManager,
-                    coordinateMapCollectionManager:
-                        movementCoordinateMapCollectionManager,
-                },
-                map: { mapId: movementMapId },
-            })
+            const result = callMoveIsActionValid()
 
             expect(result.isValid).toBe(true)
             expect(result.movementPath).toBeUndefined()
@@ -569,6 +426,7 @@ describe("SquaddieActionValidationService", () => {
         let aoeInBattleSquaddieManager: InBattleSquaddieManager
         let aoeCoordinateMapCollectionManager: CoordinateMapCollectionManager
         let aoeActor: BattleSquaddieId
+        let aoeAction: SquaddieAction
 
         beforeEach(() => {
             const { manager: aoeOutOfBattle } =
@@ -649,10 +507,8 @@ describe("SquaddieActionValidationService", () => {
                 squaddieId: enemy,
                 coordinate: { row: 0, col: 2 },
             })
-        })
 
-        it("isActionValid valid when blast center in range and AoE hits valid target", () => {
-            const aoeAction = SquaddieActionService.new({
+            aoeAction = SquaddieActionService.new({
                 id: "aoe-attack",
                 name: "AoE Attack",
                 range: ActionRange.MELEE,
@@ -677,14 +533,17 @@ describe("SquaddieActionValidationService", () => {
                 },
             })
             aoeSquaddieActionManager.addOrUpdate(aoeAction)
+        })
 
-            const targets = [enemy]
-
-            const result = SquaddieActionValidationService.isActionValid({
+        const callAoeIsActionValid = (
+            targetCoordinate: OffsetCoordinate,
+            targets: BattleSquaddieId[]
+        ) =>
+            SquaddieActionValidationService.isActionValid({
                 actor: aoeActor,
                 action: {
                     id: aoeAction.id,
-                    decisions: { targetCoordinate: { row: 0, col: 1 } },
+                    decisions: { targetCoordinate },
                 },
                 targets,
                 managers: {
@@ -696,190 +555,62 @@ describe("SquaddieActionValidationService", () => {
                 map: { mapId: aoeMapId },
             })
 
+        it("isActionValid valid when blast center in range and AoE hits valid target", () => {
+            const result = callAoeIsActionValid({ row: 0, col: 1 }, [enemy])
+
             expect(result.isValid).toBe(true)
         })
 
         it("isActionValid invalid when blast center out of action range", () => {
-            const aoeAction = SquaddieActionService.new({
-                id: "aoe-attack",
-                name: "AoE Attack",
-                range: ActionRange.MELEE,
-                shape: CoordinateGeneratorShape.BLOOM,
-                areaOfEffectSize: 1,
-                targetCoordinateRequiresTarget: false,
-                affiliationRelationship: {
-                    self: false,
-                    foe: true,
-                    friend: false,
-                },
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
-                },
-                effectOnTarget: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        damage: {
-                            raw: 2,
-                            targetProficiency: ProficiencyType.ARMOR,
-                        },
-                    },
-                },
-            })
-            aoeSquaddieActionManager.addOrUpdate(aoeAction)
-
-            const result = SquaddieActionValidationService.isActionValid({
-                actor: aoeActor,
-                action: {
-                    id: aoeAction.id,
-                    decisions: { targetCoordinate: { row: 0, col: 5 } },
-                },
-                targets: [enemy],
-                managers: {
-                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
-                    squaddieActionManager: aoeSquaddieActionManager,
-                    coordinateMapCollectionManager:
-                        aoeCoordinateMapCollectionManager,
-                },
-                map: { mapId: aoeMapId },
-            })
+            const result = callAoeIsActionValid({ row: 0, col: 5 }, [enemy])
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("Blast center is out of range")
         })
 
         it("isActionValid valid for empty-center action when enemy is in AoE radius", () => {
-            const aoeAction = SquaddieActionService.new({
-                id: "aoe-attack",
-                name: "AoE Attack",
-                range: ActionRange.MELEE,
-                shape: CoordinateGeneratorShape.BLOOM,
-                areaOfEffectSize: 1,
-                targetCoordinateRequiresTarget: false,
-                affiliationRelationship: {
-                    self: false,
-                    foe: true,
-                    friend: false,
-                },
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
-                },
-                effectOnTarget: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        damage: {
-                            raw: 2,
-                            targetProficiency: ProficiencyType.ARMOR,
-                        },
-                    },
-                },
-            })
-            aoeSquaddieActionManager.addOrUpdate(aoeAction)
-
-            const result = SquaddieActionValidationService.isActionValid({
-                actor: aoeActor,
-                action: {
-                    id: aoeAction.id,
-                    decisions: { targetCoordinate: { row: 0, col: 1 } },
-                },
-                targets: [enemy],
-                managers: {
-                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
-                    squaddieActionManager: aoeSquaddieActionManager,
-                    coordinateMapCollectionManager:
-                        aoeCoordinateMapCollectionManager,
-                },
-                map: { mapId: aoeMapId },
-            })
+            const result = callAoeIsActionValid({ row: 0, col: 1 }, [enemy])
 
             expect(result.isValid).toBe(true)
         })
 
         it("isActionValid invalid when targetCoordinateRequiresTarget: false and NO squaddies are in AoE radius", () => {
-            const aoeAction = SquaddieActionService.new({
-                id: "aoe-attack",
-                name: "AoE Attack",
-                range: ActionRange.MELEE,
-                shape: CoordinateGeneratorShape.BLOOM,
-                areaOfEffectSize: 1,
-                targetCoordinateRequiresTarget: false,
-                affiliationRelationship: {
-                    self: false,
-                    foe: true,
-                    friend: false,
-                },
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
-                },
-                effectOnTarget: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        damage: {
-                            raw: 2,
-                            targetProficiency: ProficiencyType.ARMOR,
-                        },
-                    },
-                },
-            })
-            aoeSquaddieActionManager.addOrUpdate(aoeAction)
-
-            const result = SquaddieActionValidationService.isActionValid({
-                actor: aoeActor,
-                action: {
-                    id: aoeAction.id,
-                    decisions: { targetCoordinate: { row: 0, col: 1 } },
-                },
-                targets: [],
-                managers: {
-                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
-                    squaddieActionManager: aoeSquaddieActionManager,
-                    coordinateMapCollectionManager:
-                        aoeCoordinateMapCollectionManager,
-                },
-                map: { mapId: aoeMapId },
-            })
+            const result = callAoeIsActionValid({ row: 0, col: 1 }, [])
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("No valid targets in blast radius")
         })
 
         it("isActionValid invalid when targetCoordinateRequiresTarget: true and no squaddie at center", () => {
-            const aoeAction = SquaddieActionService.new({
-                id: "aoe-attack",
-                name: "AoE Attack",
-                range: ActionRange.MELEE,
-                shape: CoordinateGeneratorShape.BLOOM,
-                areaOfEffectSize: 1,
-                affiliationRelationship: {
-                    self: false,
-                    foe: true,
-                    friend: false,
-                },
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
-                },
-                effectOnTarget: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        damage: {
-                            raw: 2,
-                            targetProficiency: ProficiencyType.ARMOR,
+            aoeSquaddieActionManager.addOrUpdate(
+                SquaddieActionService.new({
+                    id: aoeAction.id,
+                    name: "AoE Attack",
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    areaOfEffectSize: 1,
+                    affiliationRelationship: {
+                        self: false,
+                        foe: true,
+                        friend: false,
+                    },
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
                         },
                     },
-                },
-            })
-            aoeSquaddieActionManager.addOrUpdate(aoeAction)
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            damage: {
+                                raw: 2,
+                                targetProficiency: ProficiencyType.ARMOR,
+                            },
+                        },
+                    },
+                })
+            )
 
-            const result = SquaddieActionValidationService.isActionValid({
-                actor: aoeActor,
-                action: {
-                    id: aoeAction.id,
-                    decisions: { targetCoordinate: { row: 0, col: 1 } },
-                },
-                targets: [enemy],
-                managers: {
-                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
-                    squaddieActionManager: aoeSquaddieActionManager,
-                    coordinateMapCollectionManager:
-                        aoeCoordinateMapCollectionManager,
-                },
-                map: { mapId: aoeMapId },
-            })
+            const result = callAoeIsActionValid({ row: 0, col: 1 }, [enemy])
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("Target coordinate must have a target")
