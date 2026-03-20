@@ -17,6 +17,9 @@ import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordi
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import type { SquaddieActionDecisions } from "../../result/squaddieActionResultCalculator"
+import { ActionRange } from "../../../actionRange"
+import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape"
+import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
 
 describe("SquaddieActionValidationService", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -556,6 +559,330 @@ describe("SquaddieActionValidationService", () => {
 
             expect(result.isValid).toBe(true)
             expect(result.movementPath).toBeUndefined()
+        })
+    })
+
+    describe("AoE action validation", () => {
+        let enemy: BattleSquaddieId
+        const aoeMapId = "aoe-test-map"
+        let aoeSquaddieActionManager: SquaddieActionManager
+        let aoeInBattleSquaddieManager: InBattleSquaddieManager
+        let aoeCoordinateMapCollectionManager: CoordinateMapCollectionManager
+        let aoeActor: BattleSquaddieId
+
+        beforeEach(() => {
+            const { manager: aoeOutOfBattle } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    { sheetId: "aoe-sheet" }
+                )
+
+            aoeOutOfBattle.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "aoe-actor",
+                    name: "AoE Actor",
+                    actionIds: [],
+                    attributeSheetId: "aoe-sheet",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            )
+            aoeOutOfBattle.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "aoe-enemy",
+                    name: "AoE Enemy",
+                    actionIds: [],
+                    attributeSheetId: "aoe-sheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            )
+
+            const inBattleCollection = InBattleSquaddieCollectionService.new()
+            aoeInBattleSquaddieManager = new InBattleSquaddieManager(
+                inBattleCollection,
+                aoeOutOfBattle
+            )
+
+            const { inBattleSquaddieId: actorId } =
+                aoeInBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "aoe-actor",
+                })
+            aoeActor = {
+                inBattleSquaddieId: actorId,
+                outOfBattleSquaddieId: "aoe-actor",
+            }
+
+            const { inBattleSquaddieId: enemyId } =
+                aoeInBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "aoe-enemy",
+                })
+            enemy = {
+                inBattleSquaddieId: enemyId,
+                outOfBattleSquaddieId: "aoe-enemy",
+            }
+
+            aoeSquaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+
+            let mapCollection = CoordinateMapCollectionService.new()
+            mapCollection = CoordinateMapCollectionService.addOrUpdate({
+                collection: mapCollection,
+                map: CoordinateMapService.new({
+                    id: aoeMapId,
+                    name: "AoE Test Map",
+                    movementProperties: [
+                        "1 1 1 1 1 1 1 1 1 1 ",
+                        " 1 1 1 1 1 1 1 1 1 1",
+                        "1 1 1 1 1 1 1 1 1 1 ",
+                    ],
+                }),
+            })
+            aoeCoordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(mapCollection)
+
+            aoeCoordinateMapCollectionManager.addSquaddie({
+                mapId: aoeMapId,
+                squaddieId: aoeActor,
+                coordinate: { row: 0, col: 0 },
+            })
+            aoeCoordinateMapCollectionManager.addSquaddie({
+                mapId: aoeMapId,
+                squaddieId: enemy,
+                coordinate: { row: 0, col: 2 },
+            })
+        })
+
+        it("isActionValid valid when blast center in range and AoE hits valid target", () => {
+            const aoeAction = SquaddieActionService.new({
+                id: "aoe-attack",
+                name: "AoE Attack",
+                range: ActionRange.MELEE,
+                shape: CoordinateGeneratorShape.BLOOM,
+                areaOfEffectSize: 1,
+                targetCoordinateRequiresTarget: false,
+                affiliationRelationship: {
+                    self: false,
+                    foe: true,
+                    friend: false,
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            aoeSquaddieActionManager.addOrUpdate(aoeAction)
+
+            const targets = [enemy]
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: aoeActor,
+                action: {
+                    id: aoeAction.id,
+                    decisions: { targetCoordinate: { row: 0, col: 1 } },
+                },
+                targets,
+                managers: {
+                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
+                    squaddieActionManager: aoeSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        aoeCoordinateMapCollectionManager,
+                },
+                map: { mapId: aoeMapId },
+            })
+
+            expect(result.isValid).toBe(true)
+        })
+
+        it("isActionValid invalid when blast center out of action range", () => {
+            const aoeAction = SquaddieActionService.new({
+                id: "aoe-attack",
+                name: "AoE Attack",
+                range: ActionRange.MELEE,
+                shape: CoordinateGeneratorShape.BLOOM,
+                areaOfEffectSize: 1,
+                targetCoordinateRequiresTarget: false,
+                affiliationRelationship: {
+                    self: false,
+                    foe: true,
+                    friend: false,
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            aoeSquaddieActionManager.addOrUpdate(aoeAction)
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: aoeActor,
+                action: {
+                    id: aoeAction.id,
+                    decisions: { targetCoordinate: { row: 0, col: 5 } },
+                },
+                targets: [enemy],
+                managers: {
+                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
+                    squaddieActionManager: aoeSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        aoeCoordinateMapCollectionManager,
+                },
+                map: { mapId: aoeMapId },
+            })
+
+            expect(result.isValid).toBe(false)
+            expect(result.reason).toBe("Blast center is out of range")
+        })
+
+        it("isActionValid valid for empty-center action when enemy is in AoE radius", () => {
+            const aoeAction = SquaddieActionService.new({
+                id: "aoe-attack",
+                name: "AoE Attack",
+                range: ActionRange.MELEE,
+                shape: CoordinateGeneratorShape.BLOOM,
+                areaOfEffectSize: 1,
+                targetCoordinateRequiresTarget: false,
+                affiliationRelationship: {
+                    self: false,
+                    foe: true,
+                    friend: false,
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            aoeSquaddieActionManager.addOrUpdate(aoeAction)
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: aoeActor,
+                action: {
+                    id: aoeAction.id,
+                    decisions: { targetCoordinate: { row: 0, col: 1 } },
+                },
+                targets: [enemy],
+                managers: {
+                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
+                    squaddieActionManager: aoeSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        aoeCoordinateMapCollectionManager,
+                },
+                map: { mapId: aoeMapId },
+            })
+
+            expect(result.isValid).toBe(true)
+        })
+
+        it("isActionValid invalid when targetCoordinateRequiresTarget: false and NO squaddies are in AoE radius", () => {
+            const aoeAction = SquaddieActionService.new({
+                id: "aoe-attack",
+                name: "AoE Attack",
+                range: ActionRange.MELEE,
+                shape: CoordinateGeneratorShape.BLOOM,
+                areaOfEffectSize: 1,
+                targetCoordinateRequiresTarget: false,
+                affiliationRelationship: {
+                    self: false,
+                    foe: true,
+                    friend: false,
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            aoeSquaddieActionManager.addOrUpdate(aoeAction)
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: aoeActor,
+                action: {
+                    id: aoeAction.id,
+                    decisions: { targetCoordinate: { row: 0, col: 1 } },
+                },
+                targets: [],
+                managers: {
+                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
+                    squaddieActionManager: aoeSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        aoeCoordinateMapCollectionManager,
+                },
+                map: { mapId: aoeMapId },
+            })
+
+            expect(result.isValid).toBe(false)
+            expect(result.reason).toBe("No valid targets in blast radius")
+        })
+
+        it("isActionValid invalid when targetCoordinateRequiresTarget: true and no squaddie at center", () => {
+            const aoeAction = SquaddieActionService.new({
+                id: "aoe-attack",
+                name: "AoE Attack",
+                range: ActionRange.MELEE,
+                shape: CoordinateGeneratorShape.BLOOM,
+                areaOfEffectSize: 1,
+                affiliationRelationship: {
+                    self: false,
+                    foe: true,
+                    friend: false,
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            aoeSquaddieActionManager.addOrUpdate(aoeAction)
+
+            const result = SquaddieActionValidationService.isActionValid({
+                actor: aoeActor,
+                action: {
+                    id: aoeAction.id,
+                    decisions: { targetCoordinate: { row: 0, col: 1 } },
+                },
+                targets: [enemy],
+                managers: {
+                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
+                    squaddieActionManager: aoeSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        aoeCoordinateMapCollectionManager,
+                },
+                map: { mapId: aoeMapId },
+            })
+
+            expect(result.isValid).toBe(false)
+            expect(result.reason).toBe("Target coordinate must have a target")
         })
     })
 })

@@ -47,6 +47,7 @@ export const MissionEngineTestHarnessIds = {
         scimitarActionId: "lini-scimitar",
         blessingActionId: "lini-blessing",
         healActionId: "lini-heal",
+        solarSphereActionId: "lini-solar-sphere",
     },
     slitherDemon: {
         outOfBattleSquaddieId: "slither-demon",
@@ -179,6 +180,7 @@ export class MissionEngineTestHarness extends MissionEngine {
         manager.addOrUpdate(MissionEngineTestHarness.createScimitarAction())
         manager.addOrUpdate(MissionEngineTestHarness.createBlessingAction())
         manager.addOrUpdate(MissionEngineTestHarness.createHealAction())
+        manager.addOrUpdate(MissionEngineTestHarness.createSolarSphereAction())
         manager.addOrUpdate(MissionEngineTestHarness.createClawAction())
         manager.addOrUpdate(SquaddieActionService.defaultMove())
         manager.addOrUpdate(SquaddieActionService.defaultEndTurn())
@@ -290,6 +292,38 @@ export class MissionEngineTestHarness extends MissionEngine {
         })
     }
 
+    private static createSolarSphereAction(): SquaddieAction {
+        return SquaddieActionService.new({
+            id: MissionEngineTestHarnessIds.lini.solarSphereActionId,
+            name: "Solar Sphere",
+            attribute: AttributeScore.MIND,
+            proficiency: ProficiencyType.SKILL_MIND,
+            range: ActionRange.MEDIUM,
+            shape: CoordinateGeneratorShape.BLOOM,
+            areaOfEffectSize: 1,
+            targetCoordinateRequiresTarget: false,
+            affiliationRelationship: {
+                self: false,
+                foe: true,
+                friend: false,
+            },
+            actorRollsToHit: true,
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 2 },
+                },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    damage: {
+                        raw: 2,
+                        targetProficiency: ProficiencyType.ARMOR,
+                    },
+                },
+            },
+        })
+    }
+
     private static createClawAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.slitherDemon.clawActionId,
@@ -357,6 +391,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                 MissionEngineTestHarnessIds.lini.scimitarActionId,
                 MissionEngineTestHarnessIds.lini.blessingActionId,
                 MissionEngineTestHarnessIds.lini.healActionId,
+                MissionEngineTestHarnessIds.lini.solarSphereActionId,
             ],
             affiliation: SquaddieAffiliation.PLAYER,
         })

@@ -28,6 +28,8 @@ interface SquaddieActionTargeting {
         foe: boolean
         friend: boolean
     }
+    areaOfEffectSize?: number
+    targetCoordinateRequiresTarget?: boolean
 }
 
 export type ActionPointCost = number | "all"
@@ -108,6 +110,8 @@ export const SquaddieActionService = {
         range,
         shape,
         affiliationRelationship,
+        areaOfEffectSize,
+        targetCoordinateRequiresTarget,
         effectOnActor,
         effectOnTarget,
         actorRollsToHit,
@@ -142,6 +146,9 @@ export const SquaddieActionService = {
                     foe: true,
                     friend: false,
                 },
+                areaOfEffectSize: areaOfEffectSize ?? 0,
+                targetCoordinateRequiresTarget:
+                    targetCoordinateRequiresTarget ?? true,
             },
             actorRollsToHit: actorRollsToHit ?? true,
             multipleAttackPenalty: resolvedMultipleAttackPenalty,

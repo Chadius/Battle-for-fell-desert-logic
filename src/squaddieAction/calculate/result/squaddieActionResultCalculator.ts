@@ -37,6 +37,10 @@ export type SquaddieActionDecisions = {
         row: number
         col: number
     }
+    targetCoordinate?: {
+        row: number
+        col: number
+    }
 }
 
 export interface ActionModifierBreakdown {

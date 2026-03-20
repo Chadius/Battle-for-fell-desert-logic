@@ -34,6 +34,7 @@ import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../result/squaddieActionResult"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
+import { AoeTargetResolutionService } from "../aoe/aoeTargetResolutionService"
 
 export interface InvalidSquaddieAction {
     actionId: string
@@ -63,7 +64,6 @@ export interface ActionValidationResult {
 export interface ValidSquaddieActionOption {
     action: SquaddieAction
     decisions: SquaddieActionDecisions & {
-        targetCoordinate?: OffsetCoordinate
         targetSquaddieIds?: BattleSquaddieId[]
     }
     movementPath?: CoordinateMovePath
@@ -119,17 +119,33 @@ export const SquaddieActionValidationService = {
             return movementValidation
         }
 
-        const targetValidation = validateTargetsInRange({
-            actor,
-            targets,
-            squaddieAction,
-            inBattleSquaddieManager: managers.inBattleSquaddieManager,
-            coordinateMapCollectionManager:
-                managers.coordinateMapCollectionManager,
-            mapId: map.mapId,
-        })
-        if (!targetValidation.isValid) {
-            return targetValidation
+        const isAoe = (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
+        if (isAoe) {
+            const aoeValidation = validateAoeAction({
+                actor,
+                targetCoordinate: action.decisions?.targetCoordinate,
+                targets,
+                squaddieAction,
+                coordinateMapCollectionManager:
+                    managers.coordinateMapCollectionManager,
+                mapId: map.mapId,
+            })
+            if (!aoeValidation.isValid) {
+                return aoeValidation
+            }
+        } else {
+            const targetValidation = validateTargetsInRange({
+                actor,
+                targets,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+                coordinateMapCollectionManager:
+                    managers.coordinateMapCollectionManager,
+                mapId: map.mapId,
+            })
+            if (!targetValidation.isValid) {
+                return targetValidation
+            }
         }
 
         const effectValidation = validateTargetsCanBeAffected({
@@ -169,38 +185,7 @@ export const SquaddieActionValidationService = {
         positionOverride?: OffsetCoordinate
     }): Map<string, Set<string>> => {
         const squaddieAction = managers.squaddieActionManager.get(action.id)
-        const affiliationRelationship =
-            squaddieAction.targeting.affiliationRelationship
         const actionRange = squaddieAction.targeting.range
-
-        const allSquaddiesOnMap =
-            managers.coordinateMapCollectionManager.getAllSquaddieCoordinatesOnMap(
-                map.mapId
-            )
-
-        const allTargets: BattleSquaddieId[] = allSquaddiesOnMap.map(
-            (info) => ({
-                inBattleSquaddieId: info.squaddieId.inBattleSquaddieId,
-                outOfBattleSquaddieId: info.squaddieId.outOfBattleSquaddieId,
-            })
-        )
-
-        const affiliationFilteredTargets = filterTargetsByAffiliation({
-            actor,
-            targets: allTargets,
-            affiliationRelationship,
-            inBattleSquaddieManager: managers.inBattleSquaddieManager,
-        })
-
-        const distanceFilteredTargets = filterTargetsByDistance({
-            actor,
-            targets: affiliationFilteredTargets,
-            actionRange,
-            coordinateMapCollectionManager:
-                managers.coordinateMapCollectionManager,
-            mapId: map.mapId,
-            positionOverride,
-        })
 
         const reachableCoordinateKeys = getReachableCoordinateKeys({
             actor,
@@ -211,47 +196,24 @@ export const SquaddieActionValidationService = {
             positionOverride,
         })
 
-        const reachableCoordinatesWithSquaddiesInRange = new Map<
-            string,
-            Set<string>
-        >()
-        for (const target of distanceFilteredTargets) {
-            const targetCoordinate =
-                managers.coordinateMapCollectionManager.getSquaddieCoordinate({
-                    mapId: map.mapId,
-                    squaddieId: target,
-                })
-            if (
-                targetCoordinate?.row == undefined ||
-                targetCoordinate?.col == undefined
-            ) {
-                continue
-            }
-
-            const coordinateKey = OffsetCoordinateService.coordinateToKey({
-                row: targetCoordinate.row,
-                col: targetCoordinate.col,
+        if ((squaddieAction.targeting.areaOfEffectSize ?? 0) > 0) {
+            return resolveAoeTargetsByBlastCenter({
+                actor,
+                squaddieAction,
+                reachableCoordinateKeys,
+                mapId: map.mapId,
+                managers,
             })
-
-            if (!reachableCoordinateKeys.has(coordinateKey)) {
-                continue
-            }
-
-            const squaddieKey =
-                SquaddieIdConverterService.squaddieIdToKey(target)
-
-            if (!reachableCoordinatesWithSquaddiesInRange.has(coordinateKey)) {
-                reachableCoordinatesWithSquaddiesInRange.set(
-                    coordinateKey,
-                    new Set<string>()
-                )
-            }
-            reachableCoordinatesWithSquaddiesInRange
-                .get(coordinateKey)!
-                .add(squaddieKey)
         }
 
-        return reachableCoordinatesWithSquaddiesInRange
+        return resolveDirectTargetsByCoordinate({
+            actor,
+            squaddieAction,
+            reachableCoordinateKeys,
+            managers,
+            mapId: map.mapId,
+            positionOverride,
+        })
     },
     generateValidSquaddieActions: ({
         actor,
@@ -1107,6 +1069,254 @@ const validateTargetsCanBeAffected = ({
     }
 
     return { isValid: true }
+}
+
+const validateAoeAction = ({
+    actor,
+    targetCoordinate,
+    targets,
+    squaddieAction,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    actor: BattleSquaddieId
+    targetCoordinate: OffsetCoordinate | undefined
+    targets: BattleSquaddieId[]
+    squaddieAction: SquaddieAction
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): ActionValidationResult => {
+    const centerValidation = validateAoeCenterInRange({
+        actor,
+        targetCoordinate,
+        squaddieAction,
+        coordinateMapCollectionManager,
+        mapId,
+    })
+    if (!centerValidation.isValid) return centerValidation
+
+    if (targets.length === 0) {
+        return { isValid: false, reason: "No valid targets in blast radius" }
+    }
+
+    const requiresTargetAtCenter =
+        squaddieAction.targeting.targetCoordinateRequiresTarget ?? true
+    if (requiresTargetAtCenter) {
+        return validateTargetAtCenter({
+            targetCoordinate: targetCoordinate!,
+            targets,
+            coordinateMapCollectionManager,
+            mapId,
+        })
+    }
+
+    return { isValid: true }
+}
+
+const validateAoeCenterInRange = ({
+    actor,
+    targetCoordinate,
+    squaddieAction,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    actor: BattleSquaddieId
+    targetCoordinate: OffsetCoordinate | undefined
+    squaddieAction: SquaddieAction
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): ActionValidationResult => {
+    if (targetCoordinate == undefined) {
+        return {
+            isValid: false,
+            reason: "AoE action requires a target coordinate",
+        }
+    }
+
+    const reachableKeys = getReachableCoordinateKeys({
+        actor,
+        actionRange: squaddieAction.targeting.range,
+        coordinateMapCollectionManager,
+        mapId,
+    })
+
+    const centerKey = OffsetCoordinateService.coordinateToKey(targetCoordinate)
+    if (!reachableKeys.has(centerKey)) {
+        return { isValid: false, reason: "Blast center is out of range" }
+    }
+
+    return { isValid: true }
+}
+
+const validateTargetAtCenter = ({
+    targetCoordinate,
+    targets,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    targetCoordinate: OffsetCoordinate
+    targets: BattleSquaddieId[]
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): ActionValidationResult => {
+    const squaddieAtCenter =
+        coordinateMapCollectionManager.getSquaddieAtCoordinate({
+            mapId,
+            coordinate: targetCoordinate,
+        })
+
+    if (squaddieAtCenter == undefined) {
+        return {
+            isValid: false,
+            reason: "Target coordinate must have a target",
+        }
+    }
+
+    const isInTargetList = targets.some(
+        (t) =>
+            t.inBattleSquaddieId === squaddieAtCenter.inBattleSquaddieId &&
+            t.outOfBattleSquaddieId === squaddieAtCenter.outOfBattleSquaddieId
+    )
+
+    if (!isInTargetList) {
+        return {
+            isValid: false,
+            reason: "Target coordinate must have a target",
+        }
+    }
+
+    return { isValid: true }
+}
+
+const resolveAoeTargetsByBlastCenter = ({
+    actor,
+    squaddieAction,
+    reachableCoordinateKeys,
+    mapId,
+    managers,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    reachableCoordinateKeys: Set<string>
+    mapId: string
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+}): Map<string, Set<string>> => {
+    const result = new Map<string, Set<string>>()
+    for (const coordinateKey of reachableCoordinateKeys) {
+        const blastCenter =
+            OffsetCoordinateService.keyToCoordinate(coordinateKey)
+        const aoeTargets = AoeTargetResolutionService.resolveAoeTargets({
+            action: squaddieAction,
+            actor,
+            targetCoordinate: blastCenter,
+            mapId,
+            managers,
+        })
+        if (aoeTargets.length > 0) {
+            const squaddieKeys = new Set(
+                aoeTargets.map((t) =>
+                    SquaddieIdConverterService.squaddieIdToKey(t)
+                )
+            )
+            result.set(coordinateKey, squaddieKeys)
+        }
+    }
+    return result
+}
+
+const resolveDirectTargetsByCoordinate = ({
+    actor,
+    squaddieAction,
+    reachableCoordinateKeys,
+    managers,
+    mapId,
+    positionOverride,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    reachableCoordinateKeys: Set<string>
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+    mapId: string
+    positionOverride?: OffsetCoordinate
+}): Map<string, Set<string>> => {
+    const affiliationRelationship =
+        squaddieAction.targeting.affiliationRelationship
+    const actionRange = squaddieAction.targeting.range
+
+    const allSquaddiesOnMap =
+        managers.coordinateMapCollectionManager.getAllSquaddieCoordinatesOnMap(
+            mapId
+        )
+
+    const allTargets: BattleSquaddieId[] = allSquaddiesOnMap.map((info) => ({
+        inBattleSquaddieId: info.squaddieId.inBattleSquaddieId,
+        outOfBattleSquaddieId: info.squaddieId.outOfBattleSquaddieId,
+    }))
+
+    const affiliationFilteredTargets = filterTargetsByAffiliation({
+        actor,
+        targets: allTargets,
+        affiliationRelationship,
+        inBattleSquaddieManager: managers.inBattleSquaddieManager,
+    })
+
+    const distanceFilteredTargets = filterTargetsByDistance({
+        actor,
+        targets: affiliationFilteredTargets,
+        actionRange,
+        coordinateMapCollectionManager: managers.coordinateMapCollectionManager,
+        mapId,
+        positionOverride,
+    })
+
+    const reachableCoordinatesWithSquaddiesInRange = new Map<
+        string,
+        Set<string>
+    >()
+
+    for (const target of distanceFilteredTargets) {
+        const targetCoordinate =
+            managers.coordinateMapCollectionManager.getSquaddieCoordinate({
+                mapId,
+                squaddieId: target,
+            })
+        if (
+            targetCoordinate?.row == undefined ||
+            targetCoordinate?.col == undefined
+        ) {
+            continue
+        }
+
+        const coordinateKey = OffsetCoordinateService.coordinateToKey({
+            row: targetCoordinate.row,
+            col: targetCoordinate.col,
+        })
+
+        if (!reachableCoordinateKeys.has(coordinateKey)) {
+            continue
+        }
+
+        const squaddieKey = SquaddieIdConverterService.squaddieIdToKey(target)
+
+        if (!reachableCoordinatesWithSquaddiesInRange.has(coordinateKey)) {
+            reachableCoordinatesWithSquaddiesInRange.set(
+                coordinateKey,
+                new Set<string>()
+            )
+        }
+        reachableCoordinatesWithSquaddiesInRange
+            .get(coordinateKey)!
+            .add(squaddieKey)
+    }
+
+    return reachableCoordinatesWithSquaddiesInRange
 }
 
 const getReachableCoordinateKeys = ({

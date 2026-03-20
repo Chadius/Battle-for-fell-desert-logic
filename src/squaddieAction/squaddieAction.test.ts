@@ -401,4 +401,56 @@ describe("SquaddieActionService", () => {
             expect(result.size).toBe(1)
         })
     })
+
+    describe("AoE targeting fields", () => {
+        it("size defaults to 0 when not specified", () => {
+            const action = SquaddieActionService.new({
+                id: "no-size",
+                name: "No Size",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.targeting.areaOfEffectSize).toBe(0)
+        })
+
+        it("size is stored when specified", () => {
+            const action = SquaddieActionService.new({
+                id: "with-size",
+                name: "With Size",
+                areaOfEffectSize: 2,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.targeting.areaOfEffectSize).toBe(2)
+        })
+
+        it("targetCoordinateRequiresTarget defaults to true when not specified", () => {
+            const action = SquaddieActionService.new({
+                id: "default-requires",
+                name: "Default Requires",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.targeting.targetCoordinateRequiresTarget).toBe(true)
+        })
+
+        it("targetCoordinateRequiresTarget: false is stored when specified", () => {
+            const action = SquaddieActionService.new({
+                id: "no-requires",
+                name: "No Requires",
+                targetCoordinateRequiresTarget: false,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.targeting.targetCoordinateRequiresTarget).toBe(false)
+        })
+    })
 })

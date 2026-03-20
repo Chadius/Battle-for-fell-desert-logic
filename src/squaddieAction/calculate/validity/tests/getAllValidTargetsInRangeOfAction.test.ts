@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionValidationService } from "../squaddieActionValidationService"
-import { SquaddieActionService } from "../../../squaddieAction"
+import {
+    type SquaddieAction,
+    SquaddieActionService,
+} from "../../../squaddieAction"
 import {
     type BattleSquaddieId,
     InBattleSquaddieManager,
@@ -19,6 +22,8 @@ import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
+import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape"
+import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
 
 describe("getAllValidTargetsInRangeOfAction", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -357,5 +362,194 @@ describe("getAllValidTargetsInRangeOfAction", () => {
             )
 
         expect(result.size).toBe(0)
+    })
+
+    describe("AoE calculateReachableSquaddiesByCoordinate", () => {
+        let enemy1: BattleSquaddieId
+        let enemy2: BattleSquaddieId
+        const aoeMapId = "aoe-map"
+        let aoeSquaddieActionManager: SquaddieActionManager
+        let aoeInBattleSquaddieManager: InBattleSquaddieManager
+        let aoeCoordinateMapCollectionManager: CoordinateMapCollectionManager
+        let aoeActor: BattleSquaddieId
+        let aoeAction: SquaddieAction
+
+        beforeEach(() => {
+            const { manager: aoeOutOfBattle } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    { sheetId: "aoe-sheet" }
+                )
+
+            aoeOutOfBattle.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "aoe-actor",
+                    name: "AoE Actor",
+                    actionIds: [],
+                    attributeSheetId: "aoe-sheet",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            )
+            aoeOutOfBattle.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "enemy-1",
+                    name: "Enemy 1",
+                    actionIds: [],
+                    attributeSheetId: "aoe-sheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            )
+            aoeOutOfBattle.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "enemy-2",
+                    name: "Enemy 2",
+                    actionIds: [],
+                    attributeSheetId: "aoe-sheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            )
+
+            const inBattleCollection = InBattleSquaddieCollectionService.new()
+            aoeInBattleSquaddieManager = new InBattleSquaddieManager(
+                inBattleCollection,
+                aoeOutOfBattle
+            )
+
+            const { inBattleSquaddieId: actorId } =
+                aoeInBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "aoe-actor",
+                })
+            aoeActor = {
+                inBattleSquaddieId: actorId,
+                outOfBattleSquaddieId: "aoe-actor",
+            }
+
+            const { inBattleSquaddieId: enemy1Id } =
+                aoeInBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "enemy-1",
+                })
+            enemy1 = {
+                inBattleSquaddieId: enemy1Id,
+                outOfBattleSquaddieId: "enemy-1",
+            }
+
+            const { inBattleSquaddieId: enemy2Id } =
+                aoeInBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "enemy-2",
+                })
+            enemy2 = {
+                inBattleSquaddieId: enemy2Id,
+                outOfBattleSquaddieId: "enemy-2",
+            }
+
+            aoeSquaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+
+            let mapCollection = CoordinateMapCollectionService.new()
+            mapCollection = CoordinateMapCollectionService.addOrUpdate({
+                collection: mapCollection,
+                map: CoordinateMapService.new({
+                    id: aoeMapId,
+                    name: "AoE Map",
+                    movementProperties: [
+                        "1 1 1 1 1 1 1 1 1 1 ",
+                        " 1 1 1 1 1 1 1 1 1 1",
+                        "1 1 1 1 1 1 1 1 1 1 ",
+                    ],
+                }),
+            })
+            aoeCoordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(mapCollection)
+
+            aoeCoordinateMapCollectionManager.addSquaddie({
+                mapId: aoeMapId,
+                squaddieId: aoeActor,
+                coordinate: { row: 0, col: 0 },
+            })
+            aoeCoordinateMapCollectionManager.addSquaddie({
+                mapId: aoeMapId,
+                squaddieId: enemy1,
+                coordinate: { row: 0, col: 2 },
+            })
+            aoeCoordinateMapCollectionManager.addSquaddie({
+                mapId: aoeMapId,
+                squaddieId: enemy2,
+                coordinate: { row: 0, col: 3 },
+            })
+
+            aoeAction = SquaddieActionService.new({
+                id: "aoe-action",
+                name: "AoE Action",
+                range: ActionRange.SHORT,
+                shape: CoordinateGeneratorShape.BLOOM,
+                areaOfEffectSize: 1,
+                targetCoordinateRequiresTarget: false,
+                affiliationRelationship: {
+                    self: false,
+                    foe: true,
+                    friend: false,
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            aoeSquaddieActionManager.addOrUpdate(aoeAction)
+        })
+
+        const calculateReachableSquaddies = () => {
+            return SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(
+                {
+                    actor: aoeActor,
+                    action: { id: aoeAction.id },
+                    managers: {
+                        inBattleSquaddieManager: aoeInBattleSquaddieManager,
+                        squaddieActionManager: aoeSquaddieActionManager,
+                        coordinateMapCollectionManager:
+                            aoeCoordinateMapCollectionManager,
+                    },
+                    map: { mapId: aoeMapId },
+                }
+            )
+        }
+
+        it("calculateReachableSquaddiesByCoordinate for size>0 returns blast center coords that would hit valid targets", () => {
+            const result = calculateReachableSquaddies()
+            const blastCenterKey = OffsetCoordinateService.coordinateToKey({
+                row: 0,
+                col: 2,
+            })
+            expect(result.has(blastCenterKey)).toBe(true)
+        })
+
+        it("calculateReachableSquaddiesByCoordinate for size>0 groups all AoE squaddies under blast center key", () => {
+            const result = calculateReachableSquaddies()
+            const blastCenterKey = OffsetCoordinateService.coordinateToKey({
+                row: 0,
+                col: 2,
+            })
+            const enemy1Key = SquaddieIdConverterService.squaddieIdToKey(enemy1)
+            const enemy2Key = SquaddieIdConverterService.squaddieIdToKey(enemy2)
+
+            expect(result.has(blastCenterKey)).toBe(true)
+            expect(result.get(blastCenterKey)!.has(enemy1Key)).toBe(true)
+            expect(result.get(blastCenterKey)!.has(enemy2Key)).toBe(true)
+        })
+
+        it("calculateReachableSquaddiesByCoordinate for size>0 omits coords where blast hits no valid targets", () => {
+            const result = calculateReachableSquaddies()
+            const farCoordinateKey = OffsetCoordinateService.coordinateToKey({
+                row: 2,
+                col: 8,
+            })
+            expect(result.has(farCoordinateKey)).toBe(false)
+        })
     })
 })

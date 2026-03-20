@@ -87,7 +87,7 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 ### Targeting
 
 - Range modes: MELEE (adjacent) and RANGED.
-- Area shapes: BLOOM (single tile), LINE, CONE (constants defined; area expansion is per action).
+- Area shapes: BLOOM (expanding circle), LINE, CONE (constants defined; area expansion is per action).
 - Affiliation filters: target self, friends, or foes; determined by `SquaddieAffiliationService`.
 - `SquaddieActionValidationService` confirms a proposed target is legal before acting.
 
@@ -470,6 +470,12 @@ Squaddie Actions can
 - Contribution (how much MAP is applied?)
 - Applies (does MAP apply to the action?)
   There are non-weapon actions that do apply MAP.
+
+### Saving Throws
+
+We've done attack/skill rolls so far. The actor rolls 2d6 and has to beat the target's defense.
+
+But there is the opposite: The actor's action sets a target number, and the targets have to beat it.
 
 ### Every +1 matters
 
