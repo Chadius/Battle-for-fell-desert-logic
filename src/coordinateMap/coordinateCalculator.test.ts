@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest"
-import {
-    CoordinateCalculator,
-    CoordinateDirection,
-} from "./coordinateCalculator"
+import type { TCoordinateDirection } from "./coordinateCalculator"
+import { CoordinateCalculator, CoordinateDirection, } from "./coordinateCalculator"
 
 describe("coordinateCalculator", () => {
     describe("get neighboring coordinates", () => {
@@ -270,6 +268,96 @@ describe("coordinateCalculator", () => {
             ring1.forEach((coordinate) => {
                 expect(ring2).not.toContainEqual(coordinate)
             })
+        })
+    })
+    describe("calculateEveryCoordinateInLine", () => {
+        it("returns only the start coordinate when from and to are the same", () => {
+            const path = CoordinateCalculator.calculateEveryCoordinateInLine(
+                { row: 2, col: 3 },
+                { row: 2, col: 3 }
+            )
+            expect(path).toHaveLength(1)
+            expect(path).toEqual([{ row: 2, col: 3 }])
+        })
+
+        it("returns three hexes for a straight RIGHT line of length 2", () => {
+            const path = CoordinateCalculator.calculateEveryCoordinateInLine(
+                { row: 2, col: 0 },
+                { row: 2, col: 2 }
+            )
+            expect(path).toHaveLength(3)
+            expect(path[0]).toEqual({ row: 2, col: 0 })
+            expect(path[1]).toEqual({ row: 2, col: 1 })
+            expect(path[2]).toEqual({ row: 2, col: 2 })
+        })
+
+        it("includes all intermediate hexes on a diagonal path", () => {
+            const from = { row: 0, col: 0 }
+            const to = { row: -2, col: 1 }
+            const path = CoordinateCalculator.calculateEveryCoordinateInLine(
+                from,
+                to
+            )
+
+            const dist = CoordinateCalculator.getDistanceBetween(from, to)
+            expect(path).toHaveLength(dist + 1)
+            expect(path[0]).toEqual(from)
+            expect(path[path.length - 1]).toEqual(to)
+        })
+
+        it("handles an odd-row origin correctly", () => {
+            const path = CoordinateCalculator.calculateEveryCoordinateInLine(
+                { row: 1, col: 1 },
+                { row: 1, col: 3 }
+            )
+            expect(path).toHaveLength(3)
+            expect(path[0]).toEqual({ row: 1, col: 1 })
+            expect(path[1]).toEqual({ row: 1, col: 2 })
+            expect(path[2]).toEqual({ row: 1, col: 3 })
+        })
+    })
+    describe("getPerpendicularDirections", () => {
+        it("returns a default pair when from and to are the same coordinate", () => {
+            const [dir1, dir2] =
+                CoordinateCalculator.getPerpendicularDirections(
+                    { row: 2, col: 3 },
+                    { row: 2, col: 3 }
+                )
+            expect(dir1).toBe(CoordinateDirection.UP_LEFT)
+            expect(dir2).toBe(CoordinateDirection.DOWN_RIGHT)
+        })
+
+        it("returns the two most perpendicular directions for a RIGHT-pointing line", () => {
+            const perpDirs = CoordinateCalculator.getPerpendicularDirections(
+                { row: 2, col: 0 },
+                { row: 2, col: 3 }
+            ) as [TCoordinateDirection, TCoordinateDirection]
+            const perpSet = new Set(perpDirs)
+            expect(perpSet.has(CoordinateDirection.UP_LEFT)).toBe(true)
+            expect(perpSet.has(CoordinateDirection.DOWN_RIGHT)).toBe(true)
+        })
+
+        it("returns two directions that are perpendicular (dot product = 0) when possible", () => {
+            const [dir1, dir2] =
+                CoordinateCalculator.getPerpendicularDirections(
+                    { row: 0, col: 0 },
+                    { row: 0, col: 4 }
+                )
+            const axialDir1 = CoordinateCalculator.getAxialOffset(dir1)
+            const axialDir2 = CoordinateCalculator.getAxialOffset(dir2)
+
+            const dotProduct = (
+                axialDir: { q: number; r: number },
+                differenceVector: { q: number; r: number }
+            ): number => {
+                return (
+                    axialDir.q * differenceVector.q +
+                    axialDir.r * differenceVector.r
+                )
+            }
+
+            expect(dotProduct(axialDir1, { q: 1, r: 0 })).toBe(0)
+            expect(dotProduct(axialDir2, { q: 1, r: 0 })).toBe(0)
         })
     })
 })

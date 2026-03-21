@@ -2,3 +2,8 @@
 
 This project contains the game/business logic required to play the Turn-Based Strategy game.
 Other projects handle input and display, so it is possible to swap out game engines.
+
+# Math
+
+[Coordinate Math](./docs/coordinateMath.md)
+[Pathfinding](./docs/pathfinding.md)

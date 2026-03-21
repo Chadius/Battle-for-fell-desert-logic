@@ -48,6 +48,18 @@ export const CoordinateCalculator = {
         origin: OffsetCoordinate,
         direction: TCoordinateDirection
     ): OffsetCoordinate => getNeighbor(origin, direction),
+    getAxialOffset: (
+        direction: TCoordinateDirection
+    ): { q: number; r: number } => axialDirectionOffsets.get(direction)!,
+    calculateEveryCoordinateInLine: (
+        from: OffsetCoordinate,
+        to: OffsetCoordinate
+    ): OffsetCoordinate[] => calculateEveryCoordinateInLine(from, to),
+    getPerpendicularDirections: (
+        from: OffsetCoordinate,
+        to: OffsetCoordinate
+    ): [TCoordinateDirection, TCoordinateDirection] =>
+        getPerpendicularDirections(from, to),
     getAllNeighbors: (origin: OffsetCoordinate): OffsetCoordinate[] => {
         return [
             CoordinateDirection.RIGHT,
@@ -149,14 +161,106 @@ const getNeighbor = (
     direction: TCoordinateDirection
 ): OffsetCoordinate => {
     const rowIsEven = (origin.row & 1) === 0
+
     const directionDifferences = rowIsEven
         ? directionDifferencesByRowIsEven.true
         : directionDifferencesByRowIsEven.false
     const directionDifference = directionDifferences[direction]
+
     return {
         col: origin.col + directionDifference[0],
         row: origin.row + directionDifference[1],
     }
+}
+
+const roundFractionalCubeCoordinatesToNearestNeighbor = (
+    fractionalQ: number,
+    fractionalR: number,
+    fractionalS: number
+): { q: number; r: number } => {
+    let roundedQ = Math.round(fractionalQ)
+    let roundedR = Math.round(fractionalR)
+    const roundedS = Math.round(fractionalS)
+
+    const differenceQ = Math.abs(fractionalQ - roundedQ)
+    const differenceR = Math.abs(fractionalR - roundedR)
+    const differenceS = Math.abs(fractionalS - roundedS)
+
+    if (differenceQ > differenceR && differenceQ > differenceS) {
+        roundedQ = -roundedR - roundedS
+    } else if (differenceR > differenceS) {
+        roundedR = -roundedQ - roundedS
+    }
+    return { q: roundedQ, r: roundedR }
+}
+
+const calculateEveryCoordinateInLine = (
+    from: OffsetCoordinate,
+    to: OffsetCoordinate
+): OffsetCoordinate[] => {
+    const numberOfCoordinates = Math.round(
+        CoordinateCalculator.getDistanceBetween(from, to)
+    )
+    if (numberOfCoordinates === 0) return [{ ...from }]
+
+    const fromAxial = AxialCoordinateCalculator.offsetToAxial(from)
+    const toAxial = AxialCoordinateCalculator.offsetToAxial(to)
+    const results: OffsetCoordinate[] = []
+
+    for (let i = 0; i <= numberOfCoordinates; i++) {
+        const t = i / numberOfCoordinates
+
+        const fractionalQ = fromAxial.q + (toAxial.q - fromAxial.q) * t
+        const fractionalR = fromAxial.r + (toAxial.r - fromAxial.r) * t
+        const fractionalS = -fractionalQ - fractionalR
+
+        results.push(
+            AxialCoordinateCalculator.axialToOffset(
+                roundFractionalCubeCoordinatesToNearestNeighbor(
+                    fractionalQ,
+                    fractionalR,
+                    fractionalS
+                )
+            )
+        )
+    }
+    return results
+}
+
+const getPerpendicularDirections = (
+    from: OffsetCoordinate,
+    to: OffsetCoordinate
+): [TCoordinateDirection, TCoordinateDirection] => {
+    const fromAxial = AxialCoordinateCalculator.offsetToAxial(from)
+    const toAxial = AxialCoordinateCalculator.offsetToAxial(to)
+    const dq = toAxial.q - fromAxial.q
+    const dr = toAxial.r - fromAxial.r
+
+    if (dq === 0 && dr === 0) {
+        return [CoordinateDirection.UP_LEFT, CoordinateDirection.DOWN_RIGHT]
+    }
+
+    const allDirections: TCoordinateDirection[] = [
+        CoordinateDirection.RIGHT,
+        CoordinateDirection.UP_RIGHT,
+        CoordinateDirection.UP_LEFT,
+        CoordinateDirection.LEFT,
+        CoordinateDirection.DOWN_LEFT,
+        CoordinateDirection.DOWN_RIGHT,
+    ]
+
+    const directionsSortedByDotProduct = allDirections
+        .map((dir) => {
+            const axialOffset = axialDirectionOffsets.get(dir)!
+            const dotProduct = Math.abs(axialOffset.q * dq + axialOffset.r * dr)
+            return { dir, dotProduct: dotProduct }
+        })
+        .sort((a, b) => a.dotProduct - b.dotProduct)
+
+    return [
+        directionsSortedByDotProduct[0].dir,
+        directionsSortedByDotProduct[1].dir,
+    ]
 }
 
 interface AxialCoordinate {

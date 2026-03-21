@@ -1,4 +1,7 @@
-import { CoordinateShapeService } from "../../../coordinateMap/shape"
+import {
+    CoordinateGeneratorShape,
+    CoordinateShapeService,
+} from "../../../coordinateMap/shape"
 import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
 import type {
     BattleSquaddieId,
@@ -25,13 +28,20 @@ export const AoeTargetResolutionService = {
             inBattleSquaddieManager: InBattleSquaddieManager
         }
     }): BattleSquaddieId[] {
-        const affectedCoordinates = CoordinateShapeService.calculateCoordinates(
-            {
-                shape: action.targeting.shape,
-                origin: targetCoordinate,
-                radius: action.targeting.areaOfEffectSize ?? 0,
-            }
-        )
+        const affectedCoordinates =
+            action.targeting.shape === CoordinateGeneratorShape.LINE
+                ? getLineAffectedCoordinates({
+                      action,
+                      actor,
+                      targetCoordinate,
+                      mapId,
+                      managers,
+                  })
+                : CoordinateShapeService.calculateCoordinates({
+                      shape: action.targeting.shape,
+                      origin: targetCoordinate,
+                      radius: action.targeting.areaOfEffectSize ?? 0,
+                  })
 
         const candidates = collectSquaddiesAtCoordinates({
             affectedCoordinates,
@@ -70,6 +80,40 @@ const collectSquaddiesAtCoordinates = ({
         }
     }
     return result
+}
+
+const getLineAffectedCoordinates = ({
+    action,
+    actor,
+    targetCoordinate,
+    mapId,
+    managers,
+}: {
+    action: SquaddieAction
+    actor: BattleSquaddieId
+    targetCoordinate: OffsetCoordinate
+    mapId: string
+    managers: {
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+        inBattleSquaddieManager: InBattleSquaddieManager
+    }
+}): OffsetCoordinate[] => {
+    const actorCoordinate =
+        managers.coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId,
+            squaddieId: actor,
+        })
+
+    if (actorCoordinate?.row == undefined || actorCoordinate.col == undefined) {
+        return []
+    }
+
+    return CoordinateShapeService.calculateCoordinates({
+        shape: CoordinateGeneratorShape.LINE,
+        from: { row: actorCoordinate.row, col: actorCoordinate.col },
+        to: targetCoordinate,
+        width: action.targeting.areaOfEffectSize ?? 0,
+    })
 }
 
 const filterByAffiliation = ({

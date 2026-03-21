@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { CoordinateGeneratorShape, CoordinateShapeService } from "./shape"
+import {
+    CoordinateCalculator,
+    CoordinateDirection,
+} from "./coordinateCalculator"
 import type { OffsetCoordinate } from "./offsetCoordinate"
 
 describe("Coordinate Shapes", () => {
@@ -92,6 +96,92 @@ describe("Coordinate Shapes", () => {
                     ...distance2FromOrigin,
                 ])
             )
+        })
+    })
+    describe("Generate LINE type Shapes", () => {
+        it("returns only the start hex when from and to are the same", () => {
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.LINE,
+                from: { row: 2, col: 3 },
+                to: { row: 2, col: 3 },
+                width: 0,
+            })
+            expect(coordinates).toHaveLength(1)
+            expect(coordinates).toEqual([{ row: 2, col: 3 }])
+        })
+
+        it("returns only the centerline hexes for width 0", () => {
+            const from = { row: 2, col: 0 }
+            const to = { row: 2, col: 2 }
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.LINE,
+                from,
+                to,
+                width: 0,
+            })
+            const expectedPath =
+                CoordinateCalculator.calculateEveryCoordinateInLine(from, to)
+            expect(coordinates).toHaveLength(expectedPath.length)
+            expect(coordinates).toEqual(expect.arrayContaining(expectedPath))
+        })
+
+        it("returns centerline plus one hex on each side per step for width 1", () => {
+            const from = { row: 2, col: 0 }
+            const to = { row: 2, col: 2 }
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.LINE,
+                from,
+                to,
+                width: 1,
+            })
+
+            const centerline =
+                CoordinateCalculator.calculateEveryCoordinateInLine(from, to)
+            expect(coordinates.length).toBeGreaterThan(centerline.length)
+
+            expect(coordinates).toEqual(
+                expect.arrayContaining([
+                    ...centerline,
+                    ...centerline.map((c) =>
+                        CoordinateCalculator.getNeighbor(
+                            c,
+                            CoordinateDirection.UP_LEFT
+                        )
+                    ),
+                    ...centerline.map((c) =>
+                        CoordinateCalculator.getNeighbor(
+                            c,
+                            CoordinateDirection.DOWN_RIGHT
+                        )
+                    ),
+                ])
+            )
+        })
+
+        it("contains no duplicate coordinates", () => {
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.LINE,
+                from: { row: 2, col: 0 },
+                to: { row: 2, col: 4 },
+                width: 2,
+            })
+            const keys = coordinates.map((c) => `${c.row},${c.col}`)
+            expect(keys).toHaveLength(new Set(keys).size)
+        })
+
+        it("handles an odd-row origin correctly", () => {
+            const from = { row: 1, col: 1 }
+            const to = { row: 1, col: 3 }
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.LINE,
+                from,
+                to,
+                width: 0,
+            })
+            const expectedPath =
+                CoordinateCalculator.calculateEveryCoordinateInLine(from, to)
+            expect(coordinates).toHaveLength(expectedPath.length)
+            expect(coordinates).toEqual(expect.arrayContaining(expectedPath))
         })
     })
 })
