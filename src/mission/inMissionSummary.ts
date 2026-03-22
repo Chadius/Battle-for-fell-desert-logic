@@ -15,6 +15,8 @@ export interface MissionObjectiveSummary {
 }
 
 export interface InMissionSummary {
+    mapId: string
+    mapName: string
     missionObjectives: MissionObjectiveSummary[]
     inBattleSquaddieCollection: InBattleSquaddieCollection
     recentPhaseTransitions: TMissionAffiliationTurn[]
@@ -29,15 +31,21 @@ export type SerializedInMissionSummary = Omit<
 
 export const InMissionSummaryService = {
     new: ({
+        mapId,
+        mapName,
         missionObjectives,
         inBattleSquaddieCollection,
         recentPhaseTransitions,
     }: {
+        mapId?: string
+        mapName?: string
         missionObjectives?: MissionObjectiveSummary[]
         inBattleSquaddieCollection?: InBattleSquaddieCollection
         recentPhaseTransitions?: TMissionAffiliationTurn[]
     }): InMissionSummary => {
         return {
+            mapId: mapId ?? "",
+            mapName: mapName ?? "",
             missionObjectives: missionObjectives ?? [],
             inBattleSquaddieCollection:
                 inBattleSquaddieCollection ??
@@ -47,10 +55,14 @@ export const InMissionSummaryService = {
     },
 
     createFromMission: ({
+        mapId,
+        mapName,
         missionObjectives,
         inBattleSquaddieManager,
         recentPhaseTransitions,
     }: {
+        mapId?: string
+        mapName?: string
         missionObjectives: MissionObjective[]
         inBattleSquaddieManager: InBattleSquaddieManager
         recentPhaseTransitions?: TMissionAffiliationTurn[]
@@ -69,6 +81,8 @@ export const InMissionSummaryService = {
             inBattleSquaddieManager.cloneCollection()
 
         return InMissionSummaryService.new({
+            mapId,
+            mapName,
             missionObjectives: missionObjectiveSummaries,
             inBattleSquaddieCollection,
             recentPhaseTransitions: recentPhaseTransitions ?? [],
@@ -112,6 +126,8 @@ export const InMissionSummaryService = {
         inMissionSummary: InMissionSummary
     ): SerializedInMissionSummary => {
         return {
+            mapId: inMissionSummary.mapId,
+            mapName: inMissionSummary.mapName,
             missionObjectives: inMissionSummary.missionObjectives,
             inBattleSquaddieCollection:
                 InBattleSquaddieCollectionService.serialize(
@@ -125,6 +141,8 @@ export const InMissionSummaryService = {
         serializable: SerializedInMissionSummary
     ): InMissionSummary => {
         return {
+            mapId: serializable.mapId ?? "",
+            mapName: serializable.mapName ?? "",
             missionObjectives: serializable.missionObjectives,
             inBattleSquaddieCollection:
                 InBattleSquaddieCollectionService.deserialize(

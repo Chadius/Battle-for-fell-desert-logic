@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import type { TCoordinateDirection } from "./coordinateCalculator"
-import { CoordinateCalculator, CoordinateDirection, } from "./coordinateCalculator"
+import {
+    CoordinateCalculator,
+    CoordinateDirection,
+} from "./coordinateCalculator"
 
 describe("coordinateCalculator", () => {
     describe("get neighboring coordinates", () => {

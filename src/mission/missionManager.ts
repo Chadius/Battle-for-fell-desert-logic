@@ -391,7 +391,19 @@ export class MissionManager {
             this.createInMissionSummary.name
         )
 
+        const mapId = this.missionState!.mapId
+        let mapName = ""
+        try {
+            mapName =
+                this.coordinateMapCollectionManager?.getMapById(mapId)?.name ??
+                ""
+        } catch {
+            mapName = ""
+        }
+
         return InMissionSummaryService.createFromMission({
+            mapId,
+            mapName,
             missionObjectives: this.missionState!.objectives,
             inBattleSquaddieManager: this.inBattleSquaddieManager!,
         })

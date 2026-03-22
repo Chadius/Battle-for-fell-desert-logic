@@ -40,6 +40,7 @@ import {
 
 export const MissionEngineTestHarnessIds = {
     mapId: "test-harness-map",
+    mapName: "Test Harness Map",
     missionStateId: "test-harness-mission",
     lini: {
         outOfBattleSquaddieId: "lini",
@@ -161,7 +162,7 @@ export class MissionEngineTestHarness extends MissionEngine {
 
         const coordinateMap = CoordinateMapService.new({
             id: MissionEngineTestHarnessIds.mapId,
-            name: "Test Harness Map",
+            name: MissionEngineTestHarnessIds.mapName,
             movementProperties,
         })
 

@@ -13,6 +13,9 @@ import { MissionObjectiveRewardService } from "../../missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria"
 import { MissionStateService } from "../../missionState"
 import { MissionManager } from "../../missionManager"
+import type { SerializedInMissionSummary } from "../../inMissionSummary"
+import { InBattleSquaddieService } from "../../../squaddie/inBattle/inBattleSquaddie"
+import { AttributeScore } from "../../../proficiency/attributeScore"
 
 describe("InMissionSummary", () => {
     describe("getInMissionSummary", () => {
@@ -85,6 +88,7 @@ describe("InMissionSummary", () => {
 
             const inMissionSummary = missionEngine.getInMissionSummary()
 
+            expect(inMissionSummary.mapId).toBe("map-1")
             expect(inMissionSummary.missionObjectives).toHaveLength(1)
             expect(inMissionSummary.missionObjectives[0].id).toBe("obj-1")
             expect(
@@ -298,6 +302,8 @@ describe("InMissionSummary", () => {
 
             expect(() =>
                 engine.loadSerializedInMissionSummary({
+                    mapId: "map-1",
+                    mapName: "map-1",
                     missionObjectives: [],
                     inBattleSquaddieCollection: { byOutOfBattleSquaddieId: {} },
                     recentPhaseTransitions: [],
@@ -306,23 +312,56 @@ describe("InMissionSummary", () => {
         })
 
         it("restores squaddie state from serializable summary", () => {
-            const savedState = {
+            let outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "enemy-1",
+                name: "Enemy",
+                actionIds: [],
+                attributeSheetId: "sheet",
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+            let attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 7,
+                        [AttributeScore.SOUL]: 3,
+                    },
+                    items: { itemIds: [], maxCapacity: 0 },
+                    distancePerAction: 2,
+                    skipOverPits: false,
+                    moveThroughWalls: false,
+                    stopOnSquaddies: false,
+                })
+            let inBattleSquaddie = InBattleSquaddieService.new({
+                id: 0,
+                outOfBattleSquaddie,
+                name: "Updated Name",
+                attributeSheet,
+            })
+            inBattleSquaddie = InBattleSquaddieService.dealDamageToSquaddie({
+                squaddie: inBattleSquaddie,
+                damage: {
+                    amount: 7,
+                    type: AttributeScore.BODY,
+                },
+            }).squaddie
+            inBattleSquaddie = InBattleSquaddieService.spendActionPoints({
+                squaddie: inBattleSquaddie,
+                actionPoints: 2,
+            }).squaddie
+
+            const savedState: SerializedInMissionSummary = {
+                mapId: "map-1",
+                mapName: "map-1",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: false, hasGivenReward: false },
                 ],
                 inBattleSquaddieCollection: {
                     byOutOfBattleSquaddieId: {
                         "enemy-1": [
-                            {
-                                id: 0,
-                                outOfBattleSquaddieId: "enemy-1",
-                                name: "Enemy",
-                                hitPoints: { max: 10, current: 3 },
-                                conditions: {},
-                                actionPoints: { current: 1 },
-                                actionIds: { natural: [] },
-                                itemIdsUsed: [],
-                            },
+                            InBattleSquaddieService.serialize(inBattleSquaddie),
                         ],
                     },
                 },
@@ -340,23 +379,45 @@ describe("InMissionSummary", () => {
         })
 
         it("restores objective hasGivenReward flag", () => {
-            const savedState = {
+            let outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "enemy-1",
+                name: "Enemy",
+                actionIds: [],
+                attributeSheetId: "sheet",
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+            let attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "sheet",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 5,
+                        [AttributeScore.MIND]: 7,
+                        [AttributeScore.SOUL]: 3,
+                    },
+                    items: { itemIds: [], maxCapacity: 0 },
+                    distancePerAction: 2,
+                    skipOverPits: false,
+                    moveThroughWalls: false,
+                    stopOnSquaddies: false,
+                })
+            let inBattleSquaddie = InBattleSquaddieService.new({
+                id: 0,
+                outOfBattleSquaddie,
+                name: "Updated Name",
+                attributeSheet,
+            })
+
+            const savedState: SerializedInMissionSummary = {
+                mapId: "mad",
+                mapName: "Mad",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],
                 inBattleSquaddieCollection: {
                     byOutOfBattleSquaddieId: {
                         "enemy-1": [
-                            {
-                                id: 0,
-                                outOfBattleSquaddieId: "enemy-1",
-                                name: "Enemy",
-                                hitPoints: { max: 10, current: 0 },
-                                conditions: {},
-                                actionPoints: { current: 3 },
-                                actionIds: { natural: [] },
-                                itemIdsUsed: [],
-                            },
+                            InBattleSquaddieService.serialize(inBattleSquaddie),
                         ],
                     },
                 },

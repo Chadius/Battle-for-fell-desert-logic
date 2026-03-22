@@ -1638,6 +1638,8 @@ describe("MissionManager", () => {
             })
             tempManager.spendActionPoints({ ...tempId, actionPoints: 2 })
             const savedState = {
+                mapId: "",
+                mapName: "",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: false, hasGivenReward: false },
                 ],
@@ -1669,6 +1671,8 @@ describe("MissionManager", () => {
                 damage: { amount: 10, type: undefined },
             })
             const savedState = {
+                mapId: "",
+                mapName: "",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],
