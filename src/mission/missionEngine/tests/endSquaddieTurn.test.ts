@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
+import { SquaddieActionService } from "../../../squaddieAction/squaddieAction"
+import { ActionRange } from "../../../squaddieAction/actionRange"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { MissionAffiliationTurn, MissionTurnService } from "../../missionTurn"
 import { MissionEngine } from "../missionEngine"
 import { MissionManager } from "../../missionManager"
@@ -377,6 +380,193 @@ describe("endSquaddieTurn", () => {
             })
 
             expect(result.isValid).toBe(true)
+        })
+    })
+
+    describe("all AI squaddies in a phase get their turns processed", () => {
+        let missionEngine: MissionEngine
+        let playerSquaddieId: BattleSquaddieId
+
+        const putEnemiesOutOfReach = (
+            coordinateMapCollectionManager: CoordinateMapCollectionManager,
+            farEnemy0Id: {
+                inBattleSquaddieId: number
+                outOfBattleSquaddieId: string
+            },
+            farEnemy1Id: {
+                inBattleSquaddieId: number
+                outOfBattleSquaddieId: string
+            }
+        ) => {
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: farEnemy0Id,
+                coordinate: { row: 0, col: 7 },
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: farEnemy1Id,
+                coordinate: { row: 0, col: 8 },
+            })
+        }
+        const putEnemiesWithinRange = (
+            coordinateMapCollectionManager: CoordinateMapCollectionManager,
+            nearEnemyId: {
+                inBattleSquaddieId: number
+                outOfBattleSquaddieId: string
+            }
+        ) => {
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: nearEnemyId,
+                coordinate: { row: 0, col: 1 },
+            })
+        }
+        const addEnemyMeleeAttack = (
+            squaddieActionManager: SquaddieActionManager
+        ) => {
+            squaddieActionManager.addOrUpdate(
+                SquaddieActionService.new({
+                    id: "bite",
+                    name: "Bite",
+                    range: ActionRange.MELEE,
+                    affiliationRelationship: {
+                        self: false,
+                        foe: true,
+                        friend: false,
+                    },
+                    actorRollsToHit: true,
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {},
+                    },
+                })
+            )
+        }
+        const createSquaddies = () => {
+            const playerSquaddie = OutOfBattleSquaddieService.new({
+                id: "player-1",
+                name: "Player One",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "shared_sheet",
+            })
+            const farEnemy0 = OutOfBattleSquaddieService.new({
+                id: "far-enemy-0",
+                name: "Far Enemy Zero",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "shared_sheet",
+            })
+            const farEnemy1 = OutOfBattleSquaddieService.new({
+                id: "far-enemy-1",
+                name: "Far Enemy One",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "shared_sheet",
+            })
+            const nearEnemy = OutOfBattleSquaddieService.new({
+                id: "near-enemy",
+                name: "Near Enemy",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "shared_sheet",
+                actionIds: ["bite"],
+            })
+            return { playerSquaddie, farEnemy0, farEnemy1, nearEnemy }
+        }
+        beforeEach(() => {
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "shared_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 5,
+                            items: { maxCapacity: 0 },
+                        },
+                    }
+                )
+            const { playerSquaddie, farEnemy0, farEnemy1, nearEnemy } =
+                createSquaddies()
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(farEnemy0)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(farEnemy1)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(nearEnemy)
+
+            const inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+            playerSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player-1",
+            })
+            const farEnemy0Id = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "far-enemy-0",
+            })
+            const farEnemy1Id = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "far-enemy-1",
+            })
+            const nearEnemyId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "near-enemy",
+            })
+
+            const map = CoordinateMapService.new({
+                id: "test_map",
+                name: "test map",
+                movementProperties: ["1 1 1 1 1 1 1 1 1 1"],
+            })
+            const coordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(
+                    CoordinateMapCollectionService.new()
+                )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: playerSquaddieId,
+                coordinate: { row: 0, col: 0 },
+            })
+            putEnemiesOutOfReach(
+                coordinateMapCollectionManager,
+                farEnemy0Id,
+                farEnemy1Id
+            )
+            putEnemiesWithinRange(coordinateMapCollectionManager, nearEnemyId)
+
+            const squaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+            addEnemyMeleeAttack(squaddieActionManager)
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+                turn: MissionTurnService.new({
+                    missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                }),
+            })
+            const missionManager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager,
+            })
+            missionEngine = new MissionEngine(missionManager)
+        })
+
+        it("canSkipAffiliationTurn processes all AI squaddies before deciding to skip", () => {
+            missionEngine.endSquaddieTurn(playerSquaddieId)
+
+            const summary = missionEngine.getInMissionSummary()
+            expect(summary.recentPhaseTransitions).toEqual([
+                MissionAffiliationTurn.PLAYER_TURN_END,
+                MissionAffiliationTurn.ENEMY_TURN_START,
+                MissionAffiliationTurn.ENEMY_TURN,
+            ])
+            expect(missionEngine.getCurrentAffiliationTurn()).toBe(
+                MissionAffiliationTurn.ENEMY_TURN
+            )
+            expect(missionEngine.readiedAction).toBeDefined()
         })
     })
 

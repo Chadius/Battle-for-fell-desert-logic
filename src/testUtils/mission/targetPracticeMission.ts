@@ -285,7 +285,6 @@ function createLongswordAction(): SquaddieAction {
     })
 }
 
-// Self-only defensive action. Always succeeds. Grants 1 ARMOR + 1 ABSORB for 1 round. Costs 1 AP.
 function createShieldAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.gloria.shieldActionId,
@@ -314,7 +313,7 @@ function createShieldAction(): SquaddieAction {
                             amount: 1,
                             duration: {
                                 duration: 1,
-                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_START,
                             },
                             source: SquaddieConditionSource.ITEM,
                         }),
@@ -323,7 +322,7 @@ function createShieldAction(): SquaddieAction {
                             amount: 1,
                             duration: {
                                 duration: 1,
-                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_START,
                             },
                             source: SquaddieConditionSource.ITEM,
                         }),

@@ -489,19 +489,23 @@ export class MissionEngine {
     }
 
     private canSkipAffiliationTurn(): boolean {
-        const squaddiesWhoCanAct = this.getSquaddiesWhoCanActThisPhase()
-        if (squaddiesWhoCanAct.length === 0) {
-            return true
-        }
+        while (true) {
+            const squaddiesWhoCanAct = this.getSquaddiesWhoCanActThisPhase()
+            if (squaddiesWhoCanAct.length === 0) {
+                return true
+            }
 
-        const humanSquaddies =
-            this.getHumanControlledSquaddiesWhoCanAct(squaddiesWhoCanAct)
-        if (humanSquaddies.length > 0) {
-            return false
-        }
+            const humanSquaddies =
+                this.getHumanControlledSquaddiesWhoCanAct(squaddiesWhoCanAct)
+            if (humanSquaddies.length > 0) {
+                return false
+            }
 
-        const actionPreloaded = this.prepareNextAiAction(squaddiesWhoCanAct[0])
-        return !actionPreloaded
+            const actionPreloaded = this.prepareNextAiAction(
+                squaddiesWhoCanAct[0]
+            )
+            if (actionPreloaded) return false
+        }
     }
 
     private getHumanControlledSquaddiesWhoCanAct(
