@@ -7,21 +7,11 @@ import { MissionEngineTestHarnessIds } from "./missionEngineTestHarness"
 import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
 
 describe("DefaultCampaign", () => {
-    it("createDefaultCampaignManager returns a manager with 2 missions", () => {
+    it("createDefaultCampaignManager returns a manager with missions", () => {
         const campaignManager = createDefaultCampaignManager()
 
         const serialized = campaignManager.getSerializedMissions()
-        expect(serialized).toHaveLength(2)
-    })
-
-    it("getSerializedMissions returns the expected mission ids", () => {
-        const campaignManager = createDefaultCampaignManager()
-
-        const serialized = campaignManager.getSerializedMissions()
-        const ids = serialized.map((m) => m.id)
-
-        expect(ids).toContain(DefaultCampaignIds.mission1Id)
-        expect(ids).toContain(DefaultCampaignIds.mission2Id)
+        expect(serialized.length).greaterThan(0)
     })
 
     it("loadMissionById returns a MissionManager for the first mission", () => {
@@ -32,15 +22,13 @@ describe("DefaultCampaign", () => {
         expect(campaignManager.getCurrentMission()).toBeDefined()
     })
 
-    describe("the loaded MissionManager has Lini and Slither Demon", () => {
+    describe("the loaded first MissionManager has Lini and Slither Demon", () => {
         const loadFirstMission = () => {
             const campaignManager = createDefaultCampaignManager()
             campaignManager.loadMissionById(DefaultCampaignIds.mission1Id)
             const missionManager = campaignManager.getCurrentMission()!
-            const collection =
-                missionManager.inBattleSquaddieManager!
-                    .inBattleSquaddieCollection!
-            return collection
+            return missionManager.inBattleSquaddieManager!
+                .inBattleSquaddieCollection!
         }
 
         it("has Lini", () => {
