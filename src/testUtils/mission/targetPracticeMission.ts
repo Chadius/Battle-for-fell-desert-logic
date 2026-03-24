@@ -419,7 +419,7 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
     const valeAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
         id: ValeAndGloriaMissionIds.vale.attributeSheetId,
         maxHitPoints: 4,
-        movement: { distancePerAction: 2 },
+        movement: { distancePerAction: 2, skipOverPits: true },
         attributeScores: {
             [AttributeScore.BODY]: -1,
             [AttributeScore.MIND]: 2,
@@ -449,7 +449,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
         maxHitPoints: 6,
         movement: {
             distancePerAction: 2,
-            skipOverPits: true,
         },
         attributeScores: {
             [AttributeScore.BODY]: 2,
