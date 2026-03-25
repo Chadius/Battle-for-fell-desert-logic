@@ -40,6 +40,7 @@ import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap"
 import { type TSquaddieAffiliation } from "../affiliation/affiliation"
 import { SquaddieActionValidationService } from "../squaddieAction/calculate/validity/squaddieActionValidationService"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
+import { AoeTargetResolutionService } from "../squaddieAction/calculate/aoe/aoeTargetResolutionService"
 import {
     type SquaddieCondition,
     SquaddieConditionDecaysAt,
@@ -501,6 +502,40 @@ export class MissionManager {
                       manager: this.coordinateMapCollectionManager!,
                   }
                 : undefined,
+        })
+    }
+
+    resolveAoeTargets({
+        actor,
+        action,
+        targetCoordinate,
+    }: {
+        actor: BattleSquaddieId
+        action: { id: string }
+        targetCoordinate: OffsetCoordinate
+    }): BattleSquaddieId[] {
+        this.throwIfStateIsUndefined(this.resolveAoeTargets.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.resolveAoeTargets.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.resolveAoeTargets.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.resolveAoeTargets.name
+        )
+
+        const fullAction = this.squaddieActionManager!.get(action.id)
+        return AoeTargetResolutionService.resolveAoeTargets({
+            action: fullAction,
+            actor,
+            targetCoordinate,
+            mapId: this.missionState!.mapId,
+            managers: {
+                coordinateMapCollectionManager:
+                    this.coordinateMapCollectionManager!,
+                inBattleSquaddieManager: this.inBattleSquaddieManager!,
+            },
         })
     }
 
