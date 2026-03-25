@@ -218,7 +218,19 @@ export class MissionManager {
                 results: targetResult.squaddieActionResults,
             })
         }
+        this.removeDefeatedSquaddiesFromMap(actor, targets)
+        this.applyMultipleAttackPenalty(fullAction, actor)
 
+        return calculationResults
+    }
+
+    private readonly applyMultipleAttackPenalty = (
+        fullAction: SquaddieAction,
+        actor: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+    ) => {
         if (fullAction.multipleAttackPenalty.contribution > 0) {
             this.inBattleSquaddieManager!.incrementAttackContributionThisTurn({
                 inBattleSquaddieId: actor.inBattleSquaddieId,
@@ -226,8 +238,30 @@ export class MissionManager {
                 amount: fullAction.multipleAttackPenalty.contribution,
             })
         }
+    }
+    private readonly removeDefeatedSquaddiesFromMap = (
+        actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string },
+        targets: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }[]
+    ) => {
+        const involvedSquaddies = [
+            actor,
+            ...targets.map((t) => ({
+                inBattleSquaddieId: t.inBattleSquaddieId,
+                outOfBattleSquaddieId: t.outOfBattleSquaddieId,
+            })),
+        ]
 
-        return calculationResults
+        for (const squaddieId of involvedSquaddies) {
+            if (this.inBattleSquaddieManager!.isSquaddieDefeated(squaddieId)) {
+                this.coordinateMapCollectionManager!.removeSquaddie({
+                    mapId: this.missionState!.mapId,
+                    squaddieId: squaddieId,
+                })
+            }
+        }
     }
 
     recordAction({

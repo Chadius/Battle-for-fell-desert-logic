@@ -826,6 +826,73 @@ describe("MissionManager", () => {
                 "[MissionManager.useActionAndGetResults]: coordinateMapCollectionManager must be defined"
             )
         })
+
+        it("should remove defeated squaddies from the map", () => {
+            const fatalAttackAction = SquaddieActionService.new({
+                id: "fatal-attack",
+                name: "Fatal Attack",
+                targeting: {
+                    range: ActionRange.MELEE,
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    affiliationRelationship: {
+                        self: false,
+                        foe: true,
+                        friend: false,
+                    },
+                },
+                effectOnActor: {
+                    SUCCESS: {},
+                },
+                effectOnTarget: {
+                    SUCCESS: {
+                        damage: {
+                            raw: 100,
+                            targetProficiency: ProficiencyType.SKILL_BODY,
+                        },
+                    },
+                },
+            })
+            squaddieActionManager.addOrUpdate(fatalAttackAction)
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager,
+            })
+
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: actorSquaddieId,
+                coordinate: { row: 0, col: 0 },
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: targetSquaddieId,
+                coordinate: { row: 0, col: 1 },
+            })
+
+            manager.useActionAndGetResults({
+                actor: actorSquaddieId,
+                targets: [targetSquaddieId],
+                action: { id: "fatal-attack" },
+                rollGenerator: deterministicRollGenerator,
+            })
+
+            expect(
+                inBattleSquaddieManager.isSquaddieDefeated(targetSquaddieId)
+            ).toBe(true)
+            expect(
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "test_map",
+                    squaddieId: targetSquaddieId,
+                })
+            ).toBeUndefined()
+        })
     })
 
     describe("undoLastAction", () => {

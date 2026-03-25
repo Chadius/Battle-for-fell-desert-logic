@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
+import {
+    type OutOfBattleSquaddieAttributeSheet,
+    OutOfBattleSquaddieAttributeSheetService,
+} from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
@@ -13,6 +16,7 @@ import {
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
+    type SerializedInBattleSquaddieCollection,
 } from "./inBattleSquaddieCollection"
 import { InBattleSquaddieManager } from "./inBattleSquaddieManager"
 import { AttributeScore } from "../../proficiency/attributeScore"
@@ -28,6 +32,10 @@ import { SquaddieItemCollectionService } from "../../squaddieItem/squaddieItemCo
 import { SquaddieItemService } from "../../squaddieItem/squaddieItem"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
 import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
+import {
+    InBattleSquaddieService,
+    type SerializedInBattleSquaddie,
+} from "./inBattleSquaddie"
 
 describe("In Battle Squaddie Manager", () => {
     let attributeSheet: OutOfBattleSquaddieAttributeSheet
@@ -2040,20 +2048,47 @@ describe("In Battle Squaddie Manager", () => {
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
 
-            const newSerialized = {
+            let attributeSheet: OutOfBattleSquaddieAttributeSheet =
+                OutOfBattleSquaddieAttributeSheetService.new({
+                    id: "attributeSheet",
+                    maxHitPoints: 5,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 0,
+                        [AttributeScore.MIND]: 0,
+                        [AttributeScore.SOUL]: 0,
+                    },
+                    rank: 1,
+                    items: {
+                        maxCapacity: 3,
+                        itemIds: [],
+                    },
+                    movement: {},
+                })
+
+            let inBattleSquaddie = InBattleSquaddieService.new({
+                id: 0,
+                outOfBattleSquaddie: outOfBattleSquaddie1,
+                name: "Loaded Squaddie",
+                attributeSheet,
+            })
+            inBattleSquaddie = InBattleSquaddieService.dealDamageToSquaddie({
+                squaddie: inBattleSquaddie,
+                damage: {
+                    amount: 2,
+                    type: AttributeScore.BODY,
+                },
+            }).squaddie
+            inBattleSquaddie = InBattleSquaddieService.spendActionPoints({
+                squaddie: inBattleSquaddie,
+                actionPoints: 1,
+            }).squaddie
+
+            let serializedInBattleSquaddie: SerializedInBattleSquaddie =
+                InBattleSquaddieService.serialize(inBattleSquaddie)
+
+            const newSerialized: SerializedInBattleSquaddieCollection = {
                 byOutOfBattleSquaddieId: {
-                    [outOfBattleSquaddie1.id]: [
-                        {
-                            id: 0,
-                            outOfBattleSquaddieId: outOfBattleSquaddie1.id,
-                            name: "Loaded Squaddie",
-                            hitPoints: { max: 5, current: 3 },
-                            conditions: {},
-                            actionPoints: { current: 2 },
-                            actionIds: { natural: ["action1"] },
-                            itemIdsUsed: [],
-                        },
-                    ],
+                    [outOfBattleSquaddie1.id]: [serializedInBattleSquaddie],
                 },
             }
 
@@ -2085,31 +2120,63 @@ describe("In Battle Squaddie Manager", () => {
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
 
-            const updateSerialized = {
+            let attributeSheet: OutOfBattleSquaddieAttributeSheet =
+                OutOfBattleSquaddieAttributeSheetService.new({
+                    id: "attributeSheet",
+                    maxHitPoints: 5,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 0,
+                        [AttributeScore.MIND]: 0,
+                        [AttributeScore.SOUL]: 0,
+                    },
+                    rank: 1,
+                    items: {
+                        maxCapacity: 3,
+                        itemIds: [],
+                    },
+                    movement: {},
+                })
+
+            let inBattleSquaddie0 = InBattleSquaddieService.new({
+                id: 0,
+                outOfBattleSquaddie: outOfBattleSquaddie0,
+                name: "Updated Name",
+                attributeSheet,
+            })
+            inBattleSquaddie0 = InBattleSquaddieService.dealDamageToSquaddie({
+                squaddie: inBattleSquaddie0,
+                damage: {
+                    amount: 3,
+                    type: AttributeScore.BODY,
+                },
+            }).squaddie
+            inBattleSquaddie0 = InBattleSquaddieService.spendActionPoints({
+                squaddie: inBattleSquaddie0,
+                actionPoints: 2,
+            }).squaddie
+            const item1 = SquaddieItemService.new({
+                id: "item1",
+                name: "Item 1",
+            })
+            inBattleSquaddie0 = InBattleSquaddieService.useItem({
+                squaddie: inBattleSquaddie0,
+                item: item1,
+            })
+
+            let inBattleSquaddie1 = InBattleSquaddieService.new({
+                id: 0,
+                outOfBattleSquaddie: outOfBattleSquaddie0,
+                name: "New Squaddie",
+                attributeSheet,
+            })
+
+            const updateSerialized: SerializedInBattleSquaddieCollection = {
                 byOutOfBattleSquaddieId: {
                     [outOfBattleSquaddie0.id]: [
-                        {
-                            id: id0.inBattleSquaddieId,
-                            outOfBattleSquaddieId: outOfBattleSquaddie0.id,
-                            name: "Updated Name",
-                            hitPoints: { max: 5, current: 2 },
-                            conditions: {},
-                            actionPoints: { current: 1 },
-                            actionIds: { natural: ["action1"] },
-                            itemIdsUsed: ["item1"],
-                        },
+                        InBattleSquaddieService.serialize(inBattleSquaddie0),
                     ],
                     [outOfBattleSquaddie1.id]: [
-                        {
-                            id: 0,
-                            outOfBattleSquaddieId: outOfBattleSquaddie1.id,
-                            name: "New Squaddie",
-                            hitPoints: { max: 5, current: 5 },
-                            conditions: {},
-                            actionPoints: { current: 3 },
-                            actionIds: { natural: ["action2"] },
-                            itemIdsUsed: [],
-                        },
+                        InBattleSquaddieService.serialize(inBattleSquaddie1),
                     ],
                 },
             }
