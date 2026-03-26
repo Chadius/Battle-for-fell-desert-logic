@@ -30,6 +30,8 @@ interface SquaddieActionTargeting {
     }
     areaOfEffectSize?: number
     targetCoordinateRequiresTarget?: boolean
+    skipOverPits?: boolean
+    moveThroughWalls?: boolean
 }
 
 export type ActionPointCost = number | "all"
@@ -112,6 +114,8 @@ export const SquaddieActionService = {
         affiliationRelationship,
         areaOfEffectSize,
         targetCoordinateRequiresTarget,
+        skipOverPits,
+        moveThroughWalls,
         effectOnActor,
         effectOnTarget,
         actorRollsToHit,
@@ -149,6 +153,8 @@ export const SquaddieActionService = {
                 areaOfEffectSize: areaOfEffectSize ?? 0,
                 targetCoordinateRequiresTarget:
                     targetCoordinateRequiresTarget ?? true,
+                skipOverPits: skipOverPits ?? true,
+                moveThroughWalls: moveThroughWalls ?? false,
             },
             actorRollsToHit: actorRollsToHit ?? true,
             multipleAttackPenalty: resolvedMultipleAttackPenalty,

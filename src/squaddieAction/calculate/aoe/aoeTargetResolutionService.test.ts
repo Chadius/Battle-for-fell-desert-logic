@@ -357,4 +357,341 @@ describe("AoeTargetResolutionService", () => {
 
         expect(result).not.toContainEqual(thirdEnemy)
     })
+
+    const buildTerrainMap = (
+        terrainRow: number,
+        terrainCol: number,
+        terrainChar: "-" | "X"
+    ): CoordinateMapCollectionManager => {
+        const buildRow = (rowIndex: number, cols: number): string => {
+            const tiles = Array.from({ length: cols }, (_, col) =>
+                rowIndex === terrainRow && col === terrainCol
+                    ? terrainChar
+                    : "1"
+            ).join(" ")
+            return rowIndex % 2 === 0 ? tiles : ` ${tiles}`
+        }
+
+        const movementProperties = [0, 1, 2, 3, 4].map((r) => buildRow(r, 5))
+
+        let mapCollection = CoordinateMapCollectionService.new()
+        mapCollection = CoordinateMapCollectionService.addOrUpdate({
+            collection: mapCollection,
+            map: CoordinateMapService.new({
+                id: mapId,
+                name: "Terrain Test Map",
+                movementProperties,
+            }),
+        })
+        return new CoordinateMapCollectionManager(mapCollection)
+    }
+
+    describe("LINE terrain blocking", () => {
+        let lineTerrainManager: CoordinateMapCollectionManager
+
+        const lineAction = SquaddieActionService.new({
+            id: "line-action",
+            name: "Line Action",
+            range: ActionRange.LONG,
+            shape: CoordinateGeneratorShape.LINE,
+            areaOfEffectSize: 0,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+
+        const lineActionSkipOverPitsFalse = SquaddieActionService.new({
+            id: "line-no-pit",
+            name: "Line No Pit",
+            range: ActionRange.LONG,
+            shape: CoordinateGeneratorShape.LINE,
+            areaOfEffectSize: 0,
+            skipOverPits: false,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+
+        const lineActionMoveThroughWalls = SquaddieActionService.new({
+            id: "line-walls",
+            name: "Line Through Walls",
+            range: ActionRange.LONG,
+            shape: CoordinateGeneratorShape.LINE,
+            areaOfEffectSize: 0,
+            moveThroughWalls: true,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+
+        it("line crosses pit by default — enemy beyond pit is hit", () => {
+            lineTerrainManager = buildTerrainMap(2, 2, "-")
+            lineTerrainManager.addSquaddie({
+                mapId,
+                squaddieId: lini,
+                coordinate: { row: 2, col: 0 },
+            })
+            lineTerrainManager.addSquaddie({
+                mapId,
+                squaddieId: slitherDemon,
+                coordinate: { row: 2, col: 4 },
+            })
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: lineAction,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 4 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: lineTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).toContainEqual(slitherDemon)
+        })
+
+        it("line stops at wall by default — enemy beyond wall is not hit", () => {
+            lineTerrainManager = buildTerrainMap(2, 2, "X")
+            lineTerrainManager.addSquaddie({
+                mapId,
+                squaddieId: lini,
+                coordinate: { row: 2, col: 0 },
+            })
+            lineTerrainManager.addSquaddie({
+                mapId,
+                squaddieId: slitherDemon,
+                coordinate: { row: 2, col: 4 },
+            })
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: lineAction,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 4 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: lineTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).not.toContainEqual(slitherDemon)
+        })
+
+        it("moveThroughWalls: true — enemy beyond wall is hit", () => {
+            lineTerrainManager = buildTerrainMap(2, 2, "X")
+            lineTerrainManager.addSquaddie({
+                mapId,
+                squaddieId: lini,
+                coordinate: { row: 2, col: 0 },
+            })
+            lineTerrainManager.addSquaddie({
+                mapId,
+                squaddieId: slitherDemon,
+                coordinate: { row: 2, col: 4 },
+            })
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: lineActionMoveThroughWalls,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 4 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: lineTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).toContainEqual(slitherDemon)
+        })
+
+        it("skipOverPits: false — enemy beyond pit is not hit", () => {
+            lineTerrainManager = buildTerrainMap(2, 2, "-")
+            lineTerrainManager.addSquaddie({
+                mapId,
+                squaddieId: lini,
+                coordinate: { row: 2, col: 0 },
+            })
+            lineTerrainManager.addSquaddie({
+                mapId,
+                squaddieId: slitherDemon,
+                coordinate: { row: 2, col: 4 },
+            })
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: lineActionSkipOverPitsFalse,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 4 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: lineTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).not.toContainEqual(slitherDemon)
+        })
+    })
+
+    describe("BLOOM terrain blocking", () => {
+        let bloomTerrainManager: CoordinateMapCollectionManager
+
+        const bloomRadius2Action = SquaddieActionService.new({
+            id: "bloom-r2",
+            name: "Bloom Radius 2",
+            range: ActionRange.LONG,
+            shape: CoordinateGeneratorShape.BLOOM,
+            areaOfEffectSize: 2,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+
+        const bloomRadius3Action = SquaddieActionService.new({
+            id: "bloom-r3",
+            name: "Bloom Radius 3",
+            range: ActionRange.LONG,
+            shape: CoordinateGeneratorShape.BLOOM,
+            areaOfEffectSize: 3,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+
+        const bloomSkipOverPitsFalse = SquaddieActionService.new({
+            id: "bloom-no-pit",
+            name: "Bloom No Pit",
+            range: ActionRange.LONG,
+            shape: CoordinateGeneratorShape.BLOOM,
+            areaOfEffectSize: 2,
+            skipOverPits: false,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+
+        const bloomMoveThroughWalls = SquaddieActionService.new({
+            id: "bloom-walls",
+            name: "Bloom Through Walls",
+            range: ActionRange.LONG,
+            shape: CoordinateGeneratorShape.BLOOM,
+            areaOfEffectSize: 2,
+            moveThroughWalls: true,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+
+        const placeSquaddiesForBloomTest = (
+            manager: CoordinateMapCollectionManager
+        ) => {
+            manager.addSquaddie({
+                mapId,
+                squaddieId: lini,
+                coordinate: { row: 2, col: 2 },
+            })
+            manager.addSquaddie({
+                mapId,
+                squaddieId: slitherDemon,
+                coordinate: { row: 2, col: 4 },
+            })
+        }
+
+        it("bloom crosses pit by default — enemy beyond pit is hit", () => {
+            bloomTerrainManager = buildTerrainMap(2, 3, "-")
+            placeSquaddiesForBloomTest(bloomTerrainManager)
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: bloomRadius2Action,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 2 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: bloomTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).toContainEqual(slitherDemon)
+        })
+
+        it("skipOverPits: false — bloom does not cross pit to hit enemy", () => {
+            bloomTerrainManager = buildTerrainMap(2, 3, "-")
+            placeSquaddiesForBloomTest(bloomTerrainManager)
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: bloomSkipOverPitsFalse,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 2 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: bloomTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).not.toContainEqual(slitherDemon)
+        })
+
+        it("bloom blocked by wall with radius 2 — enemy not reachable directly", () => {
+            bloomTerrainManager = buildTerrainMap(2, 3, "X")
+            placeSquaddiesForBloomTest(bloomTerrainManager)
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: bloomRadius2Action,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 2 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: bloomTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).not.toContainEqual(slitherDemon)
+        })
+
+        it("bloom wraps around wall with radius 3 — enemy reachable via alternate path", () => {
+            bloomTerrainManager = buildTerrainMap(2, 3, "X")
+            placeSquaddiesForBloomTest(bloomTerrainManager)
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: bloomRadius3Action,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 2 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: bloomTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).toContainEqual(slitherDemon)
+        })
+
+        it("moveThroughWalls: true — bloom passes through wall to hit enemy", () => {
+            bloomTerrainManager = buildTerrainMap(2, 3, "X")
+            placeSquaddiesForBloomTest(bloomTerrainManager)
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: bloomMoveThroughWalls,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 2 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: bloomTerrainManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).toContainEqual(slitherDemon)
+        })
+    })
 })
