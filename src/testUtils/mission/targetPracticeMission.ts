@@ -175,7 +175,7 @@ function createLightningBoltAction(): SquaddieAction {
         range: ActionRange.LONG,
         shape: CoordinateGeneratorShape.LINE,
         areaOfEffectSize: 0,
-        targetCoordinateRequiresTarget: false,
+        targetCoordinateRequiresTarget: true,
         affiliationRelationship: {
             self: false,
             foe: true,
@@ -555,7 +555,7 @@ function addSquaddiesToMap({
     coordinateMapCollectionManager.addSquaddie({
         mapId: ValeAndGloriaMissionIds.mapId,
         squaddieId: valeSquaddieId,
-        coordinate: { row: 1, col: 0 },
+        coordinate: { row: 2, col: 3 },
     })
 
     coordinateMapCollectionManager.addSquaddie({
