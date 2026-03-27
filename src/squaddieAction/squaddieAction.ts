@@ -29,7 +29,7 @@ interface SquaddieActionTargeting {
         friend: boolean
     }
     areaOfEffectSize?: number
-    targetCoordinateRequiresTarget?: boolean
+    aimCoordinateRequiresTarget?: boolean
     skipOverPits?: boolean
     moveThroughWalls?: boolean
 }
@@ -113,7 +113,7 @@ export const SquaddieActionService = {
         shape,
         affiliationRelationship,
         areaOfEffectSize,
-        targetCoordinateRequiresTarget,
+        aimCoordinateRequiresTarget,
         skipOverPits,
         moveThroughWalls,
         effectOnActor,
@@ -151,8 +151,8 @@ export const SquaddieActionService = {
                     friend: false,
                 },
                 areaOfEffectSize: areaOfEffectSize ?? 0,
-                targetCoordinateRequiresTarget:
-                    targetCoordinateRequiresTarget ?? true,
+                aimCoordinateRequiresTarget:
+                    aimCoordinateRequiresTarget ?? true,
                 skipOverPits: skipOverPits ?? true,
                 moveThroughWalls: moveThroughWalls ?? false,
             },

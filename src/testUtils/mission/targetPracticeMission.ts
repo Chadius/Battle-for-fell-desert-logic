@@ -175,7 +175,7 @@ function createLightningBoltAction(): SquaddieAction {
         range: ActionRange.LONG,
         shape: CoordinateGeneratorShape.LINE,
         areaOfEffectSize: 0,
-        targetCoordinateRequiresTarget: true,
+        aimCoordinateRequiresTarget: true,
         affiliationRelationship: {
             self: false,
             foe: true,
@@ -333,7 +333,7 @@ function createSweepAction(): SquaddieAction {
         range: ActionRange.MELEE,
         shape: CoordinateGeneratorShape.LINE,
         areaOfEffectSize: 1,
-        targetCoordinateRequiresTarget: false,
+        aimCoordinateRequiresTarget: false,
         affiliationRelationship: {
             self: false,
             foe: true,

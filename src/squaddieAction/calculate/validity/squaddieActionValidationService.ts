@@ -213,7 +213,7 @@ export const SquaddieActionValidationService = {
             })
         }
 
-        return groupSingleTargetsyCoordinate({
+        return groupSingleTargetsByCoordinate({
             actor,
             squaddieAction,
             reachableCoordinateKeys,
@@ -492,10 +492,6 @@ const getActionCategorizationResult = ({
         currentActionPoints,
     })
     if (apReason != undefined) return { invalidReason: apReason }
-
-    if (squaddieAction.targeting.targetCoordinateRequiresTarget === false) {
-        return { validTargets: new Map() }
-    }
 
     const allTargetsInRange =
         SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(
@@ -1081,7 +1077,7 @@ const validateAoeAction = ({
     }
 
     const requiresTargetAtCenter =
-        squaddieAction.targeting.targetCoordinateRequiresTarget ?? true
+        squaddieAction.targeting.aimCoordinateRequiresTarget ?? true
     if (requiresTargetAtCenter) {
         return validateTargetAtCenter({
             targetCoordinate: targetCoordinate!,
@@ -1208,7 +1204,7 @@ const resolveAoeTargetsByBlastCenter = ({
     return result
 }
 
-const groupSingleTargetsyCoordinate = ({
+const groupSingleTargetsByCoordinate = ({
     actor,
     squaddieAction,
     reachableCoordinateKeys,
@@ -1755,7 +1751,7 @@ export const calculateAimCoordinateResults = ({
         })
     }
 
-    const coordinateToTargets = groupSingleTargetsyCoordinate({
+    const coordinateToTargets = groupSingleTargetsByCoordinate({
         actor,
         squaddieAction,
         reachableCoordinateKeys,
@@ -1792,8 +1788,6 @@ const calculateAimCoordinateResultsWithAreaOfEffect = ({
         coordinateMapCollectionManager: CoordinateMapCollectionManager
     }
 }) => {
-    const requiresTargetAtCenter =
-        squaddieAction.targeting.targetCoordinateRequiresTarget ?? true
     const results: AimCoordinateResult[] = []
     for (const coordinateKey of reachableCoordinateKeys) {
         const aimCoordinate =
@@ -1805,7 +1799,8 @@ const calculateAimCoordinateResultsWithAreaOfEffect = ({
             mapId,
             managers,
         })
-        if (requiresTargetAtCenter && resolvedTargets.length === 0) {
+
+        if (resolvedTargets.length === 0) {
             continue
         }
         results.push({ aimCoordinate, targetIds: resolvedTargets })

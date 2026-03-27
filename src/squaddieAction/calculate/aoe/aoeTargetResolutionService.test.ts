@@ -37,7 +37,7 @@ describe("AoeTargetResolutionService", () => {
         range: ActionRange.MEDIUM,
         shape: CoordinateGeneratorShape.BLOOM,
         areaOfEffectSize: 1,
-        targetCoordinateRequiresTarget: false,
+        aimCoordinateRequiresTarget: false,
         affiliationRelationship: { self: false, foe: true, friend: false },
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
@@ -60,7 +60,7 @@ describe("AoeTargetResolutionService", () => {
         range: ActionRange.LONG,
         shape: CoordinateGeneratorShape.BLOOM,
         areaOfEffectSize: 2,
-        targetCoordinateRequiresTarget: false,
+        aimCoordinateRequiresTarget: false,
         affiliationRelationship: { self: false, foe: true, friend: false },
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
@@ -80,7 +80,7 @@ describe("AoeTargetResolutionService", () => {
         range: ActionRange.MEDIUM,
         shape: CoordinateGeneratorShape.BLOOM,
         areaOfEffectSize: 1,
-        targetCoordinateRequiresTarget: false,
+        aimCoordinateRequiresTarget: false,
         affiliationRelationship: { self: true, foe: false, friend: true },
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },

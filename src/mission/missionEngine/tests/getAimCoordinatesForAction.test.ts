@@ -152,7 +152,7 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
             range: ActionRange.MELEE,
             shape: CoordinateGeneratorShape.BLOOM,
             areaOfEffectSize: 1,
-            targetCoordinateRequiresTarget: false,
+            aimCoordinateRequiresTarget: false,
             affiliationRelationship: { self: false, foe: true, friend: false },
             proficiency: ProficiencyType.WEAPON_SIMPLE,
             effectOnActor: {
@@ -260,10 +260,10 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
             expect(enemyEntry!.targetIds).toContainEqual(enemyId)
         })
 
-        it("AOE with targetCoordinateRequiresTarget false: includes blast centers with empty targetIds", () => {
-            const { missionEngine, actorId } = createEngine({
+        it("AOE with aimCoordinateRequiresTarget false: includes aim coordinates where the blast radius hits a target even if the aim coord is empty", () => {
+            const { missionEngine, actorId, enemyId } = createEngine({
                 actorCoordinate: { row: 0, col: 0 },
-                enemyCoordinate: { row: 0, col: 4 },
+                enemyCoordinate: { row: 0, col: 1 },
             })
 
             const results = missionEngine.getAimCoordinatesForAction({
@@ -273,8 +273,15 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
             expect(results.length).toBeGreaterThan(0)
 
-            const emptyEntry = results.find((e) => e.targetIds.length === 0)
-            expect(emptyEntry).toBeDefined()
+            results.forEach((entry) => {
+                expect(entry.targetIds.length).toBeGreaterThan(0)
+            })
+
+            const actorTileEntry = results.find(
+                (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 0
+            )
+            expect(actorTileEntry).toBeDefined()
+            expect(actorTileEntry!.targetIds).toContainEqual(enemyId)
         })
     })
 
@@ -433,7 +440,7 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
                 range: ActionRange.LONG,
                 shape: CoordinateGeneratorShape.LINE,
                 areaOfEffectSize: 0,
-                targetCoordinateRequiresTarget: false,
+                aimCoordinateRequiresTarget: false,
                 affiliationRelationship: {
                     self: false,
                     foe: true,

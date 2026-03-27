@@ -437,20 +437,20 @@ describe("SquaddieActionService", () => {
                 },
             })
 
-            expect(action.targeting.targetCoordinateRequiresTarget).toBe(true)
+            expect(action.targeting.aimCoordinateRequiresTarget).toBe(true)
         })
 
         it("targetCoordinateRequiresTarget: false is stored when specified", () => {
             const action = SquaddieActionService.new({
                 id: "no-requires",
                 name: "No Requires",
-                targetCoordinateRequiresTarget: false,
+                aimCoordinateRequiresTarget: false,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
                 },
             })
 
-            expect(action.targeting.targetCoordinateRequiresTarget).toBe(false)
+            expect(action.targeting.aimCoordinateRequiresTarget).toBe(false)
         })
     })
 })

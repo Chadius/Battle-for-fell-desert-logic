@@ -405,7 +405,7 @@ describe("getAllValidTargetsInRangeOfAction", () => {
                 range: ActionRange.SHORT,
                 shape: CoordinateGeneratorShape.BLOOM,
                 areaOfEffectSize: 1,
-                targetCoordinateRequiresTarget: false,
+                aimCoordinateRequiresTarget: false,
                 affiliationRelationship: {
                     self: false,
                     foe: true,

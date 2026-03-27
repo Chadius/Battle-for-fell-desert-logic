@@ -1,6 +1,12 @@
 In these diagrams, A is the actor and T is the target. These take place on a hexagon grid with staggered rows. Odd
 numbered rows are shifted 1/2 tile to the right and Even rows are to the left.
 
+## Targeting's 3 types of Coordinates
+
+- Reachable Coordinates: All coordinates that the action's shape can create
+- Valid aim Coordinates: All valid coordinates the actor can aim at (because at least 1 valid squaddie will be in range)
+- Targets at an aim Coordinate: All squaddies in range of a specific coordinate selected
+
 ## General settings
 
 ### Coordinate system
