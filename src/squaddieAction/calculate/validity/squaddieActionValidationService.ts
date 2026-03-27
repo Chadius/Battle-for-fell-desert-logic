@@ -47,8 +47,8 @@ export interface InvalidSquaddieAction {
 export interface ValidSquaddieAction {
     actionId: string
     actionName: string
-    targetCoordinates: OffsetCoordinate[]
-    targetBattleSquaddieIds: BattleSquaddieId[]
+    reachableCoordinates: OffsetCoordinate[]
+    aimCoordinateResults: AimCoordinateResult[]
 }
 
 export interface SquaddieActionValidity {
@@ -290,35 +290,82 @@ export const SquaddieActionValidationService = {
             if (!managers.squaddieActionManager.has(actionId)) continue
             const squaddieAction = managers.squaddieActionManager.get(actionId)
 
-            const result = getActionCategorizationResult({
-                actor,
-                squaddieAction,
+            // AP check — cheap early exit before running A*
+            const apReason = getActionPointInvalidReason({
+                actionPointCost:
+                    squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent,
                 currentActionPoints,
+            })
+            if (apReason != undefined) {
+                invalidActions.push({
+                    actionId,
+                    actionName: squaddieAction.name,
+                    reason: apReason,
+                })
+                continue
+            }
+
+            const reachableCoordinateKeys = getReachableCoordinateKeys({
+                actor,
+                actionRange: squaddieAction.targeting.range,
+                coordinateMapCollectionManager:
+                    managers.coordinateMapCollectionManager,
+                mapId: map.mapId,
+            })
+            const reachableCoordinates = [...reachableCoordinateKeys].map(
+                (key) => OffsetCoordinateService.keyToCoordinate(key)
+            )
+
+            const aimCoordinateResults = calculateAimCoordinateResults({
+                actor,
+                action: { id: actionId },
                 managers,
                 map,
             })
 
-            if (result.invalidReason == undefined) {
-                addValidActionResults(
-                    result,
-                    validActions,
-                    actionId,
-                    squaddieAction
-                )
-            } else {
+            if (aimCoordinateResults.length === 0) {
                 invalidActions.push({
                     actionId,
                     actionName: squaddieAction.name,
-                    reason: result.invalidReason,
+                    reason: "No applicable targets in range",
                 })
+                continue
             }
+
+            const effectiveAimCoordinateResults = aimCoordinateResults.filter(
+                (entry) =>
+                    entry.targetIds.length === 0 ||
+                    checkIfActionHasEffectOnTargets({
+                        actor,
+                        targets: entry.targetIds,
+                        squaddieAction,
+                        managers,
+                        map,
+                    })
+            )
+
+            if (effectiveAimCoordinateResults.length === 0) {
+                invalidActions.push({
+                    actionId,
+                    actionName: squaddieAction.name,
+                    reason: "No targets can be affected",
+                })
+                continue
+            }
+
+            validActions.push({
+                actionId,
+                actionName: squaddieAction.name,
+                reachableCoordinates,
+                aimCoordinateResults: effectiveAimCoordinateResults,
+            })
         }
 
         validActions.push({
             actionId: "default-end-turn",
             actionName: "End Turn",
-            targetCoordinates: [],
-            targetBattleSquaddieIds: [],
+            reachableCoordinates: [],
+            aimCoordinateResults: [],
         })
         checkForValidMovementAction(
             actor,
@@ -522,28 +569,6 @@ const getActionCategorizationResult = ({
     return { validTargets: effectiveTargets }
 }
 
-const getActionPointInvalidReason = ({
-    actionPointCost,
-    currentActionPoints,
-}: {
-    actionPointCost?: ActionPointCost
-    currentActionPoints: { current: number }
-}): string | undefined => {
-    if (actionPointCost === "all") {
-        if (currentActionPoints.current <= 0) return "Squaddie cannot act"
-        return undefined
-    }
-
-    if (
-        actionPointCost != undefined &&
-        actionPointCost > currentActionPoints.current
-    ) {
-        return `Needs ${actionPointCost} action points`
-    }
-
-    return undefined
-}
-
 const filterTargetGroupsWithEffect = ({
     actor,
     validTargets,
@@ -583,6 +608,28 @@ const filterTargetGroupsWithEffect = ({
         }
     }
     return effectiveTargets
+}
+
+const getActionPointInvalidReason = ({
+    actionPointCost,
+    currentActionPoints,
+}: {
+    actionPointCost?: ActionPointCost
+    currentActionPoints: { current: number }
+}): string | undefined => {
+    if (actionPointCost === "all") {
+        if (currentActionPoints.current <= 0) return "Squaddie cannot act"
+        return undefined
+    }
+
+    if (
+        actionPointCost != undefined &&
+        actionPointCost > currentActionPoints.current
+    ) {
+        return `Needs ${actionPointCost} action points`
+    }
+
+    return undefined
 }
 
 const validateTargetsInRange = ({
@@ -1675,8 +1722,13 @@ const checkForValidMovementAction = (
         validActions.push({
             actionId: "default-move",
             actionName: "Move",
-            targetCoordinates: movementTargetCoordinates,
-            targetBattleSquaddieIds: [],
+            reachableCoordinates: movementTargetCoordinates,
+            aimCoordinateResults: movementTargetCoordinates.map(
+                (aimCoordinate) => ({
+                    aimCoordinate,
+                    targetIds: [],
+                })
+            ),
         })
     } else {
         invalidActions.push({
@@ -1685,34 +1737,6 @@ const checkForValidMovementAction = (
             reason: "No valid movement destinations",
         })
     }
-}
-
-const addValidActionResults = (
-    result: ActionCategorizationResult,
-    validActions: ValidSquaddieAction[],
-    actionId: string,
-    squaddieAction: SquaddieAction
-) => {
-    const targetCoordinates: OffsetCoordinate[] = []
-    const targetBattleSquaddieIds: BattleSquaddieId[] = []
-    if (result.validTargets != undefined) {
-        for (const [coordinateKey, squaddieKeys] of result.validTargets) {
-            targetCoordinates.push(
-                OffsetCoordinateService.keyToCoordinate(coordinateKey)
-            )
-            for (const squaddieKey of squaddieKeys) {
-                targetBattleSquaddieIds.push(
-                    SquaddieIdConverterService.keyToSquaddieId(squaddieKey)
-                )
-            }
-        }
-    }
-    validActions.push({
-        actionId,
-        actionName: squaddieAction.name,
-        targetCoordinates,
-        targetBattleSquaddieIds,
-    })
 }
 
 export const calculateAimCoordinateResults = ({

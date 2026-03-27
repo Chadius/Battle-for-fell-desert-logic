@@ -263,11 +263,11 @@ describe("getSquaddieActionValidity", () => {
         expect(result.validActions).toHaveLength(2)
         expect(result.validActions[0].actionId).toBe(meleeAttackId)
         expect(result.validActions[0].actionName).toBe("Melee Attack")
-        expect(result.validActions[0].targetCoordinates).toContainEqual({
-            row: 0,
-            col: 1,
-        })
-        expect(result.validActions[0].targetBattleSquaddieIds).toContainEqual(
+        const meleeAimEntry = result.validActions[0].aimCoordinateResults.find(
+            (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 1
+        )
+        expect(meleeAimEntry).toBeDefined()
+        expect(meleeAimEntry!.targetIds).toContainEqual(
             expect.objectContaining({
                 outOfBattleSquaddieId: "enemy-1",
             })

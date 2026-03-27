@@ -333,11 +333,11 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(meleeValid).toBeDefined()
         expect(meleeValid!.actionName).toBe("Melee Attack")
-        expect(meleeValid!.targetCoordinates).toContainEqual({
-            row: 0,
-            col: 1,
-        })
-        expect(meleeValid!.targetBattleSquaddieIds).toContainEqual(
+        const meleeAimEntry = meleeValid!.aimCoordinateResults.find(
+            (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 1
+        )
+        expect(meleeAimEntry).toBeDefined()
+        expect(meleeAimEntry!.targetIds).toContainEqual(
             expect.objectContaining({
                 outOfBattleSquaddieId: "enemy",
             })
@@ -385,11 +385,11 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(healValid).toBeDefined()
         expect(healValid!.actionName).toBe("Ranged Heal")
-        expect(healValid!.targetCoordinates).toContainEqual({
-            row: 0,
-            col: 0,
-        })
-        expect(healValid!.targetBattleSquaddieIds).toContainEqual(
+        const healAimEntry = healValid!.aimCoordinateResults.find(
+            (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 0
+        )
+        expect(healAimEntry).toBeDefined()
+        expect(healAimEntry!.targetIds).toContainEqual(
             expect.objectContaining({
                 outOfBattleSquaddieId: "actor",
             })
@@ -461,11 +461,12 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(healAndProtectIsValid).toBeDefined()
         expect(healAndProtectIsValid!.actionName).toBe("Heal and Protect")
-        expect(healAndProtectIsValid!.targetCoordinates).toContainEqual({
-            row: 0,
-            col: 0,
-        })
-        expect(healAndProtectIsValid!.targetBattleSquaddieIds).toContainEqual(
+        const healAndProtectAimEntry =
+            healAndProtectIsValid!.aimCoordinateResults.find(
+                (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 0
+            )
+        expect(healAndProtectAimEntry).toBeDefined()
+        expect(healAndProtectAimEntry!.targetIds).toContainEqual(
             expect.objectContaining({
                 outOfBattleSquaddieId: "ally",
             })
@@ -540,8 +541,8 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(endTurnValid).toBeDefined()
         expect(endTurnValid!.actionName).toBe("End Turn")
-        expect(endTurnValid!.targetCoordinates).toEqual([])
-        expect(endTurnValid!.targetBattleSquaddieIds).toEqual([])
+        expect(endTurnValid!.reachableCoordinates).toEqual([])
+        expect(endTurnValid!.aimCoordinateResults).toEqual([])
     })
 
     it("Movement is valid when there are reachable destinations", () => {
@@ -567,8 +568,10 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(moveValid).toBeDefined()
         expect(moveValid!.actionName).toBe("Move")
-        expect(moveValid!.targetCoordinates.length).toBeGreaterThan(0)
-        expect(moveValid!.targetBattleSquaddieIds).toEqual([])
+        expect(moveValid!.aimCoordinateResults.length).toBeGreaterThan(0)
+        moveValid!.aimCoordinateResults.forEach((entry) => {
+            expect(entry.targetIds).toEqual([])
+        })
     })
 
     it("Movement is invalid when surrounded with no reachable destinations", () => {
