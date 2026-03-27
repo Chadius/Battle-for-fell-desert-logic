@@ -47,6 +47,8 @@ import {
 } from "../../affiliation/affiliation"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
 import {
+    type AimCoordinateResult,
+    calculateAimCoordinateResults,
     SquaddieActionValidationService,
     type SquaddieActionValidity,
 } from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
@@ -621,6 +623,85 @@ export class MissionEngine {
             },
             map: { mapId: this.missionManager!.missionState!.mapId },
         })
+    }
+
+    getAimCoordinatesForAction({
+        actor,
+        actionId,
+    }: {
+        actor: BattleSquaddieId
+        actionId: string
+    }): AimCoordinateResult[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getAimCoordinatesForAction.name
+        )
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getAimCoordinatesForAction.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getAimCoordinatesForAction.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getAimCoordinatesForAction.name
+        )
+
+        return calculateAimCoordinateResults({
+            actor,
+            action: { id: actionId },
+            managers: {
+                inBattleSquaddieManager:
+                    this.missionManager!.inBattleSquaddieManager!,
+                squaddieActionManager:
+                    this.missionManager!.squaddieActionManager!,
+                coordinateMapCollectionManager:
+                    this.missionManager!.coordinateMapCollectionManager!,
+            },
+            map: { mapId: this.missionManager!.missionState!.mapId },
+        })
+    }
+
+    getTargetsForAimCoordinate({
+        actor,
+        actionId,
+        aimCoordinate,
+    }: {
+        actor: BattleSquaddieId
+        actionId: string
+        aimCoordinate: OffsetCoordinate
+    }): BattleSquaddieId[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getTargetsForAimCoordinate.name
+        )
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getTargetsForAimCoordinate.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getTargetsForAimCoordinate.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getTargetsForAimCoordinate.name
+        )
+
+        const aimCoordinates = calculateAimCoordinateResults({
+            actor,
+            action: { id: actionId },
+            managers: {
+                inBattleSquaddieManager:
+                    this.missionManager!.inBattleSquaddieManager!,
+                squaddieActionManager:
+                    this.missionManager!.squaddieActionManager!,
+                coordinateMapCollectionManager:
+                    this.missionManager!.coordinateMapCollectionManager!,
+            },
+            map: { mapId: this.missionManager!.missionState!.mapId },
+        })
+
+        const match = aimCoordinates.find(
+            (entry) =>
+                entry.aimCoordinate.row === aimCoordinate.row &&
+                entry.aimCoordinate.col === aimCoordinate.col
+        )
+        return match?.targetIds ?? []
     }
 
     getMovementOptionsWithCosts(

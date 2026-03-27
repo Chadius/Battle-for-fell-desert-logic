@@ -4,10 +4,7 @@ import {
     type SquaddieAction,
     SquaddieActionService,
 } from "../../../squaddieAction"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import { type BattleSquaddieId } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../../affiliation/affiliation"
 import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess"
@@ -19,11 +16,13 @@ import type { OutOfBattleSquaddieManager } from "../../../../squaddie/outOfBattl
 import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager"
 import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
+import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
+import { ValidationTestSetup } from "../../../../testUtils/validationTestSetup"
 
 describe("getAllValidTargetsInRangeOfAction", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -34,62 +33,19 @@ describe("getAllValidTargetsInRangeOfAction", () => {
     const mapId = "test-map"
 
     beforeEach(() => {
-        const { manager } =
-            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
-                sheetId: "test-sheet",
-            })
-        outOfBattleSquaddieManager = manager
-
-        const actorSquaddie = OutOfBattleSquaddieService.new({
-            id: "actor",
-            name: "Actor",
-            actionIds: [],
-            attributeSheetId: "test-sheet",
-            affiliation: SquaddieAffiliation.PLAYER,
+        const setup = ValidationTestSetup.create({
+            mapMovementProperties: [
+                "1 1 1 1 1 1 1 1 1 1 ",
+                " 1 1 1 1 1 1 1 1 1 1",
+                "1 1 1 1 1 1 1 1 1 1 ",
+            ],
+            actorPosition: { row: 0, col: 0 },
         })
-        outOfBattleSquaddieManager.addOrUpdateSquaddie(actorSquaddie)
-
-        const inBattleCollection = InBattleSquaddieCollectionService.new()
-        inBattleSquaddieManager = new InBattleSquaddieManager(
-            inBattleCollection,
-            outOfBattleSquaddieManager
-        )
-
-        const { inBattleSquaddieId } =
-            inBattleSquaddieManager.createNewSquaddie({
-                outOfBattleSquaddieId: "actor",
-            })
-        actor = {
-            inBattleSquaddieId,
-            outOfBattleSquaddieId: "actor",
-        }
-
-        squaddieActionManager = new SquaddieActionManager(
-            SquaddieActionCollectionService.new()
-        )
-
-        let mapCollection = CoordinateMapCollectionService.new()
-        mapCollection = CoordinateMapCollectionService.addOrUpdate({
-            collection: mapCollection,
-            map: CoordinateMapService.new({
-                id: mapId,
-                name: "Test Map",
-                movementProperties: [
-                    "1 1 1 1 1 1 1 1 1 1 ",
-                    " 1 1 1 1 1 1 1 1 1 1",
-                    "1 1 1 1 1 1 1 1 1 1 ",
-                ],
-            }),
-        })
-        coordinateMapCollectionManager = new CoordinateMapCollectionManager(
-            mapCollection
-        )
-
-        coordinateMapCollectionManager.addSquaddie({
-            mapId,
-            squaddieId: actor,
-            coordinate: { row: 0, col: 0 },
-        })
+        actor = setup.actor
+        outOfBattleSquaddieManager = setup.outOfBattleSquaddieManager
+        inBattleSquaddieManager = setup.inBattleSquaddieManager
+        coordinateMapCollectionManager = setup.coordinateMapCollectionManager
+        squaddieActionManager = setup.squaddieActionManager
     })
 
     const calculateReachableSquaddies = (actionId: string) =>

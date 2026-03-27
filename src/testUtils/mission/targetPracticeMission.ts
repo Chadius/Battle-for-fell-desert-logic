@@ -67,7 +67,6 @@ export const ValeAndGloriaMissionIds = {
     },
 } as const
 
-// Creates the full MissionManager for the Vale and Gloria mission.
 export function createTargetPracticeMission(): MissionManager {
     const coordinateMapCollectionManager =
         createCoordinateMapCollectionManager()
@@ -104,10 +103,6 @@ export function createTargetPracticeMission(): MissionManager {
     return missionManager
 }
 
-// 5 rows × 10 cols hex map. Left side is clear terrain, right side is rough (cost 2).
-// Rows 1 and 3 have pits (X) at cols 3 and 4 creating a central chokepoint.
-// Row 2 has a wall (-) at col 4 reinforcing the chokepoint center.
-// Passable routes between left and right are along row 0 and row 4.
 function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager {
     const movementProperties = [
         "1 1 1 1 1 1 2 2 2 2",
@@ -171,8 +166,6 @@ function createSquaddieActionManager(): SquaddieActionManager {
     return manager
 }
 
-// Long-range LINE attack. Cannot critically succeed. Deals 2 elemental damage.
-// Vale rolls MIND + SKILL_MIND vs target's ARMOR. Costs 2 AP.
 function createLightningBoltAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.vale.lightningBoltActionId,
@@ -207,7 +200,6 @@ function createLightningBoltAction(): SquaddieAction {
     })
 }
 
-// Short-range MIND attack that applies SLOWED 1 on success. Deals no damage. Costs 1 AP.
 function createIntimidatingGlareAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.vale.intimidatingGlareActionId,
@@ -248,7 +240,6 @@ function createIntimidatingGlareAction(): SquaddieAction {
     })
 }
 
-// Standard melee weapon attack. Costs 1 AP.
 function createLongswordAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.gloria.longswordActionId,
@@ -333,7 +324,6 @@ function createShieldAction(): SquaddieAction {
     })
 }
 
-// Melee LINE attack with width 1 (hits center hex + 1 on each perpendicular side). Costs 2 AP.
 function createSweepAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.gloria.sweepActionId,
@@ -372,7 +362,6 @@ function createSweepAction(): SquaddieAction {
     })
 }
 
-// Enemy melee attack. Costs 1 AP.
 function createDemonBiteAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.slitherDemon.biteActionId,
@@ -518,8 +507,6 @@ function createInBattleSquaddieManager(
             ValeAndGloriaMissionIds.vale.outOfBattleSquaddieId,
     })
 
-    // TODO add the reduction to the attribute sheet's movement so this condition isn't needed anymore
-    // Vale has HUSTLE permanently — she reduces movement costs to a minimum of 1.
     manager.addConditionsToSquaddie({
         ...valeSquaddieId,
         conditions: [
@@ -537,7 +524,6 @@ function createInBattleSquaddieManager(
             ValeAndGloriaMissionIds.gloria.outOfBattleSquaddieId,
     })
 
-    // 4 slither demons created from the same out-of-battle definition.
     const demonSquaddieIds: BattleSquaddieId[] = []
     for (let i = 0; i < 4; i++) {
         const demonId = manager.createNewSquaddie({
@@ -579,10 +565,10 @@ function addSquaddiesToMap({
     })
 
     const demonCoordinates = [
-        { row: 0, col: 8 },
-        { row: 4, col: 8 },
-        { row: 1, col: 9 },
-        { row: 3, col: 9 },
+        { row: 2, col: 6 },
+        { row: 2, col: 7 },
+        { row: 2, col: 8 },
+        { row: 2, col: 9 },
     ]
 
     for (let i = 0; i < demonSquaddieIds.length; i++) {

@@ -12,6 +12,7 @@ import {
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import type { OutOfBattleSquaddieManager } from "../../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager"
+import { ValidationTestSetup } from "../../../../testUtils/validationTestSetup"
 import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
@@ -27,62 +28,19 @@ describe("targetRangeValidation", () => {
     const mapId = "test-map"
 
     beforeEach(() => {
-        const { manager } =
-            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
-                sheetId: "test-sheet",
-            })
-        outOfBattleSquaddieManager = manager
-
-        const actorSquaddie = OutOfBattleSquaddieService.new({
-            id: "actor",
-            name: "Actor",
-            actionIds: [],
-            attributeSheetId: "test-sheet",
-            affiliation: SquaddieAffiliation.PLAYER,
+        const setup = ValidationTestSetup.create({
+            mapMovementProperties: [
+                "1 1 1 1 1 1 1 1 1 1 ",
+                " 1 1 1 1 1 1 1 1 1 1",
+                "1 1 1 1 1 1 1 1 1 1 ",
+            ],
+            actorPosition: { row: 0, col: 0 },
         })
-        outOfBattleSquaddieManager.addOrUpdateSquaddie(actorSquaddie)
-
-        const inBattleCollection = InBattleSquaddieCollectionService.new()
-        inBattleSquaddieManager = new InBattleSquaddieManager(
-            inBattleCollection,
-            outOfBattleSquaddieManager
-        )
-
-        const { inBattleSquaddieId } =
-            inBattleSquaddieManager.createNewSquaddie({
-                outOfBattleSquaddieId: "actor",
-            })
-        actor = {
-            inBattleSquaddieId,
-            outOfBattleSquaddieId: "actor",
-        }
-
-        squaddieActionManager = new SquaddieActionManager(
-            SquaddieActionCollectionService.new()
-        )
-
-        let mapCollection = CoordinateMapCollectionService.new()
-        mapCollection = CoordinateMapCollectionService.addOrUpdate({
-            collection: mapCollection,
-            map: CoordinateMapService.new({
-                id: mapId,
-                name: "Test Map",
-                movementProperties: [
-                    "1 1 1 1 1 1 1 1 1 1 ",
-                    " 1 1 1 1 1 1 1 1 1 1",
-                    "1 1 1 1 1 1 1 1 1 1 ",
-                ],
-            }),
-        })
-        coordinateMapCollectionManager = new CoordinateMapCollectionManager(
-            mapCollection
-        )
-
-        coordinateMapCollectionManager.addSquaddie({
-            mapId,
-            squaddieId: actor,
-            coordinate: { row: 0, col: 0 },
-        })
+        actor = setup.actor
+        outOfBattleSquaddieManager = setup.outOfBattleSquaddieManager
+        inBattleSquaddieManager = setup.inBattleSquaddieManager
+        coordinateMapCollectionManager = setup.coordinateMapCollectionManager
+        squaddieActionManager = setup.squaddieActionManager
     })
 
     describe("target range validation", () => {

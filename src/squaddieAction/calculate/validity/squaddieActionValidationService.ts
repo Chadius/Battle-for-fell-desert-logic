@@ -35,6 +35,7 @@ import type { SquaddieActionResult } from "../result/squaddieActionResult"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
 import { AoeTargetResolutionService } from "../aoe/aoeTargetResolutionService"
+import { LineOfSightService } from "../../../coordinateMap/lineOfSightService"
 
 export interface InvalidSquaddieAction {
     actionId: string
@@ -68,6 +69,13 @@ export interface ValidSquaddieActionOption {
     }
     movementPath?: CoordinateMovePath
     actionPointsRemaining: InBattleSquaddie["actionPoints"]
+}
+
+// A single valid aim coordinate for an action, with the targets that would be affected.
+// For AOE actions with targetCoordinateRequiresTarget: false, targetIds may be empty (open-space aim).
+export interface AimCoordinateResult {
+    aimCoordinate: OffsetCoordinate
+    targetIds: BattleSquaddieId[]
 }
 
 export const SquaddieActionValidationService = {
@@ -624,15 +632,15 @@ const validateTargetsInRange = ({
         return { isValid: false, reason: "All targets must be in range" }
     }
 
-    const pathfindingValidTargets = filterTargetsByPathfinding({
+    const losValidTargets = filterTargetsByLineOfSight({
         actor,
         targets: inRangeTargets,
-        actionRange,
+        squaddieAction,
         coordinateMapCollectionManager,
         mapId,
     })
 
-    if (pathfindingValidTargets.length !== inRangeTargets.length) {
+    if (losValidTargets.length !== inRangeTargets.length) {
         return { isValid: false, reason: "All targets must be in range" }
     }
 
@@ -744,16 +752,16 @@ const filterTargetsByDistance = ({
     })
 }
 
-const filterTargetsByPathfinding = ({
+const filterTargetsByLineOfSight = ({
     actor,
     targets,
-    actionRange,
+    squaddieAction,
     coordinateMapCollectionManager,
     mapId,
 }: {
     actor: BattleSquaddieId
     targets: BattleSquaddieId[]
-    actionRange: TActionRange
+    squaddieAction: SquaddieAction
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     mapId: string
 }): BattleSquaddieId[] => {
@@ -777,65 +785,35 @@ const filterTargetsByPathfinding = ({
         col: actorCoordinate.col,
     }
 
-    let allTargetsAreOnTheMap = true
+    const skipOverPits = squaddieAction.targeting.skipOverPits ?? true
+    const moveThroughWalls = squaddieAction.targeting.moveThroughWalls ?? false
 
-    const targetCoordinateKeys = new Set(
-        targets.map((target) => {
-            const squaddieCoordinate =
-                coordinateMapCollectionManager.getSquaddieCoordinate({
-                    mapId,
-                    squaddieId: target,
-                })
-            if (squaddieCoordinate == undefined) {
-                allTargetsAreOnTheMap = false
-                return ""
-            }
-            return OffsetCoordinateService.coordinateToKey({
-                row: squaddieCoordinate.row!,
-                col: squaddieCoordinate.col!,
+    return targets.filter((target) => {
+        const targetCoordinate =
+            coordinateMapCollectionManager.getSquaddieCoordinate({
+                mapId,
+                squaddieId: target,
             })
+
+        if (
+            targetCoordinate?.row == undefined ||
+            targetCoordinate?.col == undefined
+        ) {
+            return false
+        }
+
+        return LineOfSightService.hasLineOfSight({
+            from: actorPosition,
+            to: {
+                row: targetCoordinate.row,
+                col: targetCoordinate.col,
+            },
+            mapId,
+            coordinateMapCollectionManager,
+            skipOverPits,
+            moveThroughWalls,
         })
-    )
-
-    if (!allTargetsAreOnTheMap) {
-        return []
-    }
-
-    const { minimum, maximum } =
-        ActionRangeService.minAndMaxByRange[actionRange]
-
-    const searchLimits: CoordinateMapSearchLimits = {
-        stopOnSquaddies: true,
-        reduceMoveCosts: true,
-        skipOverPits: true,
-        moveThroughWalls: false,
-        minimumDistance: minimum,
-        maximumMoveCost: maximum,
-    }
-
-    const map = coordinateMapCollectionManager.getMapById(mapId)
-    const adapter = new CoordinateMapAStarAdapter({
-        map,
-        searchLimits,
     })
-
-    const stopCondition = (node: OffsetCoordinate) => {
-        const key = OffsetCoordinateService.coordinateToKey(node)
-        targetCoordinateKeys.delete(key)
-        return targetCoordinateKeys.size === 0
-    }
-
-    AStarSearchService.search<
-        OffsetCoordinate,
-        CoordinateMovePath,
-        AStarGraph<OffsetCoordinate, CoordinateMovePath>
-    >({
-        start: actorPosition,
-        graph: adapter,
-        stopCondition,
-    })
-
-    return targetCoordinateKeys.size === 0 ? targets : []
 }
 
 const validateActionPointCost = ({
@@ -1319,7 +1297,7 @@ const resolveDirectTargetsByCoordinate = ({
     return reachableCoordinatesWithSquaddiesInRange
 }
 
-const getReachableCoordinateKeys = ({
+export const getReachableCoordinateKeys = ({
     actor,
     actionRange,
     coordinateMapCollectionManager,
@@ -1736,4 +1714,95 @@ const addValidActionResults = (
         targetCoordinates,
         targetBattleSquaddieIds,
     })
+}
+
+export const calculateAimCoordinateResults = ({
+    actor,
+    action,
+    managers,
+    map,
+}: {
+    actor: BattleSquaddieId
+    action: { id: string }
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+    map: { mapId: string }
+}): AimCoordinateResult[] => {
+    const squaddieAction = managers.squaddieActionManager.get(action.id)
+    const reachableCoordinateKeys = getReachableCoordinateKeys({
+        actor,
+        actionRange: squaddieAction.targeting.range,
+        coordinateMapCollectionManager: managers.coordinateMapCollectionManager,
+        mapId: map.mapId,
+    })
+
+    if ((squaddieAction.targeting.areaOfEffectSize ?? 0) > 0) {
+        return calculateAimCoordinateResultsWithAreaOfEffect({
+            squaddieAction,
+            reachableCoordinateKeys,
+            actor,
+            mapId: map.mapId,
+            managers,
+        })
+    }
+
+    const coordinateToTargets = resolveDirectTargetsByCoordinate({
+        actor,
+        squaddieAction,
+        reachableCoordinateKeys,
+        managers,
+        mapId: map.mapId,
+    })
+    const results: AimCoordinateResult[] = []
+    for (const [coordinateKey, squaddieKeySet] of coordinateToTargets) {
+        results.push({
+            aimCoordinate:
+                OffsetCoordinateService.keyToCoordinate(coordinateKey),
+            targetIds: [...squaddieKeySet].map((k) =>
+                SquaddieIdConverterService.keyToSquaddieId(k)
+            ),
+        })
+    }
+    return results
+}
+
+const calculateAimCoordinateResultsWithAreaOfEffect = ({
+    squaddieAction,
+    reachableCoordinateKeys,
+    actor,
+    mapId,
+    managers,
+}: {
+    squaddieAction: SquaddieAction
+    reachableCoordinateKeys: Set<string>
+    actor: BattleSquaddieId
+    mapId: string
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+}) => {
+    const requiresTargetAtCenter =
+        squaddieAction.targeting.targetCoordinateRequiresTarget ?? true
+    const results: AimCoordinateResult[] = []
+    for (const coordinateKey of reachableCoordinateKeys) {
+        const aimCoordinate =
+            OffsetCoordinateService.keyToCoordinate(coordinateKey)
+        const resolvedTargets = AoeTargetResolutionService.resolveAoeTargets({
+            action: squaddieAction,
+            actor,
+            targetCoordinate: aimCoordinate,
+            mapId,
+            managers,
+        })
+        if (requiresTargetAtCenter && resolvedTargets.length === 0) {
+            continue
+        }
+        results.push({ aimCoordinate, targetIds: resolvedTargets })
+    }
+    return results
 }
