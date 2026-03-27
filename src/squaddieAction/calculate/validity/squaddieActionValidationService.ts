@@ -36,6 +36,7 @@ import { SquaddieIdConverterService } from "../../../squaddie/idConverterService
 import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
 import { AoeTargetResolutionService } from "../aoe/aoeTargetResolutionService"
 import { LineOfSightService } from "../../../coordinateMap/lineOfSightService"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 
 export interface InvalidSquaddieAction {
     actionId: string
@@ -214,7 +215,7 @@ export const SquaddieActionValidationService = {
             })
         }
 
-        return resolveDirectTargetsByCoordinate({
+        return groupSingleTargetsyCoordinate({
             actor,
             squaddieAction,
             reachableCoordinateKeys,
@@ -1205,7 +1206,7 @@ const resolveAoeTargetsByBlastCenter = ({
     return result
 }
 
-const resolveDirectTargetsByCoordinate = ({
+const groupSingleTargetsyCoordinate = ({
     actor,
     squaddieAction,
     reachableCoordinateKeys,
@@ -1739,7 +1740,10 @@ export const calculateAimCoordinateResults = ({
         mapId: map.mapId,
     })
 
-    if ((squaddieAction.targeting.areaOfEffectSize ?? 0) > 0) {
+    const isAreaEffect = (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
+    const isDirectionalShape =
+        squaddieAction.targeting.shape === CoordinateGeneratorShape.LINE
+    if (isAreaEffect || isDirectionalShape) {
         return calculateAimCoordinateResultsWithAreaOfEffect({
             squaddieAction,
             reachableCoordinateKeys,
@@ -1749,7 +1753,7 @@ export const calculateAimCoordinateResults = ({
         })
     }
 
-    const coordinateToTargets = resolveDirectTargetsByCoordinate({
+    const coordinateToTargets = groupSingleTargetsyCoordinate({
         actor,
         squaddieAction,
         reachableCoordinateKeys,
