@@ -2856,7 +2856,7 @@ describe("MissionManager", () => {
                 })
             })
 
-            it("returns all enemies along the line, excluding enemies past the endpoint", () => {
+            it("returns all enemies along the line", () => {
                 const targets = missionManager.resolveAoeTargets({
                     actor: actorId,
                     action: { id: "slash" },
@@ -2866,7 +2866,7 @@ describe("MissionManager", () => {
                 const targetIds = targets.map((t) => t.outOfBattleSquaddieId)
                 expect(targetIds).toContain("enemy-a")
                 expect(targetIds).toContain("enemy-b")
-                expect(targetIds).not.toContain("enemy-c")
+                expect(targetIds).toContain("enemy-c")
             })
 
             it("previewActionResults forecasts results for all enemies in the line", () => {
@@ -2887,7 +2887,7 @@ describe("MissionManager", () => {
                 )
                 expect(forecastedTargetIds).toContain("enemy-a")
                 expect(forecastedTargetIds).toContain("enemy-b")
-                expect(forecastedTargetIds).not.toContain("enemy-c")
+                expect(forecastedTargetIds).toContain("enemy-c")
             })
 
             it("useActionAndGetResults applies results to all enemies in the line", () => {
@@ -2911,7 +2911,7 @@ describe("MissionManager", () => {
                 expect(resultKeys.some((k) => k.startsWith("enemy-b"))).toBe(
                     true
                 )
-                expect(resultKeys.every((k) => !k.startsWith("enemy-c"))).toBe(
+                expect(resultKeys.some((k) => k.startsWith("enemy-c"))).toBe(
                     true
                 )
             })

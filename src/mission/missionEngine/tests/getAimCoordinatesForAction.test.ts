@@ -328,4 +328,283 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
             expect(targetIds).toHaveLength(0)
         })
     })
+
+    describe("LINE action (Lightning Bolt) integration", () => {
+        const lightningBoltId = "lightning-bolt"
+
+        const createLineEngine = (): {
+            missionEngine: MissionEngine
+            actorId: BattleSquaddieId
+            enemy0Id: BattleSquaddieId
+            enemy1Id: BattleSquaddieId
+            enemy2Id: BattleSquaddieId
+        } => {
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "test_sheet",
+                        attributeSheetOptions: {
+                            maxHitPoints: 10,
+                            distancePerAction: 1,
+                        },
+                    }
+                )
+
+            const playerSquaddie = OutOfBattleSquaddieService.new({
+                id: "player-1",
+                name: "Player 1",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "test_sheet",
+                actionIds: [lightningBoltId],
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+            ;[
+                { id: "enemy-0", name: "Enemy 0" },
+                { id: "enemy-1", name: "Enemy 1" },
+                { id: "enemy-2", name: "Enemy 2" },
+            ].forEach(({ id, name }) => {
+                outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                    OutOfBattleSquaddieService.new({
+                        id,
+                        name,
+                        affiliation: SquaddieAffiliation.ENEMY,
+                        attributeSheetId: "test_sheet",
+                    })
+                )
+            })
+
+            const inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+
+            const actorId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "player-1",
+            })
+            const enemy0Id = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-0",
+            })
+            const enemy1Id = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-1",
+            })
+            const enemy2Id = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "enemy-2",
+            })
+
+            const map = CoordinateMapService.new({
+                id: "test_map",
+                name: "test map",
+                movementProperties: ["1 1 1 1 1 1 1"],
+            })
+
+            const coordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(
+                    CoordinateMapCollectionService.new()
+                )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: actorId,
+                coordinate: { row: 0, col: 0 },
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: enemy0Id,
+                coordinate: { row: 0, col: 2 },
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: enemy1Id,
+                coordinate: { row: 0, col: 3 },
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: "test_map",
+                squaddieId: enemy2Id,
+                coordinate: { row: 0, col: 4 },
+            })
+
+            const squaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+
+            const lightningBolt = SquaddieActionService.new({
+                id: lightningBoltId,
+                name: "Lightning Bolt",
+                range: ActionRange.LONG,
+                shape: CoordinateGeneratorShape.LINE,
+                areaOfEffectSize: 0,
+                targetCoordinateRequiresTarget: false,
+                affiliationRelationship: {
+                    self: false,
+                    foe: true,
+                    friend: false,
+                },
+                proficiency: ProficiencyType.WEAPON_SIMPLE,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 3,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            squaddieActionManager.addOrUpdate(lightningBolt)
+
+            const missionState = MissionStateService.new({
+                id: "mission-1",
+                mapId: "test_map",
+            })
+
+            const missionManager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+                squaddieActionManager,
+            })
+
+            return {
+                missionEngine: new MissionEngine(missionManager),
+                actorId,
+                enemy0Id,
+                enemy1Id,
+                enemy2Id,
+            }
+        }
+
+        it("getSquaddieActionValidity includes Lightning Bolt in validActions", () => {
+            const { missionEngine, actorId } = createLineEngine()
+
+            const validity = missionEngine.getSquaddieActionValidity(actorId)
+
+            const validActionIds = validity.validActions.map((a) => a.actionId)
+            expect(validActionIds).toContain(lightningBoltId)
+            const invalidActionIds = validity.invalidActions.map(
+                (a) => a.actionId
+            )
+            expect(invalidActionIds).not.toContain(lightningBoltId)
+        })
+
+        it("getAimCoordinatesForAction returns multiple aim coordinates", () => {
+            const { missionEngine, actorId } = createLineEngine()
+
+            const results = missionEngine.getAimCoordinatesForAction({
+                actor: actorId,
+                actionId: lightningBoltId,
+            })
+
+            expect(results.length).toBeGreaterThan(1)
+        })
+
+        it("aiming at an empty tile should hit all targets", () => {
+            const { missionEngine, actorId, enemy0Id, enemy1Id, enemy2Id } =
+                createLineEngine()
+
+            const results = missionEngine.getAimCoordinatesForAction({
+                actor: actorId,
+                actionId: lightningBoltId,
+            })
+
+            const entry = results.find(
+                (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 1
+            )
+            expect(entry).toBeDefined()
+            expect(entry!.targetIds).toContainEqual(enemy0Id)
+            expect(entry!.targetIds).toContainEqual(enemy1Id)
+            expect(entry!.targetIds).toContainEqual(enemy2Id)
+            expect(entry!.targetIds).toHaveLength(3)
+        })
+
+        it("aiming at the first enemy returns only that enemy", () => {
+            const { missionEngine, actorId, enemy0Id, enemy1Id, enemy2Id } =
+                createLineEngine()
+
+            const results = missionEngine.getAimCoordinatesForAction({
+                actor: actorId,
+                actionId: lightningBoltId,
+            })
+
+            const entry = results.find(
+                (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 2
+            )
+            expect(entry).toBeDefined()
+            expect(entry!.targetIds).toContainEqual(enemy0Id)
+            expect(entry!.targetIds).toContainEqual(enemy1Id)
+            expect(entry!.targetIds).toContainEqual(enemy2Id)
+            expect(entry!.targetIds).toHaveLength(3)
+        })
+
+        it("aiming past the first enemy hits both the first and second enemy", () => {
+            const { missionEngine, actorId, enemy0Id, enemy1Id, enemy2Id } =
+                createLineEngine()
+
+            const results = missionEngine.getAimCoordinatesForAction({
+                actor: actorId,
+                actionId: lightningBoltId,
+            })
+
+            const entry = results.find(
+                (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 3
+            )
+            expect(entry).toBeDefined()
+            expect(entry!.targetIds).toContainEqual(enemy0Id)
+            expect(entry!.targetIds).toContainEqual(enemy1Id)
+            expect(entry!.targetIds).toContainEqual(enemy2Id)
+            expect(entry!.targetIds).toHaveLength(3)
+        })
+
+        it("aiming at the third enemy hits all three enemies in the line", () => {
+            const { missionEngine, actorId, enemy0Id, enemy1Id, enemy2Id } =
+                createLineEngine()
+
+            const results = missionEngine.getAimCoordinatesForAction({
+                actor: actorId,
+                actionId: lightningBoltId,
+            })
+
+            const entry = results.find(
+                (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 4
+            )
+            expect(entry).toBeDefined()
+            expect(entry!.targetIds).toContainEqual(enemy0Id)
+            expect(entry!.targetIds).toContainEqual(enemy1Id)
+            expect(entry!.targetIds).toContainEqual(enemy2Id)
+            expect(entry!.targetIds).toHaveLength(3)
+        })
+
+        it("getTargetsForAimCoordinate at col 3 returns all enemies", () => {
+            const { missionEngine, actorId, enemy0Id, enemy1Id, enemy2Id } =
+                createLineEngine()
+
+            const targetIds = missionEngine.getTargetsForAimCoordinate({
+                actor: actorId,
+                actionId: lightningBoltId,
+                aimCoordinate: { row: 0, col: 3 },
+            })
+
+            expect(targetIds).toContainEqual(enemy0Id)
+            expect(targetIds).toContainEqual(enemy1Id)
+            expect(targetIds).toContainEqual(enemy2Id)
+            expect(targetIds).toHaveLength(3)
+        })
+
+        it("getTargetsForAimCoordinate at col 4 returns all three enemies", () => {
+            const { missionEngine, actorId, enemy0Id, enemy1Id, enemy2Id } =
+                createLineEngine()
+
+            const targetIds = missionEngine.getTargetsForAimCoordinate({
+                actor: actorId,
+                actionId: lightningBoltId,
+                aimCoordinate: { row: 0, col: 4 },
+            })
+
+            expect(targetIds).toContainEqual(enemy0Id)
+            expect(targetIds).toContainEqual(enemy1Id)
+            expect(targetIds).toContainEqual(enemy2Id)
+            expect(targetIds).toHaveLength(3)
+        })
+    })
 })

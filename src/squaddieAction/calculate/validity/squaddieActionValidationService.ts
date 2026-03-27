@@ -72,8 +72,6 @@ export interface ValidSquaddieActionOption {
     actionPointsRemaining: InBattleSquaddie["actionPoints"]
 }
 
-// A single valid aim coordinate for an action, with the targets that would be affected.
-// For AOE actions with targetCoordinateRequiresTarget: false, targetIds may be empty (open-space aim).
 export interface AimCoordinateResult {
     aimCoordinate: OffsetCoordinate
     targetIds: BattleSquaddieId[]
@@ -494,6 +492,10 @@ const getActionCategorizationResult = ({
         currentActionPoints,
     })
     if (apReason != undefined) return { invalidReason: apReason }
+
+    if (squaddieAction.targeting.targetCoordinateRequiresTarget === false) {
+        return { validTargets: new Map() }
+    }
 
     const allTargetsInRange =
         SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(

@@ -7,6 +7,7 @@ import type {
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import type { SquaddieAction } from "../../squaddieAction"
 import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate"
+import { ActionRangeService } from "../../actionRange"
 import {
     CoordinateCalculator,
     CoordinateDirection,
@@ -123,10 +124,36 @@ const getLineAffectedCoordinates = ({
     const skipOverPits = action.targeting.skipOverPits ?? true
     const moveThroughWalls = action.targeting.moveThroughWalls ?? false
 
-    const centerline = CoordinateCalculator.calculateEveryCoordinateInLine(
-        from,
-        targetCoordinate
-    )
+    const actionRange =
+        ActionRangeService.minAndMaxByRange[action.targeting.range]
+    const maxRange = actionRange.maximum
+
+    const centerlineToTarget =
+        CoordinateCalculator.calculateEveryCoordinateInLine(
+            from,
+            targetCoordinate
+        )
+
+    let centerline = centerlineToTarget
+    if (centerlineToTarget.length > 1) {
+        const last = centerlineToTarget[centerlineToTarget.length - 1]
+        const secondToLast = centerlineToTarget[centerlineToTarget.length - 2]
+        const dr = last.row - secondToLast.row
+        const dc = last.col - secondToLast.col
+
+        const extendedTarget = {
+            row: from.row + dr * maxRange,
+            col: from.col + dc * maxRange,
+        }
+        centerline = CoordinateCalculator.calculateEveryCoordinateInLine(
+            from,
+            extendedTarget
+        )
+        if (centerline.length > maxRange + 1) {
+            centerline = centerline.slice(0, maxRange + 1)
+        }
+    }
+
     const [dir1, dir2] = CoordinateCalculator.getPerpendicularDirections(
         from,
         targetCoordinate
