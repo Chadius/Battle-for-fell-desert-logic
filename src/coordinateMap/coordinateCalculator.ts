@@ -154,6 +154,10 @@ export const CoordinateCalculator = {
 
         return results
     },
+    offsetToAxial: (hex: OffsetCoordinate): AxialCoordinate =>
+        AxialCoordinateCalculator.offsetToAxial(hex),
+    axialToOffset: (hex: AxialCoordinate): OffsetCoordinate =>
+        AxialCoordinateCalculator.axialToOffset(hex),
 }
 
 const getNeighbor = (

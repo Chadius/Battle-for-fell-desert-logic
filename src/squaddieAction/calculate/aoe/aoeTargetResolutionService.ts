@@ -128,23 +128,28 @@ const getLineAffectedCoordinates = ({
         ActionRangeService.minAndMaxByRange[action.targeting.range]
     const maxRange = actionRange.maximum
 
-    const centerlineToTarget =
-        CoordinateCalculator.calculateEveryCoordinateInLine(
-            from,
-            targetCoordinate
-        )
+    let centerline = CoordinateCalculator.calculateEveryCoordinateInLine(
+        from,
+        targetCoordinate
+    )
 
-    let centerline = centerlineToTarget
-    if (centerlineToTarget.length > 1) {
-        const last = centerlineToTarget[centerlineToTarget.length - 1]
-        const secondToLast = centerlineToTarget[centerlineToTarget.length - 2]
-        const dr = last.row - secondToLast.row
-        const dc = last.col - secondToLast.col
+    const fromAxial = CoordinateCalculator.offsetToAxial(from)
+    const toAxial = CoordinateCalculator.offsetToAxial(targetCoordinate)
+    const dq = toAxial.q - fromAxial.q
+    const drAxial = toAxial.r - fromAxial.r
 
-        const extendedTarget = {
-            row: from.row + dr * maxRange,
-            col: from.col + dc * maxRange,
+    const dist = Math.max(
+        Math.abs(dq),
+        Math.abs(drAxial),
+        Math.abs(-dq - drAxial)
+    )
+
+    if (dist > 0) {
+        const extendedAxial = {
+            q: fromAxial.q + Math.round((dq / dist) * maxRange),
+            r: fromAxial.r + Math.round((drAxial / dist) * maxRange),
         }
+        const extendedTarget = CoordinateCalculator.axialToOffset(extendedAxial)
         centerline = CoordinateCalculator.calculateEveryCoordinateInLine(
             from,
             extendedTarget
@@ -215,44 +220,70 @@ const getBloomAffectedCoordinates = ({
     const seen = new Set<string>()
     const results: OffsetCoordinate[] = []
 
-    const coordKey = (c: OffsetCoordinate) => `${c.row},${c.col}`
+    const coordinateKey = (c: OffsetCoordinate) => `${c.row},${c.col}`
 
-    const queue: { coord: OffsetCoordinate; dist: number }[] = [
-        { coord: targetCoordinate, dist: 0 },
+    const queue: { coordinate: OffsetCoordinate; dist: number }[] = [
+        { coordinate: targetCoordinate, dist: 0 },
     ]
-    seen.add(coordKey(targetCoordinate))
+    seen.add(coordinateKey(targetCoordinate))
     results.push(targetCoordinate)
 
     while (queue.length > 0) {
-        const { coord, dist } = queue.shift()!
+        const { coordinate, dist } = queue.shift()!
 
         if (dist >= radius) continue
 
         for (const direction of Object.values(CoordinateDirection)) {
-            const neighbor = CoordinateCalculator.getNeighbor(coord, direction)
-            const nKey = coordKey(neighbor)
+            const neighbor = CoordinateCalculator.getNeighbor(
+                coordinate,
+                direction
+            )
+            const nKey = coordinateKey(neighbor)
             if (seen.has(nKey)) continue
             seen.add(nKey)
 
-            const props =
-                managers.coordinateMapCollectionManager.getMovementPropertiesAtCoordinate(
-                    {
-                        id: mapId,
-                        row: neighbor.row,
-                        col: neighbor.col,
-                    }
-                )
-            const { isWall, isPit } = classifyTerrain(props)
-
-            if (isWall && !moveThroughWalls) continue
-            if (isPit && !skipOverPits) continue
+            const canPassThroughTerrain: boolean = canBloomPassThroughTerrain({
+                coordinateMapCollectionManager:
+                    managers.coordinateMapCollectionManager,
+                mapId,
+                neighbor,
+                moveThroughWalls,
+                skipOverPits,
+            })
+            if (!canPassThroughTerrain) {
+                continue
+            }
 
             results.push(neighbor)
-            queue.push({ coord: neighbor, dist: dist + 1 })
+            queue.push({ coordinate: neighbor, dist: dist + 1 })
         }
     }
-
     return results
+}
+
+const canBloomPassThroughTerrain = ({
+    coordinateMapCollectionManager,
+    mapId,
+    neighbor,
+    moveThroughWalls,
+    skipOverPits,
+}: {
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+    neighbor: OffsetCoordinate
+    moveThroughWalls: boolean
+    skipOverPits: boolean
+}): boolean => {
+    const terrainProperties =
+        coordinateMapCollectionManager.getMovementPropertiesAtCoordinate({
+            id: mapId,
+            row: neighbor.row,
+            col: neighbor.col,
+        })
+    const { isWall, isPit } = classifyTerrain(terrainProperties)
+
+    if (isWall && !moveThroughWalls) return false
+    return !(isPit && !skipOverPits)
 }
 
 const filterByAffiliation = ({

@@ -694,4 +694,104 @@ describe("AoeTargetResolutionService", () => {
             expect(result).toContainEqual(slitherDemon)
         })
     })
+
+    describe("LINE diagonal direction", () => {
+        const diagonalLineAction = SquaddieActionService.new({
+            id: "diagonal-line",
+            name: "Diagonal Line",
+            range: ActionRange.LONG,
+            shape: CoordinateGeneratorShape.LINE,
+            areaOfEffectSize: 0,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+
+        let diagonalMapManager: CoordinateMapCollectionManager
+
+        beforeEach(() => {
+            let mapCollection = CoordinateMapCollectionService.new()
+            mapCollection = CoordinateMapCollectionService.addOrUpdate({
+                collection: mapCollection,
+                map: CoordinateMapService.new({
+                    id: mapId,
+                    name: "Diagonal Test Map",
+                    movementProperties: [
+                        "1 1 1 1",
+                        " 1 1 1 1",
+                        "1 1 1 1",
+                        " 1 1 1 1",
+                        "1 1 1 1",
+                    ],
+                }),
+            })
+            diagonalMapManager = new CoordinateMapCollectionManager(
+                mapCollection
+            )
+
+            diagonalMapManager.addSquaddie({
+                mapId,
+                squaddieId: lini,
+                coordinate: { row: 4, col: 0 },
+            })
+            diagonalMapManager.addSquaddie({
+                mapId,
+                squaddieId: secondEnemy,
+                coordinate: { row: 0, col: 2 },
+            })
+        })
+
+        it("hits enemy at the far end of a diagonal line when aiming at an intermediate tile", () => {
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: diagonalLineAction,
+                actor: lini,
+                targetCoordinate: { row: 2, col: 1 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: diagonalMapManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).toContainEqual(secondEnemy)
+        })
+
+        it("hits enemy on the diagonal when aiming directly at it", () => {
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: diagonalLineAction,
+                actor: lini,
+                targetCoordinate: { row: 0, col: 2 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: diagonalMapManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).toContainEqual(secondEnemy)
+        })
+
+        it("hits enemy at intermediate step when a farther enemy is also on the diagonal", () => {
+            diagonalMapManager.addSquaddie({
+                mapId,
+                squaddieId: slitherDemon,
+                coordinate: { row: 2, col: 1 },
+            })
+
+            const result = AoeTargetResolutionService.resolveAoeTargets({
+                action: diagonalLineAction,
+                actor: lini,
+                targetCoordinate: { row: 0, col: 2 },
+                mapId,
+                managers: {
+                    coordinateMapCollectionManager: diagonalMapManager,
+                    inBattleSquaddieManager,
+                },
+            })
+
+            expect(result).toContainEqual(slitherDemon)
+            expect(result).toContainEqual(secondEnemy)
+        })
+    })
 })
