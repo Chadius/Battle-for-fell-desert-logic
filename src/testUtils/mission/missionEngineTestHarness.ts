@@ -319,13 +319,53 @@ export class MissionEngineTestHarness extends MissionEngine {
                 },
             },
             effectOnTarget: {
+                [DegreeOfSuccess.CRITICAL]: {},
                 [DegreeOfSuccess.SUCCESS]: {
                     damage: {
-                        raw: 2,
-                        targetProficiency: ProficiencyType.ARMOR,
+                        raw: 1,
+                        targetProficiency: ProficiencyType.SKILL_SOUL,
                     },
                 },
-                [DegreeOfSuccess.FAILURE]: {},
+                [DegreeOfSuccess.FAILURE]: {
+                    damage: {
+                        raw: 2,
+                        targetProficiency: ProficiencyType.SKILL_SOUL,
+                    },
+                    conditions: {
+                        add: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.SLOWED,
+                                amount: 1,
+                                duration: {
+                                    duration: 1,
+                                    decaysAt:
+                                        SquaddieConditionDecaysAt.TURN_END,
+                                },
+                                source: SquaddieConditionSource.SPIRITUAL,
+                            }),
+                        ],
+                    },
+                },
+                [DegreeOfSuccess.BOTCH]: {
+                    damage: {
+                        raw: 4,
+                        targetProficiency: ProficiencyType.SKILL_SOUL,
+                    },
+                    conditions: {
+                        add: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.SLOWED,
+                                amount: 3,
+                                duration: {
+                                    duration: 1,
+                                    decaysAt:
+                                        SquaddieConditionDecaysAt.TURN_END,
+                                },
+                                source: SquaddieConditionSource.SPIRITUAL,
+                            }),
+                        ],
+                    },
+                },
             },
         })
     }
