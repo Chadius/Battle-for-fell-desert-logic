@@ -14,6 +14,7 @@ import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBatt
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import {
+    HowToDetermineDegreeOfSuccess,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction/squaddieAction"
@@ -181,7 +182,8 @@ function createLightningBoltAction(): SquaddieAction {
             foe: true,
             friend: false,
         },
-        actorRollsToHit: true,
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
         degreesOfSuccess: [DegreeOfSuccess.SUCCESS, DegreeOfSuccess.FAILURE],
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: {
@@ -213,7 +215,8 @@ function createIntimidatingGlareAction(): SquaddieAction {
             foe: true,
             friend: false,
         },
-        actorRollsToHit: true,
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: {
                 actionPoints: { spent: 1 },
@@ -289,7 +292,8 @@ function createShieldAction(): SquaddieAction {
             foe: false,
             friend: false,
         },
-        actorRollsToHit: false,
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: {
                 actionPoints: { spent: 1 },

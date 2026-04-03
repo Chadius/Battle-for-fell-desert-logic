@@ -12,6 +12,7 @@ import {
     SquaddieActionResultService,
 } from "./squaddieActionResult"
 import type { SquaddieAction, SquaddieActionEffect } from "../../squaddieAction"
+import { HowToDetermineDegreeOfSuccess } from "../../squaddieAction"
 import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
 import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import type { OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
@@ -65,6 +66,117 @@ export type SerializedForecastedActionResult = Omit<
     squaddieActionResults: SerializedSquaddieActionResult[]
 }
 
+const calculateWithActorRoll = ({
+    actor,
+    squaddieAction,
+    managers,
+    rollGenerator,
+    targets,
+    action,
+    map,
+}: {
+    actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
+    squaddieAction: SquaddieAction
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager?: CoordinateMapCollectionManager
+    }
+    rollGenerator: RollGenerator
+    targets: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }[]
+    action: { id: string; decisions?: SquaddieActionDecisions }
+    map: { mapId: string } | undefined
+}) => {
+    const actorProficiencyBonus =
+        ProficiencyCalculator.getActorProficiencyBonus({
+            actor,
+            squaddieAction,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        })
+
+    const attackContributionThisTurn = squaddieAction.multipleAttackPenalty
+        .applies
+        ? managers.inBattleSquaddieManager.getAttackContributionThisTurn({
+              inBattleSquaddieId: actor.inBattleSquaddieId,
+              outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+          })
+        : 0
+    const mapPenalty = ProficiencyCalculator.getMapPenaltyFromAttackCount(
+        attackContributionThisTurn
+    )
+
+    const rollResult = rollGenerator.roll(2)
+    const actorRoll: [number, number] = [rollResult[0], rollResult[1]]
+
+    const targetModifierDifferences = new Map<string, number>()
+
+    for (const target of targets) {
+        const targetDefensiveBonus =
+            ProficiencyCalculator.getTargetDefensiveBonus({
+                target,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            })
+
+        const modifierDifference =
+            ProficiencyCalculator.calculateModifierDifference({
+                rollingSquaddieBonus: actorProficiencyBonus,
+                staticBonus: targetDefensiveBonus,
+                multipleAttackPenalty: mapPenalty,
+            })
+
+        const targetKey = SquaddieIdConverterService.squaddieIdToKey({
+            inBattleSquaddieId: target.inBattleSquaddieId,
+            outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+        })
+
+        targetModifierDifferences.set(targetKey, modifierDifference)
+    }
+
+    const degreesByTarget =
+        SquaddieActionResultCalculator.calculateDegreeOfSuccessForTargets({
+            actorRoll,
+            targetModifierDifferences,
+            supportedDegreesOfSuccess: squaddieAction.degreesOfSuccess,
+        })
+
+    const targetResults = new Map<
+        string,
+        {
+            degreeOfSuccess: TDegreeOfSuccess
+            squaddieActionResults: SquaddieActionResult[]
+        }
+    >()
+
+    for (const [targetKey, degreeOfSuccess] of degreesByTarget) {
+        const target = targets.find(
+            (t) =>
+                SquaddieIdConverterService.squaddieIdToKey({
+                    inBattleSquaddieId: t.inBattleSquaddieId,
+                    outOfBattleSquaddieId: t.outOfBattleSquaddieId,
+                }) === targetKey
+        )!
+
+        const results = SquaddieActionResultCalculator.calculateResult({
+            degreeOfSuccess,
+            managers,
+            actor,
+            targets: [target],
+            action,
+            map,
+        })
+
+        targetResults.set(targetKey, {
+            degreeOfSuccess,
+            squaddieActionResults: results,
+        })
+    }
+
+    return {
+        actorRoll,
+        targetResults,
+    }
+}
 export const SquaddieActionResultCalculator = {
     calculateResult: ({
         actor,
@@ -235,12 +347,16 @@ export const SquaddieActionResultCalculator = {
             {
                 degreeOfSuccess: TDegreeOfSuccess
                 squaddieActionResults: SquaddieActionResult[]
+                targetRoll?: [number, number]
             }
         >
     } => {
         const squaddieAction = managers.squaddieActionManager.get(action.id)
 
-        if (!squaddieAction.actorRollsToHit) {
+        if (
+            squaddieAction.howToDetermineDegreeOfSuccess ===
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS
+        ) {
             return calculateActionResultsWithoutRolls({
                 targets: targets,
                 managers: managers,
@@ -250,95 +366,28 @@ export const SquaddieActionResultCalculator = {
             })
         }
 
-        const actorProficiencyBonus =
-            ProficiencyCalculator.getActorProficiencyBonus({
-                actor,
-                squaddieAction,
-                inBattleSquaddieManager: managers.inBattleSquaddieManager,
-            })
-
-        const attackContributionThisTurn = squaddieAction.multipleAttackPenalty
-            .applies
-            ? managers.inBattleSquaddieManager.getAttackContributionThisTurn({
-                  inBattleSquaddieId: actor.inBattleSquaddieId,
-                  outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
-              })
-            : 0
-        const mapPenalty = ProficiencyCalculator.getMapPenaltyFromAttackCount(
-            attackContributionThisTurn
-        )
-
-        const rollResult = rollGenerator.roll(2)
-        const actorRoll: [number, number] = [rollResult[0], rollResult[1]]
-
-        const targetModifierDifferences = new Map<string, number>()
-
-        for (const target of targets) {
-            const targetDefensiveBonus =
-                ProficiencyCalculator.getTargetDefensiveBonus({
-                    target,
-                    squaddieAction,
-                    inBattleSquaddieManager: managers.inBattleSquaddieManager,
-                })
-
-            const modifierDifference =
-                ProficiencyCalculator.calculateModifierDifference({
-                    actorBonus: actorProficiencyBonus,
-                    targetDefensiveBonus,
-                    multipleAttackPenalty: mapPenalty,
-                })
-
-            const targetKey = SquaddieIdConverterService.squaddieIdToKey({
-                inBattleSquaddieId: target.inBattleSquaddieId,
-                outOfBattleSquaddieId: target.outOfBattleSquaddieId,
-            })
-
-            targetModifierDifferences.set(targetKey, modifierDifference)
-        }
-
-        const degreesByTarget =
-            SquaddieActionResultCalculator.calculateDegreeOfSuccessForTargets({
-                actorRoll,
-                targetModifierDifferences,
-                supportedDegreesOfSuccess: squaddieAction.degreesOfSuccess,
-            })
-
-        const targetResults = new Map<
-            string,
-            {
-                degreeOfSuccess: TDegreeOfSuccess
-                squaddieActionResults: SquaddieActionResult[]
-            }
-        >()
-
-        for (const [targetKey, degreeOfSuccess] of degreesByTarget) {
-            const target = targets.find(
-                (t) =>
-                    SquaddieIdConverterService.squaddieIdToKey({
-                        inBattleSquaddieId: t.inBattleSquaddieId,
-                        outOfBattleSquaddieId: t.outOfBattleSquaddieId,
-                    }) === targetKey
-            )!
-
-            const results = SquaddieActionResultCalculator.calculateResult({
-                degreeOfSuccess,
+        if (
+            squaddieAction.howToDetermineDegreeOfSuccess ===
+            HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST
+        ) {
+            return calculateWithTargetRolls({
+                targets,
                 managers,
                 actor,
-                targets: [target],
                 action,
+                rollGenerator,
                 map,
             })
-
-            targetResults.set(targetKey, {
-                degreeOfSuccess,
-                squaddieActionResults: results,
-            })
         }
-
-        return {
-            actorRoll,
-            targetResults,
-        }
+        return calculateWithActorRoll({
+            actor: actor,
+            squaddieAction: squaddieAction,
+            managers: managers,
+            rollGenerator: rollGenerator,
+            targets: targets,
+            action: action,
+            map: map,
+        })
     },
 
     reverseResult: (original: SquaddieActionResult): SquaddieActionResult => {
@@ -1205,7 +1254,11 @@ const computeModifierBreakdown = ({
     inBattleSquaddieManager: InBattleSquaddieManager
 }): ActionModifierBreakdown | undefined => {
     const squaddieAction = action.manager.get(action.id)
-    if (!squaddieAction.actorRollsToHit) return undefined
+    if (
+        squaddieAction.howToDetermineDegreeOfSuccess ===
+        HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS
+    )
+        return undefined
 
     const actorProficiencyBonus =
         ProficiencyCalculator.getActorProficiencyBonus({
@@ -1288,6 +1341,103 @@ const calculateActionResultsWithoutRolls = ({
         targetResults.set(targetKey, {
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
             squaddieActionResults: results,
+        })
+    }
+
+    return {
+        actorRoll: undefined,
+        targetResults,
+    }
+}
+
+const calculateWithTargetRolls = ({
+    targets,
+    managers,
+    actor,
+    action,
+    rollGenerator,
+    map,
+}: {
+    targets: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }[]
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager?: CoordinateMapCollectionManager
+    }
+    actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
+    action: { id: string; decisions?: SquaddieActionDecisions }
+    rollGenerator: RollGenerator
+    map?: { mapId: string }
+}) => {
+    const squaddieAction = managers.squaddieActionManager.get(action.id)
+
+    const actorBonus = ProficiencyCalculator.getActorProficiencyBonus({
+        actor,
+        squaddieAction,
+        inBattleSquaddieManager: managers.inBattleSquaddieManager,
+    })
+    const targetNumber = 6 + actorBonus
+
+    const allowedDegrees = new Set<TDegreeOfSuccess>(
+        squaddieAction.degreesOfSuccess ?? [
+            DegreeOfSuccess.CRITICAL,
+            DegreeOfSuccess.SUCCESS,
+            DegreeOfSuccess.FAILURE,
+            DegreeOfSuccess.BOTCH,
+        ]
+    )
+
+    const targetResults = new Map<
+        string,
+        {
+            degreeOfSuccess: TDegreeOfSuccess
+            squaddieActionResults: SquaddieActionResult[]
+            targetRoll?: [number, number]
+        }
+    >()
+
+    for (const target of targets) {
+        const rollResult = rollGenerator.roll(2)
+        const targetRoll: [number, number] = [rollResult[0], rollResult[1]]
+        const isMaxRoll = targetRoll[0] === 6 && targetRoll[1] === 6
+        const isMinRoll = targetRoll[0] === 1 && targetRoll[1] === 1
+
+        const targetDefenseBonus =
+            ProficiencyCalculator.getTargetDefensiveBonus({
+                target,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            })
+
+        const degreeValue =
+            targetRoll[0] + targetRoll[1] + targetDefenseBonus - targetNumber
+
+        let degree = getBaseDegreeFromValue(degreeValue)
+        if (isMaxRoll) {
+            degree = increaseDegree(degree)
+        } else if (isMinRoll) {
+            degree = decreaseDegree(degree)
+        }
+        degree = redistributeUnsupportedDegree(degree, allowedDegrees)
+
+        const targetKey = SquaddieIdConverterService.squaddieIdToKey({
+            inBattleSquaddieId: target.inBattleSquaddieId,
+            outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+        })
+
+        const results = SquaddieActionResultCalculator.calculateResult({
+            degreeOfSuccess: degree,
+            managers,
+            actor,
+            targets: [target],
+            action,
+            map,
+        })
+
+        targetResults.set(targetKey, {
+            degreeOfSuccess: degree,
+            squaddieActionResults: results,
+            targetRoll,
         })
     }
 

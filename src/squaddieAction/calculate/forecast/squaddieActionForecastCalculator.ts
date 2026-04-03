@@ -12,6 +12,10 @@ import {
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 import { ProbabilityLookup } from "../probabilityLookup"
 import { ProficiencyCalculator } from "../proficiencyCalculator"
+import {
+    HowToDetermineDegreeOfSuccess,
+    type SquaddieAction,
+} from "../../squaddieAction"
 
 export const SquaddieActionForecastCalculator = {
     forecastChanceToHit: ({
@@ -47,6 +51,18 @@ export const SquaddieActionForecastCalculator = {
                 inBattleSquaddieManager,
             })
 
+        if (
+            squaddieAction.howToDetermineDegreeOfSuccess ===
+            HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST
+        ) {
+            return forecastWithTargetRolls({
+                targets,
+                inBattleSquaddieManager,
+                squaddieAction,
+                actorBonus: actorProficiencyBonus,
+            })
+        }
+
         const attackContributionThisTurn = squaddieAction.multipleAttackPenalty
             .applies
             ? inBattleSquaddieManager.getAttackContributionThisTurn({
@@ -69,8 +85,8 @@ export const SquaddieActionForecastCalculator = {
                 })
 
             const modifier = ProficiencyCalculator.calculateModifierDifference({
-                actorBonus: actorProficiencyBonus,
-                targetDefensiveBonus,
+                rollingSquaddieBonus: actorProficiencyBonus,
+                staticBonus: targetDefensiveBonus,
                 multipleAttackPenalty: mapPenalty,
             })
             const rawProbabilities =
@@ -135,6 +151,52 @@ const getForecastKey = ({
     degreeOfSuccess: TDegreeOfSuccess
 }): string =>
     `${SquaddieIdConverterService.squaddieIdToKey({ inBattleSquaddieId, outOfBattleSquaddieId })}+++${degreeOfSuccess}`
+
+const forecastWithTargetRolls = ({
+    targets,
+    inBattleSquaddieManager,
+    squaddieAction,
+    actorBonus,
+}: {
+    targets: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }[]
+    inBattleSquaddieManager: InBattleSquaddieManager
+    squaddieAction: SquaddieAction
+    actorBonus: number
+}): Map<string, number> => {
+    const chances = new Map<string, number>()
+
+    for (const target of targets) {
+        const targetDefensiveBonus =
+            ProficiencyCalculator.getTargetDefensiveBonus({
+                target,
+                squaddieAction,
+                inBattleSquaddieManager,
+            })
+
+        const modifierForTarget =
+            ProficiencyCalculator.calculateModifierDifference({
+                rollingSquaddieBonus: targetDefensiveBonus,
+                staticBonus: actorBonus,
+            })
+
+        const rawProbabilities =
+            ProbabilityLookup.calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus(
+                modifierForTarget
+            )
+
+        const probabilities = redistributeProbabilities({
+            probabilities: rawProbabilities,
+            supportedDegrees: squaddieAction.degreesOfSuccess,
+        })
+
+        for (const [degreeOfSuccess, probability] of probabilities) {
+            const forecastKey = getForecastKey({ degreeOfSuccess, ...target })
+            chances.set(forecastKey, probability)
+        }
+    }
+
+    return chances
+}
 
 const redistributeProbabilities = ({
     probabilities,

@@ -168,8 +168,8 @@ describe("ProficiencyCalculator", () => {
             const targetDefensiveBonus = 2
 
             const modifier = ProficiencyCalculator.calculateModifierDifference({
-                actorBonus,
-                targetDefensiveBonus,
+                rollingSquaddieBonus: actorBonus,
+                staticBonus: targetDefensiveBonus,
             })
 
             expect(modifier).toBe(5 - 2 - 6)
@@ -181,8 +181,8 @@ describe("ProficiencyCalculator", () => {
             const targetDefensiveBonus = 3
 
             const modifier = ProficiencyCalculator.calculateModifierDifference({
-                actorBonus,
-                targetDefensiveBonus,
+                rollingSquaddieBonus: actorBonus,
+                staticBonus: targetDefensiveBonus,
             })
 
             expect(modifier).toBe(-2 - 3 - 6)
@@ -194,8 +194,8 @@ describe("ProficiencyCalculator", () => {
             const targetDefensiveBonus = 4
 
             const modifier = ProficiencyCalculator.calculateModifierDifference({
-                actorBonus,
-                targetDefensiveBonus,
+                rollingSquaddieBonus: actorBonus,
+                staticBonus: targetDefensiveBonus,
             })
 
             expect(modifier).toBe(4 - 4 - 6)
@@ -208,8 +208,8 @@ describe("ProficiencyCalculator", () => {
             const mapPenalty = 3
 
             const modifier = ProficiencyCalculator.calculateModifierDifference({
-                actorBonus,
-                targetDefensiveBonus,
+                rollingSquaddieBonus: actorBonus,
+                staticBonus: targetDefensiveBonus,
                 multipleAttackPenalty: mapPenalty,
             })
 

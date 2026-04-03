@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieActionService } from "../../../squaddieAction/squaddieAction"
+import {
+    HowToDetermineDegreeOfSuccess,
+    SquaddieActionService,
+} from "../../../squaddieAction/squaddieAction"
 import { ActionRange } from "../../../squaddieAction/actionRange"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { MissionAffiliationTurn, MissionTurnService } from "../../missionTurn"
@@ -435,7 +438,8 @@ describe("endSquaddieTurn", () => {
                         foe: true,
                         friend: false,
                     },
-                    actorRollsToHit: true,
+                    howToDetermineDegreeOfSuccess:
+                        HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {
                             actionPoints: { spent: 1 },

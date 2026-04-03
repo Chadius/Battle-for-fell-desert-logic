@@ -15,6 +15,7 @@ import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBatt
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import {
+    HowToDetermineDegreeOfSuccess,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction/squaddieAction"
@@ -277,7 +278,8 @@ export class MissionEngineTestHarness extends MissionEngine {
                 foe: false,
                 friend: true,
             },
-            actorRollsToHit: false,
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: { spent: 1 },
@@ -297,18 +299,20 @@ export class MissionEngineTestHarness extends MissionEngine {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.solarSphereActionId,
             name: "Solar Sphere",
-            attribute: AttributeScore.MIND,
-            proficiency: ProficiencyType.SKILL_MIND,
+            attribute: AttributeScore.SOUL,
+            proficiency: ProficiencyType.SKILL_SOUL,
             range: ActionRange.MEDIUM,
             shape: CoordinateGeneratorShape.BLOOM,
-            areaOfEffectSize: 1,
-            aimCoordinateRequiresTarget: false,
+            areaOfEffectSize: 0,
+            aimCoordinateRequiresTarget: true,
             affiliationRelationship: {
                 self: false,
                 foe: true,
                 friend: false,
             },
-            actorRollsToHit: true,
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+            multipleAttackPenalty: { applies: false, contribution: 0 },
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: { spent: 2 },
@@ -321,6 +325,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                         targetProficiency: ProficiencyType.ARMOR,
                     },
                 },
+                [DegreeOfSuccess.FAILURE]: {},
             },
         })
     }

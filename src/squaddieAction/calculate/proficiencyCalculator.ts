@@ -49,16 +49,19 @@ export const ProficiencyCalculator = {
     },
 
     calculateModifierDifference: ({
-        actorBonus,
-        targetDefensiveBonus,
+        rollingSquaddieBonus,
+        staticBonus,
         multipleAttackPenalty,
     }: {
-        actorBonus: number
-        targetDefensiveBonus: number
+        rollingSquaddieBonus: number
+        staticBonus: number
         multipleAttackPenalty?: number
     }): number => {
         return (
-            actorBonus - targetDefensiveBonus - 6 - (multipleAttackPenalty ?? 0)
+            rollingSquaddieBonus -
+            staticBonus -
+            6 -
+            (multipleAttackPenalty ?? 0)
         )
     },
 

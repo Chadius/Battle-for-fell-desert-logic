@@ -19,6 +19,16 @@ import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../proficiency/squaddieCondition"
+import type { EnumLike } from "../enum"
+
+export const HowToDetermineDegreeOfSuccess = {
+    ACTOR_ROLLS_TO_HIT: "ACTOR_ROLLS_TO_HIT",
+    TARGETS_ROLL_TO_RESIST: "TARGETS_ROLL_TO_RESIST",
+    AUTOMATIC_SUCCESS: "AUTOMATIC_SUCCESS",
+} as const satisfies Record<string, string>
+export type THowToDetermineDegreeOfSuccess = EnumLike<
+    typeof HowToDetermineDegreeOfSuccess
+>
 
 interface SquaddieActionTargeting {
     range: TActionRange
@@ -89,7 +99,7 @@ export interface SquaddieAction {
     degreesOfSuccess: TDegreeOfSuccess[]
     targeting: SquaddieActionTargeting
     proficiency: TProficiencyType
-    actorRollsToHit: boolean
+    howToDetermineDegreeOfSuccess: THowToDetermineDegreeOfSuccess
     multipleAttackPenalty: MultipleAttackPenalty
     effectOnActor: DegreeOfSuccessEffects
     effectOnTarget?: DegreeOfSuccessEffects
@@ -118,7 +128,7 @@ export const SquaddieActionService = {
         moveThroughWalls,
         effectOnActor,
         effectOnTarget,
-        actorRollsToHit,
+        howToDetermineDegreeOfSuccess,
         multipleAttackPenalty,
     }: Omit<Partial<SquaddieAction>, "multipleAttackPenalty"> &
         Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
@@ -156,7 +166,9 @@ export const SquaddieActionService = {
                 skipOverPits: skipOverPits ?? true,
                 moveThroughWalls: moveThroughWalls ?? false,
             },
-            actorRollsToHit: actorRollsToHit ?? true,
+            howToDetermineDegreeOfSuccess:
+                howToDetermineDegreeOfSuccess ??
+                HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
             multipleAttackPenalty: resolvedMultipleAttackPenalty,
             effectOnActor,
             effectOnTarget,
@@ -166,7 +178,8 @@ export const SquaddieActionService = {
         return SquaddieActionService.new({
             id: "default-end-turn",
             name: "End Turn",
-            actorRollsToHit: false,
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: {
@@ -181,7 +194,8 @@ export const SquaddieActionService = {
         return SquaddieActionService.new({
             id: "default-move",
             name: "Move",
-            actorRollsToHit: false,
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: {

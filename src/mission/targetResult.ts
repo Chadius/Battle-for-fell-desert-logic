@@ -8,24 +8,29 @@ import {
 export interface TargetResult {
     degreeOfSuccess: TDegreeOfSuccess
     squaddieActionResults: SquaddieActionResult[]
+    targetRoll?: [number, number]
 }
 
 export interface SerializedTargetResult {
     degreeOfSuccess: TDegreeOfSuccess
     squaddieActionResults: SerializedSquaddieActionResult[]
+    targetRoll?: [number, number]
 }
 
 export const TargetResultService = {
     new: ({
         degreeOfSuccess,
         squaddieActionResults,
+        targetRoll,
     }: {
         degreeOfSuccess: TDegreeOfSuccess
         squaddieActionResults: SquaddieActionResult[]
+        targetRoll?: [number, number]
     }): TargetResult => {
         return {
             degreeOfSuccess,
             squaddieActionResults,
+            targetRoll,
         }
     },
     serialize: (targetResult: TargetResult): SerializedTargetResult => {
@@ -34,6 +39,7 @@ export const TargetResultService = {
             squaddieActionResults: targetResult.squaddieActionResults.map(
                 (result) => SquaddieActionResultService.serialize(result)
             ),
+            targetRoll: targetResult.targetRoll,
         }
     },
 
@@ -43,6 +49,7 @@ export const TargetResultService = {
             squaddieActionResults: serializable.squaddieActionResults.map(
                 (result) => SquaddieActionResultService.deserialize(result)
             ),
+            targetRoll: serializable.targetRoll,
         }
     },
 }

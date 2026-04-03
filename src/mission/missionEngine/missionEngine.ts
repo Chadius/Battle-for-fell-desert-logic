@@ -201,6 +201,7 @@ export class MissionEngine {
                 {
                     degreeOfSuccess: TDegreeOfSuccess
                     squaddieActionResults: SquaddieActionResult[]
+                    targetRoll?: [number, number]
                 }
             >
         },

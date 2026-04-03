@@ -6,8 +6,14 @@ import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/in
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { ProficiencyType } from "../../../proficiency/proficiencyLevel"
-import { SquaddieActionService } from "../../squaddieAction"
+import {
+    ProficiencyLevel,
+    ProficiencyType,
+} from "../../../proficiency/proficiencyLevel"
+import {
+    HowToDetermineDegreeOfSuccess,
+    SquaddieActionService,
+} from "../../squaddieAction"
 import { SquaddieActionManager } from "../../squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
 import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
@@ -248,6 +254,285 @@ describe("SquaddieActionForecastCalculator", () => {
                 })
 
             expect(penalizedForecast).toEqual(baselineForecast)
+        })
+    })
+
+    describe("TARGETS_ROLL_TO_RESIST forecast", () => {
+        let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let squaddieActionManager: SquaddieActionManager
+        let actor: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let lowDefenseTarget: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let highDefenseTarget: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let targetRollsAction: ReturnType<typeof SquaddieActionService.new>
+
+        beforeEach(() => {
+            const actorSheetSetup =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "actor-sheet",
+                        attributeSheetOptions: {
+                            rank: 0,
+                            maxHitPoints: 5,
+                            distancePerAction: 2,
+                        },
+                    }
+                )
+            outOfBattleSquaddieManager = actorSheetSetup.manager
+
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "low-defense-sheet",
+                    rank: 0,
+                    maxHitPoints: 5,
+                    distancePerAction: 2,
+                })
+            )
+
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "high-defense-sheet",
+                    rank: 0,
+                    maxHitPoints: 5,
+                    distancePerAction: 2,
+                    proficiencyLevels: {
+                        [ProficiencyType.DEFEND_SOUL]: ProficiencyLevel.EXPERT,
+                    },
+                })
+            )
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "actor-squaddie",
+                    name: "Actor",
+                    actionIds: [],
+                    attributeSheetId: "actor-sheet",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            )
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "low-defense-squaddie",
+                    name: "Low Defense Target",
+                    actionIds: [],
+                    attributeSheetId: "low-defense-sheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            )
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "high-defense-squaddie",
+                    name: "High Defense Target",
+                    actionIds: [],
+                    attributeSheetId: "high-defense-sheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            )
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+            const { inBattleSquaddieId: actorId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "actor-squaddie",
+                })
+            actor = {
+                inBattleSquaddieId: actorId,
+                outOfBattleSquaddieId: "actor-squaddie",
+            }
+            const { inBattleSquaddieId: lowId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "low-defense-squaddie",
+                })
+            lowDefenseTarget = {
+                inBattleSquaddieId: lowId,
+                outOfBattleSquaddieId: "low-defense-squaddie",
+            }
+            const { inBattleSquaddieId: highId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "high-defense-squaddie",
+                })
+            highDefenseTarget = {
+                inBattleSquaddieId: highId,
+                outOfBattleSquaddieId: "high-defense-squaddie",
+            }
+
+            squaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+            targetRollsAction = SquaddieActionService.new({
+                id: "target-rolls-action",
+                name: "Target Rolls Action",
+                proficiency: ProficiencyType.SKILL_SOUL,
+                howToDetermineDegreeOfSuccess:
+                    HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+                degreesOfSuccess: [
+                    DegreeOfSuccess.CRITICAL,
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.FAILURE,
+                    DegreeOfSuccess.BOTCH,
+                ],
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            squaddieActionManager.addOrUpdate(targetRollsAction)
+        })
+
+        it("produces independent forecast keys for each target", () => {
+            const result = SquaddieActionForecastCalculator.forecastChanceToHit(
+                {
+                    inBattleSquaddieManager,
+                    actor,
+                    targets: [lowDefenseTarget, highDefenseTarget],
+                    action: {
+                        id: targetRollsAction.id,
+                        manager: squaddieActionManager,
+                    },
+                }
+            )
+
+            const degreesToCheck = [
+                DegreeOfSuccess.CRITICAL,
+                DegreeOfSuccess.SUCCESS,
+                DegreeOfSuccess.FAILURE,
+                DegreeOfSuccess.BOTCH,
+            ]
+            for (const degree of degreesToCheck) {
+                const lowKey = SquaddieActionForecastCalculator.getForecastKey({
+                    ...lowDefenseTarget,
+                    degreeOfSuccess: degree,
+                })
+                const highKey = SquaddieActionForecastCalculator.getForecastKey(
+                    {
+                        ...highDefenseTarget,
+                        degreeOfSuccess: degree,
+                    }
+                )
+                expect(result.has(lowKey)).toBe(true)
+                expect(result.has(highKey)).toBe(true)
+            }
+        })
+
+        it("zero bonuses on both sides produce the same distribution as the actor-roll mirror case (modifier -6)", () => {
+            const result = SquaddieActionForecastCalculator.forecastChanceToHit(
+                {
+                    inBattleSquaddieManager,
+                    actor,
+                    targets: [lowDefenseTarget],
+                    action: {
+                        id: targetRollsAction.id,
+                        manager: squaddieActionManager,
+                    },
+                }
+            )
+
+            const successKey = SquaddieActionForecastCalculator.getForecastKey({
+                ...lowDefenseTarget,
+                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            })
+            expect(result.get(successKey)).toBe(25)
+        })
+
+        it("high-defense target has a higher SUCCESS probability than low-defense target", () => {
+            const result = SquaddieActionForecastCalculator.forecastChanceToHit(
+                {
+                    inBattleSquaddieManager,
+                    actor,
+                    targets: [lowDefenseTarget, highDefenseTarget],
+                    action: {
+                        id: targetRollsAction.id,
+                        manager: squaddieActionManager,
+                    },
+                }
+            )
+
+            const successKeyLow =
+                SquaddieActionForecastCalculator.getForecastKey({
+                    ...lowDefenseTarget,
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                })
+            const successKeyHigh =
+                SquaddieActionForecastCalculator.getForecastKey({
+                    ...highDefenseTarget,
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                })
+            expect(result.get(successKeyHigh)!).toBeGreaterThan(
+                result.get(successKeyLow)!
+            )
+        })
+
+        it("redistributes unsupported CRITICAL probability into SUCCESS", () => {
+            const noCriticalAction = SquaddieActionService.new({
+                id: "no-critical-action",
+                name: "No Critical Action",
+                proficiency: ProficiencyType.SKILL_SOUL,
+                howToDetermineDegreeOfSuccess:
+                    HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+                degreesOfSuccess: [
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.FAILURE,
+                ],
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            squaddieActionManager.addOrUpdate(noCriticalAction)
+
+            const result = SquaddieActionForecastCalculator.forecastChanceToHit(
+                {
+                    inBattleSquaddieManager,
+                    actor,
+                    targets: [lowDefenseTarget],
+                    action: {
+                        id: noCriticalAction.id,
+                        manager: squaddieActionManager,
+                    },
+                }
+            )
+
+            const successKey = SquaddieActionForecastCalculator.getForecastKey({
+                ...lowDefenseTarget,
+                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+            })
+            const criticalKey = SquaddieActionForecastCalculator.getForecastKey(
+                {
+                    ...lowDefenseTarget,
+                    degreeOfSuccess: DegreeOfSuccess.CRITICAL,
+                }
+            )
+            expect(result.get(successKey)).toBe(26)
+            expect(result.has(criticalKey)).toBe(false)
         })
     })
 

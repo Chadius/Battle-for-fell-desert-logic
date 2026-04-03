@@ -3,6 +3,7 @@ import { SquaddieActionResultCalculator } from "./squaddieActionResultCalculator
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { RollGenerator } from "../roll/rollGenerator"
 import {
+    HowToDetermineDegreeOfSuccess,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction"
@@ -474,14 +475,15 @@ describe("SquaddieActionResultCalculator", () => {
             expect(result.targetResults.has(targetKey2)).toBe(true)
         })
 
-        describe("when actorRollsToHit is false", () => {
+        describe("when howToDetermineDegreeOfSuccess is AUTOMATIC_SUCCESS", () => {
             let noRollAction: SquaddieAction
 
             beforeEach(() => {
                 noRollAction = SquaddieActionService.new({
                     id: "no-roll-action",
                     name: "No Roll Action",
-                    actorRollsToHit: false,
+                    howToDetermineDegreeOfSuccess:
+                        HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
                     degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {
@@ -587,6 +589,278 @@ describe("SquaddieActionResultCalculator", () => {
 
                 const nextRoll = rollGenerator.roll(2)
                 expect(nextRoll).toEqual([4, 5])
+            })
+        })
+
+        describe("when howToDetermineDegreeOfSuccess is TARGETS_ROLL_TO_RESIST", () => {
+            let targetRollsAction: SquaddieAction
+
+            beforeEach(() => {
+                targetRollsAction = SquaddieActionService.new({
+                    id: "target-rolls-action",
+                    name: "Target Rolls Action",
+                    proficiency: ProficiencyType.SKILL_SOUL,
+                    howToDetermineDegreeOfSuccess:
+                        HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+                    degreesOfSuccess: [
+                        DegreeOfSuccess.CRITICAL,
+                        DegreeOfSuccess.SUCCESS,
+                        DegreeOfSuccess.FAILURE,
+                        DegreeOfSuccess.BOTCH,
+                    ],
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            damage: {
+                                raw: 2,
+                                targetProficiency: ProficiencyType.ARMOR,
+                                attributeScoreType: AttributeScore.BODY,
+                            },
+                        },
+                    },
+                })
+                actionManager.addOrUpdate(targetRollsAction)
+            })
+
+            it("returns undefined for actorRoll", () => {
+                rollGenerator = new RollGenerator([3, 4])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: targetRollsAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                expect(result.actorRoll).toBeUndefined()
+            })
+
+            it("stores the target's roll on the target result", () => {
+                rollGenerator = new RollGenerator([3, 4])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: targetRollsAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                expect(result.targetResults.get(targetKey)?.targetRoll).toEqual(
+                    [3, 4]
+                )
+            })
+
+            it("assigns SUCCESS when roll equals target number (degreeValue = 0)", () => {
+                rollGenerator = new RollGenerator([3, 3])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: targetRollsAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                expect(
+                    result.targetResults.get(targetKey)?.degreeOfSuccess
+                ).toBe(DegreeOfSuccess.SUCCESS)
+            })
+
+            it("assigns FAILURE when roll is below target number (degreeValue < 0)", () => {
+                rollGenerator = new RollGenerator([2, 2])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: targetRollsAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                expect(
+                    result.targetResults.get(targetKey)?.degreeOfSuccess
+                ).toBe(DegreeOfSuccess.FAILURE)
+            })
+
+            it("assigns CRITICAL when degreeValue >= 6", () => {
+                rollGenerator = new RollGenerator([6, 6])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: targetRollsAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                expect(
+                    result.targetResults.get(targetKey)?.degreeOfSuccess
+                ).toBe(DegreeOfSuccess.CRITICAL)
+            })
+
+            it("downgrades to BOTCH on min roll (1,1)", () => {
+                rollGenerator = new RollGenerator([1, 1])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: targetRollsAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                expect(
+                    result.targetResults.get(targetKey)?.degreeOfSuccess
+                ).toBe(DegreeOfSuccess.BOTCH)
+            })
+
+            it("two targets each receive their own independent roll and targetRoll", () => {
+                rollGenerator = new RollGenerator([3, 4, 2, 5])
+
+                const target2Squaddie = OutOfBattleSquaddieService.new({
+                    id: "target-2",
+                    name: "Target 2",
+                    actionIds: [],
+                    attributeSheetId: "soldier",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+                outOfBattleSquaddieManager.addOrUpdateSquaddie(target2Squaddie)
+                const { inBattleSquaddieId: target2Id } =
+                    inBattleSquaddieManager.createNewSquaddie({
+                        outOfBattleSquaddieId: "target-2",
+                    })
+                const target2 = {
+                    inBattleSquaddieId: target2Id,
+                    outOfBattleSquaddieId: "target-2",
+                }
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target, target2],
+                            action: { id: targetRollsAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                const target2Key =
+                    SquaddieIdConverterService.squaddieIdToKey(target2)
+                expect(result.targetResults.get(targetKey)?.targetRoll).toEqual(
+                    [3, 4]
+                )
+                expect(
+                    result.targetResults.get(target2Key)?.targetRoll
+                ).toEqual([2, 5])
+            })
+
+            it("redistributes unsupported CRITICAL to SUCCESS when action lacks CRITICAL", () => {
+                const nosCriticalAction = SquaddieActionService.new({
+                    id: "no-critical-action",
+                    name: "No Critical Action",
+                    proficiency: ProficiencyType.SKILL_SOUL,
+                    howToDetermineDegreeOfSuccess:
+                        HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+                    degreesOfSuccess: [
+                        DegreeOfSuccess.SUCCESS,
+                        DegreeOfSuccess.FAILURE,
+                    ],
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            damage: {
+                                raw: 2,
+                                targetProficiency: ProficiencyType.ARMOR,
+                                attributeScoreType: AttributeScore.BODY,
+                            },
+                        },
+                    },
+                })
+                actionManager.addOrUpdate(nosCriticalAction)
+
+                rollGenerator = new RollGenerator([6, 6])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target],
+                            action: { id: nosCriticalAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                expect(
+                    result.targetResults.get(targetKey)?.degreeOfSuccess
+                ).toBe(DegreeOfSuccess.SUCCESS)
             })
         })
     })
@@ -859,7 +1133,8 @@ describe("SquaddieActionResultCalculator", () => {
                     id: "heal-action",
                     name: "Heal Action",
                     proficiency: ProficiencyType.SKILL_BODY,
-                    actorRollsToHit: false,
+                    howToDetermineDegreeOfSuccess:
+                        HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
                     targeting: {
                         range: ActionRange.MELEE,
                         shape: CoordinateGeneratorShape.BLOOM,
@@ -1013,7 +1288,8 @@ describe("SquaddieActionResultCalculator", () => {
                     id: "skill-action",
                     name: "Skill Action",
                     proficiency: ProficiencyType.SKILL_BODY,
-                    actorRollsToHit: true,
+                    howToDetermineDegreeOfSuccess:
+                        HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
                     multipleAttackPenalty: {
                         applies: false,
                     },

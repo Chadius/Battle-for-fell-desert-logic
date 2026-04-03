@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieActionService } from "./squaddieAction"
+import {
+    HowToDetermineDegreeOfSuccess,
+    SquaddieActionService,
+} from "./squaddieAction"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
@@ -136,7 +139,8 @@ describe("SquaddieActionService", () => {
             const action = SquaddieActionService.new({
                 id: "actor-only",
                 name: "Actor Only",
-                actorRollsToHit: false,
+                howToDetermineDegreeOfSuccess:
+                    HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: "all" },
@@ -451,6 +455,54 @@ describe("SquaddieActionService", () => {
             })
 
             expect(action.targeting.aimCoordinateRequiresTarget).toBe(false)
+        })
+    })
+
+    describe("howToDetermineDegreeOfSuccess", () => {
+        it("defaults to ACTOR_ROLLS_TO_HIT when not specified", () => {
+            const action = SquaddieActionService.new({
+                id: "default-roll",
+                name: "Default Roll",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.howToDetermineDegreeOfSuccess).toBe(
+                HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT
+            )
+        })
+
+        it("can be set to TARGETS_ROLL_TO_RESIST", () => {
+            const action = SquaddieActionService.new({
+                id: "target-rolls",
+                name: "Target Rolls",
+                howToDetermineDegreeOfSuccess:
+                    HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.howToDetermineDegreeOfSuccess).toBe(
+                HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST
+            )
+        })
+
+        it("can be set to AUTOMATIC_SUCCESS", () => {
+            const action = SquaddieActionService.new({
+                id: "auto-success",
+                name: "Auto Success",
+                howToDetermineDegreeOfSuccess:
+                    HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.howToDetermineDegreeOfSuccess).toBe(
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS
+            )
         })
     })
 })

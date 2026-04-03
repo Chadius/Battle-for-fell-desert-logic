@@ -103,6 +103,31 @@ describe("TargetResultService", () => {
         })
     })
 
+    describe("targetRoll", () => {
+        it("is undefined when not provided", () => {
+            const targetResult = TargetResultService.new({
+                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                squaddieActionResults: [],
+            })
+
+            expect(targetResult.targetRoll).toBeUndefined()
+        })
+
+        it("is preserved through serialize and deserialize", () => {
+            const original = TargetResultService.new({
+                degreeOfSuccess: DegreeOfSuccess.FAILURE,
+                squaddieActionResults: [],
+                targetRoll: [4, 3],
+            })
+
+            const deserialized = TargetResultService.deserialize(
+                TargetResultService.serialize(original)
+            )
+
+            expect(deserialized.targetRoll).toEqual([4, 3])
+        })
+    })
+
     describe("round-trip", () => {
         it("preserves data through serialize and deserialize", () => {
             const original: TargetResult = {
