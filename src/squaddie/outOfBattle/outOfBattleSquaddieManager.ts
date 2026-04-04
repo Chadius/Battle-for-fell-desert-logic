@@ -8,6 +8,7 @@ import {
 } from "./outOfBattleSquaddieAttributeSheetCollection"
 import { type OutOfBattleSquaddieAttributeSheet } from "./outOfBattleSquaddieAttributeSheet"
 import type { OutOfBattleSquaddie } from "./outOfBattleSquaddie"
+import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
 import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
 
 export class OutOfBattleSquaddieManager {
@@ -279,12 +280,11 @@ export class OutOfBattleSquaddieManager {
             })
     }
 
-    getSquaddieMovementInfo({ squaddieId }: { squaddieId: string }): {
-        movementPerAction: number
-        skipOverPits: boolean
-        moveThroughWalls: boolean
-        stopOnSquaddies: boolean
-    } {
+    getSquaddieMovementInfo({
+        squaddieId,
+    }: {
+        squaddieId: string
+    }): SquaddieMovementInfo {
         this.throwIfAttributeSheetCollectionIsUndefined(
             this.getSquaddieMovementInfo.name
         )

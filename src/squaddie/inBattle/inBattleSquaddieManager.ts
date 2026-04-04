@@ -27,6 +27,7 @@ import {
     type TSquaddieAffiliation,
 } from "../../affiliation/affiliation"
 import { type SquaddieInfo, SquaddieInfoService } from "./squaddieInfo"
+import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
 
 export type BattleSquaddieId = {
     inBattleSquaddieId: number
@@ -54,10 +55,7 @@ export class InBattleSquaddieManager {
         outOfBattleSquaddieId,
     }: {
         outOfBattleSquaddieId: string
-    }): {
-        inBattleSquaddieId: number
-        outOfBattleSquaddieId: string
-    } {
+    }): BattleSquaddieId {
         this.throwIfInBattleSquaddieCollectionIsUndefined(
             this.createNewSquaddie.name
         )
@@ -1227,13 +1225,9 @@ export class InBattleSquaddieManager {
         inBattleSquaddieId: number
         outOfBattleSquaddieId: string
         actionPoints?: InBattleSquaddie["actionPoints"]
-    }): {
-        movementPerAction: number
+    }): SquaddieMovementInfo & {
         totalActionPoints: number
         maximumMovementCost: number
-        skipOverPits: boolean
-        moveThroughWalls: boolean
-        stopOnSquaddies: boolean
     } {
         this.throwIfOutOfBattleSquaddieManagerIsUndefined(
             this.getSquaddieMovementInfo.name
@@ -1251,7 +1245,8 @@ export class InBattleSquaddieManager {
             })
 
         let maximumMovementCost =
-            actionPoints.current * outOfBattleMovementInfo.movementPerAction
+            actionPoints.current *
+            outOfBattleMovementInfo.movementPointsPerAction
 
         return {
             totalActionPoints: actionPoints.current,
@@ -1274,7 +1269,7 @@ export class InBattleSquaddieManager {
             outOfBattleSquaddieId,
         })
 
-        return Math.ceil(movementCost / movementInfo.movementPerAction)
+        return Math.ceil(movementCost / movementInfo.movementPointsPerAction)
     }
 
     getSquaddieAffiliation({

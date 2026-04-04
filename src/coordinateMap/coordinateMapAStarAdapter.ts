@@ -96,7 +96,8 @@ export class CoordinateMapAStarAdapter
             moveThroughWalls: moveLimits.moveThroughWalls,
             skipOverPits: moveLimits.skipOverPits,
             stopOnSquaddies: moveLimits.stopOnSquaddies,
-            reduceMoveCosts: hustleConditionAmount > 0,
+            reduceMoveCosts:
+                moveLimits.reduceMoveCosts || hustleConditionAmount > 0,
             squaddieId: {
                 inBattleSquaddieId: inBattleSquaddieId,
                 outOfBattleSquaddieId: outOfBattleSquaddieId,

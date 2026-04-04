@@ -417,7 +417,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                 id: MissionEngineTestHarnessIds.lini.attributeSheetId,
                 maxHitPoints: 5,
                 movement: {
-                    distancePerAction: 2,
+                    movementPointsPerAction: 2,
                 },
                 attributeScores: {
                     [AttributeScore.BODY]: 1,
@@ -448,7 +448,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                 id: MissionEngineTestHarnessIds.slitherDemon.attributeSheetId,
                 maxHitPoints: 3,
                 movement: {
-                    distancePerAction: 2,
+                    movementPointsPerAction: 2,
                 },
                 attributeScores: {
                     [AttributeScore.BODY]: 0,

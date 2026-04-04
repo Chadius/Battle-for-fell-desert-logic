@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    type BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { OutOfBattleSquaddieAttributeSheet } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import {
     type OutOfBattleSquaddie,
@@ -97,7 +100,7 @@ describe("coordinateMapAStarAdapter", () => {
                     )
                 expect(movementInfo).toEqual({
                     maximumMoveCost:
-                        attributeSheet.movement.distancePerAction * 3,
+                        attributeSheet.movement.movementPointsPerAction * 3,
                     skipOverPits: attributeSheet.movement.skipOverPits,
                     moveThroughWalls: attributeSheet.movement.moveThroughWalls,
                     stopOnSquaddies: attributeSheet.movement.stopOnSquaddies,
@@ -133,13 +136,73 @@ describe("coordinateMapAStarAdapter", () => {
                 expect(movementInfo).toEqual(
                     expect.objectContaining({
                         maximumMoveCost:
-                            attributeSheet.movement.distancePerAction * 3,
+                            attributeSheet.movement.movementPointsPerAction * 3,
                         skipOverPits: attributeSheet.movement.skipOverPits,
                         moveThroughWalls:
                             attributeSheet.movement.moveThroughWalls,
                         stopOnSquaddies:
                             attributeSheet.movement.stopOnSquaddies,
                         reduceMoveCosts: true,
+                    })
+                )
+            })
+            it("can create a squaddie with reduced movement costs", () => {
+                const attributeSheet =
+                    OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                        id: "test sheet with reduced move costs",
+                        distancePerAction: 4,
+                        skipOverPits: true,
+                        moveThroughWalls: true,
+                        stopOnSquaddies: false,
+                        reduceMoveCosts: true,
+                        attributeScores: {
+                            [AttributeScore.BODY]: 1,
+                            [AttributeScore.MIND]: 2,
+                            [AttributeScore.SOUL]: 3,
+                        },
+                    })
+                expect(attributeSheet.movement.reduceMoveCosts).toBeTruthy()
+                outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                    attributeSheet
+                )
+
+                const outOfBattleSquaddieWithReducedMoveCosts =
+                    OutOfBattleSquaddieService.new({
+                        id: "noAffiliation",
+                        name: "noAffiliation",
+                        actionIds: ["endTurn"],
+                        attributeSheetId: "test sheet with reduced move costs",
+                        affiliation: SquaddieAffiliation.NONE,
+                    })
+
+                outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                    outOfBattleSquaddieWithReducedMoveCosts
+                )
+
+                let inBattleSquaddie01Id: BattleSquaddieId =
+                    manager.createNewSquaddie({
+                        outOfBattleSquaddieId:
+                            outOfBattleSquaddieWithReducedMoveCosts.id,
+                    })
+
+                const movementInfo =
+                    CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie(
+                        {
+                            manager,
+                            battleSquaddieId: inBattleSquaddie01Id,
+                        }
+                    )
+                expect(movementInfo).toEqual(
+                    expect.objectContaining({
+                        maximumMoveCost:
+                            attributeSheet.movement.movementPointsPerAction * 3,
+                        skipOverPits: attributeSheet.movement.skipOverPits,
+                        moveThroughWalls:
+                            attributeSheet.movement.moveThroughWalls,
+                        stopOnSquaddies:
+                            attributeSheet.movement.stopOnSquaddies,
+                        reduceMoveCosts:
+                            attributeSheet.movement.reduceMoveCosts,
                     })
                 )
             })

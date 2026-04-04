@@ -411,7 +411,11 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
     const valeAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
         id: ValeAndGloriaMissionIds.vale.attributeSheetId,
         maxHitPoints: 4,
-        movement: { distancePerAction: 2, skipOverPits: true },
+        movement: {
+            movementPointsPerAction: 2,
+            skipOverPits: true,
+            reduceMoveCosts: true,
+        },
         attributeScores: {
             [AttributeScore.BODY]: -1,
             [AttributeScore.MIND]: 2,
@@ -440,7 +444,7 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
         id: ValeAndGloriaMissionIds.gloria.attributeSheetId,
         maxHitPoints: 6,
         movement: {
-            distancePerAction: 2,
+            movementPointsPerAction: 2,
         },
         attributeScores: {
             [AttributeScore.BODY]: 2,
@@ -471,7 +475,7 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
     const demonAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
         id: ValeAndGloriaMissionIds.slitherDemon.attributeSheetId,
         maxHitPoints: 3,
-        movement: { distancePerAction: 2 },
+        movement: { movementPointsPerAction: 2 },
         attributeScores: {
             [AttributeScore.BODY]: 0,
             [AttributeScore.MIND]: -1,
@@ -509,18 +513,6 @@ function createInBattleSquaddieManager(
     const valeSquaddieId = manager.createNewSquaddie({
         outOfBattleSquaddieId:
             ValeAndGloriaMissionIds.vale.outOfBattleSquaddieId,
-    })
-
-    manager.addConditionsToSquaddie({
-        ...valeSquaddieId,
-        conditions: [
-            SquaddieConditionService.new({
-                type: SquaddieConditionType.HUSTLE,
-                amount: undefined,
-                duration: undefined,
-                source: SquaddieConditionSource.ELEMENTAL,
-            }),
-        ],
     })
 
     const gloriaSquaddieId = manager.createNewSquaddie({

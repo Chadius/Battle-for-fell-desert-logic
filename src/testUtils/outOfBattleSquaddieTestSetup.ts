@@ -21,6 +21,7 @@ export interface TestAttributeSheetOptions {
     skipOverPits?: boolean
     moveThroughWalls?: boolean
     stopOnSquaddies?: boolean
+    reduceMoveCosts?: boolean
     attributeScores?: Partial<{ [key in AttributeScoreType]: number }>
     proficiencyLevels?:
         | Map<TProficiencyType, TProficiencyLevel>
@@ -51,10 +52,11 @@ export const OutOfBattleSquaddieTestSetup = {
             id: options?.id ?? "test-sheet",
             maxHitPoints: options?.maxHitPoints ?? 5,
             movement: {
-                distancePerAction: options?.distancePerAction ?? 2,
+                movementPointsPerAction: options?.distancePerAction ?? 2,
                 skipOverPits: options?.skipOverPits,
                 moveThroughWalls: options?.moveThroughWalls,
                 stopOnSquaddies: options?.stopOnSquaddies,
+                reduceMoveCosts: options?.reduceMoveCosts,
             },
             attributeScores,
             proficiencyLevels: options?.proficiencyLevels,

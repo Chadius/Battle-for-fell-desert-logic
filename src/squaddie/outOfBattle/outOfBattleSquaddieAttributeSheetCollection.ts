@@ -2,6 +2,7 @@ import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
 } from "./outOfBattleSquaddieAttributeSheet"
+import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
 
 export interface OutOfBattleSquaddieAttributeSheetCollection {
     sheetById: Map<string, OutOfBattleSquaddieAttributeSheet>
@@ -160,12 +161,7 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
     }: {
         collection: OutOfBattleSquaddieAttributeSheetCollection
         attributeSheetId: string
-    }): {
-        movementPerAction: number
-        skipOverPits: boolean
-        moveThroughWalls: boolean
-        stopOnSquaddies: boolean
-    } => {
+    }): SquaddieMovementInfo => {
         throwIfAttributeSheetIsUndefined(
             collection,
             attributeSheetId,
@@ -176,9 +172,11 @@ export const OutOfBattleSquaddieAttributeSheetCollectionService = {
 
         return {
             moveThroughWalls: attributeSheet.movement.moveThroughWalls,
-            movementPerAction: attributeSheet.movement.distancePerAction,
+            movementPointsPerAction:
+                attributeSheet.movement.movementPointsPerAction,
             skipOverPits: attributeSheet.movement.skipOverPits,
             stopOnSquaddies: attributeSheet.movement.stopOnSquaddies,
+            reduceMoveCosts: attributeSheet.movement.reduceMoveCosts,
         }
     },
 }

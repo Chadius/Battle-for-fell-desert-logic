@@ -78,7 +78,7 @@ export class SimpleAggressorStrategy implements AiStrategy {
             actorCoordinate: actorCoordinate,
             targetCoordinate: nearest.coordinate,
             remainingAP: actionPoints.current,
-            movementPerAction: movementInfo.movementPerAction,
+            movementPerAction: movementInfo.movementPointsPerAction,
             inBattleSquaddieManager,
             coordinateMapCollectionManager,
             mapId,

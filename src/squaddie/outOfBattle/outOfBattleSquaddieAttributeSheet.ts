@@ -3,16 +3,12 @@ import type {
     TProficiencyType,
 } from "../../proficiency/proficiencyLevel"
 import { type AttributeScoreType } from "../../proficiency/attributeScore"
+import type { SquaddieMovementInfo } from "../squaddieMovementInfo"
 
 export interface OutOfBattleSquaddieAttributeSheet {
     id: string
     maxHitPoints: number
-    movement: {
-        distancePerAction: number
-        skipOverPits: boolean
-        moveThroughWalls: boolean
-        stopOnSquaddies: boolean
-    }
+    movement: SquaddieMovementInfo
     proficiencyLevels: Map<TProficiencyType, TProficiencyLevel>
     attributeScores: { [key in AttributeScoreType]: number }
     rank: number
@@ -59,10 +55,11 @@ export const OutOfBattleSquaddieAttributeSheetService = {
             id,
             maxHitPoints: maxHitPoints ?? 1,
             movement: {
-                distancePerAction: movement?.distancePerAction ?? 2,
+                movementPointsPerAction: movement?.movementPointsPerAction ?? 2,
                 skipOverPits: movement?.skipOverPits ?? false,
                 moveThroughWalls: movement?.moveThroughWalls ?? false,
                 stopOnSquaddies: movement?.stopOnSquaddies ?? false,
+                reduceMoveCosts: movement?.reduceMoveCosts ?? false,
             },
             proficiencyLevels: proficiencyLevelsMap,
             rank: rank ?? 0,
