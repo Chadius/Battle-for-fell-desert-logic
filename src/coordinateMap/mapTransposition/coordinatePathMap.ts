@@ -22,6 +22,7 @@ interface VisitedCoordinate {
           }
         | undefined
     cachedMovePath?: CoordinateMovePath
+    moveCost?: number
 }
 
 export interface CoordinatePathMap {
@@ -94,11 +95,13 @@ export const CoordinatePathMapService = {
                   }
                 | undefined = currentCoordinate.previousCoordinate
 
-            const moveCost = CoordinateMapService.getMoveCost({
-                map,
-                row: currentCoordinate.row,
-                col: currentCoordinate.col,
-            })
+            const moveCost =
+                currentCoordinate.moveCost ??
+                CoordinateMapService.getMoveCost({
+                    map,
+                    row: currentCoordinate.row,
+                    col: currentCoordinate.col,
+                })
 
             steps.unshift({
                 row: currentCoordinate.row,
@@ -155,10 +158,12 @@ export const CoordinatePathMapService = {
         coordinatePathMap,
         currentCoordinate,
         previousCoordinate,
+        moveCost,
     }: {
         coordinatePathMap: CoordinatePathMap
         currentCoordinate: OffsetCoordinate
         previousCoordinate: OffsetCoordinate | undefined
+        moveCost?: number
     }) => {
         throwIfCoordinatePathMapIsUndefined(coordinatePathMap, "add")
         throwIfCoordinateIsOffMap(
@@ -184,6 +189,7 @@ export const CoordinatePathMapService = {
             row: currentCoordinate.row,
             col: currentCoordinate.col,
             previousCoordinate,
+            moveCost,
         })
     },
     getClosestPath: ({

@@ -223,6 +223,7 @@ export class CoordinateMapAStarAdapter
     extendPath({
         path,
         neighbor,
+        moveCost,
     }: {
         path: CoordinateMovePath
         neighbor: OffsetCoordinate
@@ -233,6 +234,7 @@ export class CoordinateMapAStarAdapter
             currentCoordinate: neighbor,
             previousCoordinate:
                 CoordinateMovePathService.getEndCoordinate(path),
+            moveCost,
         })
 
         CoordinatePathMapService.extendPath({

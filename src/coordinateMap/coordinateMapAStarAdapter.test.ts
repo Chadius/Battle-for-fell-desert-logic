@@ -329,6 +329,36 @@ describe("coordinateMapAStarAdapter", () => {
                     })
                     expect(path).toBeDefined()
                 })
+                it("records path cost as 1 per step when reduceMoveCosts is active", () => {
+                    const mapWithDoubleCostTerrain = CoordinateMapService.new({
+                        id: "map",
+                        name: "map",
+                        movementProperties: ["1 2 2 1 1 "],
+                    })
+                    graph = new CoordinateMapAStarAdapter({
+                        map: mapWithDoubleCostTerrain,
+                        searchLimits: {
+                            reduceMoveCosts: true,
+                        },
+                    })
+                    const path = AStarSearchService.search<
+                        OffsetCoordinate,
+                        CoordinateMovePath,
+                        AStarGraph<OffsetCoordinate, CoordinateMovePath>
+                    >({
+                        start: {
+                            row: 0,
+                            col: 0,
+                        },
+                        graph: graph,
+                        stopCondition: (c: OffsetCoordinate) =>
+                            c.row == 0 && c.col == 2,
+                    })
+                    expect(path).toBeDefined()
+                    expect(
+                        CoordinateMovePathService.getTotalMoveCost(path!)
+                    ).toEqual(2)
+                })
             })
 
             describe("Pits", () => {
