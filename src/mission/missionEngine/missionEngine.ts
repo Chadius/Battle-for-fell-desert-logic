@@ -58,6 +58,7 @@ import { TurnControllerService, TurnControllerType } from "../turnController"
 import { StrategyControllerService } from "../strategyController"
 import { SimpleAggressorStrategy } from "../strategies/simpleAggressorStrategy"
 import type { AiStrategy } from "../aiStrategy"
+import { type DebugFlags, DebugFlagsService } from "../debugFlags"
 
 export interface MapTileInfo {
     row: number
@@ -357,6 +358,16 @@ export class MissionEngine {
         this.missionManager!.setMissionObjectiveAsRewarded(objectiveId)
     }
 
+    setDebugFlag(flag: keyof DebugFlags, value: boolean): void {
+        this.throwIfMissionManagerIsUndefined(this.setDebugFlag.name)
+        const missionState = this.missionManager!.missionState!
+        missionState.debugFlags = DebugFlagsService.setFlag({
+            debugFlags: missionState.debugFlags ?? DebugFlagsService.new(),
+            flag,
+            value,
+        })
+    }
+
     previewReadiedActionAndForecastResults(): SerializedForecastedActionResult[] {
         this.throwIfMissionManagerIsUndefined(
             this.previewReadiedActionAndForecastResults.name
@@ -544,6 +555,19 @@ export class MissionEngine {
         const missionState = this.missionManager?.missionState
         const affiliation =
             this.missionManager!.getSquaddieAffiliation(squaddieId)
+
+        if (
+            missionState?.debugFlags?.enemyAlwaysEndsTheirTurn &&
+            affiliation === SquaddieAffiliation.ENEMY
+        ) {
+            this.missionManager!.useActionAndGetResults({
+                actor: squaddieId,
+                targets: [squaddieId],
+                action: { id: "default-end-turn" },
+                rollGenerator: this.rollGenerator,
+            })
+            return false
+        }
 
         const strategy =
             StrategyControllerService.getStrategyForSquaddie({

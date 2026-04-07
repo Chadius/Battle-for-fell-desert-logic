@@ -25,6 +25,7 @@ import { RollGenerator } from "../../squaddieAction/calculate/roll/rollGenerator
 import { ActionRange } from "../../squaddieAction/actionRange"
 import { CoordinateGeneratorShape } from "../../coordinateMap/shape"
 import { MissionAffiliationTurn, MissionTurnService } from "../missionTurn"
+import { type DebugFlags, DebugFlagsService } from "../debugFlags"
 
 describe("MissionEngine", () => {
     describe("isDone", () => {
@@ -1134,6 +1135,196 @@ describe("MissionEngine", () => {
             expect(missionEngine.getCurrentAffiliationTurn()).toBe(
                 MissionAffiliationTurn.PLAYER_TURN_START
             )
+        })
+    })
+
+    describe("debugFlags", () => {
+        describe("enemyAlwaysEndsTheirTurn", () => {
+            let engineWithFlag: MissionEngine
+            let engineWithoutFlag: MissionEngine
+            let playerIdWithFlag: BattleSquaddieId
+            let playerIdWithoutFlag: BattleSquaddieId
+
+            function buildEngine(debugFlags?: DebugFlags): {
+                engine: MissionEngine
+                playerSquaddieId: BattleSquaddieId
+                enemySquaddieId: BattleSquaddieId
+            } {
+                const { manager: outOfBattleSquaddieManager } =
+                    OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                        {
+                            sheetId: "shared_sheet",
+                            attributeSheetOptions: {
+                                maxHitPoints: 10,
+                                distancePerAction: 2,
+                                items: { maxCapacity: 0 },
+                            },
+                        }
+                    )
+
+                const playerSquaddie = OutOfBattleSquaddieService.new({
+                    id: "player-1",
+                    name: "Player",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    attributeSheetId: "shared_sheet",
+                })
+                const enemySquaddie = OutOfBattleSquaddieService.new({
+                    id: "enemy-1",
+                    name: "Enemy",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    attributeSheetId: "shared_sheet",
+                })
+
+                outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+                outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
+
+                const inBattleSquaddieManager = new InBattleSquaddieManager(
+                    InBattleSquaddieCollectionService.new(),
+                    outOfBattleSquaddieManager
+                )
+
+                const playerSquaddieId =
+                    inBattleSquaddieManager.createNewSquaddie({
+                        outOfBattleSquaddieId: "player-1",
+                    })
+                const enemySquaddieId =
+                    inBattleSquaddieManager.createNewSquaddie({
+                        outOfBattleSquaddieId: "enemy-1",
+                    })
+
+                const map = CoordinateMapService.new({
+                    id: "debug_test_map",
+                    name: "debug test map",
+                    movementProperties: ["1 1 1 1 1 1 1 1 1 1"],
+                })
+
+                const coordinateMapCollectionManager =
+                    new CoordinateMapCollectionManager(
+                        CoordinateMapCollectionService.new()
+                    )
+                coordinateMapCollectionManager.addOrUpdate({ map })
+                coordinateMapCollectionManager.addSquaddie({
+                    mapId: "debug_test_map",
+                    squaddieId: playerSquaddieId,
+                    coordinate: { row: 0, col: 0 },
+                })
+
+                coordinateMapCollectionManager.addSquaddie({
+                    mapId: "debug_test_map",
+                    squaddieId: enemySquaddieId,
+                    coordinate: { row: 0, col: 5 },
+                })
+
+                const squaddieActionManager = new SquaddieActionManager(
+                    SquaddieActionCollectionService.new()
+                )
+                squaddieActionManager.addOrUpdate(
+                    SquaddieActionService.defaultMove()
+                )
+
+                const missionState = MissionStateService.new({
+                    id: "debug-flag-mission",
+                    mapId: "debug_test_map",
+                    turn: MissionTurnService.new({
+                        missionAffiliationTurn:
+                            MissionAffiliationTurn.PLAYER_TURN,
+                    }),
+                    debugFlags,
+                })
+
+                const missionManager = new MissionManager({
+                    missionState,
+                    inBattleSquaddieManager,
+                    coordinateMapCollectionManager,
+                    squaddieActionManager,
+                })
+
+                return {
+                    engine: new MissionEngine(missionManager),
+                    playerSquaddieId,
+                    enemySquaddieId,
+                }
+            }
+
+            beforeEach(() => {
+                const debugFlags = DebugFlagsService.setFlag({
+                    debugFlags: DebugFlagsService.new(),
+                    flag: "enemyAlwaysEndsTheirTurn",
+                    value: true,
+                })
+                const withFlag = buildEngine(debugFlags)
+                engineWithFlag = withFlag.engine
+                playerIdWithFlag = withFlag.playerSquaddieId
+
+                const withoutFlag = buildEngine()
+                engineWithoutFlag = withoutFlag.engine
+                playerIdWithoutFlag = withoutFlag.playerSquaddieId
+            })
+
+            it("enemy immediately ends their turn, advancing the engine past ENEMY_TURN", () => {
+                engineWithFlag.endSquaddieTurn(playerIdWithFlag)
+
+                expect(engineWithFlag.getCurrentAffiliationTurn()).not.toBe(
+                    MissionAffiliationTurn.ENEMY_TURN
+                )
+            })
+
+            it("without the flag, engine stays in ENEMY_TURN with an AI action readied", () => {
+                engineWithoutFlag.endSquaddieTurn(playerIdWithoutFlag)
+
+                expect(engineWithoutFlag.getCurrentAffiliationTurn()).toBe(
+                    MissionAffiliationTurn.ENEMY_TURN
+                )
+                expect(engineWithoutFlag.getReadiedAction()).toBeDefined()
+            })
+
+            it("phase transitions include ENEMY_TURN_END, confirming the enemy's turn was auto-processed", () => {
+                const { engine, playerSquaddieId } = buildEngine({
+                    enemyAlwaysEndsTheirTurn: true,
+                })
+
+                engine.endSquaddieTurn(playerSquaddieId)
+
+                const summary = engine.getInMissionSummary()
+                expect(summary.recentPhaseTransitions).toContain(
+                    MissionAffiliationTurn.ENEMY_TURN_END
+                )
+            })
+
+            it("flag does not affect PLAYER squaddie behavior", () => {
+                const result = engineWithFlag.readyAction({
+                    actor: playerIdWithFlag,
+                    targets: [playerIdWithFlag],
+                    action: { id: "any-action" },
+                })
+
+                expect(result.isValid).toBe(true)
+            })
+
+            it("enabling enemyAlwaysEndsTheirTurn mid-mission makes the engine advance past ENEMY_TURN", () => {
+                const { engine, playerSquaddieId } = buildEngine()
+
+                engine.setDebugFlag("enemyAlwaysEndsTheirTurn", true)
+                engine.endSquaddieTurn(playerSquaddieId)
+
+                expect(engine.getCurrentAffiliationTurn()).not.toBe(
+                    MissionAffiliationTurn.ENEMY_TURN
+                )
+            })
+
+            it("disabling enemyAlwaysEndsTheirTurn restores normal AI behavior", () => {
+                const { engine, playerSquaddieId } = buildEngine({
+                    enemyAlwaysEndsTheirTurn: true,
+                })
+
+                engine.setDebugFlag("enemyAlwaysEndsTheirTurn", false)
+                engine.endSquaddieTurn(playerSquaddieId)
+
+                expect(engine.getCurrentAffiliationTurn()).toBe(
+                    MissionAffiliationTurn.ENEMY_TURN
+                )
+                expect(engine.getReadiedAction()).toBeDefined()
+            })
         })
     })
 })
