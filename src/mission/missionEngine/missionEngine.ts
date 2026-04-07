@@ -358,6 +358,12 @@ export class MissionEngine {
         this.missionManager!.setMissionObjectiveAsRewarded(objectiveId)
     }
 
+    getDebugFlags(): DebugFlags | undefined {
+        this.throwIfMissionManagerIsUndefined(this.setDebugFlag.name)
+        const missionState = this.missionManager!.missionState!
+        return missionState.debugFlags
+    }
+
     setDebugFlag(flag: keyof DebugFlags, value: boolean): void {
         this.throwIfMissionManagerIsUndefined(this.setDebugFlag.name)
         const missionState = this.missionManager!.missionState!

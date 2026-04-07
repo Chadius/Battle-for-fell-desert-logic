@@ -1261,6 +1261,12 @@ describe("MissionEngine", () => {
                 playerIdWithoutFlag = withoutFlag.playerSquaddieId
             })
 
+            it("can get the debug flags", () => {
+                const flags = engineWithFlag.getDebugFlags()
+                expect(flags).toBeDefined()
+                expect(flags?.enemyAlwaysEndsTheirTurn).toBeTruthy()
+            })
+
             it("enemy immediately ends their turn, advancing the engine past ENEMY_TURN", () => {
                 engineWithFlag.endSquaddieTurn(playerIdWithFlag)
 
