@@ -1,4 +1,8 @@
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type {
+    BattleSquaddieId,
+    InBattleSquaddieManager,
+} from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo"
 import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
@@ -246,6 +250,7 @@ export const CoordinateMapService = {
         outOfBattleSquaddieId,
         inBattleSquaddieManager,
         stopConditions,
+        traversalOverrides,
     }: {
         map: CoordinateMap
         inBattleSquaddieId: number
@@ -254,6 +259,9 @@ export const CoordinateMapService = {
         stopConditions: {
             desiredDestination: { row: number; col: number } | undefined
         }[]
+        traversalOverrides?: Partial<
+            Omit<SquaddieMovementInfo, "movementPointsPerAction">
+        >
     }): {
         expectedPath: CoordinateMovePath
     } => {
@@ -291,6 +299,7 @@ export const CoordinateMapService = {
             },
             destinationRow,
             destinationCol,
+            traversalOverrides,
         })
 
         return {
@@ -367,6 +376,43 @@ export const CoordinateMapService = {
             map.coordinates[coordinate.row][coordinate.col].movementCost ==
                 undefined
         )
+    },
+    canSquaddieStopAtCoordinate: ({
+        map,
+        coordinate,
+        squaddieId,
+    }: {
+        map: CoordinateMap
+        coordinate: OffsetCoordinate
+        squaddieId?: BattleSquaddieId
+    }): boolean => {
+        if (!CoordinateMapService.isCoordinateOnMap({ coordinate, map }))
+            return false
+
+        const coordinateKey =
+            OffsetCoordinateService.coordinateToKey(coordinate)
+        if (map.coordinatesSquaddiesCannotStopOn.has(coordinateKey))
+            return false
+
+        const allSquaddies =
+            CoordinateMapService.getAllSquaddieCoordinatesOnMap(map)
+        for (const info of allSquaddies) {
+            if (
+                squaddieId != undefined &&
+                info.squaddieId.inBattleSquaddieId ===
+                    squaddieId.inBattleSquaddieId &&
+                info.squaddieId.outOfBattleSquaddieId ===
+                    squaddieId.outOfBattleSquaddieId
+            )
+                continue
+            if (
+                info.coordinate.row === coordinate.row &&
+                info.coordinate.col === coordinate.col
+            )
+                return false
+        }
+
+        return true
     },
     serialize: (map: CoordinateMap): SerializedCoordinateMap => {
         const coordinateBySquaddie: {
@@ -607,6 +653,7 @@ const searchForPath = ({
     start,
     destinationRow,
     destinationCol,
+    traversalOverrides,
 }: {
     map: CoordinateMap
     inBattleSquaddieManager: InBattleSquaddieManager
@@ -615,6 +662,9 @@ const searchForPath = ({
     start: OffsetCoordinate
     destinationRow: number
     destinationCol: number
+    traversalOverrides?: Partial<
+        Omit<SquaddieMovementInfo, "movementPointsPerAction">
+    >
 }): CoordinateMovePath | undefined => {
     let searchLimits: CoordinateMapSearchLimits | undefined
     try {
@@ -628,6 +678,13 @@ const searchForPath = ({
             })
     } catch {
         searchLimits = undefined
+    }
+
+    if (traversalOverrides != undefined) {
+        searchLimits = {
+            ...searchLimits,
+            ...traversalOverrides,
+        }
     }
 
     const adapter = new CoordinateMapAStarAdapter({

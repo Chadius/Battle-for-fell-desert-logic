@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieAction,
+    MovementEffectType,
     SquaddieActionService,
 } from "../../squaddieAction"
 import { SquaddieActionManager } from "../../squaddieActionManager"
@@ -320,7 +321,7 @@ describe("Squaddie resolves actions on themself", () => {
                             },
                         },
                         movement: {
-                            moveToSelectedDestination: true,
+                            movementType: MovementEffectType.ACTOR_CHOSEN,
                         },
                     },
                 },

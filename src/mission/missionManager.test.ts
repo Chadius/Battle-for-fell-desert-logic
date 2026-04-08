@@ -15,7 +15,10 @@ import { AttributeScore } from "../proficiency/attributeScore"
 import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
-import { SquaddieActionService } from "../squaddieAction/squaddieAction"
+import {
+    MovementEffectType,
+    SquaddieActionService,
+} from "../squaddieAction/squaddieAction"
 import {
     ProficiencyLevel,
     ProficiencyType,
@@ -1258,7 +1261,7 @@ describe("MissionManager", () => {
                 effectOnActor: {
                     SUCCESS: {
                         movement: {
-                            moveToSelectedDestination: true,
+                            movementType: MovementEffectType.ACTOR_CHOSEN,
                         },
                     },
                 },

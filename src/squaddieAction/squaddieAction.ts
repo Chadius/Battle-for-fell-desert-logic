@@ -20,6 +20,15 @@ import type {
     TSquaddieConditionType,
 } from "../proficiency/squaddieCondition"
 import type { EnumLike } from "../enum"
+import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo"
+
+export const MovementEffectType = {
+    ACTOR_CHOSEN: "ACTOR_CHOSEN",
+    ACTOR_CHOSEN_SPECIAL_TRAVERSAL: "ACTOR_CHOSEN_SPECIAL_TRAVERSAL",
+    TELEPORT_TO_ACTOR_CHOSEN: "TELEPORT_TO_ACTOR_CHOSEN",
+    FORCED_TOWARD_ACTOR: "FORCED_TOWARD_ACTOR",
+} as const satisfies Record<string, string>
+export type TMovementEffectType = EnumLike<typeof MovementEffectType>
 
 export const HowToDetermineDegreeOfSuccess = {
     ACTOR_ROLLS_TO_HIT: "ACTOR_ROLLS_TO_HIT",
@@ -77,7 +86,11 @@ export interface SquaddieActionEffect {
         }
     }
     movement?: {
-        moveToSelectedDestination: boolean
+        movementType: TMovementEffectType
+        traversal?: Partial<
+            Omit<SquaddieMovementInfo, "movementPointsPerAction">
+        >
+        forcedDistance?: number
     }
 }
 
@@ -205,7 +218,7 @@ export const SquaddieActionService = {
                         },
                     },
                     movement: {
-                        moveToSelectedDestination: true,
+                        movementType: MovementEffectType.ACTOR_CHOSEN,
                     },
                 },
             },

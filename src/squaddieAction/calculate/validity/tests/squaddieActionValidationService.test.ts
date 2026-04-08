@@ -3,6 +3,7 @@ import { SquaddieActionValidationService } from "../squaddieActionValidationServ
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import {
     type SquaddieAction,
+    MovementEffectType,
     SquaddieActionService,
 } from "../../../squaddieAction"
 import {
@@ -270,7 +271,9 @@ describe("SquaddieActionValidationService", () => {
                             spent: 0,
                             additional: { movementPathActionPointCost: true },
                         },
-                        movement: { moveToSelectedDestination: true },
+                        movement: {
+                            movementType: MovementEffectType.ACTOR_CHOSEN,
+                        },
                     },
                 },
             })

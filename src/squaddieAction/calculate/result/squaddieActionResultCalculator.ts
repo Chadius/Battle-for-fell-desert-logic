@@ -12,7 +12,10 @@ import {
     SquaddieActionResultService,
 } from "./squaddieActionResult"
 import type { SquaddieAction, SquaddieActionEffect } from "../../squaddieAction"
-import { HowToDetermineDegreeOfSuccess } from "../../squaddieAction"
+import {
+    HowToDetermineDegreeOfSuccess,
+    MovementEffectType,
+} from "../../squaddieAction"
 import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
 import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import type { OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
@@ -25,11 +28,21 @@ import {
 } from "../../../proficiency/squaddieCondition"
 import {
     type CoordinateMovePath,
+    CoordinateMovePathMoveType,
     CoordinateMovePathService,
 } from "../../../coordinateMap/path/path"
-import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
+import {
+    type CoordinateMap,
+    CoordinateMapService,
+} from "../../../coordinateMap/coordinateMap"
+import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
+import {
+    type OffsetCoordinate,
+    OffsetCoordinateService,
+} from "../../../coordinateMap/offsetCoordinate"
 import type { RollGenerator } from "../roll/rollGenerator"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
+import type { SquaddieMovementInfo } from "../../../squaddie/squaddieMovementInfo"
 import { ProficiencyCalculator } from "../proficiencyCalculator"
 import { SquaddieActionForecastCalculator } from "../forecast/squaddieActionForecastCalculator"
 
@@ -238,6 +251,16 @@ export const SquaddieActionResultCalculator = {
             },
         })
 
+        const coordinateMap = map?.mapId
+            ? managers.coordinateMapCollectionManager?.getMapById(map.mapId)
+            : undefined
+        const scatterDestinations = computeScatterDestinations({
+            effect: squaddieAction.effectOnTarget?.[degreeOfSuccess],
+            targets,
+            desiredDestination: action.decisions?.desiredMovementDestination,
+            coordinateMap,
+        })
+
         results.push(
             ...targets.flatMap((target) => {
                 if (
@@ -250,9 +273,22 @@ export const SquaddieActionResultCalculator = {
                     managers.inBattleSquaddieManager.getSquaddie({
                         ...target,
                     })
+
+                const targetKey =
+                    SquaddieIdConverterService.squaddieIdToKey(target)
+                const perTargetDecisions: SquaddieActionDecisions | undefined =
+                    scatterDestinations.has(targetKey)
+                        ? {
+                              ...action.decisions,
+                              desiredMovementDestination:
+                                  scatterDestinations.get(targetKey),
+                          }
+                        : action.decisions
+
                 return calculateEffectOnSquaddie({
                     effect: squaddieAction.effectOnTarget[degreeOfSuccess],
-                    decisions: action.decisions,
+                    decisions: perTargetDecisions,
+                    map,
                     managers,
                     actor: {
                         inBattleSquaddie: actorInBattleSquaddie,
@@ -561,6 +597,7 @@ const calculateActionPointChange = ({
 
 const calculateEffectOnSquaddie = ({
     effect,
+    actor,
     target,
     managers,
     decisions,
@@ -631,6 +668,7 @@ const calculateEffectOnSquaddie = ({
             movement: effect?.movement,
             map,
             actionPointsEffect: effect?.actionPoints,
+            actorInBattleSquaddie: actor.inBattleSquaddie,
             ...target,
         })
     )
@@ -870,6 +908,7 @@ const calculateMovementResults = ({
     movement,
     map,
     actionPointsEffect,
+    actorInBattleSquaddie,
 }: {
     managers: {
         inBattleSquaddieManager: InBattleSquaddieManager
@@ -884,6 +923,7 @@ const calculateMovementResults = ({
     inBattleSquaddie: InBattleSquaddie
     outOfBattleSquaddie: OutOfBattleSquaddie
     attributeSheet: OutOfBattleSquaddieAttributeSheet
+    actorInBattleSquaddie: InBattleSquaddie
 }): SquaddieActionResult[] => {
     if (movement == undefined) return []
     if (
@@ -892,24 +932,82 @@ const calculateMovementResults = ({
     )
         return []
 
-    if (
-        movement.moveToSelectedDestination &&
-        decisions?.desiredMovementDestination == undefined
+    const coordinateMap = managers.coordinateMapCollectionManager.getMapById(
+        map.mapId
     )
-        return []
 
-    const routeInfo: {
-        expectedPath: CoordinateMovePath
-    } = CoordinateMapService.calculateRoute({
-        map: managers.coordinateMapCollectionManager.getMapById(map.mapId),
+    switch (movement.movementType) {
+        case MovementEffectType.ACTOR_CHOSEN:
+            return calculateActorChosenMovementResults({
+                inBattleSquaddie,
+                outOfBattleSquaddie,
+                managers,
+                decisions,
+                actionPointsEffect,
+                coordinateMap,
+            })
+        case MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL:
+            return calculateActorChosenMovementResults({
+                inBattleSquaddie,
+                outOfBattleSquaddie,
+                managers,
+                decisions,
+                actionPointsEffect,
+                coordinateMap,
+                traversalOverrides: movement.traversal,
+            })
+        case MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN:
+            return calculateTeleportToActorChosenResults({
+                inBattleSquaddie,
+                outOfBattleSquaddie,
+                decisions,
+            })
+        case MovementEffectType.FORCED_TOWARD_ACTOR:
+            return calculateForcedTowardActorResults({
+                inBattleSquaddie,
+                outOfBattleSquaddie,
+                actorInBattleSquaddie,
+                coordinateMap,
+                forcedDistance: movement.forcedDistance ?? 1,
+            })
+    }
+}
+
+const calculateActorChosenMovementResults = ({
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    managers,
+    decisions,
+    actionPointsEffect,
+    coordinateMap,
+    traversalOverrides,
+}: {
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        coordinateMapCollectionManager?: CoordinateMapCollectionManager
+    }
+    actionPointsEffect: SquaddieActionEffect["actionPoints"] | undefined
+    decisions: SquaddieActionDecisions | undefined
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    coordinateMap: CoordinateMap
+    traversalOverrides?: Partial<
+        Omit<SquaddieMovementInfo, "movementPointsPerAction">
+    >
+}): SquaddieActionResult[] => {
+    if (decisions?.desiredMovementDestination == undefined) return []
+
+    const routeInfo = CoordinateMapService.calculateRoute({
+        map: coordinateMap,
         inBattleSquaddieManager: managers.inBattleSquaddieManager,
         inBattleSquaddieId: inBattleSquaddie.id,
         outOfBattleSquaddieId: outOfBattleSquaddie.id,
         stopConditions: [
             {
-                desiredDestination: decisions?.desiredMovementDestination,
+                desiredDestination: decisions.desiredMovementDestination,
             },
         ],
+        traversalOverrides,
     })
 
     let actionPointCost = 0
@@ -927,12 +1025,206 @@ const calculateMovementResults = ({
         {
             inBattleSquaddieId: inBattleSquaddie.id,
             outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            movement: { expectedPath: routeInfo.expectedPath },
+            actionPoints: { spent: actionPointCost },
+        },
+    ]
+}
+
+const computeScatterDestinations = ({
+    effect,
+    targets,
+    desiredDestination,
+    coordinateMap,
+}: {
+    effect: SquaddieActionEffect | undefined
+    targets: BattleSquaddieId[]
+    desiredDestination: OffsetCoordinate | undefined
+    coordinateMap: CoordinateMap | undefined
+}): Map<string, OffsetCoordinate | undefined> => {
+    const result = new Map<string, OffsetCoordinate | undefined>()
+    if (
+        effect?.movement?.movementType !==
+            MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN ||
+        desiredDestination == undefined ||
+        coordinateMap == undefined
+    )
+        return result
+
+    const claimedCoordinateKeys = new Set<string>()
+    const maxSearchRadius =
+        CoordinateMapService.getNumberOfColumns({
+            map: coordinateMap,
+        }) + CoordinateMapService.getNumberOfRows({ map: coordinateMap })
+
+    for (const target of targets) {
+        const targetBattleSquaddieKey =
+            SquaddieIdConverterService.squaddieIdToKey(target)
+        let assignedCoordinate: OffsetCoordinate | undefined
+        for (
+            let ring = 0;
+            ring <= maxSearchRadius && assignedCoordinate == undefined;
+            ring++
+        ) {
+            const candidates = CoordinateCalculator.getCoordinatesInRing(
+                desiredDestination,
+                ring
+            )
+            for (const candidate of candidates) {
+                const coordinateKey =
+                    OffsetCoordinateService.coordinateToKey(candidate)
+                if (
+                    !claimedCoordinateKeys.has(coordinateKey) &&
+                    CoordinateMapService.canSquaddieStopAtCoordinate({
+                        map: coordinateMap,
+                        coordinate: candidate,
+                        squaddieId: target,
+                    })
+                ) {
+                    assignedCoordinate = candidate
+                    claimedCoordinateKeys.add(coordinateKey)
+                    break
+                }
+            }
+        }
+        result.set(targetBattleSquaddieKey, assignedCoordinate)
+    }
+
+    return result
+}
+
+const calculateTeleportToActorChosenResults = ({
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    decisions,
+}: {
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    decisions: SquaddieActionDecisions | undefined
+}): SquaddieActionResult[] => {
+    if (decisions?.desiredMovementDestination == undefined) return []
+
+    const { row, col } = decisions.desiredMovementDestination
+    const teleportPath: CoordinateMovePath = CoordinateMovePathService.new({
+        steps: [
+            {
+                row,
+                col,
+                moveType: CoordinateMovePathMoveType.START,
+                moveCost: 0,
+            },
+        ],
+    })
+
+    return [
+        {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            movement: { expectedPath: teleportPath },
+            actionPoints: { spent: 0 },
+        },
+    ]
+}
+
+const calculateForcedTowardActorResults = ({
+    inBattleSquaddie,
+    outOfBattleSquaddie,
+    actorInBattleSquaddie,
+    coordinateMap,
+    forcedDistance,
+}: {
+    inBattleSquaddie: InBattleSquaddie
+    outOfBattleSquaddie: OutOfBattleSquaddie
+    actorInBattleSquaddie: InBattleSquaddie
+    coordinateMap: CoordinateMap
+    forcedDistance: number
+}): SquaddieActionResult[] => {
+    const targetCoordinate = CoordinateMapService.getSquaddieCoordinate({
+        map: coordinateMap,
+        squaddieId: {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        },
+    })
+    const actorCoordinate = CoordinateMapService.getSquaddieCoordinate({
+        map: coordinateMap,
+        squaddieId: {
+            inBattleSquaddieId: actorInBattleSquaddie.id,
+            outOfBattleSquaddieId: actorInBattleSquaddie.outOfBattleSquaddieId,
+        },
+    })
+
+    if (
+        targetCoordinate?.row == undefined ||
+        targetCoordinate?.col == undefined ||
+        actorCoordinate?.row == undefined ||
+        actorCoordinate?.col == undefined
+    )
+        return []
+
+    const lineTowardActor = CoordinateCalculator.calculateEveryCoordinateInLine(
+        { row: targetCoordinate.row, col: targetCoordinate.col },
+        { row: actorCoordinate.row, col: actorCoordinate.col }
+    )
+
+    const targetBattleSquaddieId = {
+        inBattleSquaddieId: inBattleSquaddie.id,
+        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+    }
+    let lastValidCoordinate = {
+        row: targetCoordinate.row,
+        col: targetCoordinate.col,
+    }
+    const stepsWalked = []
+    for (
+        let i = 1;
+        i <= Math.min(forcedDistance, lineTowardActor.length - 1);
+        i++
+    ) {
+        const candidate = lineTowardActor[i]
+        if (
+            !CoordinateMapService.canSquaddieStopAtCoordinate({
+                map: coordinateMap,
+                coordinate: candidate,
+                squaddieId: targetBattleSquaddieId,
+            })
+        )
+            break
+        lastValidCoordinate = candidate
+        stepsWalked.push(candidate)
+    }
+
+    const pathSteps = [
+        {
+            row: targetCoordinate.row,
+            col: targetCoordinate.col,
+            moveType: CoordinateMovePathMoveType.START,
+            moveCost: 0,
+        },
+        ...stepsWalked.map((step) => ({
+            row: step.row,
+            col: step.col,
+            moveType: CoordinateMovePathMoveType.WALK,
+            moveCost: 1,
+        })),
+    ]
+
+    if (
+        lastValidCoordinate.row === targetCoordinate.row &&
+        lastValidCoordinate.col === targetCoordinate.col
+    )
+        return []
+
+    return [
+        {
+            inBattleSquaddieId: inBattleSquaddie.id,
+            outOfBattleSquaddieId: outOfBattleSquaddie.id,
             movement: {
-                expectedPath: routeInfo.expectedPath,
+                expectedPath: CoordinateMovePathService.new({
+                    steps: pathSteps,
+                }),
             },
-            actionPoints: {
-                spent: actionPointCost,
-            },
+            actionPoints: { spent: 0 },
         },
     ]
 }
