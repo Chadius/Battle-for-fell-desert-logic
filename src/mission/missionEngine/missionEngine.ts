@@ -359,7 +359,7 @@ export class MissionEngine {
     }
 
     getDebugFlags(): DebugFlags | undefined {
-        this.throwIfMissionManagerIsUndefined(this.setDebugFlag.name)
+        this.throwIfMissionManagerIsUndefined(this.getDebugFlags.name)
         const missionState = this.missionManager!.missionState!
         return missionState.debugFlags
     }

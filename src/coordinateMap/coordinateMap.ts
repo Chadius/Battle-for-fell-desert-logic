@@ -89,7 +89,6 @@ export const CoordinateMapService = {
             !willMoveSquaddieOffMap &&
             copyMap.coordinates[coordinate.row!][coordinate.col!].squaddieId
         if (
-            !willMoveSquaddieOffMap &&
             squaddieAtDestination &&
             (squaddieAtDestination.outOfBattleSquaddieId !=
                 squaddieId.outOfBattleSquaddieId ||
