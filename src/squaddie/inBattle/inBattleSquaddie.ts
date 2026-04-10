@@ -22,6 +22,8 @@ import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 
 export const DEFAULT_ACTION_POINTS = 3
 
+export type { BattleSquaddieId } from "./battleSquaddieId"
+
 export interface InBattleSquaddie {
     id: number
     outOfBattleSquaddieId: string

@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { SimpleAggressorStrategy } from "./simpleAggressorStrategy"
 import type { AiStrategyInput } from "../aiStrategy"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
@@ -18,6 +15,7 @@ import { ProficiencyType } from "../../proficiency/proficiencyLevel"
 import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 
 describe("SimpleAggressorStrategy", () => {
     let strategy: SimpleAggressorStrategy

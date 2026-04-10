@@ -303,13 +303,12 @@ describe("Squaddie Actions against foes", () => {
             inBattleSquaddieId: targetInBattleSquaddieId,
             outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
             conditions: [
-                {
+                SquaddieConditionService.new({
+                    duration: undefined,
                     type: SquaddieConditionType.ABSORB,
-                    amount: { current: 1, base: undefined },
-                    limit: {
-                        duration: undefined,
-                    },
-                },
+                    amount: 1,
+                    source: SquaddieConditionSource.PHYSICAL,
+                }),
             ],
         })
 

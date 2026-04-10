@@ -88,8 +88,10 @@ describe("InBattleSquaddieCollection", () => {
             const restoredSquaddie =
                 InBattleSquaddieCollectionService.getSquaddie({
                     collection: restored,
-                    id: inBattleId,
-                    outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                    battleSquaddieId: {
+                        inBattleSquaddieId: inBattleId,
+                        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                    },
                 })
             expect(restoredSquaddie).toBeDefined()
             expect(restoredSquaddie!.name).toEqual("Test Squaddie 1")
@@ -124,8 +126,10 @@ describe("InBattleSquaddieCollection", () => {
             const restoredSquaddie1 =
                 InBattleSquaddieCollectionService.getSquaddie({
                     collection: restored,
-                    id: id1,
-                    outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                    battleSquaddieId: {
+                        inBattleSquaddieId: id1,
+                        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                    },
                 })
             expect(restoredSquaddie1).toBeDefined()
             expect(restoredSquaddie1!.name).toEqual("Test Squaddie 1")
@@ -133,8 +137,10 @@ describe("InBattleSquaddieCollection", () => {
             const restoredSquaddie2 =
                 InBattleSquaddieCollectionService.getSquaddie({
                     collection: restored,
-                    id: id2,
-                    outOfBattleSquaddieId: outOfBattleSquaddie2.id,
+                    battleSquaddieId: {
+                        inBattleSquaddieId: id2,
+                        outOfBattleSquaddieId: outOfBattleSquaddie2.id,
+                    },
                 })
             expect(restoredSquaddie2).toBeDefined()
             expect(restoredSquaddie2!.name).toEqual("Test Squaddie 2")
@@ -160,18 +166,13 @@ describe("InBattleSquaddieCollection", () => {
                 source: SquaddieConditionSource.PHYSICAL,
             })
 
-            const inBattleSquaddie =
-                InBattleSquaddieCollectionService.getSquaddie({
-                    collection,
-                    id: inBattleId,
-                    outOfBattleSquaddieId: outOfBattleSquaddie.id,
-                })!
-
             const { collection: c2 } =
                 InBattleSquaddieCollectionService.addConditionsToSquaddie({
                     collection,
-                    inBattleSquaddie,
-                    outOfBattleSquaddie,
+                    battleSquaddieId: {
+                        inBattleSquaddieId: inBattleId,
+                        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                    },
                     conditions: [absorb],
                     commitChanges: true,
                 })
@@ -185,8 +186,10 @@ describe("InBattleSquaddieCollection", () => {
             const restoredSquaddie =
                 InBattleSquaddieCollectionService.getSquaddie({
                     collection: restored,
-                    id: inBattleId,
-                    outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                    battleSquaddieId: {
+                        inBattleSquaddieId: inBattleId,
+                        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                    },
                 })!
 
             expect(restoredSquaddie.conditions.size).toEqual(1)
@@ -263,8 +266,10 @@ describe("InBattleSquaddieCollection", () => {
                 const newSquaddie =
                     InBattleSquaddieCollectionService.getSquaddie({
                         collection: updated,
-                        id: 0,
-                        outOfBattleSquaddieId: "squaddie-2",
+                        battleSquaddieId: {
+                            inBattleSquaddieId: 0,
+                            outOfBattleSquaddieId: "squaddie-2",
+                        },
                     })
                 expect(newSquaddie).toBeDefined()
                 expect(newSquaddie!.name).toEqual("New Squaddie")
@@ -284,8 +289,10 @@ describe("InBattleSquaddieCollection", () => {
                 const originalSquaddie =
                     InBattleSquaddieCollectionService.getSquaddie({
                         collection,
-                        id: inBattleId,
-                        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                        battleSquaddieId: {
+                            inBattleSquaddieId: inBattleId,
+                            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                        },
                     })!
                 expect(originalSquaddie.hitPoints.current).toEqual(10)
 
@@ -334,8 +341,10 @@ describe("InBattleSquaddieCollection", () => {
                 const updatedSquaddie =
                     InBattleSquaddieCollectionService.getSquaddie({
                         collection: updated,
-                        id: inBattleId,
-                        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                        battleSquaddieId: {
+                            inBattleSquaddieId: inBattleId,
+                            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                        },
                     })!
 
                 expect(updatedSquaddie.name).toEqual("Updated Name")

@@ -9,10 +9,7 @@ import { MissionAffiliationTurn, MissionTurnService } from "../../missionTurn"
 import { MissionEngine } from "../missionEngine"
 import { MissionManager } from "../../missionManager"
 import { MissionStateService } from "../../missionState"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
@@ -28,6 +25,7 @@ import {
 } from "../../../testUtils/mission/missionEngineTestHarness"
 import { TurnControllerType } from "../../turnController"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 function advanceHarnessToPlayerTurn(missionEngine: MissionEngine): void {
     missionEngine.transitionToNextPhase()

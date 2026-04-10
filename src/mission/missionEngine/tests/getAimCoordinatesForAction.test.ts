@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
 import { MissionEngine } from "../missionEngine"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
@@ -21,6 +18,7 @@ import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { ProficiencyType } from "../../../proficiency/proficiencyLevel"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
     const meleeAttackId = "melee-attack"

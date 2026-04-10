@@ -3,10 +3,7 @@ import { SquaddieActionValidationService } from "../squaddieActionValidationServ
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import { SquaddieActionService } from "../../../squaddieAction"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
@@ -24,6 +21,7 @@ import {
     SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../../proficiency/squaddieCondition"
+import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
 
 describe("categorizeSquaddieActions", () => {
     let squaddieActionManager: SquaddieActionManager

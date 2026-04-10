@@ -21,7 +21,7 @@ import {
 } from "../../squaddieAction/calculate/result/squaddieActionResult"
 import type { MissionObjective } from "../missionObjective"
 import { MissionObjectiveService } from "../missionObjective"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 import type { SquaddieInfo } from "../../squaddie/inBattle/squaddieInfo"
 import {
     MissionAffiliationTurn,

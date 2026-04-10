@@ -5,10 +5,7 @@ import {
     MissionTurnService,
     type TMissionAffiliationTurn,
 } from "./missionTurn"
-import type {
-    BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import { MissionObjectiveRewardType } from "./missionObjectiveReward"
@@ -49,6 +46,7 @@ import {
     type TSquaddieConditionDecaysAt,
     type TSquaddieConditionType,
 } from "../proficiency/squaddieCondition"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 
 export class MissionManager {
     missionState?: MissionState

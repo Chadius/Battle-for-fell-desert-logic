@@ -10,7 +10,7 @@ import {
 import { SquaddieAffiliationService } from "../../affiliation/affiliation"
 import { SquaddieActionValidationService } from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
 import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 import type { AStarGraph } from "../../aStarSearch/aStarGraph"
 
 export class SimpleAggressorStrategy implements AiStrategy {

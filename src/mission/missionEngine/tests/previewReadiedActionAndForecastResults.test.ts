@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { SquaddieActionManager } from "../../../squaddieAction/squaddieActionManager"
 import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
@@ -19,6 +16,7 @@ import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinat
 import { MissionEngine } from "../missionEngine"
 import { MissionStateService } from "../../missionState"
 import { MissionManager } from "../../missionManager"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 describe("previewReadiedActionAndForecastResults", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

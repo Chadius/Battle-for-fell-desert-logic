@@ -1,7 +1,4 @@
-import type {
-    BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieActionManager } from "../../squaddieActionManager"
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
@@ -33,7 +30,10 @@ import type { AStarGraph } from "../../../aStarSearch/aStarGraph"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../result/squaddieActionResult"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
+import type {
+    BattleSquaddieId,
+    InBattleSquaddie,
+} from "../../../squaddie/inBattle/inBattleSquaddie"
 import { AoeTargetResolutionService } from "../aoe/aoeTargetResolutionService"
 import { LineOfSightService } from "../../../coordinateMap/lineOfSightService"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"

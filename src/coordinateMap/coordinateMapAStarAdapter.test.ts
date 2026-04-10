@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { OutOfBattleSquaddieAttributeSheet } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import {
     type OutOfBattleSquaddie,
@@ -32,6 +29,7 @@ import type { OffsetCoordinate } from "./offsetCoordinate"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
 import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
 import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
+import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddie"
 
 describe("coordinateMapAStarAdapter", () => {
     let manager: InBattleSquaddieManager

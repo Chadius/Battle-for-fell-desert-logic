@@ -258,9 +258,7 @@ describe("In Battle Squaddie Manager", () => {
                     inBattleSquaddie:
                         InBattleSquaddieCollectionService.getSquaddie({
                             collection: manager.inBattleSquaddieCollection!,
-                            id: inBattleSquaddie00Id!.inBattleSquaddieId,
-                            outOfBattleSquaddieId:
-                                inBattleSquaddie00Id!.outOfBattleSquaddieId,
+                            battleSquaddieId: inBattleSquaddie00Id!,
                         }),
                     outOfBattleSquaddie: outOfBattleSquaddie0,
                     attributeSheet,

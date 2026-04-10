@@ -14,6 +14,8 @@ import {
 import { AttributeScore } from "../../proficiency/attributeScore"
 import {
     SquaddieConditionDecaysAt,
+    SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
@@ -134,16 +136,15 @@ describe("SquaddieTurnActionRecordService", () => {
                 inBattleSquaddieId: 1,
                 outOfBattleSquaddieId: "squaddie1",
                 conditionsAdded: [
-                    {
+                    SquaddieConditionService.new({
                         type: SquaddieConditionType.HUSTLE,
                         amount: undefined,
-                        limit: {
-                            duration: {
-                                duration: 2,
-                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
-                            },
+                        duration: {
+                            duration: 2,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
-                    },
+                        source: SquaddieConditionSource.PHYSICAL,
+                    }),
                 ],
             }
 
@@ -298,6 +299,7 @@ describe("SquaddieTurnActionRecordService", () => {
                                                     SquaddieConditionDecaysAt.TURN_END,
                                             },
                                         },
+                                        source: SquaddieConditionSource.PHYSICAL,
                                     },
                                 ],
                             },
@@ -656,16 +658,15 @@ describe("SquaddieTurnActionRecordService", () => {
                 },
                 healing: { net: 5, raw: 5 },
                 conditionsAdded: [
-                    {
+                    SquaddieConditionService.new({
                         type: SquaddieConditionType.HUSTLE,
-                        limit: {
-                            duration: {
-                                duration: 2,
-                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
-                            },
+                        duration: {
+                            duration: 2,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
                         },
                         amount: undefined,
-                    },
+                        source: SquaddieConditionSource.PHYSICAL,
+                    }),
                 ],
                 dispel: {
                     dispelledConditions: dispelledMap,

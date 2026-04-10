@@ -1,4 +1,4 @@
-import type { BattleSquaddieId } from "./inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "./inBattle/battleSquaddieId"
 
 const separator = "+++"
 

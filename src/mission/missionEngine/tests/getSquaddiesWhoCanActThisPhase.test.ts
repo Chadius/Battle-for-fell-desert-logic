@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation"
@@ -14,6 +11,7 @@ import { MissionManager } from "../../missionManager"
 import { TurnControllerType } from "../../turnController"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 describe("getSquaddiesWhoCanActThisPhase", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

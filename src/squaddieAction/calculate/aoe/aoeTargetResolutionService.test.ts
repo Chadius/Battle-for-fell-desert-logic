@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { AoeTargetResolutionService } from "./aoeTargetResolutionService"
 import { SquaddieActionService } from "../../squaddieAction"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation"
@@ -18,6 +15,7 @@ import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSqua
 import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { ProficiencyType } from "../../../proficiency/proficiencyLevel"
 import { AttributeScore } from "../../../proficiency/attributeScore"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 describe("AoeTargetResolutionService", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

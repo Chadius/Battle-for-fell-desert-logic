@@ -3,10 +3,7 @@ import { MissionEngine } from "../missionEngine"
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { MissionObjectiveService } from "../../missionObjective"
 import { MissionObjectiveRewardService } from "../../missionObjectiveReward"
@@ -14,7 +11,10 @@ import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria"
 import { MissionStateService } from "../../missionState"
 import { MissionManager } from "../../missionManager"
 import type { SerializedInMissionSummary } from "../../inMissionSummary"
-import { InBattleSquaddieService } from "../../../squaddie/inBattle/inBattleSquaddie"
+import {
+    type BattleSquaddieId,
+    InBattleSquaddieService,
+} from "../../../squaddie/inBattle/inBattleSquaddie"
 import { AttributeScore } from "../../../proficiency/attributeScore"
 
 describe("InMissionSummary", () => {

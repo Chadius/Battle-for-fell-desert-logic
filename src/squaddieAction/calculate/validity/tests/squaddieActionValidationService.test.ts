@@ -2,14 +2,11 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionValidationService } from "../squaddieActionValidationService"
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import {
-    type SquaddieAction,
     MovementEffectType,
+    type SquaddieAction,
     SquaddieActionService,
 } from "../../../squaddieAction"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../../affiliation/affiliation"
 import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess"
@@ -26,6 +23,7 @@ import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
+import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
 
 describe("SquaddieActionValidationService", () => {
     let squaddieActionManager: SquaddieActionManager

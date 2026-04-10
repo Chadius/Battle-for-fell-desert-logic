@@ -10,10 +10,7 @@ import {
     type CoordinatePathMap,
     CoordinatePathMapService,
 } from "./mapTransposition/coordinatePathMap"
-import type {
-    BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { SquaddieConditionType } from "../proficiency/squaddieCondition"
 import {
     type OffsetCoordinate,
@@ -23,6 +20,7 @@ import {
     SquaddieAffiliationService,
     type TSquaddieAffiliation,
 } from "../affiliation/affiliation"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 
 export interface CoordinateMapSearchLimits {
     maximumMoveCost?: number
@@ -338,10 +336,7 @@ export class CoordinateMapAStarAdapter
 
         const elusiveCondition =
             this.inBattleSquaddieManager.calculateConditionAmountForSquaddie({
-                inBattleSquaddieId:
-                    this.searchLimits.squaddieId.inBattleSquaddieId,
-                outOfBattleSquaddieId:
-                    this.searchLimits.squaddieId.outOfBattleSquaddieId,
+                ...this.searchLimits.squaddieId,
                 conditionType: SquaddieConditionType.ELUSIVE,
             })
         if (elusiveCondition > 0) return defaultValue
@@ -354,16 +349,13 @@ export class CoordinateMapAStarAdapter
         )
             return defaultValue
 
-        const squaddieInfo = this.inBattleSquaddieManager?.getSquaddie({
-            ...squaddieIdInfo,
-        })
+        const squaddieInfo =
+            this.inBattleSquaddieManager?.getSquaddie(squaddieIdInfo)
 
         if (!squaddieInfo) return defaultValue
 
         const otherAffiliation =
-            this.inBattleSquaddieManager.getSquaddieAffiliation({
-                ...squaddieIdInfo,
-            })
+            this.inBattleSquaddieManager.getSquaddieAffiliation(squaddieIdInfo)
         const otherSquaddieIsFriendly = SquaddieAffiliationService.areFriends({
             actor: this.searchLimits.squaddieId.affiliation,
             target: otherAffiliation,

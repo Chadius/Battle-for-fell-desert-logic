@@ -4,7 +4,7 @@ import {
     type SquaddieAction,
     SquaddieActionService,
 } from "../../../squaddieAction"
-import { type BattleSquaddieId } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import { type BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../../affiliation/affiliation"
 import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess"

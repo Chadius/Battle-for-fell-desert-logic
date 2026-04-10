@@ -3,10 +3,7 @@ import { SquaddieActionValidationService } from "../squaddieActionValidationServ
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import { SquaddieActionService } from "../../../squaddieAction"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
@@ -19,6 +16,7 @@ import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import { ActionRange } from "../../../actionRange"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
 import { CoordinateMovePathService } from "../../../../coordinateMap/path/path"
+import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
 
 describe("generateValidSquaddieActions", () => {
     let squaddieActionManager: SquaddieActionManager

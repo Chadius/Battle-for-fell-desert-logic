@@ -1,6 +1,6 @@
 import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
-import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService"
 
 export const TurnControllerType = {

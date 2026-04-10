@@ -1,7 +1,7 @@
 import type { SquaddieTurnActionRecord } from "./squaddieTurnActionRecord"
 import { SquaddieTurnActionRecordService } from "./squaddieTurnActionRecord"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 
 export interface SquaddieTurnRecord {
     actingBattleSquaddieId: string

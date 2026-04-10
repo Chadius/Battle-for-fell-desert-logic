@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import { type MissionState, MissionStateService } from "../../missionState"
@@ -24,6 +21,7 @@ import { SquaddieTurnRecordService } from "../../history/squaddieTurnRecord"
 import { MissionTurnHistoryEntryService } from "../../history/missionTurnHistoryEntry"
 import { MissionAffiliationTurn } from "../../missionTurn"
 import { MissionHistoryService } from "../../history/missionHistory"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 describe("undoLastPlayerUndoableAction", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

@@ -5,6 +5,8 @@ import {
 } from "./squaddieActionResult"
 import {
     type SquaddieCondition,
+    SquaddieConditionService,
+    SquaddieConditionSource,
     SquaddieConditionType,
     type TSquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
@@ -78,13 +80,12 @@ describe("SquaddieActionResultService", () => {
                 inBattleSquaddieId: 1,
                 outOfBattleSquaddieId: "squaddie-1",
                 conditionsAdded: [
-                    {
+                    SquaddieConditionService.new({
                         type: SquaddieConditionType.SLOWED,
-                        amount: { current: 3, base: undefined },
-                        limit: {
-                            duration: undefined,
-                        },
-                    },
+                        amount: 3,
+                        duration: undefined,
+                        source: SquaddieConditionSource.PHYSICAL,
+                    }),
                 ],
             }
 
@@ -105,10 +106,12 @@ describe("SquaddieActionResultService", () => {
                 [
                     SquaddieConditionType.SLOWED,
                     [
-                        {
-                            amount: { current: 2, base: undefined },
-                            limit: { duration: undefined },
-                        },
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.SLOWED,
+                            duration: undefined,
+                            amount: 2,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
                     ],
                 ],
             ])
@@ -136,6 +139,8 @@ describe("SquaddieActionResultService", () => {
                 {
                     amount: { current: 2, base: undefined },
                     limit: { duration: undefined },
+                    source: SquaddieConditionSource.PHYSICAL,
+                    type: SquaddieConditionType.SLOWED,
                 },
             ])
         })
@@ -145,10 +150,12 @@ describe("SquaddieActionResultService", () => {
                 [
                     SquaddieConditionType.SLOWED,
                     [
-                        {
-                            amount: { current: 1, base: undefined },
-                            limit: { duration: undefined },
-                        },
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.SLOWED,
+                            amount: 1,
+                            duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
                     ],
                 ],
             ])
@@ -176,6 +183,8 @@ describe("SquaddieActionResultService", () => {
                 {
                     amount: { current: 1, base: undefined },
                     limit: { duration: undefined },
+                    source: SquaddieConditionSource.PHYSICAL,
+                    type: SquaddieConditionType.SLOWED,
                 },
             ])
         })
@@ -199,10 +208,12 @@ describe("SquaddieActionResultService", () => {
                 [
                     SquaddieConditionType.SLOWED,
                     [
-                        {
-                            amount: { current: 2, base: undefined },
-                            limit: { duration: undefined },
-                        },
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.SLOWED,
+                            amount: 2,
+                            duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
                     ],
                 ],
             ])
@@ -227,10 +238,12 @@ describe("SquaddieActionResultService", () => {
                     SquaddieConditionType.SLOWED
                 ]
             ).toEqual([
-                {
-                    amount: { current: 2, base: undefined },
-                    limit: { duration: undefined },
-                },
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 2,
+                    duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
+                }),
             ])
         })
 
@@ -239,10 +252,12 @@ describe("SquaddieActionResultService", () => {
                 [
                     SquaddieConditionType.SLOWED,
                     [
-                        {
-                            amount: { current: 1, base: undefined },
-                            limit: { duration: undefined },
-                        },
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.SLOWED,
+                            amount: 1,
+                            duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
                     ],
                 ],
             ])
@@ -265,10 +280,12 @@ describe("SquaddieActionResultService", () => {
                     SquaddieConditionType.SLOWED
                 ]
             ).toEqual([
-                {
-                    amount: { current: 1, base: undefined },
-                    limit: { duration: undefined },
-                },
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
+                }),
             ])
         })
 
@@ -317,6 +334,7 @@ describe("SquaddieActionResultService", () => {
                             {
                                 amount: { current: 2, base: undefined },
                                 limit: { duration: undefined },
+                                source: SquaddieConditionSource.PHYSICAL,
                             },
                         ],
                     },
@@ -332,12 +350,21 @@ describe("SquaddieActionResultService", () => {
                 result.dispel?.dispelledConditions?.get(
                     SquaddieConditionType.SLOWED
                 )
-            ).toEqual([
+            ).toHaveLength(1)
+
+            let { type, ...conditionExceptType } = SquaddieConditionService.new(
                 {
-                    amount: { current: 2, base: undefined },
-                    limit: { duration: undefined },
-                },
-            ])
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 2,
+                    duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
+                }
+            )
+            expect(
+                result.dispel?.dispelledConditions?.get(
+                    SquaddieConditionType.SLOWED
+                )![0]
+            ).toEqual(conditionExceptType)
         })
 
         it("converts treat object to Map", () => {
@@ -350,6 +377,7 @@ describe("SquaddieActionResultService", () => {
                             {
                                 amount: { current: 1, base: undefined },
                                 limit: { duration: undefined },
+                                source: SquaddieConditionSource.PHYSICAL,
                             },
                         ],
                     },
@@ -365,12 +393,22 @@ describe("SquaddieActionResultService", () => {
                 result.treat?.treatedConditions?.get(
                     SquaddieConditionType.SLOWED
                 )
-            ).toEqual([
+            ).toHaveLength(1)
+
+            let { type, ...conditionExceptType } = SquaddieConditionService.new(
                 {
-                    amount: { current: 1, base: undefined },
-                    limit: { duration: undefined },
-                },
-            ])
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 1,
+                    duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
+                }
+            )
+
+            expect(
+                result.treat?.treatedConditions?.get(
+                    SquaddieConditionType.SLOWED
+                )![0]
+            ).toEqual(conditionExceptType)
         })
 
         it("round trips serialize and deserialize", () => {
@@ -378,10 +416,12 @@ describe("SquaddieActionResultService", () => {
                 [
                     SquaddieConditionType.SLOWED,
                     [
-                        {
-                            amount: { current: 2, base: undefined },
-                            limit: { duration: undefined },
-                        },
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.SLOWED,
+                            amount: 2,
+                            duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
                     ],
                 ],
             ])
@@ -414,12 +454,20 @@ describe("SquaddieActionResultService", () => {
                 roundTripped.dispel?.dispelledConditions?.get(
                     SquaddieConditionType.SLOWED
                 )
-            ).toEqual([
-                {
-                    amount: { current: 2, base: undefined },
-                    limit: { duration: undefined },
-                },
-            ])
+            ).toHaveLength(1)
+
+            expect(
+                roundTripped.dispel?.dispelledConditions?.get(
+                    SquaddieConditionType.SLOWED
+                )![0]
+            ).toEqual(
+                SquaddieConditionService.new({
+                    type: SquaddieConditionType.SLOWED,
+                    amount: 2,
+                    duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
+                })
+            )
         })
     })
 })

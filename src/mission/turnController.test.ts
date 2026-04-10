@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { TurnControllerService, TurnControllerType } from "./turnController"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService"
-import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 
 describe("TurnControllerService", () => {
     const playerSquaddieId: BattleSquaddieId = {

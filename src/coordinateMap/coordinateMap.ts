@@ -1,7 +1,4 @@
-import type {
-    BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo"
 import {
     type CoordinateMovePath,
@@ -18,6 +15,7 @@ import {
 } from "./coordinateMapAStarAdapter"
 import { AStarSearchService } from "../aStarSearch/aStarSearch"
 import type { AStarGraph } from "../aStarSearch/aStarGraph"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 
 export type OffsetMaybeOffmapCoordinate = {
     row: number | undefined

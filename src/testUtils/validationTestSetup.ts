@@ -1,7 +1,4 @@
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import {
@@ -16,6 +13,7 @@ import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActio
 import { OutOfBattleSquaddieTestSetup } from "./outOfBattleSquaddieTestSetup"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
 import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 
 export interface ValidationTestTarget {
     id: string

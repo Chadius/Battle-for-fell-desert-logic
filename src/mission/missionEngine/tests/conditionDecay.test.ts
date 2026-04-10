@@ -9,7 +9,7 @@ import {
     type TSquaddieConditionDecaysAt,
 } from "../../../proficiency/squaddieCondition"
 import type { SerializedSquaddieActionResult } from "../../../squaddieAction/calculate/result/squaddieActionResult"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 function advanceHarnessToPlayerTurn(harness: MissionEngineTestHarness): void {
     harness.transitionToNextPhase()

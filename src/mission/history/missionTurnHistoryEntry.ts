@@ -6,7 +6,7 @@ import {
     SquaddieTurnActionRecordService,
 } from "./squaddieTurnActionRecord"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 
 export interface MissionTurnHistoryEntry {
     turnNumber: number

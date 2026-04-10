@@ -5,10 +5,7 @@ import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess"
 import { SquaddieActionValidationService } from "../squaddieActionValidationService"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieAffiliation } from "../../../../affiliation/affiliation"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import type { OutOfBattleSquaddieManager } from "../../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager"
@@ -18,6 +15,7 @@ import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
+import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
 
 describe("targetRangeValidation", () => {
     let squaddieActionManager: SquaddieActionManager

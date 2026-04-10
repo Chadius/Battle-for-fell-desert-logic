@@ -6,10 +6,7 @@ import {
     type SquaddieAction,
     SquaddieActionService,
 } from "../../../squaddieAction"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
@@ -26,6 +23,7 @@ import {
     SquaddieConditionType,
 } from "../../../../proficiency/squaddieCondition"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
+import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
 
 describe("target effect validation", () => {
     let effectSquaddieActionManager: SquaddieActionManager
@@ -407,11 +405,12 @@ describe("target effect validation", () => {
         effectInBattleSquaddieManager.addConditionsToSquaddie({
             ...ally,
             conditions: [
-                {
+                SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: { current: 2, base: undefined },
-                    limit: { duration: undefined },
-                },
+                    amount: 2,
+                    duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
+                }),
             ],
         })
 
@@ -553,11 +552,12 @@ describe("target effect validation", () => {
         effectInBattleSquaddieManager.addConditionsToSquaddie({
             ...ally,
             conditions: [
-                {
+                SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
-                    amount: { current: 2, base: undefined },
-                    limit: { duration: undefined },
-                },
+                    amount: 2,
+                    duration: undefined,
+                    source: SquaddieConditionSource.PHYSICAL,
+                }),
             ],
         })
 

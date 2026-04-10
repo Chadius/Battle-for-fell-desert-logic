@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { MissionEngine } from "../missionEngine"
 import { MissionManager } from "../../missionManager"
 import { MissionStateService } from "../../missionState"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
 import { DEFAULT_ACTION_POINTS } from "../../../squaddie/inBattle/inBattleSquaddie"
 

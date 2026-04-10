@@ -5,10 +5,7 @@ import { MissionObjectiveService } from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import { AttributeScore } from "../proficiency/attributeScore"
@@ -38,6 +35,7 @@ import {
     type TMissionAffiliationTurn,
 } from "./missionTurn"
 import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 
 describe("MissionManager", () => {
     describe("constructor", () => {

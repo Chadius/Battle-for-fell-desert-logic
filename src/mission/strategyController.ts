@@ -1,5 +1,5 @@
 import type { TSquaddieAffiliation } from "../affiliation/affiliation"
-import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService"
 import type { AiStrategy } from "./aiStrategy"
 

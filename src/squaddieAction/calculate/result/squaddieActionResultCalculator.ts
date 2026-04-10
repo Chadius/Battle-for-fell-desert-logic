@@ -1,10 +1,7 @@
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import type { TDegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import type {
-    BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieActionManager } from "../../squaddieActionManager"
 import {
     type SerializedSquaddieActionResult,
@@ -16,7 +13,10 @@ import {
     HowToDetermineDegreeOfSuccess,
     MovementEffectType,
 } from "../../squaddieAction"
-import type { InBattleSquaddie } from "../../../squaddie/inBattle/inBattleSquaddie"
+import type {
+    BattleSquaddieId,
+    InBattleSquaddie,
+} from "../../../squaddie/inBattle/inBattleSquaddie"
 import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import type { OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { ProficiencyLevelConst } from "../../../proficiency/proficiencyLevel"
@@ -225,9 +225,7 @@ export const SquaddieActionResultCalculator = {
             inBattleSquaddie: actorInBattleSquaddie,
             outOfBattleSquaddie: actorOutOfBattleSquaddie,
             attributeSheet: actorAttributeSheet,
-        } = managers.inBattleSquaddieManager.getSquaddie({
-            ...actor,
-        })
+        } = managers.inBattleSquaddieManager.getSquaddie(actor)
 
         const squaddieAction = managers.squaddieActionManager.get(action.id)
         const actorEffectiveDegree = resolveActorEffectiveDegree(
@@ -270,9 +268,7 @@ export const SquaddieActionResultCalculator = {
                     return []
 
                 const targetSquaddie =
-                    managers.inBattleSquaddieManager.getSquaddie({
-                        ...target,
-                    })
+                    managers.inBattleSquaddieManager.getSquaddie(target)
 
                 const targetKey =
                     SquaddieIdConverterService.squaddieIdToKey(target)
@@ -567,28 +563,29 @@ export const SquaddieActionResultCalculator = {
 
 const calculateActionPointChange = ({
     actionPoints,
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     inBattleSquaddieManager,
 }: {
     actionPoints: SquaddieActionEffect["actionPoints"] | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
     if (actionPoints == undefined) return []
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             actionPoints: inBattleSquaddieManager.previewSpendActionPoints({
-                inBattleSquaddieId: inBattleSquaddie.id,
-                outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                inBattleSquaddieId: target.inBattleSquaddie.id,
+                outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
                 actionPoints:
                     actionPoints.spent == "all"
-                        ? inBattleSquaddie.actionPoints.current
+                        ? target.inBattleSquaddie.actionPoints.current
                         : actionPoints.spent,
             }),
         },
@@ -630,37 +627,37 @@ const calculateEffectOnSquaddie = ({
         ...calculateActionPointChange({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             actionPoints: effect?.actionPoints,
-            ...target,
+            target,
         }),
         ...calculateDamageResults({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             damage: effect?.damage,
-            ...target,
+            target,
         }),
         ...calculateHealingResults({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             healing: effect?.healing,
-            ...target,
+            target,
         }),
         ...calculateActionPointsRestorationResults({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             actionPointsRestore: effect?.actionPoints?.restore,
-            ...target,
+            target,
         }),
         ...calculateConditionAddResults({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             conditions: effect?.conditions?.add,
-            ...target,
+            target,
         }),
         ...calculateConditionDispelResults({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             conditions: effect?.conditions?.dispel,
-            ...target,
+            target,
         }),
         ...calculateConditionTreatResults({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             conditions: effect?.conditions?.treat,
-            ...target,
+            target,
         }),
         ...calculateMovementResults({
             managers,
@@ -669,7 +666,7 @@ const calculateEffectOnSquaddie = ({
             map,
             actionPointsEffect: effect?.actionPoints,
             actorInBattleSquaddie: actor.inBattleSquaddie,
-            ...target,
+            target,
         })
     )
 
@@ -678,14 +675,15 @@ const calculateEffectOnSquaddie = ({
 
 const calculateDamageResults = ({
     damage,
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     inBattleSquaddieManager,
 }: {
     damage: SquaddieActionEffect["damage"] | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
     if (damage == undefined) return []
@@ -696,8 +694,8 @@ const calculateDamageResults = ({
         ) ?? damage.attributeScoreType
 
     const previewedDamage = inBattleSquaddieManager.previewDamageToSquaddie({
-        inBattleSquaddieId: inBattleSquaddie.id,
-        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        inBattleSquaddieId: target.inBattleSquaddie.id,
+        outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
         damage: {
             amount: damage.raw,
             type: damageAttributeScoreType,
@@ -708,8 +706,8 @@ const calculateDamageResults = ({
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             damage: {
                 net: previewedDamage.net,
                 raw: damage.raw,
@@ -723,21 +721,22 @@ const calculateDamageResults = ({
 
 const calculateHealingResults = ({
     healing,
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     inBattleSquaddieManager,
 }: {
     healing: SquaddieActionEffect["healing"] | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
     if (healing == undefined) return []
 
     const previewedHealing = inBattleSquaddieManager.previewHealingToSquaddie({
-        inBattleSquaddieId: inBattleSquaddie.id,
-        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        inBattleSquaddieId: target.inBattleSquaddie.id,
+        outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
         healing,
     })
 
@@ -745,8 +744,8 @@ const calculateHealingResults = ({
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             healing: {
                 net: previewedHealing.net,
                 ...healing,
@@ -757,29 +756,30 @@ const calculateHealingResults = ({
 
 const calculateActionPointsRestorationResults = ({
     actionPointsRestore,
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     inBattleSquaddieManager,
 }: {
     actionPointsRestore: number | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
     if (actionPointsRestore == undefined) return []
 
     const previewedRestoration =
         inBattleSquaddieManager.previewRestoreActionPoints({
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             actionPoints: actionPointsRestore,
         })
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             actionPoints: {
                 spent: 0,
                 restore: {
@@ -793,28 +793,29 @@ const calculateActionPointsRestorationResults = ({
 
 const calculateConditionAddResults = ({
     conditions,
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     inBattleSquaddieManager,
 }: {
     conditions: SquaddieCondition[] | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
     if (conditions == undefined) return []
 
     const info = inBattleSquaddieManager.previewAddConditionsToSquaddie({
-        inBattleSquaddieId: inBattleSquaddie.id,
-        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        inBattleSquaddieId: target.inBattleSquaddie.id,
+        outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
         conditions,
     })
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             conditionsAdded: info.newConditions,
         },
     ]
@@ -822,8 +823,7 @@ const calculateConditionAddResults = ({
 
 const calculateConditionDispelResults = ({
     conditions,
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     inBattleSquaddieManager,
 }: {
     conditions:
@@ -833,17 +833,19 @@ const calculateConditionDispelResults = ({
               amount: number | undefined
           }
         | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
     if (conditions == undefined) return []
 
     const dispelledConditionsResult =
         inBattleSquaddieManager.previewDispelConditions({
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             conditionTypes: {
                 all: conditions.all,
                 types: conditions.types,
@@ -853,8 +855,8 @@ const calculateConditionDispelResults = ({
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             dispel: dispelledConditionsResult,
         },
     ]
@@ -862,8 +864,7 @@ const calculateConditionDispelResults = ({
 
 const calculateConditionTreatResults = ({
     conditions,
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     inBattleSquaddieManager,
 }: {
     conditions:
@@ -873,17 +874,19 @@ const calculateConditionTreatResults = ({
               amount: number | undefined
           }
         | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     inBattleSquaddieManager: InBattleSquaddieManager
 }): SquaddieActionResult[] => {
     if (conditions == undefined) return []
 
     const treatConditionsResult =
         inBattleSquaddieManager.previewTreatConditions({
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             conditionTypes: {
                 all: conditions.all,
                 types: conditions.types,
@@ -893,16 +896,15 @@ const calculateConditionTreatResults = ({
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             treat: treatConditionsResult,
         },
     ]
 }
 
 const calculateMovementResults = ({
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     managers,
     decisions,
     movement,
@@ -920,9 +922,11 @@ const calculateMovementResults = ({
         mapId: string
     }
     decisions: SquaddieActionDecisions | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
-    attributeSheet: OutOfBattleSquaddieAttributeSheet
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     actorInBattleSquaddie: InBattleSquaddie
 }): SquaddieActionResult[] => {
     if (movement == undefined) return []
@@ -939,8 +943,7 @@ const calculateMovementResults = ({
     switch (movement.movementType) {
         case MovementEffectType.ACTOR_CHOSEN:
             return calculateActorChosenMovementResults({
-                inBattleSquaddie,
-                outOfBattleSquaddie,
+                target,
                 managers,
                 decisions,
                 actionPointsEffect,
@@ -948,8 +951,7 @@ const calculateMovementResults = ({
             })
         case MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL:
             return calculateActorChosenMovementResults({
-                inBattleSquaddie,
-                outOfBattleSquaddie,
+                target,
                 managers,
                 decisions,
                 actionPointsEffect,
@@ -958,14 +960,15 @@ const calculateMovementResults = ({
             })
         case MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN:
             return calculateTeleportToActorChosenResults({
-                inBattleSquaddie,
-                outOfBattleSquaddie,
+                target,
                 decisions,
             })
         case MovementEffectType.FORCED_TOWARD_ACTOR:
             return calculateForcedTowardActorResults({
-                inBattleSquaddie,
-                outOfBattleSquaddie,
+                target: {
+                    inBattleSquaddieId: target.inBattleSquaddie.id,
+                    outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
+                },
                 actorInBattleSquaddie,
                 coordinateMap,
                 forcedDistance: movement.forcedDistance ?? 1,
@@ -974,8 +977,7 @@ const calculateMovementResults = ({
 }
 
 const calculateActorChosenMovementResults = ({
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     managers,
     decisions,
     actionPointsEffect,
@@ -988,8 +990,11 @@ const calculateActorChosenMovementResults = ({
     }
     actionPointsEffect: SquaddieActionEffect["actionPoints"] | undefined
     decisions: SquaddieActionDecisions | undefined
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+        attributeSheet: OutOfBattleSquaddieAttributeSheet
+    }
     coordinateMap: CoordinateMap
     traversalOverrides?: Partial<
         Omit<SquaddieMovementInfo, "movementPointsPerAction">
@@ -1000,8 +1005,8 @@ const calculateActorChosenMovementResults = ({
     const routeInfo = CoordinateMapService.calculateRoute({
         map: coordinateMap,
         inBattleSquaddieManager: managers.inBattleSquaddieManager,
-        inBattleSquaddieId: inBattleSquaddie.id,
-        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        inBattleSquaddieId: target.inBattleSquaddie.id,
+        outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
         stopConditions: [
             {
                 desiredDestination: decisions.desiredMovementDestination,
@@ -1014,8 +1019,8 @@ const calculateActorChosenMovementResults = ({
     if (actionPointsEffect?.additional?.movementPathActionPointCost)
         actionPointCost +=
             managers.inBattleSquaddieManager.calculateActionPointsForMovement({
-                inBattleSquaddieId: inBattleSquaddie.id,
-                outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                inBattleSquaddieId: target.inBattleSquaddie.id,
+                outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
                 movementCost: CoordinateMovePathService.getTotalMoveCost(
                     routeInfo.expectedPath
                 ),
@@ -1023,8 +1028,8 @@ const calculateActorChosenMovementResults = ({
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             movement: { expectedPath: routeInfo.expectedPath },
             actionPoints: { spent: actionPointCost },
         },
@@ -1094,12 +1099,13 @@ const computeScatterDestinations = ({
 }
 
 const calculateTeleportToActorChosenResults = ({
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     decisions,
 }: {
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
+    target: {
+        inBattleSquaddie: InBattleSquaddie
+        outOfBattleSquaddie: OutOfBattleSquaddie
+    }
     decisions: SquaddieActionDecisions | undefined
 }): SquaddieActionResult[] => {
     if (decisions?.desiredMovementDestination == undefined) return []
@@ -1118,8 +1124,8 @@ const calculateTeleportToActorChosenResults = ({
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddie.id,
+            outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             movement: { expectedPath: teleportPath },
             actionPoints: { spent: 0 },
         },
@@ -1127,14 +1133,12 @@ const calculateTeleportToActorChosenResults = ({
 }
 
 const calculateForcedTowardActorResults = ({
-    inBattleSquaddie,
-    outOfBattleSquaddie,
+    target,
     actorInBattleSquaddie,
     coordinateMap,
     forcedDistance,
 }: {
-    inBattleSquaddie: InBattleSquaddie
-    outOfBattleSquaddie: OutOfBattleSquaddie
+    target: BattleSquaddieId
     actorInBattleSquaddie: InBattleSquaddie
     coordinateMap: CoordinateMap
     forcedDistance: number
@@ -1142,8 +1146,8 @@ const calculateForcedTowardActorResults = ({
     const targetCoordinate = CoordinateMapService.getSquaddieCoordinate({
         map: coordinateMap,
         squaddieId: {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddieId,
+            outOfBattleSquaddieId: target.outOfBattleSquaddieId,
         },
     })
     const actorCoordinate = CoordinateMapService.getSquaddieCoordinate({
@@ -1168,8 +1172,8 @@ const calculateForcedTowardActorResults = ({
     )
 
     const targetBattleSquaddieId = {
-        inBattleSquaddieId: inBattleSquaddie.id,
-        outOfBattleSquaddieId: outOfBattleSquaddie.id,
+        inBattleSquaddieId: target.inBattleSquaddieId,
+        outOfBattleSquaddieId: target.outOfBattleSquaddieId,
     }
     let lastValidCoordinate = {
         row: targetCoordinate.row,
@@ -1217,8 +1221,8 @@ const calculateForcedTowardActorResults = ({
 
     return [
         {
-            inBattleSquaddieId: inBattleSquaddie.id,
-            outOfBattleSquaddieId: outOfBattleSquaddie.id,
+            inBattleSquaddieId: target.inBattleSquaddieId,
+            outOfBattleSquaddieId: target.outOfBattleSquaddieId,
             movement: {
                 expectedPath: CoordinateMovePathService.new({
                     steps: pathSteps,

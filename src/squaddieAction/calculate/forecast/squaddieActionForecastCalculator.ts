@@ -1,7 +1,4 @@
-import type {
-    BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieActionManager } from "../../squaddieActionManager"
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
@@ -16,6 +13,7 @@ import {
     HowToDetermineDegreeOfSuccess,
     type SquaddieAction,
 } from "../../squaddieAction"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 export const SquaddieActionForecastCalculator = {
     forecastChanceToHit: ({

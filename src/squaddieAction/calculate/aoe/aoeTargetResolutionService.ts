@@ -1,9 +1,6 @@
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
-import type {
-    BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../../squaddie/inBattle/inBattleSquaddieManager"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import type { SquaddieAction } from "../../squaddieAction"
 import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate"
@@ -12,6 +9,7 @@ import {
     CoordinateCalculator,
     CoordinateDirection,
 } from "../../../coordinateMap/coordinateCalculator"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
 
 export const AoeTargetResolutionService = {
     resolveAoeTargets({

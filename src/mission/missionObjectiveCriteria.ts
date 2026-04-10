@@ -1,10 +1,8 @@
 import type { EnumLike } from "../enum"
 import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 
 export const MissionObjectiveCriteriaType = {
     SQUADDIES_DEFEATED: "SQUADDIES_DEFEATED",

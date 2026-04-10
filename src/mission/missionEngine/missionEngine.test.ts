@@ -9,10 +9,7 @@ import { SquaddieAffiliation } from "../../affiliation/affiliation"
 import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
 import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
-import {
-    type BattleSquaddieId,
-    InBattleSquaddieManager,
-} from "../../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
@@ -26,6 +23,7 @@ import { ActionRange } from "../../squaddieAction/actionRange"
 import { CoordinateGeneratorShape } from "../../coordinateMap/shape"
 import { MissionAffiliationTurn, MissionTurnService } from "../missionTurn"
 import { type DebugFlags, DebugFlagsService } from "../debugFlags"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 
 describe("MissionEngine", () => {
     describe("isDone", () => {
