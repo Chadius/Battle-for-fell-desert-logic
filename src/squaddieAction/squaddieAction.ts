@@ -193,6 +193,11 @@ export const SquaddieActionService = {
             name: "End Turn",
             howToDetermineDegreeOfSuccess:
                 HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            affiliationRelationship: {
+                self: true,
+                foe: false,
+                friend: false,
+            },
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: {
@@ -209,6 +214,11 @@ export const SquaddieActionService = {
             name: "Move",
             howToDetermineDegreeOfSuccess:
                 HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            affiliationRelationship: {
+                self: true,
+                foe: false,
+                friend: false,
+            },
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: {

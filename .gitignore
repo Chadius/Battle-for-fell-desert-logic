@@ -8,3 +8,4 @@ dist/
 /public/
 *.js.map
 /memory/
+/tsconfig.tsbuildinfo

@@ -6,9 +6,11 @@ import { ActionRangeService, type TActionRange } from "../../actionRange"
 import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
 import {
     type ActionPointCost,
+    MovementEffectType,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction"
+import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 import {
     CoordinateMapAStarAdapter,
     type CoordinateMapSearchLimits,
@@ -124,6 +126,18 @@ export const SquaddieActionValidationService = {
         })
         if (!movementValidation.isValid) {
             return movementValidation
+        }
+
+        const occupiedValidation = validateMovementDestinationNotOccupied({
+            actor,
+            squaddieAction,
+            decisions: action.decisions,
+            coordinateMapCollectionManager:
+                managers.coordinateMapCollectionManager,
+            mapId: map.mapId,
+        })
+        if (!occupiedValidation.isValid) {
+            return occupiedValidation
         }
 
         const isAoe = (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
@@ -891,6 +905,48 @@ const validateActionPointCost = ({
             isValid: false,
             reason: `Needs ${actionPointCost} action points`,
         }
+    }
+
+    return { isValid: true }
+}
+
+const validateMovementDestinationNotOccupied = ({
+    actor,
+    squaddieAction,
+    decisions,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    decisions: SquaddieActionDecisions | undefined
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): ActionValidationResult => {
+    const actorMovement =
+        squaddieAction.effectOnActor.SUCCESS?.movement?.movementType
+    const isActorMovementAction =
+        actorMovement === MovementEffectType.ACTOR_CHOSEN
+    if (!isActorMovementAction) {
+        return { isValid: true }
+    }
+
+    const destination = decisions?.desiredMovementDestination
+    if (destination == undefined) {
+        return { isValid: true }
+    }
+
+    const map = coordinateMapCollectionManager.getMapById(mapId)
+    const occupant = CoordinateMapService.getSquaddieAtCoordinate({
+        map,
+        coordinate: destination,
+    })
+    const occupantIsADifferentSquaddie =
+        occupant != undefined &&
+        (occupant.outOfBattleSquaddieId !== actor.outOfBattleSquaddieId ||
+            occupant.inBattleSquaddieId !== actor.inBattleSquaddieId)
+    if (occupantIsADifferentSquaddie) {
+        return { isValid: false, reason: "Destination is occupied" }
     }
 
     return { isValid: true }
