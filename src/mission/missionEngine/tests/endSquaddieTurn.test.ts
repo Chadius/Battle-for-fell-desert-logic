@@ -377,7 +377,7 @@ describe("endSquaddieTurn", () => {
                             slitherDemonId.outOfBattleSquaddieId,
                     },
                 ],
-                action: { id: "any-action" },
+                action: { id: "default-end-turn" },
             })
 
             expect(result.isValid).toBe(true)

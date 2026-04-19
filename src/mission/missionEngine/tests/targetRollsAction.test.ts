@@ -24,6 +24,18 @@ function useSolarSphereAndGetResult(rollQueue: number[]): {
     const demonId = harness.getSlitherDemonSquaddieId()
     const demonKey = SquaddieIdConverterService.squaddieIdToKey(demonId)
 
+    const coordinateMapManager =
+        harness.missionManager!.coordinateMapCollectionManager!
+    coordinateMapManager.removeSquaddie({
+        mapId: MissionEngineTestHarnessIds.mapId,
+        squaddieId: demonId,
+    })
+    coordinateMapManager.addSquaddie({
+        mapId: MissionEngineTestHarnessIds.mapId,
+        squaddieId: demonId,
+        coordinate: { row: 0, col: 2 },
+    })
+
     harness.readyAction({
         actor: liniId,
         targets: [demonId],

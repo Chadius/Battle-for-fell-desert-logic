@@ -579,6 +579,65 @@ export class MissionManager {
             }))
     }
 
+    getMovementOptionsForAction(
+        actor: BattleSquaddieId,
+        actionId: string
+    ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
+        this.throwIfStateIsUndefined(this.getMovementOptionsForAction.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getMovementOptionsForAction.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getMovementOptionsForAction.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getMovementOptionsForAction.name
+        )
+
+        const squaddieAction = this.squaddieActionManager!.get(actionId)
+        const currentActionPoints =
+            this.inBattleSquaddieManager!.getActionPoints(actor)
+
+        const actionPointCost =
+            squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
+        if (
+            actionPointCost != undefined &&
+            actionPointCost !== "all" &&
+            actionPointCost > currentActionPoints.current
+        ) {
+            return []
+        }
+        if (actionPointCost === "all" && currentActionPoints.current <= 0) {
+            return []
+        }
+
+        const options =
+            SquaddieActionValidationService.generateMovementOptionsForAction({
+                actor,
+                squaddieAction,
+                managers: {
+                    inBattleSquaddieManager: this.inBattleSquaddieManager!,
+                    squaddieActionManager: this.squaddieActionManager!,
+                    coordinateMapCollectionManager:
+                        this.coordinateMapCollectionManager!,
+                },
+                map: { mapId: this.missionState!.mapId },
+                currentActionPoints,
+            })
+
+        return options
+            .filter(
+                (option) =>
+                    option.decisions.desiredMovementDestination != undefined
+            )
+            .map((option) => ({
+                destination: option.decisions.desiredMovementDestination!,
+                actionPointCost:
+                    currentActionPoints.current -
+                    option.actionPointsRemaining.current,
+            }))
+    }
+
     serializeCoordinateMap(mapId: string): SerializedCoordinateMap {
         this.throwIfCoordinateMapCollectionManagerIsUndefined(
             this.serializeCoordinateMap.name

@@ -55,6 +55,31 @@ interface SquaddieActionTargeting {
 
 export type ActionPointCost = number | "all"
 
+type ActorChosenMovement = {
+    movementType: typeof MovementEffectType.ACTOR_CHOSEN
+}
+
+type ActorChosenSpecialTraversalMovement = {
+    movementType: typeof MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL
+    traversal: Partial<Omit<SquaddieMovementInfo, "movementPointsPerAction">>
+}
+
+export type TeleportToActorChosenMovement = {
+    movementType: typeof MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN
+    destinationRange?: TActionRange
+}
+
+type ForcedTowardActorMovement = {
+    movementType: typeof MovementEffectType.FORCED_TOWARD_ACTOR
+    forcedDistance: number
+}
+
+export type SquaddieActionMovementEffect =
+    | ActorChosenMovement
+    | ActorChosenSpecialTraversalMovement
+    | TeleportToActorChosenMovement
+    | ForcedTowardActorMovement
+
 export interface SquaddieActionEffect {
     actionPoints?: {
         spent: ActionPointCost
@@ -85,13 +110,7 @@ export interface SquaddieActionEffect {
             amount: number | undefined
         }
     }
-    movement?: {
-        movementType: TMovementEffectType
-        traversal?: Partial<
-            Omit<SquaddieMovementInfo, "movementPointsPerAction">
-        >
-        forcedDistance?: number
-    }
+    movement?: SquaddieActionMovementEffect
 }
 
 type DegreeOfSuccessEffects = {

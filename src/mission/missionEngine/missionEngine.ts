@@ -114,6 +114,15 @@ export class MissionEngine {
             return validityCheck
         }
 
+        const actionValidation = this.validateReadiedAction({
+            actor,
+            targets,
+            action,
+        })
+        if (!actionValidation.isValid) {
+            return actionValidation
+        }
+
         this.readiedAction = ReadiedActionService.new({
             actor,
             targets,
@@ -753,6 +762,25 @@ export class MissionEngine {
         return this.missionManager!.getMovementOptionsWithCosts(actor)
     }
 
+    getMovementOptionsForAction(
+        actor: BattleSquaddieId,
+        actionId: string
+    ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
+        this.throwIfMissionManagerIsUndefined(
+            this.getMovementOptionsForAction.name
+        )
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getMovementOptionsForAction.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getMovementOptionsForAction.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getMovementOptionsForAction.name
+        )
+        return this.missionManager!.getMovementOptionsForAction(actor, actionId)
+    }
+
     getMapDimensions(): { width: number; height: number } {
         this.throwIfMissionManagerIsUndefined(this.getMapDimensions.name)
         this.throwIfCoordinateMapCollectionManagerIsUndefined(
@@ -919,6 +947,37 @@ export class MissionEngine {
                 `[MissionEngine.${callingFunction}]: coordinateMapCollectionManager is undefined`
             )
         }
+    }
+
+    private validateReadiedAction({ actor, targets, action }: ReadiedAction): {
+        isValid: boolean
+        message?: string
+    } {
+        if (
+            !this.missionManager?.inBattleSquaddieManager ||
+            !this.missionManager?.squaddieActionManager ||
+            !this.missionManager?.coordinateMapCollectionManager ||
+            !this.missionManager?.missionState?.mapId
+        ) {
+            return { isValid: true }
+        }
+
+        const result = SquaddieActionValidationService.isActionValid({
+            actor,
+            targets,
+            action,
+            managers: {
+                inBattleSquaddieManager:
+                    this.missionManager.inBattleSquaddieManager,
+                squaddieActionManager:
+                    this.missionManager.squaddieActionManager,
+                coordinateMapCollectionManager:
+                    this.missionManager.coordinateMapCollectionManager,
+            },
+            map: { mapId: this.missionManager.missionState.mapId },
+        })
+
+        return { isValid: result.isValid, message: result.reason }
     }
 
     canReadyActionBecauseOfAffiliationTurn({ actor }: ReadiedAction): {

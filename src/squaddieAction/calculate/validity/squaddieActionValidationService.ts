@@ -11,6 +11,7 @@ import {
     SquaddieActionService,
 } from "../../squaddieAction"
 import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
+import type { SquaddieMovementInfo } from "../../../squaddie/squaddieMovementInfo"
 import {
     CoordinateMapAStarAdapter,
     type CoordinateMapSearchLimits,
@@ -279,6 +280,31 @@ export const SquaddieActionValidationService = {
 
         return options
     },
+    // Returns all valid destination options for an action with special movement traversal overrides.
+    generateMovementOptionsForAction: ({
+        actor,
+        squaddieAction,
+        managers,
+        map,
+        currentActionPoints,
+    }: {
+        actor: BattleSquaddieId
+        squaddieAction: SquaddieAction
+        managers: {
+            inBattleSquaddieManager: InBattleSquaddieManager
+            squaddieActionManager: SquaddieActionManager
+            coordinateMapCollectionManager: CoordinateMapCollectionManager
+        }
+        map: { mapId: string }
+        currentActionPoints: InBattleSquaddie["actionPoints"]
+    }): ValidSquaddieActionOption[] =>
+        generateMovementOptionsForSpecialTraversal({
+            actor,
+            squaddieAction,
+            managers,
+            map,
+            currentActionPoints,
+        }),
     categorizeSquaddieActions: ({
         actor,
         managers,
@@ -926,7 +952,8 @@ const validateMovementDestinationNotOccupied = ({
     const actorMovement =
         squaddieAction.effectOnActor.SUCCESS?.movement?.movementType
     const isActorMovementAction =
-        actorMovement === MovementEffectType.ACTOR_CHOSEN
+        actorMovement === MovementEffectType.ACTOR_CHOSEN ||
+        actorMovement === MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL
     if (!isActorMovementAction) {
         return { isValid: true }
     }
@@ -970,7 +997,12 @@ const validateMovementPathByDistance = ({
     const hasMovementPathCost =
         squaddieAction.effectOnActor.SUCCESS?.actionPoints?.additional
             ?.movementPathActionPointCost
-    if (!hasMovementPathCost) {
+    const actorMovementEffect = squaddieAction.effectOnActor.SUCCESS?.movement
+    const isSpecialTraversal =
+        actorMovementEffect?.movementType ===
+        MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL
+
+    if (!hasMovementPathCost && !isSpecialTraversal) {
         return { isValid: true }
     }
 
@@ -996,11 +1028,32 @@ const validateMovementPathByDistance = ({
     }
 
     const destination = decisions.desiredMovementDestination
+    const specialTraversalOverrides = isSpecialTraversal
+        ? actorMovementEffect.traversal
+        : undefined
+
+    if (specialTraversalOverrides) {
+        const actionPointCost =
+            squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
+        return validateMovementPathWithPathfinding({
+            coordinateMapCollectionManager,
+            mapId,
+            inBattleSquaddieManager,
+            actor,
+            destination,
+            actorPosition,
+            traversalOverrides: specialTraversalOverrides,
+            actionPointCostOverride:
+                typeof actionPointCost === "number"
+                    ? actionPointCost
+                    : undefined,
+        })
+    }
+
     const hexDistance = CoordinateCalculator.getDistanceBetween(
         actorPosition,
         destination
     )
-
     const maximumMovementCost = inBattleSquaddieManager.getSquaddieMovementInfo(
         {
             inBattleSquaddieId: actor.inBattleSquaddieId,
@@ -1011,12 +1064,12 @@ const validateMovementPathByDistance = ({
         return { isValid: false, reason: "Destination is too far away" }
     }
     return validateMovementPathWithPathfinding({
-        coordinateMapCollectionManager: coordinateMapCollectionManager,
-        mapId: mapId,
-        inBattleSquaddieManager: inBattleSquaddieManager,
-        actor: actor,
-        destination: destination,
-        actorPosition: actorPosition,
+        coordinateMapCollectionManager,
+        mapId,
+        inBattleSquaddieManager,
+        actor,
+        destination,
+        actorPosition,
     })
 }
 
@@ -1027,6 +1080,8 @@ const validateMovementPathWithPathfinding = ({
     actor,
     destination,
     actorPosition,
+    traversalOverrides,
+    actionPointCostOverride,
 }: {
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     mapId: string
@@ -1034,13 +1089,24 @@ const validateMovementPathWithPathfinding = ({
     actor: BattleSquaddieId
     destination: OffsetCoordinate
     actorPosition: OffsetCoordinate
+    traversalOverrides?: Partial<
+        Omit<SquaddieMovementInfo, "movementPointsPerAction">
+    >
+    actionPointCostOverride?: number
 }): ActionValidationResult => {
     const map = coordinateMapCollectionManager.getMapById(mapId)
-    const searchLimits =
+    let searchLimits =
         CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie({
             manager: inBattleSquaddieManager,
             battleSquaddieId: actor,
         })
+    searchLimits = applyMovementOverrides({
+        traversalOverrides,
+        searchLimits,
+        actionPointCostOverride,
+        inBattleSquaddieManager,
+        actor,
+    })
 
     const adapter: CoordinateMapAStarAdapter = new CoordinateMapAStarAdapter({
         map,
@@ -1065,7 +1131,72 @@ const validateMovementPathWithPathfinding = ({
         return { isValid: false, reason: "Destination is blocked" }
     }
 
+    if (
+        traversalOverrides?.squaddieMovementSpecialTraversalInfo
+            ?.minimumRange != undefined &&
+        CoordinateMovePathService.getTotalMoveCost(path) <
+            traversalOverrides?.squaddieMovementSpecialTraversalInfo
+                ?.minimumRange
+    ) {
+        return { isValid: false, reason: "Destination is too close" }
+    }
+
     return { isValid: true, movementPath: path }
+}
+
+// Merges traversal overrides into search limits and converts action-point-based
+// cost overrides into movement-cost units.
+const applyMovementOverrides = ({
+    traversalOverrides,
+    searchLimits,
+    actionPointCostOverride,
+    inBattleSquaddieManager,
+    actor,
+}: {
+    traversalOverrides?: Partial<
+        Omit<SquaddieMovementInfo, "movementPointsPerAction">
+    >
+    searchLimits: CoordinateMapSearchLimits
+    actionPointCostOverride?: number
+    inBattleSquaddieManager: InBattleSquaddieManager
+    actor: BattleSquaddieId
+}): CoordinateMapSearchLimits => {
+    if (traversalOverrides != undefined) {
+        searchLimits = { ...searchLimits, ...traversalOverrides }
+    }
+
+    const needsMovementPointsPerAction =
+        actionPointCostOverride != undefined ||
+        traversalOverrides?.squaddieMovementSpecialTraversalInfo
+            ?.actionPointsOfMovement != undefined
+    if (needsMovementPointsPerAction) {
+        const { movementPointsPerAction } =
+            inBattleSquaddieManager.getSquaddieMovementInfo({
+                inBattleSquaddieId: actor.inBattleSquaddieId,
+                outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+            })
+        if (actionPointCostOverride != undefined) {
+            searchLimits.maximumMoveCost =
+                actionPointCostOverride * movementPointsPerAction
+        }
+        if (
+            traversalOverrides?.squaddieMovementSpecialTraversalInfo
+                ?.actionPointsOfMovement != undefined
+        ) {
+            searchLimits.maximumMoveCost =
+                traversalOverrides?.squaddieMovementSpecialTraversalInfo
+                    ?.actionPointsOfMovement * movementPointsPerAction
+        }
+    }
+
+    if (
+        traversalOverrides?.squaddieMovementSpecialTraversalInfo
+            ?.maximumRange != undefined
+    ) {
+        searchLimits.maximumMoveCost =
+            traversalOverrides?.squaddieMovementSpecialTraversalInfo?.maximumRange
+    }
+    return searchLimits
 }
 
 const squaddieActionResultHasEffect = (
@@ -1485,6 +1616,70 @@ const generateEndTurnOption = (): ValidSquaddieActionOption => {
     }
 }
 
+// Runs A* from actorPosition with the given search limits and collects every
+// reachable (non-starting) coordinate as a ValidSquaddieActionOption.
+const runAStarAndCollectMovementOptions = ({
+    actorPosition,
+    searchLimits,
+    action,
+    coordinateMap,
+    inBattleSquaddieManager,
+    getActionPointsRemaining,
+}: {
+    actorPosition: OffsetCoordinate
+    searchLimits: CoordinateMapSearchLimits
+    action: SquaddieAction
+    coordinateMap: ReturnType<CoordinateMapCollectionManager["getMapById"]>
+    inBattleSquaddieManager: InBattleSquaddieManager
+    getActionPointsRemaining: (path: CoordinateMovePath) => number
+}): ValidSquaddieActionOption[] => {
+    const options: ValidSquaddieActionOption[] = []
+
+    const adapter = new CoordinateMapAStarAdapter({
+        map: coordinateMap,
+        searchLimits,
+        inBattleSquaddieManager,
+    })
+
+    AStarSearchService.search<
+        OffsetCoordinate,
+        CoordinateMovePath,
+        AStarGraph<OffsetCoordinate, CoordinateMovePath>
+    >({
+        start: actorPosition,
+        graph: adapter,
+        stopCondition: () => false,
+    })
+
+    for (const [_key, visited] of adapter.coordinatePathMap
+        .visitedCoordinates) {
+        if (visited.cachedMovePath == undefined) continue
+
+        if (
+            visited.row === actorPosition.row &&
+            visited.col === actorPosition.col
+        ) {
+            continue
+        }
+
+        options.push({
+            action,
+            decisions: {
+                desiredMovementDestination: {
+                    row: visited.row,
+                    col: visited.col,
+                },
+            },
+            movementPath: visited.cachedMovePath,
+            actionPointsRemaining: {
+                current: getActionPointsRemaining(visited.cachedMovePath),
+            },
+        })
+    }
+
+    return options
+}
+
 const generateMovementOptions = ({
     actor,
     managers,
@@ -1502,8 +1697,6 @@ const generateMovementOptions = ({
     currentActionPoints: InBattleSquaddie["actionPoints"]
     positionOverride?: OffsetCoordinate
 }): ValidSquaddieActionOption[] => {
-    const options: ValidSquaddieActionOption[] = []
-
     let actorPosition: OffsetCoordinate
 
     if (positionOverride == undefined) {
@@ -1517,7 +1710,7 @@ const generateMovementOptions = ({
             actorCoordinate?.row == undefined ||
             actorCoordinate?.col == undefined
         ) {
-            return options
+            return []
         }
 
         actorPosition = {
@@ -1541,65 +1734,106 @@ const generateMovementOptions = ({
         })
     searchLimits.maximumMoveCost = movementInfo.maximumMovementCost
 
-    const coordinateMap = managers.coordinateMapCollectionManager.getMapById(
-        map.mapId
-    )
-    const adapter = new CoordinateMapAStarAdapter({
-        map: coordinateMap,
+    return runAStarAndCollectMovementOptions({
+        actorPosition,
         searchLimits,
+        action: SquaddieActionService.defaultMove(),
+        coordinateMap: managers.coordinateMapCollectionManager.getMapById(
+            map.mapId
+        ),
         inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        getActionPointsRemaining: (path) => {
+            const pathCost = CoordinateMovePathService.getTotalMoveCost(path)
+            const actionPointsSpent =
+                managers.inBattleSquaddieManager.calculateActionPointsForMovement(
+                    {
+                        inBattleSquaddieId: actor.inBattleSquaddieId,
+                        outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+                        movementCost: pathCost,
+                    }
+                )
+            return currentActionPoints.current - actionPointsSpent
+        },
     })
+}
 
-    const neverStop = () => false
-
-    AStarSearchService.search<
-        OffsetCoordinate,
-        CoordinateMovePath,
-        AStarGraph<OffsetCoordinate, CoordinateMovePath>
-    >({
-        start: actorPosition,
-        graph: adapter,
-        stopCondition: neverStop,
-    })
-
-    for (const [_key, visited] of adapter.coordinatePathMap
-        .visitedCoordinates) {
-        if (visited.cachedMovePath == undefined) continue
-
-        if (
-            visited.row === actorPosition.row &&
-            visited.col === actorPosition.col
-        ) {
-            continue
-        }
-
-        const pathCost = CoordinateMovePathService.getTotalMoveCost(
-            visited.cachedMovePath
-        )
-
-        const actionPointsSpent =
-            managers.inBattleSquaddieManager.calculateActionPointsForMovement({
-                inBattleSquaddieId: actor.inBattleSquaddieId,
-                outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
-                movementCost: pathCost,
-            })
-        const actionPointsRemaining =
-            currentActionPoints.current - actionPointsSpent
-
-        options.push({
-            action: SquaddieActionService.defaultMove(),
-            decisions: {
-                desiredMovementDestination: {
-                    row: visited.row,
-                    col: visited.col,
-                },
-            },
-            movementPath: visited.cachedMovePath,
-            actionPointsRemaining: { current: actionPointsRemaining },
+// Generates reachable movement options for an action with ACTOR_CHOSEN_SPECIAL_TRAVERSAL,
+// applying traversal overrides and the action's fixed AP cost to the A* search.
+const generateMovementOptionsForSpecialTraversal = ({
+    actor,
+    squaddieAction,
+    managers,
+    map,
+    currentActionPoints,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+    map: { mapId: string }
+    currentActionPoints: InBattleSquaddie["actionPoints"]
+}): ValidSquaddieActionOption[] => {
+    const actorCoordinate =
+        managers.coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId: map.mapId,
+            squaddieId: actor,
         })
+
+    if (
+        actorCoordinate?.row == undefined ||
+        actorCoordinate?.col == undefined
+    ) {
+        return []
     }
 
-    return options
+    const actorPosition: OffsetCoordinate = {
+        row: actorCoordinate.row,
+        col: actorCoordinate.col,
+    }
+
+    const successEffect = squaddieAction.effectOnActor.SUCCESS
+    const traversalOverrides =
+        successEffect?.movement?.movementType ===
+        MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL
+            ? successEffect.movement.traversal
+            : undefined
+    const rawActionPointCost = successEffect?.actionPoints?.spent
+    const actionPointCostFlat =
+        rawActionPointCost === "all"
+            ? currentActionPoints.current
+            : (rawActionPointCost ?? 0)
+
+    let searchLimits =
+        CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie({
+            manager: managers.inBattleSquaddieManager,
+            battleSquaddieId: actor,
+        })
+    searchLimits = applyMovementOverrides({
+        traversalOverrides,
+        searchLimits,
+        actionPointCostOverride:
+            traversalOverrides?.squaddieMovementSpecialTraversalInfo
+                ?.actionPointsOfMovement == undefined
+                ? actionPointCostFlat
+                : undefined,
+        inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        actor,
+    })
+
+    return runAStarAndCollectMovementOptions({
+        actorPosition,
+        searchLimits,
+        action: squaddieAction,
+        coordinateMap: managers.coordinateMapCollectionManager.getMapById(
+            map.mapId
+        ),
+        inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        getActionPointsRemaining: () =>
+            currentActionPoints.current - actionPointCostFlat,
+    })
 }
 
 const generateAbilityActionOptions = ({

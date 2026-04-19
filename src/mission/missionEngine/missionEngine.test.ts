@@ -1219,6 +1219,9 @@ describe("MissionEngine", () => {
                 squaddieActionManager.addOrUpdate(
                     SquaddieActionService.defaultMove()
                 )
+                squaddieActionManager.addOrUpdate(
+                    SquaddieActionService.defaultEndTurn()
+                )
 
                 const missionState = MissionStateService.new({
                     id: "debug-flag-mission",
@@ -1299,7 +1302,7 @@ describe("MissionEngine", () => {
                 const result = engineWithFlag.readyAction({
                     actor: playerIdWithFlag,
                     targets: [playerIdWithFlag],
-                    action: { id: "any-action" },
+                    action: { id: "default-end-turn" },
                 })
 
                 expect(result.isValid).toBe(true)
