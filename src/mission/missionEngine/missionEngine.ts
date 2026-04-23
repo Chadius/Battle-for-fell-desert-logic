@@ -762,23 +762,42 @@ export class MissionEngine {
         return this.missionManager!.getMovementOptionsWithCosts(actor)
     }
 
-    getMovementOptionsForAction(
+    getTargetDestinationsForAction(
         actor: BattleSquaddieId,
         actionId: string
     ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
         this.throwIfMissionManagerIsUndefined(
-            this.getMovementOptionsForAction.name
+            this.getTargetDestinationsForAction.name
         )
         this.throwIfInBattleSquaddieManagerIsUndefined(
-            this.getMovementOptionsForAction.name
+            this.getTargetDestinationsForAction.name
         )
         this.throwIfSquaddieActionManagerIsUndefined(
-            this.getMovementOptionsForAction.name
+            this.getTargetDestinationsForAction.name
         )
         this.throwIfCoordinateMapCollectionManagerIsUndefined(
-            this.getMovementOptionsForAction.name
+            this.getTargetDestinationsForAction.name
         )
-        return this.missionManager!.getMovementOptionsForAction(actor, actionId)
+        return this.missionManager!.getTargetDestinationsForAction(
+            actor,
+            actionId
+        )
+    }
+
+    getRequiredDecisionsForAction(actionId: string): {
+        requiresSpecificTarget: boolean
+        requiresAimCoordinate: boolean
+        requiresTargetDestination: boolean
+    } {
+        this.throwIfMissionManagerIsUndefined(
+            this.getRequiredDecisionsForAction.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getRequiredDecisionsForAction.name
+        )
+        const squaddieAction =
+            this.missionManager!.squaddieActionManager!.get(actionId)
+        return SquaddieActionService.getRequiredDecisions(squaddieAction)
     }
 
     getMapDimensions(): { width: number; height: number } {

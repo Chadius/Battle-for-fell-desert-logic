@@ -3,9 +3,12 @@ import { SquaddieActionValidationService } from "../squaddieActionValidationServ
 import { SquaddieActionManager } from "../../../squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
 import {
+    HowToDetermineDegreeOfSuccess,
+    MovementEffectType,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../../squaddieAction"
+import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape"
 import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
@@ -839,5 +842,178 @@ describe("target effect validation", () => {
         })
 
         expect(result.isValid).toBe(true)
+    })
+})
+
+describe("TELEPORT_TO_ACTOR_CHOSEN validation passes decisions through", () => {
+    let teleportSquaddieActionManager: SquaddieActionManager
+    let teleportInBattleSquaddieManager: InBattleSquaddieManager
+    let teleportCoordinateMapCollectionManager: CoordinateMapCollectionManager
+    let teleportActor: BattleSquaddieId
+    let teleportTarget: BattleSquaddieId
+    let rescueAction: SquaddieAction
+    const teleportMapId = "teleport-effect-test-map"
+
+    beforeEach(() => {
+        const { manager: outOfBattleManager } =
+            OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
+                sheetId: "teleport-sheet",
+            })
+
+        const actorSquaddie = OutOfBattleSquaddieService.new({
+            id: "teleport-actor",
+            name: "Teleport Actor",
+            actionIds: ["rescue"],
+            attributeSheetId: "teleport-sheet",
+            affiliation: SquaddieAffiliation.PLAYER,
+        })
+        outOfBattleManager.addOrUpdateSquaddie(actorSquaddie)
+
+        const friendSquaddie = OutOfBattleSquaddieService.new({
+            id: "teleport-friend",
+            name: "Teleport Friend",
+            actionIds: [],
+            attributeSheetId: "teleport-sheet",
+            affiliation: SquaddieAffiliation.ALLY,
+        })
+        outOfBattleManager.addOrUpdateSquaddie(friendSquaddie)
+
+        teleportInBattleSquaddieManager = new InBattleSquaddieManager(
+            InBattleSquaddieCollectionService.new(),
+            outOfBattleManager
+        )
+        const { inBattleSquaddieId: actorInBattleId } =
+            teleportInBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "teleport-actor",
+            })
+        teleportActor = {
+            inBattleSquaddieId: actorInBattleId,
+            outOfBattleSquaddieId: "teleport-actor",
+        }
+
+        const { inBattleSquaddieId: friendInBattleId } =
+            teleportInBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "teleport-friend",
+            })
+        teleportTarget = {
+            inBattleSquaddieId: friendInBattleId,
+            outOfBattleSquaddieId: "teleport-friend",
+        }
+
+        teleportCoordinateMapCollectionManager =
+            new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+        teleportCoordinateMapCollectionManager.addOrUpdate({
+            map: CoordinateMapService.new({
+                id: teleportMapId,
+                name: "Teleport Effect Test Map",
+                movementProperties: ["1 1 1"],
+            }),
+        })
+        teleportCoordinateMapCollectionManager.addSquaddie({
+            mapId: teleportMapId,
+            squaddieId: teleportActor,
+            coordinate: { row: 0, col: 0 },
+        })
+        teleportCoordinateMapCollectionManager.addSquaddie({
+            mapId: teleportMapId,
+            squaddieId: teleportTarget,
+            coordinate: { row: 0, col: 2 },
+        })
+
+        rescueAction = SquaddieActionService.new({
+            id: "rescue",
+            name: "Rescue",
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            range: ActionRange.MEDIUM,
+            shape: CoordinateGeneratorShape.BLOOM,
+            affiliationRelationship: {
+                self: false,
+                foe: false,
+                friend: true,
+            },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 2 },
+                },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    movement: {
+                        movementType:
+                            MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                        destinationRange: ActionRange.MELEE,
+                    },
+                },
+            },
+        })
+
+        teleportSquaddieActionManager = new SquaddieActionManager(
+            SquaddieActionCollectionService.new()
+        )
+        teleportSquaddieActionManager.addOrUpdate(rescueAction)
+    })
+
+    it("passes validation when a destination decision is supplied", () => {
+        const result = SquaddieActionValidationService.isActionValid({
+            actor: teleportActor,
+            action: {
+                id: rescueAction.id,
+                decisions: {
+                    targetDestination: { row: 0, col: 1 },
+                },
+            },
+            targets: [teleportTarget],
+            managers: {
+                inBattleSquaddieManager: teleportInBattleSquaddieManager,
+                squaddieActionManager: teleportSquaddieActionManager,
+                coordinateMapCollectionManager:
+                    teleportCoordinateMapCollectionManager,
+            },
+            map: { mapId: teleportMapId },
+        })
+
+        expect(result.isValid).toBe(true)
+    })
+
+    it("fails validation when no destination decision is provided", () => {
+        const result = SquaddieActionValidationService.isActionValid({
+            actor: teleportActor,
+            action: { id: rescueAction.id },
+            targets: [teleportTarget],
+            managers: {
+                inBattleSquaddieManager: teleportInBattleSquaddieManager,
+                squaddieActionManager: teleportSquaddieActionManager,
+                coordinateMapCollectionManager:
+                    teleportCoordinateMapCollectionManager,
+            },
+            map: { mapId: teleportMapId },
+        })
+
+        expect(result.isValid).toBe(false)
+        expect(result.reason).toBe("This action requires a destination.")
+    })
+
+    it("categorizeSquaddieActions lists teleport action as valid when a friend is in range", () => {
+        const validity =
+            SquaddieActionValidationService.categorizeSquaddieActions({
+                actor: teleportActor,
+                managers: {
+                    inBattleSquaddieManager: teleportInBattleSquaddieManager,
+                    squaddieActionManager: teleportSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        teleportCoordinateMapCollectionManager,
+                },
+                map: { mapId: teleportMapId },
+            })
+
+        expect(
+            validity.validActions.some((a) => a.actionId === rescueAction.id)
+        ).toBe(true)
+        expect(
+            validity.invalidActions.some((a) => a.actionId === rescueAction.id)
+        ).toBe(false)
     })
 })

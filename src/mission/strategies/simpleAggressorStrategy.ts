@@ -256,7 +256,7 @@ const findMoveTowardHostile = ({
         targets: [actorIds],
         action: {
             id: "default-move",
-            decisions: { desiredMovementDestination: pathEndCoordinate },
+            decisions: { targetDestination: pathEndCoordinate },
         },
     }
 }

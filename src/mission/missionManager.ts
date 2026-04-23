@@ -567,31 +567,28 @@ export class MissionManager {
             })
 
         return options
-            .filter(
-                (option) =>
-                    option.decisions.desiredMovementDestination != undefined
-            )
+            .filter((option) => option.decisions.targetDestination != undefined)
             .map((option) => ({
-                destination: option.decisions.desiredMovementDestination!,
+                destination: option.decisions.targetDestination!,
                 actionPointCost:
                     currentActionPoints.current -
                     option.actionPointsRemaining.current,
             }))
     }
 
-    getMovementOptionsForAction(
+    getTargetDestinationsForAction(
         actor: BattleSquaddieId,
         actionId: string
     ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
-        this.throwIfStateIsUndefined(this.getMovementOptionsForAction.name)
+        this.throwIfStateIsUndefined(this.getTargetDestinationsForAction.name)
         this.throwIfInBattleSquaddieManagerIsUndefined(
-            this.getMovementOptionsForAction.name
+            this.getTargetDestinationsForAction.name
         )
         this.throwIfSquaddieActionManagerIsUndefined(
-            this.getMovementOptionsForAction.name
+            this.getTargetDestinationsForAction.name
         )
         this.throwIfCoordinateMapCollectionManagerIsUndefined(
-            this.getMovementOptionsForAction.name
+            this.getTargetDestinationsForAction.name
         )
 
         const squaddieAction = this.squaddieActionManager!.get(actionId)
@@ -626,12 +623,9 @@ export class MissionManager {
             })
 
         return options
-            .filter(
-                (option) =>
-                    option.decisions.desiredMovementDestination != undefined
-            )
+            .filter((option) => option.decisions.targetDestination != undefined)
             .map((option) => ({
-                destination: option.decisions.desiredMovementDestination!,
+                destination: option.decisions.targetDestination!,
                 actionPointCost:
                     currentActionPoints.current -
                     option.actionPointsRemaining.current,

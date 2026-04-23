@@ -363,7 +363,7 @@ describe("Squaddie resolves actions on themself", () => {
                     action: {
                         id: moveAction.id,
                         decisions: {
-                            desiredMovementDestination: { row: 0, col: 4 },
+                            targetDestination: { row: 0, col: 4 },
                         },
                     },
                 })
@@ -397,7 +397,7 @@ describe("Squaddie resolves actions on themself", () => {
                     action: {
                         id: moveAction.id,
                         decisions: {
-                            desiredMovementDestination: {
+                            targetDestination: {
                                 row: 0,
                                 col: 2,
                             },

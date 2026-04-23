@@ -171,7 +171,7 @@ describe("generateValidSquaddieTurns", () => {
             (seq) =>
                 seq.length === 2 &&
                 seq[0].action.id === "default-move" &&
-                seq[0].decisions.desiredMovementDestination?.col === 1 &&
+                seq[0].decisions.targetDestination?.col === 1 &&
                 seq[1].action.id === "default-end-turn"
         )
 
@@ -181,7 +181,7 @@ describe("generateValidSquaddieTurns", () => {
             (seq) =>
                 seq.length === 2 &&
                 seq[0].action.id === "default-move" &&
-                seq[0].decisions.desiredMovementDestination?.col === 2 &&
+                seq[0].decisions.targetDestination?.col === 2 &&
                 seq[1].action.id === "default-end-turn"
         )
 
@@ -204,7 +204,7 @@ describe("generateValidSquaddieTurns", () => {
             (seq) =>
                 seq.length === 1 &&
                 seq[0].action.id === "default-move" &&
-                seq[0].decisions.desiredMovementDestination?.col === 3 &&
+                seq[0].decisions.targetDestination?.col === 3 &&
                 seq[0].actionPointsRemaining.current === 0
         )
 
@@ -227,7 +227,7 @@ describe("generateValidSquaddieTurns", () => {
             (seq) =>
                 seq.length === 2 &&
                 seq[0].action.id === "default-move" &&
-                seq[0].decisions.desiredMovementDestination?.col === 2 &&
+                seq[0].decisions.targetDestination?.col === 2 &&
                 seq[1].action.id === rangedAttackId &&
                 seq[1].decisions.targetCoordinate?.col === 4
         )
@@ -252,7 +252,7 @@ describe("generateValidSquaddieTurns", () => {
 
             for (const action of sequence) {
                 if (action.action.id === "default-move") {
-                    const dest = action.decisions.desiredMovementDestination
+                    const dest = action.decisions.targetDestination
                     expect(dest).toBeDefined()
                     expect(
                         dest!.row !== currentPosition.row ||

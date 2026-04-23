@@ -45,6 +45,12 @@ export const MovementTestMissionIds = {
         axeStrikeActionId: "fracta-axe-strike",
         leapActionId: "fracta-leap",
     },
+    vale: {
+        outOfBattleSquaddieId: "vale-movement-test",
+        attributeSheetId: "vale-movement-test-attribute-sheet",
+        rescueActionId: "vale-mt-rescue",
+        gravityPullActionId: "vale-mt-gravity-pull",
+    },
     slitherDemon: {
         outOfBattleSquaddieId: "slither-demon-v3",
         attributeSheetId: "slither-demon-v3-attribute-sheet",
@@ -59,6 +65,7 @@ export const MovementTestMissionIds = {
 export function createMovementTestMission(): {
     missionManager: MissionManager
     fractaSquaddieId: BattleSquaddieId
+    valeSquaddieId: BattleSquaddieId
     demonSquaddieIds: BattleSquaddieId[]
 } {
     const coordinateMapCollectionManager =
@@ -66,8 +73,12 @@ export function createMovementTestMission(): {
     const squaddieActionManager = createSquaddieActionManager()
     const outOfBattleSquaddieManager = createOutOfBattleSquaddieManager()
 
-    const { inBattleSquaddieManager, fractaSquaddieId, demonSquaddieIds } =
-        createInBattleSquaddieManager(outOfBattleSquaddieManager)
+    const {
+        inBattleSquaddieManager,
+        fractaSquaddieId,
+        valeSquaddieId,
+        demonSquaddieIds,
+    } = createInBattleSquaddieManager(outOfBattleSquaddieManager)
 
     const missionState = MissionStateService.new({
         id: MovementTestMissionIds.missionStateId,
@@ -85,12 +96,14 @@ export function createMovementTestMission(): {
     addSquaddiesToMap({
         coordinateMapCollectionManager,
         fractaSquaddieId,
+        valeSquaddieId,
         demonSquaddieIds,
     })
 
     return {
         missionManager,
         fractaSquaddieId,
+        valeSquaddieId,
         demonSquaddieIds,
     }
 }
@@ -153,6 +166,8 @@ function createSquaddieActionManager(): SquaddieActionManager {
 
     manager.addOrUpdate(createAxeStrikeAction())
     manager.addOrUpdate(createLeapAction())
+    manager.addOrUpdate(createRescueAction())
+    manager.addOrUpdate(createGravityPullAction())
     manager.addOrUpdate(createDemonBiteAction())
     manager.addOrUpdate(SquaddieActionService.defaultMove())
     manager.addOrUpdate(SquaddieActionService.defaultEndTurn())
@@ -224,6 +239,74 @@ function createLeapAction(): SquaddieAction {
                             actionPointsOfMovement: 1,
                         },
                     },
+                },
+            },
+        },
+    })
+}
+
+// Vale teleports a friend within MEDIUM range to a destination within MELEE range of herself.
+function createRescueAction(): SquaddieAction {
+    return SquaddieActionService.new({
+        id: MovementTestMissionIds.vale.rescueActionId,
+        name: "Rescue",
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+        range: ActionRange.MEDIUM,
+        shape: CoordinateGeneratorShape.BLOOM,
+        affiliationRelationship: {
+            self: false,
+            foe: false,
+            friend: true,
+        },
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 2 },
+            },
+        },
+        effectOnTarget: {
+            [DegreeOfSuccess.SUCCESS]: {
+                movement: {
+                    movementType: MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                    destinationRange: ActionRange.MELEE,
+                },
+            },
+        },
+    })
+}
+
+// Vale pulls all foes within 5 tiles toward her.
+// Enemies make a DEFEND_MIND saving throw (derived from SKILL_MIND proficiency).
+// On FAILURE the enemy is pulled 2 tiles closer; on SUCCESS they resist.
+function createGravityPullAction(): SquaddieAction {
+    return SquaddieActionService.new({
+        id: MovementTestMissionIds.vale.gravityPullActionId,
+        name: "Gravity Pull",
+        attribute: AttributeScore.MIND,
+        proficiency: ProficiencyType.SKILL_MIND,
+        range: ActionRange.SELF,
+        shape: CoordinateGeneratorShape.BLOOM,
+        areaOfEffectSize: 5,
+        affiliationRelationship: {
+            self: false,
+            foe: true,
+            friend: false,
+        },
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 2 },
+            },
+        },
+        effectOnTarget: {
+            // Enemy succeeded their saving throw — no effect
+            [DegreeOfSuccess.SUCCESS]: {},
+            // Enemy failed their saving throw — pulled 2 tiles toward Vale
+            [DegreeOfSuccess.FAILURE]: {
+                movement: {
+                    movementType: MovementEffectType.FORCED_TOWARD_ACTOR,
+                    forcedDistance: 2,
                 },
             },
         },
@@ -304,6 +387,37 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
     })
     manager.addOrUpdateSquaddie(fractaSquaddie)
 
+    // Vale: high Mind (+2), average Body (0), average Soul (0). Rescue and Gravity Pull caster.
+    const valeAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
+        id: MovementTestMissionIds.vale.attributeSheetId,
+        maxHitPoints: 4,
+        movement: {
+            movementPointsPerAction: 2,
+        },
+        attributeScores: {
+            [AttributeScore.BODY]: 0,
+            [AttributeScore.MIND]: 2,
+            [AttributeScore.SOUL]: 0,
+        },
+        proficiencyLevels: {
+            [ProficiencyType.SKILL_MIND]: ProficiencyLevel.EXPERT,
+        },
+        rank: 1,
+    })
+    manager.addOrUpdateAttributeSheet(valeAttributeSheet)
+
+    const valeSquaddie = OutOfBattleSquaddieService.new({
+        id: MovementTestMissionIds.vale.outOfBattleSquaddieId,
+        name: "Vale",
+        attributeSheetId: MovementTestMissionIds.vale.attributeSheetId,
+        actionIds: [
+            MovementTestMissionIds.vale.rescueActionId,
+            MovementTestMissionIds.vale.gravityPullActionId,
+        ],
+        affiliation: SquaddieAffiliation.PLAYER,
+    })
+    manager.addOrUpdateSquaddie(valeSquaddie)
+
     // Slither Demon v3: average Body, low Mind and Soul.
     const demonAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
         id: MovementTestMissionIds.slitherDemon.attributeSheetId,
@@ -335,6 +449,7 @@ function createInBattleSquaddieManager(
 ): {
     inBattleSquaddieManager: InBattleSquaddieManager
     fractaSquaddieId: BattleSquaddieId
+    valeSquaddieId: BattleSquaddieId
     demonSquaddieIds: BattleSquaddieId[]
 } {
     const manager = new InBattleSquaddieManager(
@@ -345,6 +460,11 @@ function createInBattleSquaddieManager(
     const fractaSquaddieId = manager.createNewSquaddie({
         outOfBattleSquaddieId:
             MovementTestMissionIds.fracta.outOfBattleSquaddieId,
+    })
+
+    const valeSquaddieId = manager.createNewSquaddie({
+        outOfBattleSquaddieId:
+            MovementTestMissionIds.vale.outOfBattleSquaddieId,
     })
 
     // Two demons flanking Fracta across the pit cluster.
@@ -360,6 +480,7 @@ function createInBattleSquaddieManager(
     return {
         inBattleSquaddieManager: manager,
         fractaSquaddieId,
+        valeSquaddieId,
         demonSquaddieIds,
     }
 }
@@ -367,10 +488,12 @@ function createInBattleSquaddieManager(
 function addSquaddiesToMap({
     coordinateMapCollectionManager,
     fractaSquaddieId,
+    valeSquaddieId,
     demonSquaddieIds,
 }: {
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     fractaSquaddieId: BattleSquaddieId
+    valeSquaddieId: BattleSquaddieId
     demonSquaddieIds: BattleSquaddieId[]
 }): void {
     // Fracta starts on the left side of the pit cluster.
@@ -378,6 +501,13 @@ function addSquaddiesToMap({
         mapId: MovementTestMissionIds.mapId,
         squaddieId: fractaSquaddieId,
         coordinate: { row: 2, col: 2 },
+    })
+
+    // Vale starts in the lower-left, within Rescue range of Fracta.
+    coordinateMapCollectionManager.addSquaddie({
+        mapId: MovementTestMissionIds.mapId,
+        squaddieId: valeSquaddieId,
+        coordinate: { row: 5, col: 1 },
     })
 
     // Demons start on the right side of the pit cluster, across from Fracta.

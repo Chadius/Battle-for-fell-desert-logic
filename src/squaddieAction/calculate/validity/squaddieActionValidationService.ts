@@ -2,7 +2,11 @@ import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattl
 import type { SquaddieActionManager } from "../../squaddieActionManager"
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
-import { ActionRangeService, type TActionRange } from "../../actionRange"
+import {
+    ActionRange,
+    ActionRangeService,
+    type TActionRange,
+} from "../../actionRange"
 import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
 import {
     type ActionPointCost,
@@ -104,6 +108,18 @@ export const SquaddieActionValidationService = {
         }
     }): ActionValidationResult => {
         const squaddieAction = managers.squaddieActionManager.get(action.id)
+
+        if (
+            SquaddieActionService.getRequiredDecisions(squaddieAction)
+                .requiresTargetDestination &&
+            action.decisions?.targetDestination == undefined
+        ) {
+            return {
+                isValid: false,
+                reason: "This action requires a destination.",
+            }
+        }
+
         const actionPointCost =
             squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
 
@@ -141,6 +157,18 @@ export const SquaddieActionValidationService = {
             return occupiedValidation
         }
 
+        const teleportDestinationValidation = validateActionDestination({
+            actor,
+            squaddieAction,
+            decisions: action.decisions,
+            coordinateMapCollectionManager:
+                managers.coordinateMapCollectionManager,
+            mapId: map.mapId,
+        })
+        if (!teleportDestinationValidation.isValid) {
+            return teleportDestinationValidation
+        }
+
         const isAoe = (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
         if (isAoe) {
             const aoeValidation = validateAoeAction({
@@ -174,6 +202,7 @@ export const SquaddieActionValidationService = {
             actor,
             targets,
             squaddieAction,
+            decisions: action.decisions,
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             squaddieActionManager: managers.squaddieActionManager,
             coordinateMapCollectionManager:
@@ -280,7 +309,6 @@ export const SquaddieActionValidationService = {
 
         return options
     },
-    // Returns all valid destination options for an action with special movement traversal overrides.
     generateMovementOptionsForAction: ({
         actor,
         squaddieAction,
@@ -297,14 +325,31 @@ export const SquaddieActionValidationService = {
         }
         map: { mapId: string }
         currentActionPoints: InBattleSquaddie["actionPoints"]
-    }): ValidSquaddieActionOption[] =>
-        generateMovementOptionsForSpecialTraversal({
+    }): ValidSquaddieActionOption[] => {
+        const hasTeleportTargetEffect = Object.values(
+            squaddieAction.effectOnTarget ?? {}
+        ).some(
+            (effect) =>
+                effect?.movement?.movementType ===
+                MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN
+        )
+        if (hasTeleportTargetEffect) {
+            return generateMovementOptionsForTeleportDestination({
+                actor,
+                squaddieAction,
+                managers,
+                map,
+                currentActionPoints,
+            })
+        }
+        return generateMovementOptionsForSpecialTraversal({
             actor,
             squaddieAction,
             managers,
             map,
             currentActionPoints,
-        }),
+        })
+    },
     categorizeSquaddieActions: ({
         actor,
         managers,
@@ -330,7 +375,6 @@ export const SquaddieActionValidationService = {
             if (!managers.squaddieActionManager.has(actionId)) continue
             const squaddieAction = managers.squaddieActionManager.get(actionId)
 
-            // AP check — cheap early exit before running A*
             const apReason = getActionPointInvalidReason({
                 actionPointCost:
                     squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent,
@@ -531,8 +575,8 @@ const generateTurnsRecursively = ({
         }
 
         let newPosition = currentPosition
-        if (actionOption.decisions.desiredMovementDestination != undefined) {
-            newPosition = actionOption.decisions.desiredMovementDestination
+        if (actionOption.decisions.targetDestination != undefined) {
+            newPosition = actionOption.decisions.targetDestination
         }
 
         generateTurnsRecursively({
@@ -958,7 +1002,7 @@ const validateMovementDestinationNotOccupied = ({
         return { isValid: true }
     }
 
-    const destination = decisions?.desiredMovementDestination
+    const destination = decisions?.targetDestination
     if (destination == undefined) {
         return { isValid: true }
     }
@@ -1006,7 +1050,7 @@ const validateMovementPathByDistance = ({
         return { isValid: true }
     }
 
-    if (decisions?.desiredMovementDestination == undefined) {
+    if (decisions?.targetDestination == undefined) {
         return { isValid: true }
     }
 
@@ -1027,7 +1071,7 @@ const validateMovementPathByDistance = ({
         col: actorCoordinate.col,
     }
 
-    const destination = decisions.desiredMovementDestination
+    const destination = decisions.targetDestination
     const specialTraversalOverrides = isSpecialTraversal
         ? actorMovementEffect.traversal
         : undefined
@@ -1231,6 +1275,7 @@ const validateTargetsCanBeAffected = ({
     actor,
     targets,
     squaddieAction,
+    decisions,
     inBattleSquaddieManager,
     squaddieActionManager,
     coordinateMapCollectionManager,
@@ -1239,6 +1284,7 @@ const validateTargetsCanBeAffected = ({
     actor: BattleSquaddieId
     targets: BattleSquaddieId[]
     squaddieAction: SquaddieAction
+    decisions?: SquaddieActionDecisions
     inBattleSquaddieManager: InBattleSquaddieManager
     squaddieActionManager: SquaddieActionManager
     coordinateMapCollectionManager: CoordinateMapCollectionManager
@@ -1255,7 +1301,7 @@ const validateTargetsCanBeAffected = ({
     const results = SquaddieActionResultCalculator.calculateResult({
         actor,
         targets,
-        action: { id: squaddieAction.id },
+        action: { id: squaddieAction.id, decisions },
         managers: {
             inBattleSquaddieManager,
             squaddieActionManager,
@@ -1665,7 +1711,7 @@ const runAStarAndCollectMovementOptions = ({
         options.push({
             action,
             decisions: {
-                desiredMovementDestination: {
+                targetDestination: {
                     row: visited.row,
                     col: visited.col,
                 },
@@ -1757,8 +1803,131 @@ const generateMovementOptions = ({
     })
 }
 
-// Generates reachable movement options for an action with ACTOR_CHOSEN_SPECIAL_TRAVERSAL,
-// applying traversal overrides and the action's fixed AP cost to the A* search.
+const generateMovementOptionsForTeleportDestination = ({
+    actor,
+    squaddieAction,
+    managers,
+    map,
+    currentActionPoints,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    managers: {
+        inBattleSquaddieManager: InBattleSquaddieManager
+        squaddieActionManager: SquaddieActionManager
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+    }
+    map: { mapId: string }
+    currentActionPoints: InBattleSquaddie["actionPoints"]
+}): ValidSquaddieActionOption[] => {
+    const teleportEffect = Object.values(
+        squaddieAction.effectOnTarget ?? {}
+    ).find(
+        (effect) =>
+            effect?.movement?.movementType ===
+            MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN
+    )
+    if (teleportEffect == undefined) return []
+
+    const destinationRange = (
+        teleportEffect.movement as {
+            movementType: typeof MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN
+            destinationRange?: TActionRange
+        }
+    ).destinationRange
+    if (destinationRange == undefined || destinationRange === ActionRange.SELF)
+        return []
+
+    const actorCoordinate =
+        managers.coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId: map.mapId,
+            squaddieId: actor,
+        })
+    if (actorCoordinate?.row == undefined || actorCoordinate?.col == undefined)
+        return []
+
+    const actorPosition: OffsetCoordinate = {
+        row: actorCoordinate.row,
+        col: actorCoordinate.col,
+    }
+
+    const { maximum } = ActionRangeService.minAndMaxByRange[destinationRange]
+    const rawActionPointCost =
+        squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
+    const actionPointCostFlat =
+        rawActionPointCost === "all"
+            ? currentActionPoints.current
+            : (rawActionPointCost ?? 0)
+
+    const options: ValidSquaddieActionOption[] = []
+
+    for (let ring = 0; ring <= maximum; ring++) {
+        const candidates = CoordinateCalculator.getCoordinatesInRing(
+            actorPosition,
+            ring
+        )
+        for (const candidate of candidates) {
+            let placementIsPossible =
+                teleportDestinationPlacementIsPossibleForThisTarget({
+                    candidateCoordinate: candidate,
+                    actorCoordinate: actorPosition,
+                    coordinateMapCollectionManager:
+                        managers.coordinateMapCollectionManager,
+                    mapId: map.mapId,
+                })
+            if (placementIsPossible) {
+                options.push({
+                    action: squaddieAction,
+                    decisions: { targetDestination: candidate },
+                    actionPointsRemaining: {
+                        current:
+                            currentActionPoints.current - actionPointCostFlat,
+                    },
+                })
+            }
+        }
+    }
+
+    return options
+}
+
+const teleportDestinationPlacementIsPossibleForThisTarget = ({
+    candidateCoordinate,
+    actorCoordinate,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    candidateCoordinate: OffsetCoordinate
+    actorCoordinate: OffsetCoordinate
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): boolean => {
+    const coordinateMap = coordinateMapCollectionManager.getMapById(mapId)
+
+    if (
+        !CoordinateMapService.isCoordinateOnMap({
+            coordinate: candidateCoordinate,
+            map: coordinateMap,
+        })
+    )
+        return false
+    if (
+        !CoordinateMapService.canSquaddieStopAtCoordinate({
+            map: coordinateMap,
+            coordinate: candidateCoordinate,
+        })
+    )
+        return false
+    return LineOfSightService.hasLineOfSight({
+        from: actorCoordinate,
+        to: candidateCoordinate,
+        mapId,
+        coordinateMapCollectionManager,
+        skipOverPits: true,
+        moveThroughWalls: false,
+    })
+}
+
 const generateMovementOptionsForSpecialTraversal = ({
     actor,
     squaddieAction,
@@ -1956,6 +2125,13 @@ const checkIfActionHasEffectOnTargets = ({
         return true
     }
 
+    if (
+        SquaddieActionService.getRequiredDecisions(squaddieAction)
+            .requiresTargetDestination
+    ) {
+        return targets.length > 0
+    }
+
     const results = SquaddieActionResultCalculator.calculateResult({
         actor,
         targets,
@@ -2004,11 +2180,8 @@ const checkForValidMovementAction = (
 
     if (movementOptions.length > 0) {
         const movementTargetCoordinates: OffsetCoordinate[] = movementOptions
-            .filter(
-                (option) =>
-                    option.decisions.desiredMovementDestination != undefined
-            )
-            .map((option) => option.decisions.desiredMovementDestination!)
+            .filter((option) => option.decisions.targetDestination != undefined)
+            .map((option) => option.decisions.targetDestination!)
         validActions.push({
             actionId: "default-move",
             actionName: "Move",
@@ -2083,6 +2256,84 @@ export const calculateAimCoordinateResults = ({
         })
     }
     return results
+}
+
+const validateActionDestination = ({
+    actor,
+    squaddieAction,
+    decisions,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    decisions: SquaddieActionDecisions | undefined
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): ActionValidationResult => {
+    const teleportEffect = Object.values(
+        squaddieAction.effectOnTarget ?? {}
+    ).find(
+        (effect) =>
+            effect?.movement?.movementType ===
+            MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN
+    )
+    if (teleportEffect == undefined) return { isValid: true }
+
+    const movement = teleportEffect.movement as {
+        movementType: typeof MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN
+        destinationRange?: TActionRange
+    }
+    const { destinationRange } = movement
+    if (destinationRange == undefined || destinationRange === ActionRange.SELF)
+        return { isValid: true }
+
+    const destination = decisions?.targetDestination
+    if (destination == undefined) return { isValid: true }
+
+    const map = coordinateMapCollectionManager.getMapById(mapId)
+    const actorCoordinateMaybeOffmap =
+        CoordinateMapService.getSquaddieCoordinate({
+            map,
+            squaddieId: actor,
+        })
+    const actorCoordinate =
+        CoordinateMapService.convertOffsetMaybeOffmapCoordinate(
+            actorCoordinateMaybeOffmap
+        )
+    if (actorCoordinate == undefined) return { isValid: true }
+
+    const distance = CoordinateCalculator.getDistanceBetween(
+        actorCoordinate,
+        destination
+    )
+    const { maximum } = ActionRangeService.minAndMaxByRange[destinationRange]
+    if (distance > maximum) {
+        return { isValid: false, reason: "Destination is out of range" }
+    }
+
+    const isPassable = CoordinateMapService.canSquaddieStopAtCoordinate({
+        map,
+        coordinate: destination,
+        squaddieId: actor,
+    })
+    if (!isPassable) {
+        return { isValid: false, reason: "Destination is blocked" }
+    }
+
+    const hasLos = LineOfSightService.hasLineOfSight({
+        from: actorCoordinate,
+        to: destination,
+        mapId,
+        coordinateMapCollectionManager,
+        skipOverPits: true,
+        moveThroughWalls: false,
+    })
+    if (!hasLos) {
+        return { isValid: false, reason: "Destination is not visible" }
+    }
+
+    return { isValid: true }
 }
 
 const calculateAimCoordinateResultsWithAreaOfEffect = ({

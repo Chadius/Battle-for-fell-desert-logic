@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { MissionEngine } from "../missionEngine"
+import {
+    createMovementTestMission,
+    MovementTestMissionIds,
+} from "../../../testUtils/mission/movementTestMission"
 import { MissionManager } from "../../missionManager"
 import { MissionStateService } from "../../missionState"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
@@ -169,7 +173,7 @@ describe("MissionEngine.readyAction movement destination validation", () => {
             targets: [],
             action: {
                 id: leapActionId,
-                decisions: { desiredMovementDestination: { row: 0, col: 2 } },
+                decisions: { targetDestination: { row: 0, col: 2 } },
             },
         })
 
@@ -183,7 +187,7 @@ describe("MissionEngine.readyAction movement destination validation", () => {
             action: {
                 id: leapActionId,
                 decisions: {
-                    desiredMovementDestination: { row: 1000, col: 1000 },
+                    targetDestination: { row: 1000, col: 1000 },
                 },
             },
         })
@@ -198,11 +202,32 @@ describe("MissionEngine.readyAction movement destination validation", () => {
             action: {
                 id: leapActionId,
                 decisions: {
-                    desiredMovementDestination: enemyCoordinate,
+                    targetDestination: enemyCoordinate,
                 },
             },
         })
 
         expect(result.isValid).toBe(false)
+    })
+})
+
+describe("MissionEngine.readyAction — TELEPORT_TO_ACTOR_CHOSEN validation", () => {
+    it("rejects a TELEPORT_TO_ACTOR_CHOSEN action when no destination decision is provided", () => {
+        const { missionManager, fractaSquaddieId, valeSquaddieId } =
+            createMovementTestMission()
+        const engine = new MissionEngine(missionManager)
+        engine.transitionToNextPhase()
+        engine.transitionToNextPhase()
+
+        const result = engine.readyAction({
+            actor: valeSquaddieId,
+            targets: [fractaSquaddieId],
+            action: {
+                id: MovementTestMissionIds.vale.rescueActionId,
+            },
+        })
+
+        expect(result.isValid).toBe(false)
+        expect(result.message).toBe("This action requires a destination.")
     })
 })

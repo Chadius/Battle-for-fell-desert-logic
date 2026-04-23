@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { MovementEffectType, SquaddieActionService } from "../../squaddieAction"
+import { ActionRange, type TActionRange } from "../../actionRange"
 import { SquaddieActionManager } from "../../squaddieActionManager"
 import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
@@ -159,7 +160,7 @@ describe("Special movement effects", () => {
                 action: {
                     id: normalMoveAction.id,
                     decisions: {
-                        desiredMovementDestination: { row: 0, col: 2 },
+                        targetDestination: { row: 0, col: 2 },
                     },
                 },
             })
@@ -201,7 +202,7 @@ describe("Special movement effects", () => {
                 action: {
                     id: leapAction.id,
                     decisions: {
-                        desiredMovementDestination: { row: 0, col: 2 },
+                        targetDestination: { row: 0, col: 2 },
                     },
                 },
             })
@@ -300,7 +301,7 @@ describe("Special movement effects", () => {
                 action: {
                     id: rescueAction.id,
                     decisions: {
-                        desiredMovementDestination: { row: 0, col: 4 },
+                        targetDestination: { row: 0, col: 4 },
                     },
                 },
             })
@@ -490,7 +491,7 @@ describe("Special movement effects", () => {
                     map: { mapId: "map" },
                     action: {
                         id: rescueAction.id,
-                        decisions: { desiredMovementDestination: destination },
+                        decisions: { targetDestination: destination },
                     },
                 })
             }
@@ -516,6 +517,82 @@ describe("Special movement effects", () => {
                 const results = calculateMultiTargetRescue({
                     destination: { row: 0, col: 4 },
                 })
+
+                const secondTargetMovement = results.find(
+                    (r) =>
+                        r.outOfBattleSquaddieId ===
+                            secondTargetOutOfBattleSquaddieId &&
+                        r.movement != undefined
+                )
+                expect(secondTargetMovement).toBeDefined()
+                expect(
+                    secondTargetMovement!.movement!.expectedPath.steps.at(-1)
+                ).toEqual(expect.objectContaining({ row: 0, col: 3 }))
+            })
+
+            it("targets are sorted by distance to actor so the closest gets the preferred cell", () => {
+                const rescueAction = SquaddieActionService.new({
+                    id: "proximityRescue",
+                    name: "Proximity Rescue",
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            movement: {
+                                movementType:
+                                    MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                            },
+                        },
+                    },
+                })
+                multiTargetActionManager.addOrUpdate(rescueAction)
+
+                const results = SquaddieActionResultCalculator.calculateResult({
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    managers: {
+                        inBattleSquaddieManager:
+                            multiTargetInBattleSquaddieManager,
+                        squaddieActionManager: multiTargetActionManager,
+                        coordinateMapCollectionManager: multiTargetMapManager,
+                    },
+                    actor: {
+                        inBattleSquaddieId: multiActorInBattleSquaddieId,
+                        outOfBattleSquaddieId: multiActorOutOfBattleSquaddieId,
+                    },
+                    targets: [
+                        {
+                            inBattleSquaddieId: secondTargetInBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                secondTargetOutOfBattleSquaddieId,
+                        },
+                        {
+                            inBattleSquaddieId: firstTargetInBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                firstTargetOutOfBattleSquaddieId,
+                        },
+                    ],
+                    map: { mapId: "map" },
+                    action: {
+                        id: rescueAction.id,
+                        decisions: {
+                            targetDestination: { row: 0, col: 4 },
+                        },
+                    },
+                })
+
+                const firstTargetMovement = results.find(
+                    (r) =>
+                        r.outOfBattleSquaddieId ===
+                            firstTargetOutOfBattleSquaddieId &&
+                        r.movement != undefined
+                )
+                expect(firstTargetMovement).toBeDefined()
+                expect(
+                    firstTargetMovement!.movement!.expectedPath.steps.at(-1)
+                ).toEqual(expect.objectContaining({ row: 0, col: 4 }))
 
                 const secondTargetMovement = results.find(
                     (r) =>
@@ -669,7 +746,7 @@ describe("Special movement effects", () => {
                     action: {
                         id: rescueAction.id,
                         decisions: {
-                            desiredMovementDestination: { row: 0, col: 1 },
+                            targetDestination: { row: 0, col: 1 },
                         },
                     },
                 })
@@ -692,6 +769,164 @@ describe("Special movement effects", () => {
                         r.movement != undefined
                 )
                 expect(secondTargetMovement).toBeUndefined()
+            })
+        })
+
+        describe("destinationRange constraint", () => {
+            const createRangedRescueAction = (
+                id: string,
+                destinationRange: TActionRange
+            ) =>
+                SquaddieActionService.new({
+                    id,
+                    name: "Ranged Rescue",
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 2 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            movement: {
+                                movementType:
+                                    MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                                destinationRange,
+                            },
+                        },
+                    },
+                })
+
+            it("teleport succeeds when destination is within destinationRange of actor", () => {
+                const rescueAction = createRangedRescueAction(
+                    "meleeRescue",
+                    ActionRange.MELEE
+                )
+                actionManager.addOrUpdate(rescueAction)
+
+                const results = SquaddieActionResultCalculator.calculateResult({
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                        coordinateMapCollectionManager: mapManager,
+                    },
+                    actor: {
+                        inBattleSquaddieId: actorInBattleSquaddieId,
+                        outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+                    },
+                    targets: [
+                        {
+                            inBattleSquaddieId: targetInBattleSquaddieId,
+                            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                        },
+                    ],
+                    map: { mapId: "map" },
+                    action: {
+                        id: rescueAction.id,
+                        decisions: {
+                            targetDestination: { row: 0, col: 1 },
+                        },
+                    },
+                })
+
+                const targetMovement = results.find(
+                    (r) =>
+                        r.inBattleSquaddieId == targetInBattleSquaddieId &&
+                        r.outOfBattleSquaddieId ===
+                            targetOutOfBattleSquaddieId &&
+                        r.movement != undefined
+                )
+                expect(targetMovement).toBeDefined()
+                expect(
+                    targetMovement!.movement!.expectedPath.steps.at(-1)
+                ).toEqual(expect.objectContaining({ row: 0, col: 1 }))
+            })
+
+            it("teleport returns no movement result when destination exceeds destinationRange", () => {
+                const rescueAction = createRangedRescueAction(
+                    "meleeRescue2",
+                    ActionRange.MELEE
+                )
+                actionManager.addOrUpdate(rescueAction)
+
+                const results = SquaddieActionResultCalculator.calculateResult({
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                        coordinateMapCollectionManager: mapManager,
+                    },
+                    actor: {
+                        inBattleSquaddieId: actorInBattleSquaddieId,
+                        outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+                    },
+                    targets: [
+                        {
+                            inBattleSquaddieId: targetInBattleSquaddieId,
+                            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                        },
+                    ],
+                    map: { mapId: "map" },
+                    action: {
+                        id: rescueAction.id,
+                        decisions: {
+                            targetDestination: { row: 0, col: 3 },
+                        },
+                    },
+                })
+
+                const targetMovement = results.find(
+                    (r) =>
+                        r.inBattleSquaddieId == targetInBattleSquaddieId &&
+                        r.outOfBattleSquaddieId ===
+                            targetOutOfBattleSquaddieId &&
+                        r.movement != undefined
+                )
+                expect(targetMovement).toBeUndefined()
+            })
+
+            it("SELF destinationRange places target at nearest cell to actor without a destination decision", () => {
+                const rescueAction = createRangedRescueAction(
+                    "selfRescue",
+                    ActionRange.SELF
+                )
+                actionManager.addOrUpdate(rescueAction)
+
+                const results = SquaddieActionResultCalculator.calculateResult({
+                    degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                        coordinateMapCollectionManager: mapManager,
+                    },
+                    actor: {
+                        inBattleSquaddieId: actorInBattleSquaddieId,
+                        outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+                    },
+                    targets: [
+                        {
+                            inBattleSquaddieId: targetInBattleSquaddieId,
+                            outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                        },
+                    ],
+                    map: { mapId: "map" },
+                    action: {
+                        id: rescueAction.id,
+                        decisions: {},
+                    },
+                })
+
+                const targetMovement = results.find(
+                    (r) =>
+                        r.inBattleSquaddieId == targetInBattleSquaddieId &&
+                        r.outOfBattleSquaddieId ===
+                            targetOutOfBattleSquaddieId &&
+                        r.movement != undefined
+                )
+                expect(targetMovement).toBeDefined()
+                expect(
+                    targetMovement!.movement!.expectedPath.steps.at(-1)
+                ).toEqual(expect.objectContaining({ row: 0, col: 1 }))
             })
         })
     })

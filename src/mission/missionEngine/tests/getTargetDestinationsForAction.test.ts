@@ -23,8 +23,8 @@ import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 import { DEFAULT_ACTION_POINTS } from "../../../squaddie/inBattle/inBattleSquaddie"
 import { MissionAffiliationTurn } from "../../missionTurn"
+import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
 
-// IDs used across the test setup functions.
 const leapActionId = "leap"
 const enemyOutOfBattleId = "enemy-1"
 
@@ -153,7 +153,7 @@ function createTestSetup(): {
     }
 }
 
-describe("MissionEngine.getMovementOptionsForAction", () => {
+describe("MissionEngine.getTargetDestinationsForAction", () => {
     it("throws error if missionManager is undefined", () => {
         const missionEngine = new MissionEngine()
         const actor: BattleSquaddieId = {
@@ -162,9 +162,9 @@ describe("MissionEngine.getMovementOptionsForAction", () => {
         }
 
         expect(() =>
-            missionEngine.getMovementOptionsForAction(actor, leapActionId)
+            missionEngine.getTargetDestinationsForAction(actor, leapActionId)
         ).toThrow(
-            "[MissionEngine.getMovementOptionsForAction]: missionManager is undefined"
+            "[MissionEngine.getTargetDestinationsForAction]: missionManager is undefined"
         )
     })
 
@@ -182,9 +182,9 @@ describe("MissionEngine.getMovementOptionsForAction", () => {
         }
 
         expect(() =>
-            missionEngine.getMovementOptionsForAction(actor, leapActionId)
+            missionEngine.getTargetDestinationsForAction(actor, leapActionId)
         ).toThrow(
-            "[MissionEngine.getMovementOptionsForAction]: inBattleSquaddieManager is undefined"
+            "[MissionEngine.getTargetDestinationsForAction]: inBattleSquaddieManager is undefined"
         )
     })
 
@@ -204,7 +204,7 @@ describe("MissionEngine.getMovementOptionsForAction", () => {
         })
 
         it("Leap returns destinations reachable only by traversing the pit", () => {
-            const result = missionEngine.getMovementOptionsForAction(
+            const result = missionEngine.getTargetDestinationsForAction(
                 actorId,
                 leapActionId
             )
@@ -217,7 +217,7 @@ describe("MissionEngine.getMovementOptionsForAction", () => {
         })
 
         it("Leap destinations exclude the occupied enemy square", () => {
-            const result = missionEngine.getMovementOptionsForAction(
+            const result = missionEngine.getTargetDestinationsForAction(
                 actorId,
                 leapActionId
             )
@@ -237,12 +237,170 @@ describe("MissionEngine.getMovementOptionsForAction", () => {
                 actionPoints: DEFAULT_ACTION_POINTS,
             })
 
-            const result = missionEngine.getMovementOptionsForAction(
+            const result = missionEngine.getTargetDestinationsForAction(
                 actorId,
                 leapActionId
             )
 
             expect(result).toHaveLength(0)
         })
+    })
+})
+
+const rescueActionId = "rescue"
+const teleportMapId = "teleport-test-map"
+const actorTeleportStart = { row: 0, col: 0 }
+
+function createTeleportTestSetup(): {
+    missionEngine: MissionEngine
+    missionManager: MissionManager
+    actorId: BattleSquaddieId
+} {
+    const { manager: outOfBattleSquaddieManager } =
+        OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
+            sheetId: "teleport-actor-sheet",
+            attributeSheetOptions: { maxHitPoints: 5, distancePerAction: 3 },
+        })
+
+    const playerSquaddie = OutOfBattleSquaddieService.new({
+        id: "teleport-actor",
+        name: "Actor",
+        affiliation: SquaddieAffiliation.PLAYER,
+        attributeSheetId: "teleport-actor-sheet",
+        actionIds: [rescueActionId],
+    })
+    outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
+
+    const inBattleSquaddieManager = new InBattleSquaddieManager(
+        InBattleSquaddieCollectionService.new(),
+        outOfBattleSquaddieManager
+    )
+    const actorId = inBattleSquaddieManager.createNewSquaddie({
+        outOfBattleSquaddieId: "teleport-actor",
+    })
+
+    const coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+        CoordinateMapCollectionService.new()
+    )
+    coordinateMapCollectionManager.addOrUpdate({
+        map: CoordinateMapService.new({
+            id: teleportMapId,
+            name: "Teleport test map",
+            movementProperties: ["1 1 1 1 1", " 1 - 1 1 1", "1 1 1 1 1"],
+        }),
+    })
+    coordinateMapCollectionManager.addSquaddie({
+        mapId: teleportMapId,
+        squaddieId: actorId,
+        coordinate: actorTeleportStart,
+    })
+
+    const rescueAction = SquaddieActionService.new({
+        id: rescueActionId,
+        name: "Rescue",
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+        range: ActionRange.MEDIUM,
+        shape: CoordinateGeneratorShape.BLOOM,
+        affiliationRelationship: { self: false, foe: false, friend: true },
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
+        },
+        effectOnTarget: {
+            [DegreeOfSuccess.SUCCESS]: {
+                movement: {
+                    movementType: MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                    destinationRange: ActionRange.MELEE,
+                },
+            },
+        },
+    })
+
+    const squaddieActionManager = new SquaddieActionManager(
+        SquaddieActionCollectionService.new()
+    )
+    squaddieActionManager.addOrUpdate(rescueAction)
+    squaddieActionManager.addOrUpdate(SquaddieActionService.defaultMove())
+    squaddieActionManager.addOrUpdate(SquaddieActionService.defaultEndTurn())
+
+    const missionManager = new MissionManager({
+        missionState: MissionStateService.new({
+            id: "teleport-test-mission",
+            mapId: teleportMapId,
+        }),
+        inBattleSquaddieManager,
+        coordinateMapCollectionManager,
+        squaddieActionManager,
+    })
+
+    return {
+        missionEngine: new MissionEngine(missionManager),
+        missionManager,
+        actorId,
+    }
+}
+
+describe("MissionEngine.getTargetDestinationsForAction — TELEPORT_TO_ACTOR_CHOSEN (Rescue)", () => {
+    let missionEngine: MissionEngine
+    let actorId: BattleSquaddieId
+
+    beforeEach(() => {
+        ;({ missionEngine, actorId } = createTeleportTestSetup())
+        missionEngine.transitionToNextPhase()
+        missionEngine.transitionToNextPhase()
+    })
+
+    it("returns passable cells within MELEE range of the actor", () => {
+        const result = missionEngine.getTargetDestinationsForAction(
+            actorId,
+            rescueActionId
+        )
+
+        expect(result.length).toBeGreaterThan(0)
+        for (const { destination } of result) {
+            const distance = CoordinateCalculator.getDistanceBetween(
+                actorTeleportStart,
+                destination
+            )
+            expect(distance).toBeLessThanOrEqual(2)
+        }
+    })
+
+    it("excludes the pit at (1,1) from valid destinations", () => {
+        const result = missionEngine.getTargetDestinationsForAction(
+            actorId,
+            rescueActionId
+        )
+
+        const includesPit = result.some(
+            (item) => item.destination.row === 1 && item.destination.col === 1
+        )
+        expect(includesPit).toBe(false)
+    })
+
+    it("excludes the actor's own occupied cell from valid destinations", () => {
+        const result = missionEngine.getTargetDestinationsForAction(
+            actorId,
+            rescueActionId
+        )
+
+        const includesActorCell = result.some(
+            (item) =>
+                item.destination.row === actorTeleportStart.row &&
+                item.destination.col === actorTeleportStart.col
+        )
+        expect(includesActorCell).toBe(false)
+    })
+
+    it("reports the action's AP cost for every destination", () => {
+        const result = missionEngine.getTargetDestinationsForAction(
+            actorId,
+            rescueActionId
+        )
+
+        expect(result.length).toBeGreaterThan(0)
+        for (const { actionPointCost } of result) {
+            expect(actionPointCost).toBe(2)
+        }
     })
 })

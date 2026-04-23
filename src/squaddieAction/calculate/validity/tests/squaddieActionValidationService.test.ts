@@ -299,7 +299,7 @@ describe("SquaddieActionValidationService", () => {
 
         it("returns valid with movementPath when movement destination is reachable", () => {
             const decisions: SquaddieActionDecisions = {
-                desiredMovementDestination: { row: 0, col: 4 },
+                targetDestination: { row: 0, col: 4 },
             }
 
             const result = callMoveIsActionValid(decisions)
@@ -311,7 +311,7 @@ describe("SquaddieActionValidationService", () => {
 
         it("returns invalid when hex distance exceeds maximum movement", () => {
             const decisions: SquaddieActionDecisions = {
-                desiredMovementDestination: { row: 0, col: 7 },
+                targetDestination: { row: 0, col: 7 },
             }
 
             const result = callMoveIsActionValid(decisions)
@@ -323,7 +323,7 @@ describe("SquaddieActionValidationService", () => {
 
         it("returns invalid when path cost exceeds maximum even if hex distance is within range", () => {
             const decisions: SquaddieActionDecisions = {
-                desiredMovementDestination: { row: 0, col: 5 },
+                targetDestination: { row: 0, col: 5 },
             }
 
             const result = callMoveIsActionValid(decisions)
@@ -354,7 +354,7 @@ describe("SquaddieActionValidationService", () => {
             })
 
             const decisions: SquaddieActionDecisions = {
-                desiredMovementDestination: { row: 0, col: 2 },
+                targetDestination: { row: 0, col: 2 },
             }
 
             const result = callMoveIsActionValid(

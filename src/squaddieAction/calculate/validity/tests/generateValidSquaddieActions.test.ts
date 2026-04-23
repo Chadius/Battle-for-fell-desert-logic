@@ -238,8 +238,8 @@ describe("generateValidSquaddieActions", () => {
 
             const moveToCol4 = movementOptions.find(
                 (opt) =>
-                    opt.decisions.desiredMovementDestination?.row === 0 &&
-                    opt.decisions.desiredMovementDestination?.col === 4
+                    opt.decisions.targetDestination?.row === 0 &&
+                    opt.decisions.targetDestination?.col === 4
             )
             expect(moveToCol4).toBeDefined()
             expect(moveToCol4!.movementPath).toBeDefined()
@@ -264,15 +264,15 @@ describe("generateValidSquaddieActions", () => {
 
             const moveDistance1 = movementOptions.find(
                 (opt) =>
-                    opt.decisions.desiredMovementDestination?.col === 4 &&
-                    opt.decisions.desiredMovementDestination?.row === 0
+                    opt.decisions.targetDestination?.col === 4 &&
+                    opt.decisions.targetDestination?.row === 0
             )
             expect(moveDistance1!.actionPointsRemaining.current).toBe(2)
 
             const moveDistance2 = movementOptions.find(
                 (opt) =>
-                    opt.decisions.desiredMovementDestination?.col === 5 &&
-                    opt.decisions.desiredMovementDestination?.row === 0
+                    opt.decisions.targetDestination?.col === 5 &&
+                    opt.decisions.targetDestination?.row === 0
             )
             expect(moveDistance2!.actionPointsRemaining.current).toBe(1)
         })
@@ -295,8 +295,8 @@ describe("generateValidSquaddieActions", () => {
 
             const moveToCol0 = movementOptions.find(
                 (opt) =>
-                    opt.decisions.desiredMovementDestination?.row === 0 &&
-                    opt.decisions.desiredMovementDestination?.col === 0
+                    opt.decisions.targetDestination?.row === 0 &&
+                    opt.decisions.targetDestination?.col === 0
             )
             expect(moveToCol0).toBeUndefined()
         })
@@ -330,10 +330,10 @@ describe("generateValidSquaddieActions", () => {
                     )
                 expect(endCoordinate).toBeDefined()
                 expect(endCoordinate.col).toEqual(
-                    moveOption.decisions.desiredMovementDestination?.col
+                    moveOption.decisions.targetDestination?.col
                 )
                 expect(endCoordinate.row).toEqual(
-                    moveOption.decisions.desiredMovementDestination?.row
+                    moveOption.decisions.targetDestination?.row
                 )
             }
         })
@@ -430,7 +430,7 @@ describe("generateValidSquaddieActions", () => {
 
             const maxDistance = Math.max(
                 ...movementOptions.map((opt) => {
-                    const dest = opt.decisions.desiredMovementDestination
+                    const dest = opt.decisions.targetDestination
                     return Math.abs((dest?.col ?? 3) - 3)
                 })
             )
@@ -438,8 +438,8 @@ describe("generateValidSquaddieActions", () => {
 
             const moveOption = movementOptions.find(
                 (opt) =>
-                    opt.decisions.desiredMovementDestination?.col === 4 &&
-                    opt.decisions.desiredMovementDestination?.row === 0
+                    opt.decisions.targetDestination?.col === 4 &&
+                    opt.decisions.targetDestination?.row === 0
             )
             expect(moveOption).toBeDefined()
             expect(moveOption!.actionPointsRemaining.current).toBe(0)

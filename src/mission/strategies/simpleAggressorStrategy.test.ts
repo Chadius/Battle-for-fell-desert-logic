@@ -178,7 +178,7 @@ describe("SimpleAggressorStrategy", () => {
         expect(result).toBeDefined()
         expect(result!.action.id).toBe("default-move")
         expect(result!.actor).toEqual(actorId)
-        expect(result!.action.decisions?.desiredMovementDestination).toEqual(
+        expect(result!.action.decisions?.targetDestination).toEqual(
             expect.objectContaining({ row: 0, col: 2 })
         )
     })

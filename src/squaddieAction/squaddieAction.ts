@@ -253,4 +253,40 @@ export const SquaddieActionService = {
             },
         })
     },
+    getRequiredDecisions: (
+        action: SquaddieAction
+    ): {
+        requiresSpecificTarget: boolean
+        requiresAimCoordinate: boolean
+        requiresTargetDestination: boolean
+    } => {
+        const targetsFoeOrFriend =
+            action.targeting.affiliationRelationship.foe ||
+            action.targeting.affiliationRelationship.friend
+
+        const aimCoordinateRequiresTarget =
+            action.targeting.aimCoordinateRequiresTarget ?? true
+
+        const actorNeedsDestination =
+            action.effectOnActor.SUCCESS?.movement?.movementType ===
+            MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL
+
+        const targetNeedsDestination = Object.values(
+            action.effectOnTarget ?? {}
+        ).some(
+            (effect) =>
+                effect?.movement?.movementType ===
+                    MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN &&
+                effect.movement.destinationRange !== ActionRange.SELF
+        )
+
+        return {
+            requiresSpecificTarget:
+                aimCoordinateRequiresTarget && targetsFoeOrFriend,
+            requiresAimCoordinate:
+                !aimCoordinateRequiresTarget && targetsFoeOrFriend,
+            requiresTargetDestination:
+                actorNeedsDestination || targetNeedsDestination,
+        }
+    },
 }

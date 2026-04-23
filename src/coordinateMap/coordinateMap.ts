@@ -396,9 +396,8 @@ export const CoordinateMapService = {
             CoordinateMapService.getAllSquaddieCoordinatesOnMap(map)
         for (const info of allSquaddies) {
             if (
-                squaddieId != undefined &&
                 info.squaddieId.inBattleSquaddieId ===
-                    squaddieId.inBattleSquaddieId &&
+                    squaddieId?.inBattleSquaddieId &&
                 info.squaddieId.outOfBattleSquaddieId ===
                     squaddieId.outOfBattleSquaddieId
             )
@@ -473,6 +472,17 @@ export const CoordinateMapService = {
             coordinatesSquaddiesCannotStopOn: new Set(
                 serialized.coordinatesSquaddiesCannotStopOn
             ),
+        }
+    },
+    convertOffsetMaybeOffmapCoordinate: (
+        maybeOffmap?: OffsetMaybeOffmapCoordinate
+    ): OffsetCoordinate | undefined => {
+        if (maybeOffmap?.row == undefined || maybeOffmap?.col == undefined) {
+            return undefined
+        }
+        return {
+            row: maybeOffmap.row,
+            col: maybeOffmap.col,
         }
     },
 }

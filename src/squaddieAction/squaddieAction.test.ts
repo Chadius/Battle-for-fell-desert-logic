@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import {
     HowToDetermineDegreeOfSuccess,
+    MovementEffectType,
     SquaddieActionService,
 } from "./squaddieAction"
+import { ActionRange } from "./actionRange"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
@@ -504,5 +506,151 @@ describe("SquaddieActionService", () => {
                 HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS
             )
         })
+    })
+})
+
+describe("SquaddieActionService.getRequiredDecisions", () => {
+    it("default move (ACTOR_CHOSEN, self-only) requires no action decisions", () => {
+        const result = SquaddieActionService.getRequiredDecisions(
+            SquaddieActionService.defaultMove()
+        )
+
+        expect(result.requiresSpecificTarget).toBe(false)
+        expect(result.requiresAimCoordinate).toBe(false)
+        expect(result.requiresTargetDestination).toBe(false)
+    })
+
+    it("Leap (ACTOR_CHOSEN_SPECIAL_TRAVERSAL, self-only) requires a target destination", () => {
+        const leap = SquaddieActionService.new({
+            id: "leap",
+            name: "Leap",
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            affiliationRelationship: { self: true, foe: false, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 2 },
+                    movement: {
+                        movementType:
+                            MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL,
+                        traversal: { skipOverPits: true },
+                    },
+                },
+            },
+        })
+
+        const result = SquaddieActionService.getRequiredDecisions(leap)
+
+        expect(result.requiresSpecificTarget).toBe(false)
+        expect(result.requiresAimCoordinate).toBe(false)
+        expect(result.requiresTargetDestination).toBe(true)
+    })
+
+    it("standard attack (foe, not AOE) requires a specific target", () => {
+        const attack = SquaddieActionService.new({
+            id: "attack",
+            name: "Attack",
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    damage: {
+                        raw: 5,
+                        targetProficiency: ProficiencyType.ARMOR,
+                    },
+                },
+            },
+        })
+
+        const result = SquaddieActionService.getRequiredDecisions(attack)
+
+        expect(result.requiresSpecificTarget).toBe(true)
+        expect(result.requiresAimCoordinate).toBe(false)
+        expect(result.requiresTargetDestination).toBe(false)
+    })
+
+    it("Rescue (friend, TELEPORT with MELEE destinationRange) requires specific target and target destination", () => {
+        const rescue = SquaddieActionService.new({
+            id: "rescue",
+            name: "Rescue",
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            affiliationRelationship: { self: false, foe: false, friend: true },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    movement: {
+                        movementType:
+                            MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                        destinationRange: ActionRange.MELEE,
+                    },
+                },
+            },
+        })
+
+        const result = SquaddieActionService.getRequiredDecisions(rescue)
+
+        expect(result.requiresSpecificTarget).toBe(true)
+        expect(result.requiresAimCoordinate).toBe(false)
+        expect(result.requiresTargetDestination).toBe(true)
+    })
+
+    it("AOE pull (FORCED_TOWARD_ACTOR, areaOfEffectSize > 0) with aimCoordinateRequiresTarget false requires an aim coordinate", () => {
+        const gravityPull = SquaddieActionService.new({
+            id: "gravity-pull",
+            name: "Gravity Pull",
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            areaOfEffectSize: 5,
+            aimCoordinateRequiresTarget: false,
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    movement: {
+                        movementType: MovementEffectType.FORCED_TOWARD_ACTOR,
+                        forcedDistance: 2,
+                    },
+                },
+            },
+        })
+
+        const result = SquaddieActionService.getRequiredDecisions(gravityPull)
+
+        expect(result.requiresSpecificTarget).toBe(false)
+        expect(result.requiresAimCoordinate).toBe(true)
+        expect(result.requiresTargetDestination).toBe(false)
+    })
+
+    it("TELEPORT with SELF destinationRange requires no target destination (target placed at actor's cell automatically)", () => {
+        const selfTeleport = SquaddieActionService.new({
+            id: "pull-to-self",
+            name: "Pull to Self",
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            affiliationRelationship: { self: false, foe: false, friend: true },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    movement: {
+                        movementType:
+                            MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                        destinationRange: ActionRange.SELF,
+                    },
+                },
+            },
+        })
+
+        const result = SquaddieActionService.getRequiredDecisions(selfTeleport)
+
+        expect(result.requiresSpecificTarget).toBe(true)
+        expect(result.requiresAimCoordinate).toBe(false)
+        expect(result.requiresTargetDestination).toBe(false)
     })
 })

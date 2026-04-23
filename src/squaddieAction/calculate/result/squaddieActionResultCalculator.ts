@@ -13,6 +13,11 @@ import {
     HowToDetermineDegreeOfSuccess,
     MovementEffectType,
 } from "../../squaddieAction"
+import {
+    ActionRange,
+    ActionRangeService,
+    type TActionRange,
+} from "../../actionRange"
 import type {
     BattleSquaddieId,
     InBattleSquaddie,
@@ -47,7 +52,7 @@ import { ProficiencyCalculator } from "../proficiencyCalculator"
 import { SquaddieActionForecastCalculator } from "../forecast/squaddieActionForecastCalculator"
 
 export type SquaddieActionDecisions = {
-    desiredMovementDestination?: {
+    targetDestination?: {
         row: number
         col: number
     }
@@ -252,11 +257,22 @@ export const SquaddieActionResultCalculator = {
         const coordinateMap = map?.mapId
             ? managers.coordinateMapCollectionManager?.getMapById(map.mapId)
             : undefined
+        const actorCoordinateMaybeOffmap = coordinateMap
+            ? CoordinateMapService.getSquaddieCoordinate({
+                  map: coordinateMap,
+                  squaddieId: actor,
+              })
+            : undefined
+        const actorCoordinate =
+            CoordinateMapService.convertOffsetMaybeOffmapCoordinate(
+                actorCoordinateMaybeOffmap
+            )
         const scatterDestinations = computeScatterDestinations({
             effect: squaddieAction.effectOnTarget?.[degreeOfSuccess],
             targets,
-            desiredDestination: action.decisions?.desiredMovementDestination,
+            desiredDestination: action.decisions?.targetDestination,
             coordinateMap,
+            actorCoordinate,
         })
 
         results.push(
@@ -276,7 +292,7 @@ export const SquaddieActionResultCalculator = {
                     scatterDestinations.has(targetKey)
                         ? {
                               ...action.decisions,
-                              desiredMovementDestination:
+                              targetDestination:
                                   scatterDestinations.get(targetKey),
                           }
                         : action.decisions
@@ -1000,7 +1016,7 @@ const calculateActorChosenMovementResults = ({
         Omit<SquaddieMovementInfo, "movementPointsPerAction">
     >
 }): SquaddieActionResult[] => {
-    if (decisions?.desiredMovementDestination == undefined) return []
+    if (decisions?.targetDestination == undefined) return []
 
     const routeInfo = CoordinateMapService.calculateRoute({
         map: coordinateMap,
@@ -1009,7 +1025,7 @@ const calculateActorChosenMovementResults = ({
         outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
         stopConditions: [
             {
-                desiredDestination: decisions.desiredMovementDestination,
+                desiredDestination: decisions.targetDestination,
             },
         ],
         traversalOverrides,
@@ -1036,25 +1052,84 @@ const calculateActorChosenMovementResults = ({
     ]
 }
 
+const sortTargetsByDistanceToActor = (
+    targets: BattleSquaddieId[],
+    actorCoordinate: OffsetCoordinate | undefined,
+    coordinateMap: CoordinateMap
+) => {
+    return [...targets].sort((a, b) => {
+        if (actorCoordinate == undefined) return 0
+        const coordMaybeOffmapA = CoordinateMapService.getSquaddieCoordinate({
+            map: coordinateMap,
+            squaddieId: a,
+        })
+        const coordinateA =
+            CoordinateMapService.convertOffsetMaybeOffmapCoordinate(
+                coordMaybeOffmapA
+            )
+        const coordMaybeOffmapB = CoordinateMapService.getSquaddieCoordinate({
+            map: coordinateMap,
+            squaddieId: b,
+        })
+        const coordinateB =
+            CoordinateMapService.convertOffsetMaybeOffmapCoordinate(
+                coordMaybeOffmapB
+            )
+        const distA =
+            coordinateA == undefined
+                ? Infinity
+                : CoordinateCalculator.getDistanceBetween(
+                      actorCoordinate,
+                      coordinateA
+                  )
+        const distB =
+            coordinateB == undefined
+                ? Infinity
+                : CoordinateCalculator.getDistanceBetween(
+                      actorCoordinate,
+                      coordinateB
+                  )
+        return distA - distB
+    })
+}
 const computeScatterDestinations = ({
     effect,
     targets,
     desiredDestination,
     coordinateMap,
+    actorCoordinate,
 }: {
     effect: SquaddieActionEffect | undefined
     targets: BattleSquaddieId[]
     desiredDestination: OffsetCoordinate | undefined
     coordinateMap: CoordinateMap | undefined
+    actorCoordinate: OffsetCoordinate | undefined
 }): Map<string, OffsetCoordinate | undefined> => {
     const result = new Map<string, OffsetCoordinate | undefined>()
     if (
         effect?.movement?.movementType !==
             MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN ||
-        desiredDestination == undefined ||
         coordinateMap == undefined
     )
         return result
+
+    const { destinationRange } = effect.movement
+
+    let effectiveOrigin: OffsetCoordinate | undefined =
+        calculateEffectiveOrigin(
+            destinationRange,
+            actorCoordinate,
+            desiredDestination
+        )
+
+    if (effectiveOrigin == undefined)
+        return markAllTargetsInvalid(targets, result)
+
+    const sortedTargets = sortTargetsByDistanceToActor(
+        targets,
+        actorCoordinate,
+        coordinateMap
+    )
 
     const claimedCoordinateKeys = new Set<string>()
     const maxSearchRadius =
@@ -1062,7 +1137,7 @@ const computeScatterDestinations = ({
             map: coordinateMap,
         }) + CoordinateMapService.getNumberOfRows({ map: coordinateMap })
 
-    for (const target of targets) {
+    for (const target of sortedTargets) {
         const targetBattleSquaddieKey =
             SquaddieIdConverterService.squaddieIdToKey(target)
         let assignedCoordinate: OffsetCoordinate | undefined
@@ -1072,7 +1147,7 @@ const computeScatterDestinations = ({
             ring++
         ) {
             const candidates = CoordinateCalculator.getCoordinatesInRing(
-                desiredDestination,
+                effectiveOrigin,
                 ring
             )
             for (const candidate of candidates) {
@@ -1108,9 +1183,9 @@ const calculateTeleportToActorChosenResults = ({
     }
     decisions: SquaddieActionDecisions | undefined
 }): SquaddieActionResult[] => {
-    if (decisions?.desiredMovementDestination == undefined) return []
+    if (decisions?.targetDestination == undefined) return []
 
-    const { row, col } = decisions.desiredMovementDestination
+    const { row, col } = decisions.targetDestination
     const teleportPath: CoordinateMovePath = CoordinateMovePathService.new({
         steps: [
             {
@@ -1741,4 +1816,44 @@ const calculateWithTargetRolls = ({
         actorRoll: undefined,
         targetResults,
     }
+}
+
+const calculateEffectiveOrigin = (
+    destinationRange: TActionRange | undefined,
+    actorCoordinate: OffsetCoordinate | undefined,
+    desiredDestination: OffsetCoordinate | undefined
+): OffsetCoordinate | undefined => {
+    let effectiveOrigin: OffsetCoordinate | undefined
+    if (destinationRange === ActionRange.SELF) {
+        effectiveOrigin = actorCoordinate
+    } else if (destinationRange == undefined) {
+        if (desiredDestination == undefined) return undefined
+        effectiveOrigin = desiredDestination
+    } else {
+        if (desiredDestination == undefined) return undefined
+        if (actorCoordinate != undefined) {
+            const distance = CoordinateCalculator.getDistanceBetween(
+                actorCoordinate,
+                desiredDestination
+            )
+            const { maximum } =
+                ActionRangeService.minAndMaxByRange[destinationRange]
+            if (distance > maximum) return undefined
+        }
+        effectiveOrigin = desiredDestination
+    }
+    return effectiveOrigin
+}
+
+const markAllTargetsInvalid = (
+    targets: BattleSquaddieId[],
+    result: Map<string, OffsetCoordinate | undefined>
+): Map<string, OffsetCoordinate | undefined> => {
+    for (const target of targets) {
+        result.set(
+            SquaddieIdConverterService.squaddieIdToKey(target),
+            undefined
+        )
+    }
+    return result
 }
