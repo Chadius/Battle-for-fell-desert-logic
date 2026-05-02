@@ -483,7 +483,7 @@ describe("SquaddieTurnActionRecordService", () => {
                     squaddieAffiliations,
                     squaddieAction: onlySuccessAndCriticalDegreeAction,
                 })
-            ).toBe(true)
+            ).toBeNull()
         })
 
         it("returns false when a non-friend target is included", () => {
@@ -531,7 +531,7 @@ describe("SquaddieTurnActionRecordService", () => {
                     squaddieAffiliations,
                     squaddieAction: onlySuccessAndCriticalDegreeAction,
                 })
-            ).toBe(false)
+            ).toBe("action targeted enemies and cannot be reversed")
         })
 
         it("returns true when all targets are friends with a success or critical only action", () => {
@@ -573,7 +573,7 @@ describe("SquaddieTurnActionRecordService", () => {
                     squaddieAffiliations,
                     squaddieAction: onlySuccessAndCriticalDegreeAction,
                 })
-            ).toBe(true)
+            ).toBeNull()
         })
 
         it("returns false when the action has results besides success or critical", () => {
@@ -620,7 +620,7 @@ describe("SquaddieTurnActionRecordService", () => {
                     squaddieAffiliations,
                     squaddieAction: actionThatCouldFail,
                 })
-            ).toBe(false)
+            ).toBe("action type cannot be undone")
         })
     })
 

@@ -219,6 +219,83 @@ describe("MissionTurnHistoryEntryService", () => {
             expect(updated.squaddieTurnRecords).toHaveLength(1)
         })
 
+        it("moves updated entry to the end so getLastAction reflects insertion order", () => {
+            const action1 = SquaddieTurnActionRecordService.new({
+                action: { id: "attack", name: "Attack" } as SquaddieAction,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "actor",
+                    } as SquaddieActionResult,
+                    {
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "enemy",
+                    } as SquaddieActionResult,
+                ],
+            })
+            const action2 = SquaddieTurnActionRecordService.new({
+                action: { id: "move", name: "Move" } as SquaddieAction,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "actor",
+                    } as SquaddieActionResult,
+                ],
+            })
+
+            const actorRecord = SquaddieTurnRecordService.new({
+                actingBattleSquaddieId: {
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "actor",
+                },
+                actions: [action1],
+            })
+            const enemyRecord = SquaddieTurnRecordService.new({
+                actingBattleSquaddieId: {
+                    inBattleSquaddieId: 2,
+                    outOfBattleSquaddieId: "enemy",
+                },
+                actions: [action1],
+            })
+
+            // After the attack: actor is at index 0, enemy at index 1
+            let entry = MissionTurnHistoryEntryService.new({
+                turnNumber: 0,
+                missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+                squaddieTurnRecords: [actorRecord, enemyRecord],
+            })
+
+            // Actor moves: actor's record is updated and should move to the end
+            const updatedActorRecord = SquaddieTurnRecordService.new({
+                actingBattleSquaddieId: {
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "actor",
+                },
+                actions: [action1, action2],
+            })
+            entry =
+                MissionTurnHistoryEntryService.addOrUpdateSquaddieTurnRecord({
+                    turnHistory: entry,
+                    squaddieTurnRecord: updatedActorRecord,
+                })
+
+            // Actor's record should now be last, enemy's record first
+            expect(entry.squaddieTurnRecords).toHaveLength(2)
+            expect(
+                entry.squaddieTurnRecords.at(-1)!.actingBattleSquaddieId
+            ).toBe(
+                SquaddieIdConverterService.squaddieIdToKey({
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "actor",
+                })
+            )
+
+            // getLastAction should return the movement (actor's last action), not the attack
+            const lastAction =
+                MissionTurnHistoryEntryService.getLastAction(entry)
+            expect(lastAction?.action.id).toBe("move")
+        })
+
         it("throws error when missionTurnHistoryEntry is undefined", () => {
             const squaddieEntry = SquaddieTurnRecordService.new({
                 actingBattleSquaddieId: {

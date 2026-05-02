@@ -187,6 +187,126 @@ describe("undoLastPlayerUndoableAction", () => {
         expect(position?.col).toBe(0)
     })
 
+    it("undoes movement after an attack on an enemy, returning the movement action", () => {
+        const enemySquaddie = OutOfBattleSquaddieService.new({
+            id: "enemy-1",
+            name: "Raider",
+            affiliation: SquaddieAffiliation.ENEMY,
+            attributeSheetId: "test_sheet",
+        })
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(enemySquaddie)
+        const enemySquaddieId = inBattleSquaddieManager.createNewSquaddie({
+            outOfBattleSquaddieId: "enemy-1",
+        })
+
+        coordinateMapCollectionManager.addSquaddie({
+            mapId: "test_map",
+            squaddieId: enemySquaddieId,
+            coordinate: { row: 0, col: 1 },
+        })
+        coordinateMapCollectionManager.moveSquaddie({
+            mapId: "test_map",
+            squaddieId: playerSquaddieId,
+            coordinate: { row: 2, col: 0 },
+        })
+
+        const attackRecord = SquaddieTurnActionRecordService.new({
+            action: { id: "attack", name: "Attack" } as SquaddieAction,
+            results: [
+                {
+                    inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,
+                    outOfBattleSquaddieId:
+                        playerSquaddieId.outOfBattleSquaddieId,
+                    actionPoints: { spent: 1 },
+                },
+                {
+                    inBattleSquaddieId: enemySquaddieId.inBattleSquaddieId,
+                    outOfBattleSquaddieId:
+                        enemySquaddieId.outOfBattleSquaddieId,
+                    damage: {
+                        net: 1,
+                        raw: 1,
+                        absorbed: 0,
+                        willKo: false,
+                        type: undefined,
+                    },
+                },
+            ],
+        })
+        const movementPath = CoordinateMovePathService.new({
+            steps: [
+                {
+                    row: 0,
+                    col: 0,
+                    moveType: CoordinateMovePathMoveType.START,
+                    moveCost: 0,
+                },
+                {
+                    row: 2,
+                    col: 0,
+                    moveType: CoordinateMovePathMoveType.END,
+                    moveCost: 2,
+                },
+            ],
+        })
+        const moveRecord = SquaddieTurnActionRecordService.new({
+            action: { id: "move", name: "Move" } as SquaddieAction,
+            results: [
+                {
+                    inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,
+                    outOfBattleSquaddieId:
+                        playerSquaddieId.outOfBattleSquaddieId,
+                    movement: { expectedPath: movementPath },
+                    actionPoints: { spent: 2 },
+                },
+            ],
+        })
+
+        // Attack record is stored for both actor and enemy; move record only for actor.
+        // After addOrUpdateSquaddieTurnRecord processes the move, actor's record
+        // must be last so getLastAction returns the move, not the attack.
+        const actorTurnRecord = SquaddieTurnRecordService.new({
+            actingBattleSquaddieId: playerSquaddieId,
+            actions: [attackRecord, moveRecord],
+        })
+        const enemyTurnRecord = SquaddieTurnRecordService.new({
+            actingBattleSquaddieId: enemySquaddieId,
+            actions: [attackRecord],
+        })
+
+        const turnHistoryEntry = MissionTurnHistoryEntryService.new({
+            turnNumber: 0,
+            missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
+            // Enemy's record is placed after actor's (simulating attack recording order),
+            // while actor's record has the subsequent move appended.
+            // addOrUpdateSquaddieTurnRecord should have moved actor to end during recordAction.
+            squaddieTurnRecords: [enemyTurnRecord, actorTurnRecord],
+        })
+        missionState = {
+            ...missionState,
+            history: MissionHistoryService.new({ turns: [turnHistoryEntry] }),
+        }
+
+        const missionManager = new MissionManager({
+            missionState,
+            inBattleSquaddieManager,
+            coordinateMapCollectionManager,
+        })
+        const missionEngine = new MissionEngine(missionManager)
+
+        const result = missionEngine.undoLastPlayerUndoableAction()
+
+        expect(result.success).toBe(true)
+        expect(result.removedAction?.action.id).toBe("move")
+
+        const position = coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId: "test_map",
+            squaddieId: playerSquaddieId,
+        })
+        expect(position?.row).toBe(0)
+        expect(position?.col).toBe(0)
+    })
+
     it("returns success: false if action cannot be undone", () => {
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy-1",
@@ -280,6 +400,8 @@ describe("undoLastPlayerUndoableAction", () => {
         const result = missionEngine.undoLastPlayerUndoableAction()
 
         expect(result.success).toBe(false)
-        expect(result.reason).toBe("action cannot be undone")
+        expect(result.reason).toBe(
+            "action targeted enemies and cannot be reversed"
+        )
     })
 })

@@ -80,23 +80,25 @@ export const MissionTurnHistoryEntryService = {
 
         let newSquaddieEntries: SquaddieTurnRecord[]
         if (existingIndex >= 0) {
-            newSquaddieEntries = turnHistory.squaddieTurnRecords.map(
-                (s, index) =>
-                    index === existingIndex
-                        ? {
-                              actingBattleSquaddieId:
-                                  squaddieTurnRecord.actingBattleSquaddieId,
-                              actions: squaddieTurnRecord.actions.map(
-                                  SquaddieTurnActionRecordService.clone
-                              ),
-                          }
-                        : {
-                              actingBattleSquaddieId: s.actingBattleSquaddieId,
-                              actions: s.actions.map(
-                                  SquaddieTurnActionRecordService.clone
-                              ),
-                          }
-            )
+            // Move the updated entry to the end so getLastAction finds the
+            // most recently acting squaddie by iterating from the array's end.
+            newSquaddieEntries = [
+                ...turnHistory.squaddieTurnRecords
+                    .filter((_, index) => index !== existingIndex)
+                    .map((s) => ({
+                        actingBattleSquaddieId: s.actingBattleSquaddieId,
+                        actions: s.actions.map(
+                            SquaddieTurnActionRecordService.clone
+                        ),
+                    })),
+                {
+                    actingBattleSquaddieId:
+                        squaddieTurnRecord.actingBattleSquaddieId,
+                    actions: squaddieTurnRecord.actions.map(
+                        SquaddieTurnActionRecordService.clone
+                    ),
+                },
+            ]
         } else {
             newSquaddieEntries = [
                 ...turnHistory.squaddieTurnRecords.map((s) => ({

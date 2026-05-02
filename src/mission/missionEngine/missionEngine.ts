@@ -438,14 +438,14 @@ export class MissionEngine {
             lastSquaddieTurnActionRecord.action.id
         )
 
-        if (
-            !SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
+        const undoReason =
+            SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
                 squaddieTurnActionRecord: lastSquaddieTurnActionRecord,
                 squaddieAffiliations,
                 squaddieAction,
             })
-        ) {
-            return { success: false, reason: "action cannot be undone" }
+        if (undoReason !== null) {
+            return { success: false, reason: undoReason }
         }
 
         const reversingResults = lastSquaddieTurnActionRecord.results.map(

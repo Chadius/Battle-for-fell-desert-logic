@@ -121,9 +121,9 @@ export const SquaddieTurnActionRecordService = {
         squaddieTurnActionRecord: SquaddieTurnActionRecord
         squaddieAffiliations: Map<string, TSquaddieAffiliation>
         squaddieAction: SquaddieAction | undefined
-    }): boolean => {
+    }): string | null => {
         const actorResult = squaddieTurnActionRecord.results[0]
-        if (!actorResult) return false
+        if (!actorResult) return "action has no recorded results"
 
         if (
             squaddieAction?.degreesOfSuccess?.some(
@@ -132,7 +132,7 @@ export const SquaddieTurnActionRecordService = {
                     d != DegreeOfSuccess.CRITICAL
             )
         )
-            return false
+            return "action type cannot be undone"
 
         const actorAffiliation = squaddieAffiliations.get(
             SquaddieIdConverterService.squaddieIdToKey(actorResult)
@@ -149,7 +149,7 @@ export const SquaddieTurnActionRecordService = {
                 degreeOfSuccess != undefined &&
                 degreeOfSuccess !== DegreeOfSuccess.SUCCESS
             ) {
-                return false
+                return "action did not succeed"
             }
 
             if (
@@ -173,12 +173,12 @@ export const SquaddieTurnActionRecordService = {
                         target: targetAffiliation,
                     })
                 ) {
-                    return false
+                    return "action targeted enemies and cannot be reversed"
                 }
             }
         }
 
-        return true
+        return null
     },
 }
 
