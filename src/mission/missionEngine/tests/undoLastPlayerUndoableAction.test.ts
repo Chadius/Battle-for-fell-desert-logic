@@ -262,9 +262,6 @@ describe("undoLastPlayerUndoableAction", () => {
             ],
         })
 
-        // Attack record is stored for both actor and enemy; move record only for actor.
-        // After addOrUpdateSquaddieTurnRecord processes the move, actor's record
-        // must be last so getLastAction returns the move, not the attack.
         const actorTurnRecord = SquaddieTurnRecordService.new({
             actingBattleSquaddieId: playerSquaddieId,
             actions: [attackRecord, moveRecord],
@@ -277,9 +274,6 @@ describe("undoLastPlayerUndoableAction", () => {
         const turnHistoryEntry = MissionTurnHistoryEntryService.new({
             turnNumber: 0,
             missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
-            // Enemy's record is placed after actor's (simulating attack recording order),
-            // while actor's record has the subsequent move appended.
-            // addOrUpdateSquaddieTurnRecord should have moved actor to end during recordAction.
             squaddieTurnRecords: [enemyTurnRecord, actorTurnRecord],
         })
         missionState = {

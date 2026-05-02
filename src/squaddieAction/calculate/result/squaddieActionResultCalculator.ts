@@ -166,6 +166,7 @@ const calculateWithActorRoll = ({
         }
     >()
 
+    let isFirstTarget = true
     for (const [targetKey, degreeOfSuccess] of degreesByTarget) {
         const target = targets.find(
             (t) =>
@@ -182,7 +183,9 @@ const calculateWithActorRoll = ({
             targets: [target],
             action,
             map,
+            includeActorEffects: isFirstTarget,
         })
+        isFirstTarget = false
 
         targetResults.set(targetKey, {
             degreeOfSuccess,
@@ -203,6 +206,7 @@ export const SquaddieActionResultCalculator = {
         managers,
         degreeOfSuccess,
         map,
+        includeActorEffects = true,
     }: {
         managers: {
             inBattleSquaddieManager: InBattleSquaddieManager
@@ -225,6 +229,7 @@ export const SquaddieActionResultCalculator = {
         map?: {
             mapId: string
         }
+        includeActorEffects?: boolean
     }): SquaddieActionResult[] => {
         const {
             inBattleSquaddie: actorInBattleSquaddie,
@@ -237,22 +242,24 @@ export const SquaddieActionResultCalculator = {
             degreeOfSuccess,
             squaddieAction.effectOnActor
         )
-        const results: SquaddieActionResult[] = calculateEffectOnSquaddie({
-            effect: squaddieAction.effectOnActor[actorEffectiveDegree],
-            decisions: action.decisions,
-            map,
-            managers,
-            actor: {
-                inBattleSquaddie: actorInBattleSquaddie,
-                outOfBattleSquaddie: actorOutOfBattleSquaddie,
-                attributeSheet: actorAttributeSheet,
-            },
-            target: {
-                inBattleSquaddie: actorInBattleSquaddie,
-                outOfBattleSquaddie: actorOutOfBattleSquaddie,
-                attributeSheet: actorAttributeSheet,
-            },
-        })
+        const results: SquaddieActionResult[] = includeActorEffects
+            ? calculateEffectOnSquaddie({
+                  effect: squaddieAction.effectOnActor[actorEffectiveDegree],
+                  decisions: action.decisions,
+                  map,
+                  managers,
+                  actor: {
+                      inBattleSquaddie: actorInBattleSquaddie,
+                      outOfBattleSquaddie: actorOutOfBattleSquaddie,
+                      attributeSheet: actorAttributeSheet,
+                  },
+                  target: {
+                      inBattleSquaddie: actorInBattleSquaddie,
+                      outOfBattleSquaddie: actorOutOfBattleSquaddie,
+                      attributeSheet: actorAttributeSheet,
+                  },
+              })
+            : []
 
         const coordinateMap = map?.mapId
             ? managers.coordinateMapCollectionManager?.getMapById(map.mapId)
@@ -1694,6 +1701,7 @@ const calculateActionResultsWithoutRolls = ({
         }
     >()
 
+    let isFirstTarget = true
     for (const target of targets) {
         const targetKey = SquaddieIdConverterService.squaddieIdToKey({
             inBattleSquaddieId: target.inBattleSquaddieId,
@@ -1707,7 +1715,9 @@ const calculateActionResultsWithoutRolls = ({
             targets: [target],
             action,
             map,
+            includeActorEffects: isFirstTarget,
         })
+        isFirstTarget = false
 
         targetResults.set(targetKey, {
             degreeOfSuccess: DegreeOfSuccess.SUCCESS,
@@ -1767,6 +1777,7 @@ const calculateWithTargetRolls = ({
         }
     >()
 
+    let isFirstTarget = true
     for (const target of targets) {
         const rollResult = rollGenerator.roll(2)
         const targetRoll: [number, number] = [rollResult[0], rollResult[1]]
@@ -1803,7 +1814,9 @@ const calculateWithTargetRolls = ({
             targets: [target],
             action,
             map,
+            includeActorEffects: isFirstTarget,
         })
+        isFirstTarget = false
 
         targetResults.set(targetKey, {
             degreeOfSuccess: degree,

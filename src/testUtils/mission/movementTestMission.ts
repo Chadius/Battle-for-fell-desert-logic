@@ -108,8 +108,6 @@ export function createMovementTestMission(): {
     }
 }
 
-// 7×7 map with a pit cluster at rows 1–2, cols 3–4.
-// The pits divide the map into left and right halves so Fracta can demonstrate her Leap.
 function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager {
     const movementProperties = [
         "1 1 1 1 1 1 1",
@@ -135,7 +133,6 @@ function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager 
 }
 
 function createMissionObjectives(): MissionObjective[] {
-    // Win by defeating all enemies; lose if all players are KO'd.
     const defeatAllEnemies = MissionObjectiveService.new({
         id: MovementTestMissionIds.objectives.defeatAllEnemies,
         rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
@@ -175,7 +172,6 @@ function createSquaddieActionManager(): SquaddieActionManager {
     return manager
 }
 
-// Fracta's basic melee attack with an axe.
 function createAxeStrikeAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: MovementTestMissionIds.fracta.axeStrikeActionId,

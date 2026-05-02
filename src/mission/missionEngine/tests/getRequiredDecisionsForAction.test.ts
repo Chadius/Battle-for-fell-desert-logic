@@ -60,7 +60,6 @@ function createEngineWithActions(): MissionEngine {
         }),
     })
 
-    // Rescue: friend-targeting TELEPORT_TO_ACTOR_CHOSEN with MELEE destinationRange
     const rescueAction = SquaddieActionService.new({
         id: rescueActionId,
         name: "Rescue",

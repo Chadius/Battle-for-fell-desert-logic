@@ -1188,8 +1188,6 @@ const validateMovementPathWithPathfinding = ({
     return { isValid: true, movementPath: path }
 }
 
-// Merges traversal overrides into search limits and converts action-point-based
-// cost overrides into movement-cost units.
 const applyMovementOverrides = ({
     traversalOverrides,
     searchLimits,
@@ -1662,8 +1660,6 @@ const generateEndTurnOption = (): ValidSquaddieActionOption => {
     }
 }
 
-// Runs A* from actorPosition with the given search limits and collects every
-// reachable (non-starting) coordinate as a ValidSquaddieActionOption.
 const runAStarAndCollectMovementOptions = ({
     actorPosition,
     searchLimits,

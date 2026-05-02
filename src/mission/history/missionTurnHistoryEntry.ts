@@ -80,8 +80,6 @@ export const MissionTurnHistoryEntryService = {
 
         let newSquaddieEntries: SquaddieTurnRecord[]
         if (existingIndex >= 0) {
-            // Move the updated entry to the end so getLastAction finds the
-            // most recently acting squaddie by iterating from the array's end.
             newSquaddieEntries = [
                 ...turnHistory.squaddieTurnRecords
                     .filter((_, index) => index !== existingIndex)

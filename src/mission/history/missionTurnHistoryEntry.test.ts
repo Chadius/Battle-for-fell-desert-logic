@@ -258,14 +258,12 @@ describe("MissionTurnHistoryEntryService", () => {
                 actions: [action1],
             })
 
-            // After the attack: actor is at index 0, enemy at index 1
             let entry = MissionTurnHistoryEntryService.new({
                 turnNumber: 0,
                 missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
                 squaddieTurnRecords: [actorRecord, enemyRecord],
             })
 
-            // Actor moves: actor's record is updated and should move to the end
             const updatedActorRecord = SquaddieTurnRecordService.new({
                 actingBattleSquaddieId: {
                     inBattleSquaddieId: 1,
@@ -279,7 +277,6 @@ describe("MissionTurnHistoryEntryService", () => {
                     squaddieTurnRecord: updatedActorRecord,
                 })
 
-            // Actor's record should now be last, enemy's record first
             expect(entry.squaddieTurnRecords).toHaveLength(2)
             expect(
                 entry.squaddieTurnRecords.at(-1)!.actingBattleSquaddieId
@@ -290,7 +287,6 @@ describe("MissionTurnHistoryEntryService", () => {
                 })
             )
 
-            // getLastAction should return the movement (actor's last action), not the attack
             const lastAction =
                 MissionTurnHistoryEntryService.getLastAction(entry)
             expect(lastAction?.action.id).toBe("move")

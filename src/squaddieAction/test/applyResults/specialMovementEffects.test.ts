@@ -376,9 +376,6 @@ describe("Special movement effects", () => {
         })
 
         describe("multiple targets scatter placement", () => {
-            // Uses a 1-row 5-cell map.
-            // On such a map, the only on-map ring-1 neighbor of col 4 is col 3 (LEFT direction);
-            // all other ring-1 hex directions point off-map.
             let multiTargetInBattleSquaddieManager: InBattleSquaddieManager
             let multiTargetMapManager: CoordinateMapCollectionManager
             let multiTargetActionManager: SquaddieActionManager
@@ -413,7 +410,6 @@ describe("Special movement effects", () => {
                 firstTargetInBattleSquaddieId = t1Id
                 firstTargetOutOfBattleSquaddieId = t1OBId
 
-                // Add a second target to the existing managers
                 const secondTargetOutOfBattle = OutOfBattleSquaddieService.new({
                     id: "secondTarget",
                     name: "Second Target",

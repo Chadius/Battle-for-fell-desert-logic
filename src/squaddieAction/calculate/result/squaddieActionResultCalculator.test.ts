@@ -23,6 +23,7 @@ import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation"
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
+import { ApplyResultService } from "../../apply/applyResultService"
 
 describe("SquaddieActionResultCalculator", () => {
     describe("calculateDegreeOfSuccessForTargets", () => {
@@ -810,6 +811,74 @@ describe("SquaddieActionResultCalculator", () => {
                 expect(
                     result.targetResults.get(target2Key)?.targetRoll
                 ).toEqual([2, 5])
+            })
+
+            it("actor spends action points only once even when hitting multiple targets", () => {
+                const twoApTargetRollsAction = SquaddieActionService.new({
+                    id: "two-ap-target-rolls-action",
+                    name: "Two AP Target Rolls Action",
+                    proficiency: ProficiencyType.SKILL_SOUL,
+                    howToDetermineDegreeOfSuccess:
+                        HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+                    degreesOfSuccess: [
+                        DegreeOfSuccess.SUCCESS,
+                        DegreeOfSuccess.FAILURE,
+                    ],
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 2 },
+                        },
+                    },
+                    effectOnTarget: {
+                        [DegreeOfSuccess.SUCCESS]: {},
+                        [DegreeOfSuccess.FAILURE]: {},
+                    },
+                })
+                actionManager.addOrUpdate(twoApTargetRollsAction)
+
+                const target2Squaddie = OutOfBattleSquaddieService.new({
+                    id: "target-2-for-ap-test",
+                    name: "Target 2 AP Test",
+                    actionIds: [],
+                    attributeSheetId: "soldier",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+                outOfBattleSquaddieManager.addOrUpdateSquaddie(target2Squaddie)
+                const { inBattleSquaddieId: target2Id } =
+                    inBattleSquaddieManager.createNewSquaddie({
+                        outOfBattleSquaddieId: "target-2-for-ap-test",
+                    })
+                const target2 = {
+                    inBattleSquaddieId: target2Id,
+                    outOfBattleSquaddieId: "target-2-for-ap-test",
+                }
+
+                rollGenerator = new RollGenerator([3, 3, 3, 3])
+
+                const result =
+                    SquaddieActionResultCalculator.calculateActionResultsWithRolls(
+                        {
+                            actor,
+                            targets: [target, target2],
+                            action: { id: twoApTargetRollsAction.id },
+                            managers: {
+                                inBattleSquaddieManager,
+                                squaddieActionManager: actionManager,
+                            },
+                            rollGenerator,
+                        }
+                    )
+
+                for (const [, targetResult] of result.targetResults) {
+                    ApplyResultService.applyResultsToSquaddies({
+                        inBattleSquaddieManager,
+                        results: targetResult.squaddieActionResults,
+                    })
+                }
+
+                expect(
+                    inBattleSquaddieManager.getActionPoints(actor).current
+                ).toBe(1)
             })
 
             it("redistributes unsupported CRITICAL to SUCCESS when action lacks CRITICAL", () => {
