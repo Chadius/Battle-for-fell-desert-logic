@@ -124,9 +124,15 @@ export const CoordinateMapService = {
             copyMap.coordinateBySquaddie
                 .get(squaddieId.outOfBattleSquaddieId)!
                 .delete(squaddieId.inBattleSquaddieId)
-            copyMap.coordinateBySquaddie.delete(
-                squaddieId.outOfBattleSquaddieId
-            )
+            if (
+                copyMap.coordinateBySquaddie.get(
+                    squaddieId.outOfBattleSquaddieId
+                )!.size === 0
+            ) {
+                copyMap.coordinateBySquaddie.delete(
+                    squaddieId.outOfBattleSquaddieId
+                )
+            }
         }
 
         if (!copyMap.coordinateBySquaddie.has(squaddieId.outOfBattleSquaddieId))
@@ -165,12 +171,7 @@ export const CoordinateMapService = {
     }: {
         map: CoordinateMap
         coordinate: OffsetCoordinate
-    }):
-        | {
-              outOfBattleSquaddieId: string
-              inBattleSquaddieId: number
-          }
-        | undefined => {
+    }): BattleSquaddieId | undefined => {
         const coordinateDescription =
             map.coordinates[coordinate.row]?.[coordinate.col]
         if (coordinateDescription == undefined) return undefined
