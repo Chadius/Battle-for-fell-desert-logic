@@ -212,10 +212,12 @@ export class MissionManager {
                 },
             })
 
-            this.recordAction({
-                action: fullAction,
-                results: targetResult.squaddieActionResults,
-            })
+            if (targetResult.squaddieActionResults.length > 0) {
+                this.recordAction({
+                    action: fullAction,
+                    results: targetResult.squaddieActionResults,
+                })
+            }
         }
         this.removeDefeatedSquaddiesFromMap(actor, targets)
         this.applyMultipleAttackPenalty(fullAction, actor)

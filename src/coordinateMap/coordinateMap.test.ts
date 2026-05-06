@@ -5,6 +5,7 @@ import {
 } from "./coordinateMap"
 import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { CoordinateMovePathService } from "./path/path"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService"
 
 describe("Coordinate Map", () => {
     it("creates a new map instead of modifying the original", () => {
@@ -146,13 +147,22 @@ describe("Coordinate Map", () => {
 
             const serialized = CoordinateMapService.serialize(map)
 
-            expect(serialized.coordinateBySquaddie["player-1"]).toBeDefined()
-            expect(serialized.coordinateBySquaddie["player-1"]["0"]).toEqual({
+            const player1Key = SquaddieIdConverterService.squaddieIdToKey({
+                outOfBattleSquaddieId: "player-1",
+                inBattleSquaddieId: 0,
+            })
+            const enemy1Key = SquaddieIdConverterService.squaddieIdToKey({
+                outOfBattleSquaddieId: "enemy-1",
+                inBattleSquaddieId: 1,
+            })
+
+            expect(serialized.coordinateBySquaddie[player1Key]).toBeDefined()
+            expect(serialized.coordinateBySquaddie[player1Key]).toEqual({
                 row: 0,
                 col: 0,
             })
-            expect(serialized.coordinateBySquaddie["enemy-1"]).toBeDefined()
-            expect(serialized.coordinateBySquaddie["enemy-1"]["1"]).toEqual({
+            expect(serialized.coordinateBySquaddie[enemy1Key]).toBeDefined()
+            expect(serialized.coordinateBySquaddie[enemy1Key]).toEqual({
                 row: 2,
                 col: 2,
             })
@@ -179,7 +189,11 @@ describe("Coordinate Map", () => {
             const parsed = JSON.parse(jsonString)
 
             expect(parsed.id).toBe("test-map")
-            expect(parsed.coordinateBySquaddie["player-1"]["0"]).toEqual({
+            const player1Key = SquaddieIdConverterService.squaddieIdToKey({
+                outOfBattleSquaddieId: "player-1",
+                inBattleSquaddieId: 0,
+            })
+            expect(parsed.coordinateBySquaddie[player1Key]).toEqual({
                 row: 0,
                 col: 0,
             })
@@ -213,6 +227,10 @@ describe("Coordinate Map", () => {
         })
 
         it("deserializes a map with squaddies", () => {
+            const player1Key = SquaddieIdConverterService.squaddieIdToKey({
+                outOfBattleSquaddieId: "player-1",
+                inBattleSquaddieId: 0,
+            })
             const serialized: SerializedCoordinateMap = {
                 id: "test-map",
                 name: "Test Map",
@@ -236,18 +254,15 @@ describe("Coordinate Map", () => {
                     ],
                 ],
                 coordinateBySquaddie: {
-                    "player-1": {
-                        "0": { row: 0, col: 0 },
-                    },
+                    [player1Key]: { row: 0, col: 0 },
                 },
                 coordinatesSquaddiesCannotStopOn: [],
             }
 
             const map = CoordinateMapService.deserialize(serialized)
 
-            expect(map.coordinateBySquaddie.has("player-1")).toBe(true)
-            expect(map.coordinateBySquaddie.get("player-1")?.has(0)).toBe(true)
-            expect(map.coordinateBySquaddie.get("player-1")?.get(0)).toEqual({
+            expect(map.coordinateBySquaddie.has(player1Key)).toBe(true)
+            expect(map.coordinateBySquaddie.get(player1Key)).toEqual({
                 row: 0,
                 col: 0,
             })
