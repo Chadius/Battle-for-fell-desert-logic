@@ -363,4 +363,39 @@ describe("coordinateCalculator", () => {
             expect(dotProduct(axialDir2, { q: 1, r: 0 })).toBe(0)
         })
     })
+
+    const oppositeDirectionTests = [
+        {
+            inputDirection: CoordinateDirection.RIGHT,
+            expectedDirection: CoordinateDirection.LEFT,
+        },
+        {
+            inputDirection: CoordinateDirection.UP_RIGHT,
+            expectedDirection: CoordinateDirection.DOWN_LEFT,
+        },
+        {
+            inputDirection: CoordinateDirection.UP_LEFT,
+            expectedDirection: CoordinateDirection.DOWN_RIGHT,
+        },
+        {
+            inputDirection: CoordinateDirection.LEFT,
+            expectedDirection: CoordinateDirection.RIGHT,
+        },
+        {
+            inputDirection: CoordinateDirection.DOWN_LEFT,
+            expectedDirection: CoordinateDirection.UP_RIGHT,
+        },
+        {
+            inputDirection: CoordinateDirection.DOWN_RIGHT,
+            expectedDirection: CoordinateDirection.UP_LEFT,
+        },
+    ]
+    it.each(oppositeDirectionTests)(
+        "$inputDirection and $expectedDirection are opposites",
+        ({ inputDirection, expectedDirection }) => {
+            expect(
+                CoordinateCalculator.getOppositeDirection(inputDirection)
+            ).toEqual(expectedDirection)
+        }
+    )
 })

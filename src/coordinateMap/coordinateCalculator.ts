@@ -158,6 +158,21 @@ export const CoordinateCalculator = {
         AxialCoordinateCalculator.offsetToAxial(hex),
     axialToOffset: (hex: AxialCoordinate): OffsetCoordinate =>
         AxialCoordinateCalculator.axialToOffset(hex),
+    getOppositeDirection: (
+        inputDirection: TCoordinateDirection
+    ): TCoordinateDirection => {
+        const directions: {
+            [t in TCoordinateDirection]: TCoordinateDirection
+        } = {
+            [CoordinateDirection.RIGHT]: CoordinateDirection.LEFT,
+            [CoordinateDirection.UP_RIGHT]: CoordinateDirection.DOWN_LEFT,
+            [CoordinateDirection.UP_LEFT]: CoordinateDirection.DOWN_RIGHT,
+            [CoordinateDirection.LEFT]: CoordinateDirection.RIGHT,
+            [CoordinateDirection.DOWN_LEFT]: CoordinateDirection.UP_RIGHT,
+            [CoordinateDirection.DOWN_RIGHT]: CoordinateDirection.UP_LEFT,
+        }
+        return directions[inputDirection]
+    },
 }
 
 const getNeighbor = (

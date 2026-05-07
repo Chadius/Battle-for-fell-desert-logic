@@ -2,6 +2,7 @@ import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattl
 import type { SquaddieActionManager } from "../../squaddieActionManager"
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
 import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
+import { FlankingService } from "../../../coordinateMap/flankingService"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
@@ -21,6 +22,7 @@ export const SquaddieActionForecastCalculator = {
         targets,
         action,
         inBattleSquaddieManager,
+        map,
     }: {
         inBattleSquaddieManager: InBattleSquaddieManager
         actor: {
@@ -75,11 +77,23 @@ export const SquaddieActionForecastCalculator = {
         const chances = new Map<string, number>([])
 
         for (const target of targets) {
+            const isActorFlankingTarget =
+                map == undefined
+                    ? false
+                    : FlankingService.isActorFlankingTarget({
+                          actor,
+                          target,
+                          mapId: map.mapId,
+                          coordinateMapCollectionManager: map.manager,
+                          inBattleSquaddieManager,
+                      })
+
             const targetDefensiveBonus =
                 ProficiencyCalculator.getTargetDefensiveBonus({
                     target,
                     squaddieAction,
                     inBattleSquaddieManager,
+                    isActorFlankingTarget,
                 })
 
             const modifier = ProficiencyCalculator.calculateModifierDifference({

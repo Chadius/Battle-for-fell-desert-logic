@@ -1,6 +1,10 @@
 import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieAction } from "../squaddieAction"
-import { ProficiencyLevelConst } from "../../proficiency/proficiencyLevel"
+import {
+    ProficiencyLevelConst,
+    ProficiencyType,
+} from "../../proficiency/proficiencyLevel"
+import { SquaddieConditionType } from "../../proficiency/squaddieCondition"
 
 export const ProficiencyCalculator = {
     getActorProficiencyBonus: ({
@@ -26,6 +30,7 @@ export const ProficiencyCalculator = {
         target,
         squaddieAction,
         inBattleSquaddieManager,
+        isActorFlankingTarget,
     }: {
         target: {
             inBattleSquaddieId: number
@@ -33,6 +38,7 @@ export const ProficiencyCalculator = {
         }
         squaddieAction: SquaddieAction
         inBattleSquaddieManager: InBattleSquaddieManager
+        isActorFlankingTarget?: boolean
     }): number => {
         const defensiveProficiencyType =
             ProficiencyLevelConst.defendingProficiencyTypeByProficiencyType.get(
@@ -41,11 +47,31 @@ export const ProficiencyCalculator = {
         if (defensiveProficiencyType == undefined) {
             return 0
         }
-        return inBattleSquaddieManager.getProficiencyBonus({
+        const baseDefense = inBattleSquaddieManager.getProficiencyBonus({
             inBattleSquaddieId: target.inBattleSquaddieId,
             outOfBattleSquaddieId: target.outOfBattleSquaddieId,
             type: defensiveProficiencyType,
         }).total
+
+        if (
+            isActorFlankingTarget &&
+            defensiveProficiencyType === ProficiencyType.ARMOR
+        ) {
+            const targetConditions =
+                inBattleSquaddieManager.getSquaddieConditions({
+                    inBattleSquaddieId: target.inBattleSquaddieId,
+                    outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+                })
+            const hasActiveOffGuard = (
+                targetConditions.get(SquaddieConditionType.OFF_GUARD) ?? []
+            ).some((c) => (c.amount?.current ?? 0) > 0)
+
+            if (!hasActiveOffGuard) {
+                return baseDefense - 1
+            }
+        }
+
+        return baseDefense
     },
 
     calculateModifierDifference: ({

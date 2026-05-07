@@ -26,6 +26,9 @@ import { ApplyResultService } from "../../apply/applyResultService"
 import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator"
 import { RollGenerator } from "../../calculate/roll/rollGenerator"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
+import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
+import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection"
+import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
 
 describe("OFF_GUARD condition", () => {
     let outOfBattleSquaddieManager: OutOfBattleSquaddieManager
@@ -342,6 +345,222 @@ describe("OFF_GUARD condition", () => {
             expect(
                 getDegreeOfSuccessForTarget([5, 6], inBattleSquaddieManager)
             ).toBe(DegreeOfSuccess.CRITICAL)
+        })
+    })
+
+    describe("Flanking shifts attack outcomes", () => {
+        const MAP_ID = "flanking_test_map"
+        let weaponAction: SquaddieAction
+        let ally: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
+        let nonFlanker: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let coordinateMapCollectionManager: CoordinateMapCollectionManager
+
+        const buildFlankingMap = () => {
+            const map = CoordinateMapService.new({
+                id: MAP_ID,
+                name: "Flanking Map",
+                movementProperties: ["1 1 1", "1 1 1"],
+            })
+            const manager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            manager.addOrUpdate({ map })
+            manager.addSquaddie({
+                mapId: MAP_ID,
+                squaddieId: actor,
+                coordinate: { row: 0, col: 0 },
+            })
+            manager.addSquaddie({
+                mapId: MAP_ID,
+                squaddieId: target,
+                coordinate: { row: 0, col: 1 },
+            })
+            manager.addSquaddie({
+                mapId: MAP_ID,
+                squaddieId: ally,
+                coordinate: { row: 0, col: 2 },
+            })
+            return manager
+        }
+
+        const getDegreeForActor = (
+            actorId: {
+                inBattleSquaddieId: number
+                outOfBattleSquaddieId: string
+            },
+            rolls: number[],
+            mapManager?: CoordinateMapCollectionManager
+        ) => {
+            const result =
+                SquaddieActionResultCalculator.calculateActionResultsWithRolls({
+                    actor: actorId,
+                    targets: [target],
+                    action: { id: weaponAction.id },
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager: actionManager,
+                        coordinateMapCollectionManager: mapManager,
+                    },
+                    rollGenerator: new RollGenerator(rolls),
+                    map: mapManager ? { mapId: MAP_ID } : undefined,
+                })
+            const targetKey = SquaddieIdConverterService.squaddieIdToKey(target)
+            return result.targetResults.get(targetKey)?.degreeOfSuccess
+        }
+
+        beforeEach(() => {
+            weaponAction = SquaddieActionService.new({
+                id: "weaponAttack",
+                name: "Weapon Attack",
+                proficiency: ProficiencyType.WEAPON_NATURAL,
+                degreesOfSuccess: [
+                    DegreeOfSuccess.CRITICAL,
+                    DegreeOfSuccess.SUCCESS,
+                    DegreeOfSuccess.FAILURE,
+                    DegreeOfSuccess.BOTCH,
+                ],
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 1,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(weaponAction)
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "ally",
+                    name: "Ally",
+                    actionIds: [],
+                    attributeSheetId: "sheet",
+                    affiliation: SquaddieAffiliation.ALLY,
+                })
+            )
+            const { inBattleSquaddieId: allyId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "ally",
+                })
+            ally = { inBattleSquaddieId: allyId, outOfBattleSquaddieId: "ally" }
+
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "nonFlanker",
+                    name: "Non Flanker",
+                    actionIds: [],
+                    attributeSheetId: "sheet",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            )
+            const { inBattleSquaddieId: nonFlankerId } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "nonFlanker",
+                })
+            nonFlanker = {
+                inBattleSquaddieId: nonFlankerId,
+                outOfBattleSquaddieId: "nonFlanker",
+            }
+
+            coordinateMapCollectionManager = buildFlankingMap()
+            coordinateMapCollectionManager.addSquaddie({
+                mapId: MAP_ID,
+                squaddieId: nonFlanker,
+                coordinate: { row: 1, col: 0 },
+            })
+        })
+
+        it("changes from FAILURE to SUCCESS when actor is flanking", () => {
+            expect(getDegreeForActor(actor, [3, 2])).toBe(
+                DegreeOfSuccess.FAILURE
+            )
+
+            expect(
+                getDegreeForActor(actor, [3, 2], coordinateMapCollectionManager)
+            ).toBe(DegreeOfSuccess.SUCCESS)
+        })
+
+        it("flanking does not stack with OFF_GUARD", () => {
+            inBattleSquaddieManager.addConditionsToSquaddie({
+                inBattleSquaddieId: target.inBattleSquaddieId,
+                outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+                conditions: [
+                    SquaddieConditionService.new({
+                        type: SquaddieConditionType.OFF_GUARD,
+                        amount: 1,
+                        duration: {
+                            duration: 1,
+                            decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                        },
+                        source: SquaddieConditionSource.ELEMENTAL,
+                    }),
+                ],
+            })
+
+            const forecastResults =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor,
+                    targets: [target],
+                    action: { id: weaponAction.id, manager: actionManager },
+                    inBattleSquaddieManager,
+                    map: {
+                        mapId: MAP_ID,
+                        manager: coordinateMapCollectionManager,
+                    },
+                })
+
+            const successResult = forecastResults.find(
+                (r) =>
+                    r.battleSquaddieId.inBattleSquaddieId ===
+                        target.inBattleSquaddieId &&
+                    r.degreeOfSuccess === DegreeOfSuccess.SUCCESS
+            )
+            expect(successResult?.modifierBreakdown?.targetDefensiveBonus).toBe(
+                -1
+            )
+            expect(successResult?.modifierBreakdown?.isFlankingTarget).toBe(
+                true
+            )
+        })
+
+        it("non-flanking actor does not benefit", () => {
+            expect(
+                getDegreeForActor(
+                    nonFlanker,
+                    [3, 2],
+                    coordinateMapCollectionManager
+                )
+            ).toBe(DegreeOfSuccess.FAILURE)
+        })
+
+        it("calculateForecastedResults exposes isFlankingTarget for the flanking actor", () => {
+            const forecastResults =
+                SquaddieActionResultCalculator.calculateForecastedResults({
+                    actor,
+                    targets: [target],
+                    action: { id: weaponAction.id, manager: actionManager },
+                    inBattleSquaddieManager,
+                    map: {
+                        mapId: MAP_ID,
+                        manager: coordinateMapCollectionManager,
+                    },
+                })
+
+            const anyResult = forecastResults.find(
+                (r) =>
+                    r.battleSquaddieId.inBattleSquaddieId ===
+                    target.inBattleSquaddieId
+            )
+            expect(anyResult?.modifierBreakdown?.isFlankingTarget).toBe(true)
         })
     })
 

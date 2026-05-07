@@ -51,6 +51,7 @@ import type { SquaddieMovementInfo } from "../../../squaddie/squaddieMovementInf
 import { ProficiencyCalculator } from "../proficiencyCalculator"
 import { SquaddieActionForecastCalculator } from "../forecast/squaddieActionForecastCalculator"
 import type { SquaddieActionEffect } from "../../squaddieActionEffect"
+import { FlankingService } from "../../../coordinateMap/flankingService"
 
 export type SquaddieActionDecisions = {
     targetDestination?: {
@@ -68,6 +69,7 @@ export interface ActionModifierBreakdown {
     targetDefensiveBonus: number
     multipleAttackPenalty: number
     netModifier: number
+    isFlankingTarget: boolean
 }
 
 export interface ForecastedActionResult {
@@ -345,6 +347,7 @@ export const SquaddieActionResultCalculator = {
             targets,
             action,
             inBattleSquaddieManager,
+            map,
         })
 
         const results: ForecastedActionResult[] = []
@@ -388,6 +391,7 @@ export const SquaddieActionResultCalculator = {
                 },
                 action,
                 inBattleSquaddieManager,
+                map,
             })
 
             results.push({
@@ -1472,6 +1476,7 @@ const computeModifierBreakdown = ({
     target,
     action,
     inBattleSquaddieManager,
+    map,
 }: {
     actor: {
         inBattleSquaddieId: number
@@ -1486,6 +1491,10 @@ const computeModifierBreakdown = ({
         manager: SquaddieActionManager
     }
     inBattleSquaddieManager: InBattleSquaddieManager
+    map?: {
+        mapId: string
+        manager: CoordinateMapCollectionManager
+    }
 }): ActionModifierBreakdown | undefined => {
     const squaddieAction = action.manager.get(action.id)
     if (
@@ -1513,10 +1522,22 @@ const computeModifierBreakdown = ({
             attackContributionThisTurn
         )
 
+    const isFlankingTarget =
+        map == undefined
+            ? false
+            : FlankingService.isActorFlankingTarget({
+                  actor,
+                  target,
+                  mapId: map.mapId,
+                  coordinateMapCollectionManager: map.manager,
+                  inBattleSquaddieManager,
+              })
+
     const targetDefensiveBonus = ProficiencyCalculator.getTargetDefensiveBonus({
         target,
         squaddieAction,
         inBattleSquaddieManager,
+        isActorFlankingTarget: isFlankingTarget,
     })
 
     const netModifier =
@@ -1527,6 +1548,7 @@ const computeModifierBreakdown = ({
         targetDefensiveBonus,
         multipleAttackPenalty,
         netModifier,
+        isFlankingTarget,
     }
 }
 
@@ -1772,11 +1794,25 @@ const calculateWithActorRoll = ({
     const targetModifierDifferences = new Map<string, number>()
 
     for (const target of targets) {
+        const isActorFlankingTarget =
+            map != undefined &&
+            managers.coordinateMapCollectionManager != undefined
+                ? FlankingService.isActorFlankingTarget({
+                      actor,
+                      target,
+                      mapId: map.mapId,
+                      coordinateMapCollectionManager:
+                          managers.coordinateMapCollectionManager,
+                      inBattleSquaddieManager: managers.inBattleSquaddieManager,
+                  })
+                : false
+
         const targetDefensiveBonus =
             ProficiencyCalculator.getTargetDefensiveBonus({
                 target,
                 squaddieAction,
                 inBattleSquaddieManager: managers.inBattleSquaddieManager,
+                isActorFlankingTarget,
             })
 
         const modifierDifference =

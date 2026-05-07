@@ -1,6 +1,33 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 @SPEC.md
 See `SPEC.md` for the full technical specification, current capabilities, known gaps, and the
 phased implementation plan.
+
+# Commands
+
+```bash
+npm run test          # run full test suite (vitest)
+npm run test-watch    # run tests in watch mode
+npm run tsc           # type-check without emitting (shows first 10 errors)
+npm run format-check  # check formatting with Prettier
+npm run format-fix    # auto-fix formatting
+npm run build         # clean, type-check, and build
+```
+
+To run a single test file:
+
+```bash
+npx vitest run src/path/to/file.test.ts
+```
+
+To run tests matching a name pattern:
+
+```bash
+npx vitest run -t "pattern"
+```
 
 # Overview
 
@@ -178,3 +205,74 @@ When writing a describe block, try to consolidate functions across the individua
 different setup or action. Extract common describe-level functions to reuse the setup and reduce duplication and improve
 readability. Some tests need to do some setup before acting. Move the action into a function and let the unit test call
 that instead. This makes the tests more readable and focuses on the test's purpose.
+
+Use `src/testUtils/outOfBattleSquaddieTestSetup.ts` (`OutOfBattleSquaddieTestSetup`) to quickly build an
+`OutOfBattleSquaddieManager` with a single attribute sheet. Nearly every test that touches squaddies starts here.
+
+# Cross-Cutting Architecture
+
+## The Dual Squaddie ID Pattern
+
+Every in-battle squaddie has two identifiers that must always travel together as `BattleSquaddieId`:
+
+- `outOfBattleSquaddieId: string` — the template/definition (e.g. `"lini"`); shared across all instances
+- `inBattleSquaddieId: number` — the specific instance in this mission; unique per placement
+
+All manager methods accept both. Functions that store or look up a squaddie use
+`SquaddieIdConverterService.squaddieIdToKey({inBattleSquaddieId, outOfBattleSquaddieId})` to produce a string map key.
+Never store just one of the two IDs.
+
+## Combat Calculation Formula
+
+Hit determination (for weapon and skill actions):
+
+```
+totalValue = roll(2d6) + actorProficiencyBonus - targetDefensiveBonus - 6 - multipleAttackPenalty
+```
+
+Degrees of success from `totalValue`:
+
+- `CRITICAL` ≥ 6 (or max roll with SUCCESS)
+- `SUCCESS` ≥ 0
+- `FAILURE` > −6
+- `BOTCH` ≤ −6
+
+`actorProficiencyBonus` = rank + attributeScore + proficiencyLevel + itemBonuses + conditionBonuses  
+`targetDefensiveBonus` = same formula but for the defending proficiency type
+
+Weapon actions (WEAPON_NATURAL/SIMPLE/MARTIAL) are defended by `ARMOR`. Skill actions
+(SKILL_BODY/MIND/SOUL) are defended by `DEFEND_BODY/MIND/SOUL`. The mapping lives in
+`ProficiencyLevelConst.defendingProficiencyTypeByProficiencyType` (`src/proficiency/proficiencyLevel.ts`).
+
+The multiple-attack penalty (MAP) is 0 / −3 / −6 for the 1st / 2nd / 3rd+ weapon attack in a turn.
+
+## squaddieAction Calculation Pipeline
+
+`src/squaddieAction/calculate/` has four layers:
+
+| Subfolder   | Purpose                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `forecast/` | `SquaddieActionForecastCalculator.forecastChanceToHit` — probability distribution (out of 36) per target/degree                             |
+| `result/`   | `SquaddieActionResultCalculator.calculateResult` / `calculateActionResultsWithRolls` — commit an action to produce `SquaddieActionResult[]` |
+| `validity/` | `SquaddieActionValidationService` — checks range, line-of-sight, affiliation, and effect legality before an action is taken                 |
+| `roll/`     | `RollGenerator` — produces deterministic results from a pre-seeded queue (used in tests) or random rolls in production                      |
+
+`ProficiencyCalculator` (`proficiencyCalculator.ts`) is the bridge between the two paths: both forecast and result call `getActorProficiencyBonus` / `getTargetDefensiveBonus`.
+
+`ForecastedActionResult` (from `calculateForecastedResults`) bundles probability, pre-calculated results per degree, and `ActionModifierBreakdown` (actor bonus, target defense, MAP, net). This is the object surfaced by `MissionEngine.previewReadiedActionAndForecastResults()`.
+
+## Hex Grid Coordinate System
+
+The map uses offset coordinates (`{row, col}`). The six directions are defined in `CoordinateDirection`
+(`src/coordinateMap/coordinateCalculator.ts`) as integers 0–5:
+
+```
+RIGHT=0  UP_RIGHT=1  UP_LEFT=2  LEFT=3  DOWN_LEFT=4  DOWN_RIGHT=5
+```
+
+The column offset for a given direction depends on whether the row is even or odd (standard offset-hex).
+The opposite of direction `d` is `(d + 3) % 6`.
+
+`CoordinateCalculator.getNeighbor(origin, direction)` returns the adjacent cell.
+`CoordinateMapService.getSquaddieAtCoordinate` / `getSquaddieCoordinate` translate between squaddies
+and positions. These live on `CoordinateMapCollectionManager` for multi-map support.
