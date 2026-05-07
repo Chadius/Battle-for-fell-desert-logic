@@ -14,6 +14,7 @@ export const SquaddieConditionType = {
     ABSORB: "ABSORB",
     ARMOR: "ARMOR",
     ELUSIVE: "ELUSIVE",
+    OFF_GUARD: "OFF_GUARD",
     SLOWED: "SLOWED",
     HUSTLE: "HUSTLE",
 } as const satisfies Record<string, string>
@@ -40,6 +41,7 @@ const helpfulTypes = new Set<TSquaddieConditionType>([
 ])
 
 const hinderingTypes = new Set<TSquaddieConditionType>([
+    SquaddieConditionType.OFF_GUARD,
     SquaddieConditionType.SLOWED,
 ])
 

@@ -1057,11 +1057,16 @@ const calculateConditionAmount = (
     let conditionBonus: number = 0
     let conditionPenalty: number = 0
     if (type == ProficiencyType.ARMOR) {
-        const amount = effectiveConditionAmount(
+        const armorAmount = effectiveConditionAmount(
             squaddie.conditions.get(SquaddieConditionType.ARMOR)
         )
-        if (amount > 0) conditionBonus = amount
-        if (amount < 0) conditionPenalty = amount
+        if (armorAmount > 0) conditionBonus = armorAmount
+        if (armorAmount < 0) conditionPenalty = armorAmount
+
+        const offGuardAmount = effectiveConditionAmount(
+            squaddie.conditions.get(SquaddieConditionType.OFF_GUARD)
+        )
+        if (offGuardAmount > 0) conditionPenalty -= offGuardAmount
     }
     return { conditionBonus, conditionPenalty }
 }
