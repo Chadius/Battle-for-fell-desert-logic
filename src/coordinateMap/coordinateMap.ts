@@ -28,7 +28,7 @@ interface Coordinate {
     col: number
     movementCost: number | undefined
     canStop: boolean
-    squaddieId?: { outOfBattleSquaddieId: string; inBattleSquaddieId: number }
+    squaddieId?: BattleSquaddieId
 }
 
 export interface CoordinateMap {

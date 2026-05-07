@@ -193,9 +193,16 @@ export class CoordinateMapAStarAdapter
         currentNode: OffsetCoordinate
         path: CoordinateMovePath
     }): boolean {
-        return !this.map.coordinatesSquaddiesCannotStopOn.has(
-            OffsetCoordinateService.coordinateToKey(currentNode)
-        )
+        if (this.searchLimits?.stopOnSquaddies) {
+            return !this.map.coordinatesSquaddiesCannotStopOn.has(
+                OffsetCoordinateService.coordinateToKey(currentNode)
+            )
+        }
+        return CoordinateMapService.canSquaddieStopAtCoordinate({
+            map: this.map,
+            coordinate: currentNode,
+            squaddieId: this.searchLimits?.squaddieId,
+        })
     }
 
     createPath(node: OffsetCoordinate): CoordinateMovePath {

@@ -788,6 +788,55 @@ describe("coordinateMapAStarAdapter", () => {
                     })
                 ).toBeUndefined()
             })
+            it("enemy cannot stop on another friendly enemy even though enemies can pass through each other", () => {
+                const enemyBlockerId = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: "enemy",
+                })
+                map = CoordinateMapService.addSquaddie({
+                    map,
+                    squaddieId: enemyBlockerId,
+                    coordinate: { row: 0, col: 1 },
+                })
+
+                const enemyActorId = manager.createNewSquaddie({
+                    outOfBattleSquaddieId: "enemy",
+                })
+                map = CoordinateMapService.addSquaddie({
+                    map,
+                    squaddieId: enemyActorId,
+                    coordinate: { row: 0, col: 4 },
+                })
+
+                const searchLimits =
+                    CoordinateMapAStarAdapter.getCoordinateMapSearchLimitsFromSquaddie(
+                        {
+                            manager,
+                            battleSquaddieId: enemyActorId,
+                        }
+                    )
+
+                graph = new CoordinateMapAStarAdapter({
+                    map,
+                    searchLimits,
+                    inBattleSquaddieManager: manager,
+                })
+
+                const path = AStarSearchService.search<
+                    OffsetCoordinate,
+                    CoordinateMovePath,
+                    AStarGraph<OffsetCoordinate, CoordinateMovePath>
+                >({
+                    start: { row: 0, col: 4 },
+                    graph,
+                    stopCondition: (node: OffsetCoordinate) =>
+                        node.row === 0 && node.col <= 1,
+                })
+
+                expect(path).toBeDefined()
+                const endCoordinate =
+                    CoordinateMovePathService.getEndCoordinate(path!)
+                expect(endCoordinate.col).toBe(0)
+            })
             it("squaddie limits can allow you to stop on squaddies", () => {
                 const allySquaddieId = manager.createNewSquaddie({
                     outOfBattleSquaddieId: "ally",
