@@ -73,9 +73,6 @@ like `InBattleSquaddie.id`, so this is used to disambiguate.
 
 The test descriptions and variable/function names should be used to document as much as possible.
 
-To help me understand what code is generated, please continue adding comments above the code blocks.
-I will remove them from the committed code, but it will help me understand why it is written that way.
-
 Avoid trivial comments, like adding "Given/When/Then" in test code.
 
 SonarQube has a warning when a function exceeds a complexity of 15. That's a good indicator that a function should be

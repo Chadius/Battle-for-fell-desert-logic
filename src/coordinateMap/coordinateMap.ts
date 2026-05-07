@@ -97,7 +97,9 @@ export const CoordinateMapService = {
                     squaddieId.inBattleSquaddieId)
         ) {
             throw new Error(
-                `[CoordinateMap.addSquaddie]: another squaddie is at (${coordinate.row}, ${coordinate.col})`
+                `[CoordinateMap.addSquaddie]: another squaddie is at (${coordinate.row}, ${coordinate.col}): ${squaddieAtDestination.outOfBattleSquaddieId} ${
+                    squaddieAtDestination.inBattleSquaddieId
+                }`
             )
         }
 

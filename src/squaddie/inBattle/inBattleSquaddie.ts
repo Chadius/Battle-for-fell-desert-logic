@@ -17,8 +17,8 @@ import {
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel"
 import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
-import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction"
 import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect"
 
 export const DEFAULT_ACTION_POINTS = 3
 

@@ -15,12 +15,9 @@ import {
     ProficiencyType,
     type TProficiencyType,
 } from "../proficiency/proficiencyLevel"
-import type {
-    SquaddieCondition,
-    TSquaddieConditionType,
-} from "../proficiency/squaddieCondition"
 import type { EnumLike } from "../enum"
 import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo"
+import type { SquaddieActionEffect } from "./squaddieActionEffect"
 
 export const MovementEffectType = {
     ACTOR_CHOSEN: "ACTOR_CHOSEN",
@@ -79,39 +76,6 @@ export type SquaddieActionMovementEffect =
     | ActorChosenSpecialTraversalMovement
     | TeleportToActorChosenMovement
     | ForcedTowardActorMovement
-
-export interface SquaddieActionEffect {
-    actionPoints?: {
-        spent: ActionPointCost
-        restore?: number
-        additional?: {
-            movementPathActionPointCost?: boolean
-        }
-    }
-    damage?: {
-        raw: number
-        targetProficiency: TProficiencyType
-        attributeScoreType?: AttributeScoreType
-    }
-    healing?: {
-        raw: number
-        attributeScoreType?: AttributeScoreType
-    }
-    conditions?: {
-        add?: SquaddieCondition[]
-        dispel?: {
-            all: boolean
-            types: TSquaddieConditionType[]
-            amount: number | undefined
-        }
-        treat?: {
-            all: boolean
-            types: TSquaddieConditionType[]
-            amount: number | undefined
-        }
-    }
-    movement?: SquaddieActionMovementEffect
-}
 
 type DegreeOfSuccessEffects = {
     SUCCESS: SquaddieActionEffect
@@ -259,6 +223,7 @@ export const SquaddieActionService = {
         requiresSpecificTarget: boolean
         requiresAimCoordinate: boolean
         requiresTargetDestination: boolean
+        actorIsAimCoordinate: boolean
     } => {
         const targetsFoeOrFriend =
             action.targeting.affiliationRelationship.foe ||
@@ -266,6 +231,8 @@ export const SquaddieActionService = {
 
         const aimCoordinateRequiresTarget =
             action.targeting.aimCoordinateRequiresTarget ?? true
+
+        const isAoe = (action.targeting.areaOfEffectSize ?? 0) > 0
 
         const actorNeedsDestination =
             action.effectOnActor.SUCCESS?.movement?.movementType ===
@@ -280,13 +247,21 @@ export const SquaddieActionService = {
                 effect.movement.destinationRange !== ActionRange.SELF
         )
 
+        const requiresAimCoordinate =
+            (!aimCoordinateRequiresTarget && targetsFoeOrFriend) ||
+            (isAoe && !aimCoordinateRequiresTarget)
+
+        const actorIsAimCoordinate =
+            requiresAimCoordinate && action.targeting.range === ActionRange.SELF
+
         return {
             requiresSpecificTarget:
-                aimCoordinateRequiresTarget && targetsFoeOrFriend,
-            requiresAimCoordinate:
-                !aimCoordinateRequiresTarget && targetsFoeOrFriend,
+                (aimCoordinateRequiresTarget && targetsFoeOrFriend) ||
+                (isAoe && aimCoordinateRequiresTarget),
+            requiresAimCoordinate,
             requiresTargetDestination:
                 actorNeedsDestination || targetNeedsDestination,
+            actorIsAimCoordinate,
         }
     },
 }

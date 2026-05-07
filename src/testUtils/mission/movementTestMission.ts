@@ -288,6 +288,7 @@ function createGravityPullAction(): SquaddieAction {
             foe: true,
             friend: false,
         },
+        aimCoordinateRequiresTarget: false,
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
         effectOnActor: {
@@ -465,7 +466,7 @@ function createInBattleSquaddieManager(
 
     // Two demons flanking Fracta across the pit cluster.
     const demonSquaddieIds: BattleSquaddieId[] = []
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 4; i++) {
         const demonId = manager.createNewSquaddie({
             outOfBattleSquaddieId:
                 MovementTestMissionIds.slitherDemon.outOfBattleSquaddieId,
@@ -506,10 +507,11 @@ function addSquaddiesToMap({
         coordinate: { row: 5, col: 1 },
     })
 
-    // Demons start on the right side of the pit cluster, across from Fracta.
     const demonCoordinates = [
         { row: 1, col: 5 },
         { row: 2, col: 5 },
+        { row: 5, col: 0 },
+        { row: 4, col: 4 },
     ]
 
     for (let i = 0; i < demonSquaddieIds.length; i++) {

@@ -603,6 +603,7 @@ describe("SquaddieActionService.getRequiredDecisions", () => {
         const gravityPull = SquaddieActionService.new({
             id: "gravity-pull",
             name: "Gravity Pull",
+            range: ActionRange.SELF,
             affiliationRelationship: { self: false, foe: true, friend: false },
             areaOfEffectSize: 5,
             aimCoordinateRequiresTarget: false,
@@ -624,6 +625,37 @@ describe("SquaddieActionService.getRequiredDecisions", () => {
         expect(result.requiresSpecificTarget).toBe(false)
         expect(result.requiresAimCoordinate).toBe(true)
         expect(result.requiresTargetDestination).toBe(false)
+        expect(result.actorIsAimCoordinate).toBe(true)
+    })
+
+    it("AOE with non-SELF range and aimCoordinateRequiresTarget false requires an aim coordinate but actor is not the aim", () => {
+        const groundBlast = SquaddieActionService.new({
+            id: "ground-blast",
+            name: "Ground Blast",
+            range: ActionRange.MEDIUM,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            areaOfEffectSize: 3,
+            aimCoordinateRequiresTarget: false,
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    damage: {
+                        raw: 3,
+                        targetProficiency: ProficiencyType.ARMOR,
+                        attributeScoreType: AttributeScore.MIND,
+                    },
+                },
+            },
+        })
+
+        const result = SquaddieActionService.getRequiredDecisions(groundBlast)
+
+        expect(result.requiresSpecificTarget).toBe(false)
+        expect(result.requiresAimCoordinate).toBe(true)
+        expect(result.requiresTargetDestination).toBe(false)
+        expect(result.actorIsAimCoordinate).toBe(false)
     })
 
     it("TELEPORT with SELF destinationRange requires no target destination (target placed at actor's cell automatically)", () => {

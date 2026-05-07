@@ -1296,28 +1296,30 @@ const validateTargetsCanBeAffected = ({
         return { isValid: true }
     }
 
-    const results = SquaddieActionResultCalculator.calculateResult({
-        actor,
-        targets,
-        action: { id: squaddieAction.id, decisions },
-        managers: {
-            inBattleSquaddieManager,
-            squaddieActionManager,
-            coordinateMapCollectionManager,
-        },
-        degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-        map: { mapId },
-    })
+    const hasAffectedTarget = Object.values(DegreeOfSuccess).some((degree) => {
+        const results = SquaddieActionResultCalculator.calculateResult({
+            actor,
+            targets,
+            action: { id: squaddieAction.id, decisions },
+            managers: {
+                inBattleSquaddieManager,
+                squaddieActionManager,
+                coordinateMapCollectionManager,
+            },
+            degreeOfSuccess: degree,
+            map: { mapId },
+        })
 
-    const targetResults = results.filter((result) =>
-        targets.some(
-            (t) =>
-                t.inBattleSquaddieId === result.inBattleSquaddieId &&
-                t.outOfBattleSquaddieId === result.outOfBattleSquaddieId
+        const targetResults = results.filter((result) =>
+            targets.some(
+                (t) =>
+                    t.inBattleSquaddieId === result.inBattleSquaddieId &&
+                    t.outOfBattleSquaddieId === result.outOfBattleSquaddieId
+            )
         )
-    )
 
-    const hasAffectedTarget = targetResults.some(squaddieActionResultHasEffect)
+        return targetResults.some(squaddieActionResultHasEffect)
+    })
 
     if (!hasAffectedTarget) {
         return { isValid: false, reason: "No targets can be affected" }
@@ -1341,9 +1343,20 @@ const validateAoeAction = ({
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     mapId: string
 }): ActionValidationResult => {
+    let resolvedTargetCoordinate = resolveToSelfIfActionRangeIsSelf({
+        targetCoordinate,
+        squaddieAction,
+        actor,
+        coordinateMapCollectionManager,
+        mapId,
+    })
+    if (resolvedTargetCoordinate == undefined) {
+        return { isValid: true }
+    }
+
     const centerValidation = validateAoeCenterInRange({
         actor,
-        targetCoordinate,
+        targetCoordinate: resolvedTargetCoordinate,
         squaddieAction,
         coordinateMapCollectionManager,
         mapId,
@@ -1358,7 +1371,7 @@ const validateAoeAction = ({
         squaddieAction.targeting.aimCoordinateRequiresTarget ?? true
     if (requiresTargetAtCenter) {
         return validateTargetAtCenter({
-            targetCoordinate: targetCoordinate!,
+            targetCoordinate: resolvedTargetCoordinate,
             targets,
             coordinateMapCollectionManager,
             mapId,
@@ -2128,29 +2141,31 @@ const checkIfActionHasEffectOnTargets = ({
         return targets.length > 0
     }
 
-    const results = SquaddieActionResultCalculator.calculateResult({
-        actor,
-        targets,
-        action: { id: squaddieAction.id },
-        managers: {
-            inBattleSquaddieManager: managers.inBattleSquaddieManager,
-            squaddieActionManager: managers.squaddieActionManager,
-            coordinateMapCollectionManager:
-                managers.coordinateMapCollectionManager,
-        },
-        degreeOfSuccess: DegreeOfSuccess.SUCCESS,
-        map: { mapId: map.mapId },
-    })
+    return Object.values(DegreeOfSuccess).some((degree) => {
+        const results = SquaddieActionResultCalculator.calculateResult({
+            actor,
+            targets,
+            action: { id: squaddieAction.id },
+            managers: {
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+                squaddieActionManager: managers.squaddieActionManager,
+                coordinateMapCollectionManager:
+                    managers.coordinateMapCollectionManager,
+            },
+            degreeOfSuccess: degree,
+            map: { mapId: map.mapId },
+        })
 
-    const targetResults = results.filter((result) =>
-        targets.some(
-            (t) =>
-                t.inBattleSquaddieId === result.inBattleSquaddieId &&
-                t.outOfBattleSquaddieId === result.outOfBattleSquaddieId
+        const targetResults = results.filter((result) =>
+            targets.some(
+                (t) =>
+                    t.inBattleSquaddieId === result.inBattleSquaddieId &&
+                    t.outOfBattleSquaddieId === result.outOfBattleSquaddieId
+            )
         )
-    )
 
-    return targetResults.some(squaddieActionResultHasEffect)
+        return targetResults.some(squaddieActionResultHasEffect)
+    })
 }
 
 const checkForValidMovementAction = (
@@ -2367,4 +2382,41 @@ const calculateAimCoordinateResultsWithAreaOfEffect = ({
         results.push({ aimCoordinate, targetIds: resolvedTargets })
     }
     return results
+}
+
+const resolveToSelfIfActionRangeIsSelf = ({
+    targetCoordinate,
+    squaddieAction,
+    coordinateMapCollectionManager,
+    actor,
+    mapId,
+}: {
+    targetCoordinate: OffsetCoordinate | undefined
+    squaddieAction: SquaddieAction
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    actor: BattleSquaddieId
+    mapId: string
+}): OffsetCoordinate | undefined => {
+    if (
+        targetCoordinate != undefined ||
+        squaddieAction.targeting.range !== ActionRange.SELF
+    ) {
+        return targetCoordinate
+    }
+
+    const actorCoordinate =
+        coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId,
+            squaddieId: actor,
+        })
+    if (
+        actorCoordinate?.row == undefined ||
+        actorCoordinate?.col == undefined
+    ) {
+        return undefined
+    }
+    return {
+        row: actorCoordinate.row,
+        col: actorCoordinate.col,
+    }
 }

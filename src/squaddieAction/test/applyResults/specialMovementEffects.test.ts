@@ -1104,5 +1104,108 @@ describe("Special movement effects", () => {
             )
             expect(targetMovementResult).toBeUndefined()
         })
+
+        it("can pull multiple squaddies at once", () => {
+            const closerTargetOutOfBattleSquaddie =
+                OutOfBattleSquaddieService.new({
+                    id: "closerTarget",
+                    name: "Closer Target",
+                    actionIds: [],
+                    attributeSheetId: "sharedSheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(
+                closerTargetOutOfBattleSquaddie
+            )
+            const { inBattleSquaddieId: closerTargetInBattleSquaddie } =
+                inBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "closerTarget",
+                })
+            mapManager.addSquaddie({
+                mapId: "map",
+                squaddieId: {
+                    inBattleSquaddieId: closerTargetInBattleSquaddie,
+                    outOfBattleSquaddieId: "closerTarget",
+                },
+                coordinate: { row: 0, col: 3 },
+            })
+
+            const gravityPullAction = SquaddieActionService.new({
+                id: "gravityPull",
+                name: "Gravity Pull",
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 1 },
+                    },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        movement: {
+                            movementType:
+                                MovementEffectType.FORCED_TOWARD_ACTOR,
+                            forcedDistance: 2,
+                        },
+                    },
+                },
+            })
+            actionManager.addOrUpdate(gravityPullAction)
+
+            const results = SquaddieActionResultCalculator.calculateResult({
+                degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                managers: {
+                    inBattleSquaddieManager,
+                    squaddieActionManager: actionManager,
+                    coordinateMapCollectionManager: mapManager,
+                },
+                actor: {
+                    inBattleSquaddieId: actorInBattleSquaddieId,
+                    outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+                },
+                targets: [
+                    {
+                        inBattleSquaddieId: targetInBattleSquaddieId,
+                        outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                    },
+                    {
+                        inBattleSquaddieId: closerTargetInBattleSquaddie,
+                        outOfBattleSquaddieId:
+                            closerTargetOutOfBattleSquaddie.id,
+                    },
+                ],
+                map: { mapId: "map" },
+                action: { id: gravityPullAction.id },
+            })
+            ApplyResultService.applyResultsToSquaddies({
+                inBattleSquaddieManager,
+                results,
+                map: { mapId: "map", manager: mapManager },
+            })
+
+            const targetCoordinate2 =
+                CoordinateMapService.getSquaddieCoordinate({
+                    map: mapManager.getMapById("map"),
+                    squaddieId: {
+                        inBattleSquaddieId: closerTargetInBattleSquaddie,
+                        outOfBattleSquaddieId:
+                            closerTargetOutOfBattleSquaddie.id,
+                    },
+                })
+            expect(targetCoordinate2).toEqual(
+                expect.objectContaining({ row: 0, col: 1 })
+            )
+
+            const targetCoordinate = CoordinateMapService.getSquaddieCoordinate(
+                {
+                    map: mapManager.getMapById("map"),
+                    squaddieId: {
+                        inBattleSquaddieId: targetInBattleSquaddieId,
+                        outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
+                    },
+                }
+            )
+            expect(targetCoordinate).toEqual(
+                expect.objectContaining({ row: 0, col: 2 })
+            )
+        })
     })
 })

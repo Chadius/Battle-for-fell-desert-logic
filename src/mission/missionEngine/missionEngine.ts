@@ -788,6 +788,7 @@ export class MissionEngine {
         requiresSpecificTarget: boolean
         requiresAimCoordinate: boolean
         requiresTargetDestination: boolean
+        actorIsAimCoordinate: boolean
     } {
         this.throwIfMissionManagerIsUndefined(
             this.getRequiredDecisionsForAction.name

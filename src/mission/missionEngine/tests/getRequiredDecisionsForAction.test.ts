@@ -17,6 +17,8 @@ import {
     MovementEffectType,
     SquaddieActionService,
 } from "../../../squaddieAction/squaddieAction"
+import { AttributeScore } from "../../../proficiency/attributeScore"
+import { ProficiencyType } from "../../../proficiency/proficiencyLevel"
 import { ActionRange } from "../../../squaddieAction/actionRange"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
@@ -24,6 +26,7 @@ import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
 const mapId = "decisions-test-map"
 const moveActionId = "default-move"
 const rescueActionId = "rescue"
+const gravityPullActionId = "gravity-pull"
 
 function createEngineWithActions(): MissionEngine {
     const { manager: outOfBattleSquaddieManager } =
@@ -84,9 +87,34 @@ function createEngineWithActions(): MissionEngine {
     const squaddieActionManager = new SquaddieActionManager(
         SquaddieActionCollectionService.new()
     )
+    const gravityPullAction = SquaddieActionService.new({
+        id: gravityPullActionId,
+        name: "Gravity Pull",
+        attribute: AttributeScore.MIND,
+        proficiency: ProficiencyType.SKILL_MIND,
+        range: ActionRange.SELF,
+        shape: CoordinateGeneratorShape.BLOOM,
+        areaOfEffectSize: 5,
+        affiliationRelationship: { self: false, foe: true, friend: false },
+        aimCoordinateRequiresTarget: false,
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
+        },
+        effectOnTarget: {
+            [DegreeOfSuccess.SUCCESS]: {},
+            [DegreeOfSuccess.FAILURE]: {
+                movement: {
+                    movementType: MovementEffectType.FORCED_TOWARD_ACTOR,
+                    forcedDistance: 2,
+                },
+            },
+        },
+    })
+
     squaddieActionManager.addOrUpdate(SquaddieActionService.defaultMove())
     squaddieActionManager.addOrUpdate(SquaddieActionService.defaultEndTurn())
     squaddieActionManager.addOrUpdate(rescueAction)
+    squaddieActionManager.addOrUpdate(gravityPullAction)
 
     const missionManager = new MissionManager({
         missionState: MissionStateService.new({
@@ -136,6 +164,19 @@ describe("MissionEngine.getRequiredDecisionsForAction", () => {
         expect(result.requiresSpecificTarget).toBe(false)
         expect(result.requiresAimCoordinate).toBe(false)
         expect(result.requiresTargetDestination).toBe(false)
+        expect(result.actorIsAimCoordinate).toBe(false)
+    })
+
+    it("Gravity Pull (AOE with range SELF) requires aim coordinate and actor is the aim", () => {
+        const missionEngine = createEngineWithActions()
+
+        const result =
+            missionEngine.getRequiredDecisionsForAction(gravityPullActionId)
+
+        expect(result.requiresSpecificTarget).toBe(false)
+        expect(result.requiresAimCoordinate).toBe(true)
+        expect(result.requiresTargetDestination).toBe(false)
+        expect(result.actorIsAimCoordinate).toBe(true)
     })
 
     it("Rescue requires a specific target and a target destination", () => {

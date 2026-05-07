@@ -17,7 +17,6 @@ import {
     type TProficiencyLevel,
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel"
-import type { SquaddieActionEffect } from "../../squaddieAction/squaddieAction"
 import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
 import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
@@ -27,6 +26,7 @@ import {
 } from "../../affiliation/affiliation"
 import { type SquaddieInfo, SquaddieInfoService } from "./squaddieInfo"
 import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection

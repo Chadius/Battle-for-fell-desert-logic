@@ -24,6 +24,12 @@ import { SquaddieActionCollectionService } from "../../../squaddieActionCollecti
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
 import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
+import {
+    SquaddieConditionDecaysAt,
+    SquaddieConditionService,
+    SquaddieConditionSource,
+    SquaddieConditionType,
+} from "../../../../proficiency/squaddieCondition"
 
 describe("SquaddieActionValidationService", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -571,6 +577,142 @@ describe("SquaddieActionValidationService", () => {
 
             expect(result.isValid).toBe(false)
             expect(result.reason).toBe("Target coordinate must have a target")
+        })
+    })
+
+    describe("Affects self validation", () => {
+        const aoeMapId = "aoe-test-map"
+        let aoeSquaddieActionManager: SquaddieActionManager
+        let aoeInBattleSquaddieManager: InBattleSquaddieManager
+        let aoeCoordinateMapCollectionManager: CoordinateMapCollectionManager
+        let aoeActor: BattleSquaddieId
+        let aoeAction: SquaddieAction
+
+        beforeEach(() => {
+            const { manager: aoeOutOfBattle } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    { sheetId: "aoe-sheet" }
+                )
+
+            aoeOutOfBattle.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "aoe-actor",
+                    name: "AoE Actor",
+                    actionIds: [],
+                    attributeSheetId: "aoe-sheet",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            )
+            aoeOutOfBattle.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "aoe-enemy",
+                    name: "AoE Enemy",
+                    actionIds: [],
+                    attributeSheetId: "aoe-sheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            )
+
+            const inBattleCollection = InBattleSquaddieCollectionService.new()
+            aoeInBattleSquaddieManager = new InBattleSquaddieManager(
+                inBattleCollection,
+                aoeOutOfBattle
+            )
+
+            const { inBattleSquaddieId: actorId } =
+                aoeInBattleSquaddieManager.createNewSquaddie({
+                    outOfBattleSquaddieId: "aoe-actor",
+                })
+            aoeActor = {
+                inBattleSquaddieId: actorId,
+                outOfBattleSquaddieId: "aoe-actor",
+            }
+
+            aoeSquaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+
+            let mapCollection = CoordinateMapCollectionService.new()
+            mapCollection = CoordinateMapCollectionService.addOrUpdate({
+                collection: mapCollection,
+                map: CoordinateMapService.new({
+                    id: aoeMapId,
+                    name: "AoE Test Map",
+                    movementProperties: [
+                        "1 1 1 1 1 1 1 1 1 1 ",
+                        " 1 1 1 1 1 1 1 1 1 1",
+                        "1 1 1 1 1 1 1 1 1 1 ",
+                    ],
+                }),
+            })
+            aoeCoordinateMapCollectionManager =
+                new CoordinateMapCollectionManager(mapCollection)
+
+            aoeCoordinateMapCollectionManager.addSquaddie({
+                mapId: aoeMapId,
+                squaddieId: aoeActor,
+                coordinate: { row: 0, col: 0 },
+            })
+
+            aoeAction = SquaddieActionService.new({
+                id: "aoe-heal",
+                name: "AoE Heal",
+                range: ActionRange.SELF,
+                shape: CoordinateGeneratorShape.BLOOM,
+                areaOfEffectSize: 1,
+                aimCoordinateRequiresTarget: false,
+                affiliationRelationship: {
+                    self: true,
+                    foe: false,
+                    friend: false,
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        conditions: {
+                            add: [
+                                SquaddieConditionService.new({
+                                    type: SquaddieConditionType.ABSORB,
+                                    amount: 1,
+                                    duration: {
+                                        duration: 1,
+                                        decaysAt:
+                                            SquaddieConditionDecaysAt.TURN_END,
+                                    },
+                                    source: SquaddieConditionSource.PHYSICAL,
+                                }),
+                            ],
+                        },
+                    },
+                },
+            })
+            aoeSquaddieActionManager.addOrUpdate(aoeAction)
+        })
+
+        const callAoeIsActionValid = () =>
+            SquaddieActionValidationService.isActionValid({
+                actor: aoeActor,
+                action: {
+                    id: aoeAction.id,
+                    decisions: {
+                        targetCoordinate: { row: 0, col: 0 },
+                    },
+                },
+                targets: [aoeActor],
+                managers: {
+                    inBattleSquaddieManager: aoeInBattleSquaddieManager,
+                    squaddieActionManager: aoeSquaddieActionManager,
+                    coordinateMapCollectionManager:
+                        aoeCoordinateMapCollectionManager,
+                },
+                map: { mapId: aoeMapId },
+            })
+
+        it("isActionValid valid when the action affects self", () => {
+            const result = callAoeIsActionValid()
+            expect(result.isValid).toBe(true)
         })
     })
 })
