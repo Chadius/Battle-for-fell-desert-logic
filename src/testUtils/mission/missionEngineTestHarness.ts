@@ -425,6 +425,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                     [AttributeScore.SOUL]: 1,
                 },
                 rank: 1,
+                sneakAttackDamage: 1,
             }
         )
         manager.addOrUpdateAttributeSheet(liniAttributeSheet)

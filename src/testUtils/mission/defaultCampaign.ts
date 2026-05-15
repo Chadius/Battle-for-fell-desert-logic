@@ -4,6 +4,7 @@ import { CampaignMissionService } from "../../campaign/campaignMission"
 import { MissionEngineTestHarness } from "./missionEngineTestHarness"
 import { createTargetPracticeMission } from "./targetPracticeMission"
 import { createMovementTestMission } from "./movementTestMission"
+import { createSneakAttackMission } from "./sneakAttackMission"
 
 export const DefaultCampaignIds = {
     mission1Id: "test-harness-mission-1",
@@ -12,6 +13,8 @@ export const DefaultCampaignIds = {
     mission2Name: "Vale and Gloria Mission",
     mission3Id: "movement-test-mission-1",
     mission3Name: "Movement Test Mission",
+    mission4Id: "sneak-attack-mission",
+    mission4Name: "Sneak Attack Mission",
 } as const
 
 export function createDefaultCampaignManager(): CampaignManager {
@@ -48,6 +51,17 @@ export function createDefaultCampaignManager(): CampaignManager {
     manager.addMissionManager({
         id: DefaultCampaignIds.mission3Id,
         missionManager: createMovementTestMission().missionManager,
+    })
+
+    manager.addMission(
+        CampaignMissionService.new({
+            id: DefaultCampaignIds.mission4Id,
+            name: DefaultCampaignIds.mission4Name,
+        })
+    )
+    manager.addMissionManager({
+        id: DefaultCampaignIds.mission4Id,
+        missionManager: createSneakAttackMission().missionManager,
     })
 
     return manager

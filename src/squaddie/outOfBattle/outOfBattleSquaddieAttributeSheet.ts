@@ -16,6 +16,7 @@ export interface OutOfBattleSquaddieAttributeSheet {
         maxCapacity: number
         itemIds: string[]
     }
+    sneakAttackDamage?: number
 }
 
 export const OutOfBattleSquaddieAttributeSheetService = {
@@ -27,6 +28,7 @@ export const OutOfBattleSquaddieAttributeSheetService = {
         rank,
         attributeScores,
         items,
+        sneakAttackDamage,
     }: Partial<
         Omit<
             OutOfBattleSquaddieAttributeSheet,
@@ -68,6 +70,7 @@ export const OutOfBattleSquaddieAttributeSheetService = {
                 maxCapacity: items?.maxCapacity ?? 3,
                 itemIds: items?.itemIds ?? [],
             },
+            sneakAttackDamage,
         }
     },
     clone: (

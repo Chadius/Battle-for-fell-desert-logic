@@ -52,6 +52,7 @@ import { ProficiencyCalculator } from "../proficiencyCalculator"
 import { SquaddieActionForecastCalculator } from "../forecast/squaddieActionForecastCalculator"
 import type { SquaddieActionEffect } from "../../squaddieActionEffect"
 import { FlankingService } from "../../../coordinateMap/flankingService"
+import { SneakAttackCalculator } from "../sneakAttackCalculator"
 
 export type SquaddieActionDecisions = {
     targetDestination?: {
@@ -70,6 +71,7 @@ export interface ActionModifierBreakdown {
     multipleAttackPenalty: number
     netModifier: number
     isFlankingTarget: boolean
+    sneakAttackDamage?: number
 }
 
 export interface ForecastedActionResult {
@@ -478,6 +480,7 @@ const calculateEffectOnSquaddie = ({
     decisions,
     map,
     overrideCoordinateMap,
+    sneakAttackBonus = 0,
 }: {
     effect: SquaddieActionEffect | undefined
     managers: {
@@ -499,6 +502,7 @@ const calculateEffectOnSquaddie = ({
         mapId: string
     }
     overrideCoordinateMap?: CoordinateMap
+    sneakAttackBonus?: number
 }): SquaddieActionResult[] => {
     if (effect == undefined) return []
 
@@ -513,6 +517,7 @@ const calculateEffectOnSquaddie = ({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
             damage: effect?.damage,
             target,
+            sneakAttackBonus,
         }),
         ...calculateHealingResults({
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
@@ -558,6 +563,7 @@ const calculateDamageResults = ({
     damage,
     target,
     inBattleSquaddieManager,
+    sneakAttackBonus = 0,
 }: {
     damage: SquaddieActionEffect["damage"] | undefined
     target: {
@@ -566,6 +572,7 @@ const calculateDamageResults = ({
         attributeSheet: OutOfBattleSquaddieAttributeSheet
     }
     inBattleSquaddieManager: InBattleSquaddieManager
+    sneakAttackBonus?: number
 }): SquaddieActionResult[] => {
     if (damage == undefined) return []
 
@@ -574,11 +581,13 @@ const calculateDamageResults = ({
             damage.targetProficiency
         ) ?? damage.attributeScoreType
 
+    const totalDamage = damage.raw + sneakAttackBonus
+
     const previewedDamage = inBattleSquaddieManager.previewDamageToSquaddie({
         inBattleSquaddieId: target.inBattleSquaddie.id,
         outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
         damage: {
-            amount: damage.raw,
+            amount: totalDamage,
             type: damageAttributeScoreType,
         },
     })
@@ -591,10 +600,12 @@ const calculateDamageResults = ({
             outOfBattleSquaddieId: target.outOfBattleSquaddie.id,
             damage: {
                 net: previewedDamage.net,
-                raw: damage.raw,
+                raw: totalDamage,
                 willKo: previewedDamage.willKo,
                 absorbed: previewedDamage.absorbed,
                 type: damageAttributeScoreType,
+                sneakAttackDamage:
+                    sneakAttackBonus > 0 ? sneakAttackBonus : undefined,
             },
         },
     ]
@@ -1543,12 +1554,28 @@ const computeModifierBreakdown = ({
     const netModifier =
         actorProficiencyBonus - targetDefensiveBonus - multipleAttackPenalty
 
+    const actorSheet = inBattleSquaddieManager.getSquaddie(actor).attributeSheet
+    const successEffect =
+        squaddieAction.effectOnTarget?.[DegreeOfSuccess.SUCCESS]
+    const sneakAttackDamage = SneakAttackCalculator.computeSneakAttackBonus({
+        actor,
+        actorPassiveSneakAttack: actorSheet.sneakAttackDamage ?? 0,
+        target,
+        squaddieAction,
+        damageEffect: successEffect?.damage,
+        degreeOfSuccess: DegreeOfSuccess.SUCCESS,
+        inBattleSquaddieManager,
+        map,
+    })
+
     return {
         actorProficiencyBonus,
         targetDefensiveBonus,
         multipleAttackPenalty,
         netModifier,
         isFlankingTarget,
+        sneakAttackDamage:
+            sneakAttackDamage > 0 ? sneakAttackDamage : undefined,
     }
 }
 
@@ -1966,6 +1993,28 @@ const calculateAllTargetEffects = ({
                   }
                 : actionDecisions
 
+        const sneakAttackBonus = SneakAttackCalculator.computeSneakAttackBonus({
+            actor: {
+                inBattleSquaddieId: actorSquaddie.inBattleSquaddie.id,
+                outOfBattleSquaddieId: actorSquaddie.outOfBattleSquaddie.id,
+            },
+            actorPassiveSneakAttack:
+                actorSquaddie.attributeSheet.sneakAttackDamage ?? 0,
+            target,
+            squaddieAction,
+            damageEffect:
+                squaddieAction.effectOnTarget?.[degreeOfSuccess]?.damage,
+            degreeOfSuccess,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            map:
+                map?.mapId && managers.coordinateMapCollectionManager
+                    ? {
+                          mapId: map.mapId,
+                          manager: managers.coordinateMapCollectionManager,
+                      }
+                    : undefined,
+        })
+
         const targetResults = calculateEffectOnSquaddie({
             effect: squaddieAction.effectOnTarget[degreeOfSuccess],
             decisions: perTargetDecisions,
@@ -1974,6 +2023,7 @@ const calculateAllTargetEffects = ({
             actor: actorSquaddie,
             target: targetSquaddie,
             overrideCoordinateMap: workingCoordinateMap,
+            sneakAttackBonus,
         })
 
         results.push(...targetResults)

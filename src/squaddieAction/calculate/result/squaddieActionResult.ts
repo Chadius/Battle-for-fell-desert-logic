@@ -11,6 +11,7 @@ export type DamageResult = {
     absorbed: number
     willKo: boolean
     type: AttributeScoreType | undefined
+    sneakAttackDamage?: number
 }
 
 export type HealingResult = {

@@ -21,6 +21,7 @@ export interface SquaddieActionEffect {
         raw: number
         targetProficiency: TProficiencyType
         attributeScoreType?: AttributeScoreType
+        sneakAttackDamage?: number
     }
     healing?: {
         raw: number

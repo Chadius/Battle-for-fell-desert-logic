@@ -15,6 +15,7 @@ import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManage
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import {
     HowToDetermineDegreeOfSuccess,
+    MovementEffectType,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction/squaddieAction"
@@ -40,36 +41,41 @@ import {
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 
-export const ValeAndGloriaMissionIds = {
-    mapId: "target-practice-map-id",
-    mapName: "Target Practice",
-    missionStateId: "targetPracticeMissionId",
+export const SneakAttackMissionIds = {
+    mapId: "sneak-attack-map-id",
+    mapName: "Sneak Attack Test",
+    missionStateId: "sneakAttackMissionId",
+    lini: {
+        outOfBattleSquaddieId: "lini-sneak",
+        attributeSheetId: "lini-sneak-attribute-sheet",
+        scimitarActionId: "lini-sneak-scimitar",
+        healActionId: "lini-sneak-heal",
+        solarSphereActionId: "lini-sneak-solar-sphere",
+    },
     vale: {
-        outOfBattleSquaddieId: "vale",
-        attributeSheetId: "vale-attribute-sheet",
-        lightningBoltActionId: "vale-lightning-bolt",
-        daggerActionId: "vale-dagger",
-        intimidatingGlareActionId: "vale-intimidating-glare",
+        outOfBattleSquaddieId: "vale-sneak",
+        attributeSheetId: "vale-sneak-attribute-sheet",
+        daggerActionId: "vale-sneak-dagger",
+        lightningBoltActionId: "vale-sneak-lightning-bolt",
+        rescueActionId: "vale-sneak-rescue",
     },
-    gloria: {
-        outOfBattleSquaddieId: "gloria",
-        attributeSheetId: "gloria-attribute-sheet",
-        longswordActionId: "gloria-longsword",
-        shieldActionId: "gloria-shield",
-        sweepActionId: "gloria-sweep",
-    },
-    slitherDemon: {
-        outOfBattleSquaddieId: "slither-demon-v2",
-        attributeSheetId: "slither-demon-v2-attribute-sheet",
-        biteActionId: "slither-demon-v2-bite",
+    demon: {
+        outOfBattleSquaddieId: "goblin-grunt",
+        attributeSheetId: "goblin-grunt-attribute-sheet",
+        clawActionId: "goblin-grunt-claw",
     },
     objectives: {
-        defeatAllEnemies: "vg-missionObjectiveDefeatAllEnemies",
-        defeatAllPlayers: "vg-missionObjectiveDefeatAllPlayers",
+        defeatAllEnemies: "sneak-missionObjectiveDefeatAllEnemies",
+        defeatAllPlayers: "sneak-missionObjectiveDefeatAllPlayers",
     },
 } as const
 
-export function createTargetPracticeMission(): MissionManager {
+export function createSneakAttackMission(): {
+    missionManager: MissionManager
+    liniSquaddieId: BattleSquaddieId
+    valeSquaddieId: BattleSquaddieId
+    demonSquaddieId: BattleSquaddieId
+} {
     const coordinateMapCollectionManager =
         createCoordinateMapCollectionManager()
     const squaddieActionManager = createSquaddieActionManager()
@@ -77,14 +83,14 @@ export function createTargetPracticeMission(): MissionManager {
 
     const {
         inBattleSquaddieManager,
+        liniSquaddieId,
         valeSquaddieId,
-        gloriaSquaddieId,
-        demonSquaddieIds,
+        demonSquaddieId,
     } = createInBattleSquaddieManager(outOfBattleSquaddieManager)
 
     const missionState = MissionStateService.new({
-        id: ValeAndGloriaMissionIds.missionStateId,
-        mapId: ValeAndGloriaMissionIds.mapId,
+        id: SneakAttackMissionIds.missionStateId,
+        mapId: SneakAttackMissionIds.mapId,
         objectives: createMissionObjectives(),
     })
 
@@ -97,26 +103,23 @@ export function createTargetPracticeMission(): MissionManager {
 
     addSquaddiesToMap({
         coordinateMapCollectionManager,
+        liniSquaddieId,
         valeSquaddieId,
-        gloriaSquaddieId,
-        demonSquaddieIds,
+        demonSquaddieId,
     })
 
-    return missionManager
+    return { missionManager, liniSquaddieId, valeSquaddieId, demonSquaddieId }
 }
 
 function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager {
-    const movementProperties = [
-        "1 1 1 1 1 1 2 2 2 2",
-        " 1 1 1 X X 2 2 2 2 2",
-        "1 1 1 1 - 1 2 2 2 2",
-        " 1 1 1 X X 2 2 2 2 2",
-        "1 1 1 1 1 1 2 2 2 2",
-    ]
+    // 3 rows × 5 cols, all walkable cost-1 tiles.
+    // Lini (1,0) — Demon (1,1) — Vale (1,2): a straight horizontal line that
+    // creates flanking in both directions (LEFT and RIGHT are hex opposites).
+    const movementProperties = ["1 1 1 1 1", " 1 1 1 1 1", "1 1 1 1 1"]
 
     const coordinateMap = CoordinateMapService.new({
-        id: ValeAndGloriaMissionIds.mapId,
-        name: ValeAndGloriaMissionIds.mapName,
+        id: SneakAttackMissionIds.mapId,
+        name: SneakAttackMissionIds.mapName,
         movementProperties,
     })
 
@@ -129,7 +132,7 @@ function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager 
 
 function createMissionObjectives(): MissionObjective[] {
     const defeatAllEnemies = MissionObjectiveService.new({
-        id: ValeAndGloriaMissionIds.objectives.defeatAllEnemies,
+        id: SneakAttackMissionIds.objectives.defeatAllEnemies,
         rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
         criteria: [
             MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
@@ -139,7 +142,7 @@ function createMissionObjectives(): MissionObjective[] {
     })
 
     const defeatAllPlayers = MissionObjectiveService.new({
-        id: ValeAndGloriaMissionIds.objectives.defeatAllPlayers,
+        id: SneakAttackMissionIds.objectives.defeatAllPlayers,
         rewards: [MissionObjectiveRewardService.newMissionFailureReward()],
         criteria: [
             MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
@@ -156,27 +159,95 @@ function createSquaddieActionManager(): SquaddieActionManager {
         SquaddieActionCollectionService.new()
     )
 
+    manager.addOrUpdate(createScimitarAction())
+    manager.addOrUpdate(createHealAction())
+    manager.addOrUpdate(createSolarSphereAction())
+    manager.addOrUpdate(createDaggerAction())
     manager.addOrUpdate(createLightningBoltAction())
-    manager.addOrUpdate(createDaggerStabAction())
-    manager.addOrUpdate(createIntimidatingGlareAction())
-    manager.addOrUpdate(createLongswordAction())
-    manager.addOrUpdate(createShieldAction())
-    manager.addOrUpdate(createSweepAction())
-    manager.addOrUpdate(createDemonBiteAction())
+    manager.addOrUpdate(createRescueAction())
+    manager.addOrUpdate(createClawAction())
     manager.addOrUpdate(SquaddieActionService.defaultMove())
     manager.addOrUpdate(SquaddieActionService.defaultEndTurn())
 
     return manager
 }
 
-function createLightningBoltAction(): SquaddieAction {
+// Lini's melee weapon. Her passive sneakAttackDamage=1 adds +1 on weapon hits
+// when the demon is flanked or has OFF_GUARD — no sneakAttackDamage on the action itself.
+function createScimitarAction(): SquaddieAction {
     return SquaddieActionService.new({
-        id: ValeAndGloriaMissionIds.vale.lightningBoltActionId,
-        name: "Lightning Bolt",
-        attribute: AttributeScore.MIND,
-        proficiency: ProficiencyType.SKILL_MIND,
-        range: ActionRange.LONG,
-        shape: CoordinateGeneratorShape.LINE,
+        id: SneakAttackMissionIds.lini.scimitarActionId,
+        name: "Scimitar",
+        attribute: AttributeScore.BODY,
+        proficiency: ProficiencyType.WEAPON_MARTIAL,
+        range: ActionRange.MELEE,
+        shape: CoordinateGeneratorShape.BLOOM,
+        affiliationRelationship: {
+            self: false,
+            foe: true,
+            friend: false,
+        },
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 1 },
+            },
+        },
+        effectOnTarget: {
+            [DegreeOfSuccess.FAILURE]: {},
+            [DegreeOfSuccess.SUCCESS]: {
+                damage: {
+                    raw: 2,
+                    targetProficiency: ProficiencyType.ARMOR,
+                },
+            },
+            [DegreeOfSuccess.CRITICAL]: {
+                damage: {
+                    raw: 4,
+                    targetProficiency: ProficiencyType.ARMOR,
+                },
+            },
+        },
+    })
+}
+
+function createHealAction(): SquaddieAction {
+    return SquaddieActionService.new({
+        id: SneakAttackMissionIds.lini.healActionId,
+        name: "Heal",
+        attribute: AttributeScore.SOUL,
+        proficiency: ProficiencyType.SKILL_SOUL,
+        range: ActionRange.MELEE,
+        shape: CoordinateGeneratorShape.BLOOM,
+        affiliationRelationship: {
+            self: true,
+            foe: false,
+            friend: true,
+        },
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 1 },
+            },
+        },
+        effectOnTarget: {
+            [DegreeOfSuccess.SUCCESS]: {
+                healing: {
+                    raw: 2,
+                },
+            },
+        },
+    })
+}
+
+function createSolarSphereAction(): SquaddieAction {
+    return SquaddieActionService.new({
+        id: SneakAttackMissionIds.lini.solarSphereActionId,
+        name: "Solar Sphere",
+        attribute: AttributeScore.SOUL,
+        proficiency: ProficiencyType.SKILL_SOUL,
+        range: ActionRange.MEDIUM,
+        shape: CoordinateGeneratorShape.BLOOM,
         areaOfEffectSize: 0,
         aimCoordinateRequiresTarget: true,
         affiliationRelationship: {
@@ -185,29 +256,68 @@ function createLightningBoltAction(): SquaddieAction {
             friend: false,
         },
         howToDetermineDegreeOfSuccess:
-            HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
-        degreesOfSuccess: [DegreeOfSuccess.SUCCESS, DegreeOfSuccess.FAILURE],
+            HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
+        multipleAttackPenalty: { applies: false, contribution: 0 },
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: {
                 actionPoints: { spent: 2 },
             },
         },
         effectOnTarget: {
+            [DegreeOfSuccess.CRITICAL]: {},
             [DegreeOfSuccess.SUCCESS]: {
                 damage: {
-                    raw: 2,
-                    targetProficiency: ProficiencyType.ARMOR,
+                    raw: 1,
+                    targetProficiency: ProficiencyType.SKILL_SOUL,
                 },
             },
-            [DegreeOfSuccess.FAILURE]: {},
+            [DegreeOfSuccess.FAILURE]: {
+                damage: {
+                    raw: 2,
+                    targetProficiency: ProficiencyType.SKILL_SOUL,
+                },
+                conditions: {
+                    add: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.SLOWED,
+                            amount: 1,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            source: SquaddieConditionSource.SPIRITUAL,
+                        }),
+                    ],
+                },
+            },
+            [DegreeOfSuccess.BOTCH]: {
+                damage: {
+                    raw: 4,
+                    targetProficiency: ProficiencyType.SKILL_SOUL,
+                },
+                conditions: {
+                    add: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.SLOWED,
+                            amount: 3,
+                            duration: {
+                                duration: 1,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            source: SquaddieConditionSource.SPIRITUAL,
+                        }),
+                    ],
+                },
+            },
         },
     })
 }
 
-function createDaggerStabAction(): SquaddieAction {
+// Vale's melee weapon. sneakAttackDamage is on the action itself (not passive).
+function createDaggerAction(): SquaddieAction {
     return SquaddieActionService.new({
-        id: ValeAndGloriaMissionIds.vale.daggerActionId,
-        name: "Dagger Stab",
+        id: SneakAttackMissionIds.vale.daggerActionId,
+        name: "Dagger",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_SIMPLE,
         range: ActionRange.MELEE,
@@ -251,14 +361,16 @@ function createDaggerStabAction(): SquaddieAction {
     })
 }
 
-function createIntimidatingGlareAction(): SquaddieAction {
+function createLightningBoltAction(): SquaddieAction {
     return SquaddieActionService.new({
-        id: ValeAndGloriaMissionIds.vale.intimidatingGlareActionId,
-        name: "Intimidating Glare",
+        id: SneakAttackMissionIds.vale.lightningBoltActionId,
+        name: "Lightning Bolt",
         attribute: AttributeScore.MIND,
         proficiency: ProficiencyType.SKILL_MIND,
-        range: ActionRange.SHORT,
-        shape: CoordinateGeneratorShape.BLOOM,
+        range: ActionRange.LONG,
+        shape: CoordinateGeneratorShape.LINE,
+        areaOfEffectSize: 0,
+        aimCoordinateRequiresTarget: true,
         affiliationRelationship: {
             self: false,
             foe: true,
@@ -266,131 +378,37 @@ function createIntimidatingGlareAction(): SquaddieAction {
         },
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
+        degreesOfSuccess: [DegreeOfSuccess.SUCCESS, DegreeOfSuccess.FAILURE],
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: {
-                actionPoints: { spent: 1 },
+                actionPoints: { spent: 2 },
             },
         },
         effectOnTarget: {
-            [DegreeOfSuccess.SUCCESS]: {
-                conditions: {
-                    add: [
-                        SquaddieConditionService.new({
-                            type: SquaddieConditionType.SLOWED,
-                            amount: 1,
-                            duration: {
-                                duration: 1,
-                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
-                            },
-                            source: SquaddieConditionSource.SPIRITUAL,
-                        }),
-                    ],
-                },
-            },
-            [DegreeOfSuccess.FAILURE]: {},
-        },
-    })
-}
-
-function createLongswordAction(): SquaddieAction {
-    return SquaddieActionService.new({
-        id: ValeAndGloriaMissionIds.gloria.longswordActionId,
-        name: "Longsword",
-        attribute: AttributeScore.BODY,
-        proficiency: ProficiencyType.WEAPON_MARTIAL,
-        range: ActionRange.MELEE,
-        shape: CoordinateGeneratorShape.BLOOM,
-        affiliationRelationship: {
-            self: false,
-            foe: true,
-            friend: false,
-        },
-        effectOnActor: {
-            [DegreeOfSuccess.SUCCESS]: {
-                actionPoints: { spent: 1 },
-            },
-        },
-        effectOnTarget: {
-            [DegreeOfSuccess.FAILURE]: {},
             [DegreeOfSuccess.SUCCESS]: {
                 damage: {
                     raw: 2,
                     targetProficiency: ProficiencyType.ARMOR,
                 },
             },
-            [DegreeOfSuccess.CRITICAL]: {
-                damage: {
-                    raw: 4,
-                    targetProficiency: ProficiencyType.ARMOR,
-                },
-            },
+            [DegreeOfSuccess.FAILURE]: {},
         },
     })
 }
 
-function createShieldAction(): SquaddieAction {
+// Vale teleports a friend within MEDIUM range to a destination within MELEE range of herself.
+function createRescueAction(): SquaddieAction {
     return SquaddieActionService.new({
-        id: ValeAndGloriaMissionIds.gloria.shieldActionId,
-        name: "Shield",
-        attribute: AttributeScore.BODY,
-        proficiency: ProficiencyType.SKILL_BODY,
-        range: ActionRange.SELF,
-        shape: CoordinateGeneratorShape.BLOOM,
-        affiliationRelationship: {
-            self: true,
-            foe: false,
-            friend: false,
-        },
+        id: SneakAttackMissionIds.vale.rescueActionId,
+        name: "Rescue",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
-        effectOnActor: {
-            [DegreeOfSuccess.SUCCESS]: {
-                actionPoints: { spent: 1 },
-            },
-        },
-        effectOnTarget: {
-            [DegreeOfSuccess.SUCCESS]: {
-                conditions: {
-                    add: [
-                        SquaddieConditionService.new({
-                            type: SquaddieConditionType.ARMOR,
-                            amount: 1,
-                            duration: {
-                                duration: 1,
-                                decaysAt: SquaddieConditionDecaysAt.TURN_START,
-                            },
-                            source: SquaddieConditionSource.ITEM,
-                        }),
-                        SquaddieConditionService.new({
-                            type: SquaddieConditionType.ABSORB,
-                            amount: 1,
-                            duration: {
-                                duration: 1,
-                                decaysAt: SquaddieConditionDecaysAt.TURN_START,
-                            },
-                            source: SquaddieConditionSource.ITEM,
-                        }),
-                    ],
-                },
-            },
-        },
-    })
-}
-
-function createSweepAction(): SquaddieAction {
-    return SquaddieActionService.new({
-        id: ValeAndGloriaMissionIds.gloria.sweepActionId,
-        name: "Sweep",
-        attribute: AttributeScore.BODY,
-        proficiency: ProficiencyType.WEAPON_MARTIAL,
-        range: ActionRange.MELEE,
-        shape: CoordinateGeneratorShape.LINE,
-        areaOfEffectSize: 1,
-        aimCoordinateRequiresTarget: false,
+        range: ActionRange.MEDIUM,
+        shape: CoordinateGeneratorShape.BLOOM,
         affiliationRelationship: {
             self: false,
-            foe: true,
-            friend: false,
+            foe: false,
+            friend: true,
         },
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: {
@@ -398,27 +416,20 @@ function createSweepAction(): SquaddieAction {
             },
         },
         effectOnTarget: {
-            [DegreeOfSuccess.FAILURE]: {},
             [DegreeOfSuccess.SUCCESS]: {
-                damage: {
-                    raw: 2,
-                    targetProficiency: ProficiencyType.ARMOR,
-                },
-            },
-            [DegreeOfSuccess.CRITICAL]: {
-                damage: {
-                    raw: 4,
-                    targetProficiency: ProficiencyType.ARMOR,
+                movement: {
+                    movementType: MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                    destinationRange: ActionRange.MELEE,
                 },
             },
         },
     })
 }
 
-function createDemonBiteAction(): SquaddieAction {
+function createClawAction(): SquaddieAction {
     return SquaddieActionService.new({
-        id: ValeAndGloriaMissionIds.slitherDemon.biteActionId,
-        name: "Bite",
+        id: SneakAttackMissionIds.demon.clawActionId,
+        name: "Claw",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_NATURAL,
         range: ActionRange.MELEE,
@@ -437,13 +448,7 @@ function createDemonBiteAction(): SquaddieAction {
             [DegreeOfSuccess.FAILURE]: {},
             [DegreeOfSuccess.SUCCESS]: {
                 damage: {
-                    raw: 2,
-                    targetProficiency: ProficiencyType.ARMOR,
-                },
-            },
-            [DegreeOfSuccess.CRITICAL]: {
-                damage: {
-                    raw: 3,
+                    raw: 1,
                     targetProficiency: ProficiencyType.ARMOR,
                 },
             },
@@ -457,14 +462,37 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
         OutOfBattleSquaddieAttributeSheetCollectionService.new()
     )
 
-    const valeAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-        id: ValeAndGloriaMissionIds.vale.attributeSheetId,
-        maxHitPoints: 4,
-        movement: {
-            movementPointsPerAction: 2,
-            skipOverPits: true,
-            reduceMoveCosts: true,
+    const liniAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
+        id: SneakAttackMissionIds.lini.attributeSheetId,
+        maxHitPoints: 5,
+        movement: { movementPointsPerAction: 2 },
+        attributeScores: {
+            [AttributeScore.BODY]: 1,
+            [AttributeScore.MIND]: 0,
+            [AttributeScore.SOUL]: 1,
         },
+        rank: 1,
+        sneakAttackDamage: 1,
+    })
+    manager.addOrUpdateAttributeSheet(liniAttributeSheet)
+
+    const liniSquaddie = OutOfBattleSquaddieService.new({
+        id: SneakAttackMissionIds.lini.outOfBattleSquaddieId,
+        name: "Lini",
+        attributeSheetId: SneakAttackMissionIds.lini.attributeSheetId,
+        actionIds: [
+            SneakAttackMissionIds.lini.scimitarActionId,
+            SneakAttackMissionIds.lini.healActionId,
+            SneakAttackMissionIds.lini.solarSphereActionId,
+        ],
+        affiliation: SquaddieAffiliation.PLAYER,
+    })
+    manager.addOrUpdateSquaddie(liniSquaddie)
+
+    const valeAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
+        id: SneakAttackMissionIds.vale.attributeSheetId,
+        maxHitPoints: 4,
+        movement: { movementPointsPerAction: 2 },
         attributeScores: {
             [AttributeScore.BODY]: -1,
             [AttributeScore.MIND]: 2,
@@ -478,52 +506,20 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
     manager.addOrUpdateAttributeSheet(valeAttributeSheet)
 
     const valeSquaddie = OutOfBattleSquaddieService.new({
-        id: ValeAndGloriaMissionIds.vale.outOfBattleSquaddieId,
+        id: SneakAttackMissionIds.vale.outOfBattleSquaddieId,
         name: "Vale",
-        attributeSheetId: ValeAndGloriaMissionIds.vale.attributeSheetId,
+        attributeSheetId: SneakAttackMissionIds.vale.attributeSheetId,
         actionIds: [
-            ValeAndGloriaMissionIds.vale.lightningBoltActionId,
-            ValeAndGloriaMissionIds.vale.intimidatingGlareActionId,
-            ValeAndGloriaMissionIds.vale.daggerActionId,
+            SneakAttackMissionIds.vale.daggerActionId,
+            SneakAttackMissionIds.vale.lightningBoltActionId,
+            SneakAttackMissionIds.vale.rescueActionId,
         ],
         affiliation: SquaddieAffiliation.PLAYER,
     })
     manager.addOrUpdateSquaddie(valeSquaddie)
 
-    const gloriaAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-        id: ValeAndGloriaMissionIds.gloria.attributeSheetId,
-        maxHitPoints: 6,
-        movement: {
-            movementPointsPerAction: 2,
-        },
-        attributeScores: {
-            [AttributeScore.BODY]: 2,
-            [AttributeScore.MIND]: -1,
-            [AttributeScore.SOUL]: 1,
-        },
-        proficiencyLevels: {
-            [ProficiencyType.WEAPON_MARTIAL]: ProficiencyLevel.EXPERT,
-            [ProficiencyType.ARMOR]: ProficiencyLevel.EXPERT,
-        },
-        rank: 1,
-    })
-    manager.addOrUpdateAttributeSheet(gloriaAttributeSheet)
-
-    const gloriaSquaddie = OutOfBattleSquaddieService.new({
-        id: ValeAndGloriaMissionIds.gloria.outOfBattleSquaddieId,
-        name: "Gloria",
-        attributeSheetId: ValeAndGloriaMissionIds.gloria.attributeSheetId,
-        actionIds: [
-            ValeAndGloriaMissionIds.gloria.longswordActionId,
-            ValeAndGloriaMissionIds.gloria.shieldActionId,
-            ValeAndGloriaMissionIds.gloria.sweepActionId,
-        ],
-        affiliation: SquaddieAffiliation.PLAYER,
-    })
-    manager.addOrUpdateSquaddie(gloriaSquaddie)
-
     const demonAttributeSheet = OutOfBattleSquaddieAttributeSheetService.new({
-        id: ValeAndGloriaMissionIds.slitherDemon.attributeSheetId,
+        id: SneakAttackMissionIds.demon.attributeSheetId,
         maxHitPoints: 3,
         movement: { movementPointsPerAction: 2 },
         attributeScores: {
@@ -536,10 +532,10 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
     manager.addOrUpdateAttributeSheet(demonAttributeSheet)
 
     const demonSquaddie = OutOfBattleSquaddieService.new({
-        id: ValeAndGloriaMissionIds.slitherDemon.outOfBattleSquaddieId,
-        name: "Slither Demon",
-        attributeSheetId: ValeAndGloriaMissionIds.slitherDemon.attributeSheetId,
-        actionIds: [ValeAndGloriaMissionIds.slitherDemon.biteActionId],
+        id: SneakAttackMissionIds.demon.outOfBattleSquaddieId,
+        name: "Goblin Grunt",
+        attributeSheetId: SneakAttackMissionIds.demon.attributeSheetId,
+        actionIds: [SneakAttackMissionIds.demon.clawActionId],
         affiliation: SquaddieAffiliation.ENEMY,
     })
     manager.addOrUpdateSquaddie(demonSquaddie)
@@ -551,77 +547,63 @@ function createInBattleSquaddieManager(
     outOfBattleSquaddieManager: OutOfBattleSquaddieManager
 ): {
     inBattleSquaddieManager: InBattleSquaddieManager
+    liniSquaddieId: BattleSquaddieId
     valeSquaddieId: BattleSquaddieId
-    gloriaSquaddieId: BattleSquaddieId
-    demonSquaddieIds: BattleSquaddieId[]
+    demonSquaddieId: BattleSquaddieId
 } {
     const manager = new InBattleSquaddieManager(
         InBattleSquaddieCollectionService.new(),
         outOfBattleSquaddieManager
     )
 
+    const liniSquaddieId = manager.createNewSquaddie({
+        outOfBattleSquaddieId: SneakAttackMissionIds.lini.outOfBattleSquaddieId,
+    })
+
     const valeSquaddieId = manager.createNewSquaddie({
-        outOfBattleSquaddieId:
-            ValeAndGloriaMissionIds.vale.outOfBattleSquaddieId,
+        outOfBattleSquaddieId: SneakAttackMissionIds.vale.outOfBattleSquaddieId,
     })
 
-    const gloriaSquaddieId = manager.createNewSquaddie({
+    const demonSquaddieId = manager.createNewSquaddie({
         outOfBattleSquaddieId:
-            ValeAndGloriaMissionIds.gloria.outOfBattleSquaddieId,
+            SneakAttackMissionIds.demon.outOfBattleSquaddieId,
     })
-
-    const demonSquaddieIds: BattleSquaddieId[] = []
-    for (let i = 0; i < 4; i++) {
-        const demonId = manager.createNewSquaddie({
-            outOfBattleSquaddieId:
-                ValeAndGloriaMissionIds.slitherDemon.outOfBattleSquaddieId,
-        })
-        demonSquaddieIds.push(demonId)
-    }
 
     return {
         inBattleSquaddieManager: manager,
+        liniSquaddieId,
         valeSquaddieId,
-        gloriaSquaddieId,
-        demonSquaddieIds,
+        demonSquaddieId,
     }
 }
 
 function addSquaddiesToMap({
     coordinateMapCollectionManager,
+    liniSquaddieId,
     valeSquaddieId,
-    gloriaSquaddieId,
-    demonSquaddieIds,
+    demonSquaddieId,
 }: {
     coordinateMapCollectionManager: CoordinateMapCollectionManager
+    liniSquaddieId: BattleSquaddieId
     valeSquaddieId: BattleSquaddieId
-    gloriaSquaddieId: BattleSquaddieId
-    demonSquaddieIds: BattleSquaddieId[]
+    demonSquaddieId: BattleSquaddieId
 }): void {
+    // Lini LEFT of demon, Vale RIGHT — opposite hex directions create flanking.
     coordinateMapCollectionManager.addSquaddie({
-        mapId: ValeAndGloriaMissionIds.mapId,
+        mapId: SneakAttackMissionIds.mapId,
+        squaddieId: liniSquaddieId,
+        coordinate: { row: 1, col: 0 },
+    })
+
+    coordinateMapCollectionManager.addSquaddie({
+        mapId: SneakAttackMissionIds.mapId,
+        squaddieId: demonSquaddieId,
+        coordinate: { row: 1, col: 1 },
+    })
+
+    coordinateMapCollectionManager.addSquaddie({
+        mapId: SneakAttackMissionIds.mapId,
         squaddieId: valeSquaddieId,
-        coordinate: { row: 2, col: 3 },
+        coordinate: { row: 1, col: 2 },
     })
-
-    coordinateMapCollectionManager.addSquaddie({
-        mapId: ValeAndGloriaMissionIds.mapId,
-        squaddieId: gloriaSquaddieId,
-        coordinate: { row: 3, col: 0 },
-    })
-
-    const demonCoordinates = [
-        { row: 2, col: 6 },
-        { row: 2, col: 7 },
-        { row: 2, col: 8 },
-        { row: 2, col: 9 },
-    ]
-
-    for (let i = 0; i < demonSquaddieIds.length; i++) {
-        coordinateMapCollectionManager.addSquaddie({
-            mapId: ValeAndGloriaMissionIds.mapId,
-            squaddieId: demonSquaddieIds[i],
-            coordinate: demonCoordinates[i],
-        })
-    }
 }
