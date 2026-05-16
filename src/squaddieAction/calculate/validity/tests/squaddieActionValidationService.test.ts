@@ -675,7 +675,7 @@ describe("SquaddieActionValidationService", () => {
                             add: [
                                 SquaddieConditionService.new({
                                     type: SquaddieConditionType.ABSORB,
-                                    amount: 1,
+                                    amount: { amount: 1 },
                                     duration: {
                                         duration: 1,
                                         decaysAt:

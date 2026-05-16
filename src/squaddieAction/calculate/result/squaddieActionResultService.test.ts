@@ -82,7 +82,7 @@ describe("SquaddieActionResultService", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.SLOWED,
-                        amount: 3,
+                        amount: { amount: 3 },
                         duration: undefined,
                         source: SquaddieConditionSource.PHYSICAL,
                     }),
@@ -109,7 +109,7 @@ describe("SquaddieActionResultService", () => {
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.SLOWED,
                             duration: undefined,
-                            amount: 2,
+                            amount: { amount: 2 },
                             source: SquaddieConditionSource.PHYSICAL,
                         }),
                     ],
@@ -152,7 +152,7 @@ describe("SquaddieActionResultService", () => {
                     [
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.SLOWED,
-                            amount: 1,
+                            amount: { amount: 1 },
                             duration: undefined,
                             source: SquaddieConditionSource.PHYSICAL,
                         }),
@@ -210,7 +210,7 @@ describe("SquaddieActionResultService", () => {
                     [
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.SLOWED,
-                            amount: 2,
+                            amount: { amount: 2 },
                             duration: undefined,
                             source: SquaddieConditionSource.PHYSICAL,
                         }),
@@ -240,7 +240,7 @@ describe("SquaddieActionResultService", () => {
             ).toEqual([
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
@@ -254,7 +254,7 @@ describe("SquaddieActionResultService", () => {
                     [
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.SLOWED,
-                            amount: 1,
+                            amount: { amount: 1 },
                             duration: undefined,
                             source: SquaddieConditionSource.PHYSICAL,
                         }),
@@ -282,7 +282,7 @@ describe("SquaddieActionResultService", () => {
             ).toEqual([
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
@@ -355,7 +355,7 @@ describe("SquaddieActionResultService", () => {
             let { type, ...conditionExceptType } = SquaddieConditionService.new(
                 {
                     type: SquaddieConditionType.SLOWED,
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }
@@ -398,7 +398,7 @@ describe("SquaddieActionResultService", () => {
             let { type, ...conditionExceptType } = SquaddieConditionService.new(
                 {
                     type: SquaddieConditionType.SLOWED,
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }
@@ -418,7 +418,7 @@ describe("SquaddieActionResultService", () => {
                     [
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.SLOWED,
-                            amount: 2,
+                            amount: { amount: 2 },
                             duration: undefined,
                             source: SquaddieConditionSource.PHYSICAL,
                         }),
@@ -463,7 +463,7 @@ describe("SquaddieActionResultService", () => {
             ).toEqual(
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 })

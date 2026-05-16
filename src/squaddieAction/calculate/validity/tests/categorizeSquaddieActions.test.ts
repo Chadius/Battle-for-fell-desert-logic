@@ -186,7 +186,7 @@ describe("categorizeSquaddieActions", () => {
                         add: [
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ABSORB,
-                                amount: 1,
+                                amount: { amount: 1 },
                                 duration: {
                                     duration: 1,
                                     decaysAt:
@@ -483,7 +483,7 @@ describe("categorizeSquaddieActions", () => {
             conditions: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ABSORB,
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: {
                         duration: 10,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,

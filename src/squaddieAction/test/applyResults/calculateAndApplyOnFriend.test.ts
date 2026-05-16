@@ -195,7 +195,7 @@ describe("Squaddie Actions on a friend", () => {
                         add: [
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ABSORB,
-                                amount: 1,
+                                amount: { amount: 1 },
                                 duration: {
                                     duration: 1,
                                     decaysAt:
@@ -309,7 +309,7 @@ describe("Squaddie Actions on a friend", () => {
 
             expect(initialMagicalBarrierResult[1]!.conditionsAdded![0]).toEqual(
                 SquaddieConditionService.new({
-                    amount: 1,
+                    amount: { amount: 1 },
                     type: SquaddieConditionType.ABSORB,
                     duration: {
                         duration: 1,
@@ -357,13 +357,13 @@ describe("Squaddie Actions on a friend", () => {
             conditions: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: 3,
+                    amount: { amount: 3 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: -2,
+                    amount: { amount: -2 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
@@ -375,7 +375,7 @@ describe("Squaddie Actions on a friend", () => {
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
@@ -439,7 +439,7 @@ describe("Squaddie Actions on a friend", () => {
         ).toEqual([
             SquaddieConditionService.new({
                 type: SquaddieConditionType.SLOWED,
-                amount: 0,
+                amount: { amount: 0 },
                 duration: undefined,
                 source: SquaddieConditionSource.PHYSICAL,
             }),
@@ -451,7 +451,7 @@ describe("Squaddie Actions on a friend", () => {
         ).toEqual([
             SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: -1,
+                amount: { amount: -1 },
                 duration: undefined,
                 source: SquaddieConditionSource.PHYSICAL,
             }),
@@ -463,7 +463,7 @@ describe("Squaddie Actions on a friend", () => {
         ).toEqual([
             SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: -1,
+                amount: { amount: -1 },
                 duration: undefined,
                 source: SquaddieConditionSource.PHYSICAL,
             }),

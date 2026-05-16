@@ -32,7 +32,10 @@ describe("conditionDecay", () => {
         duration:
             | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
             | undefined,
-        amount: number
+        amount: {
+            amount: number
+            decaysAt?: TSquaddieConditionDecaysAt
+        }
     ) =>
         harness.missionManager!.inBattleSquaddieManager!.addConditionsToSquaddie(
             {
@@ -63,7 +66,7 @@ describe("conditionDecay", () => {
             addArmorCondition(
                 liniId,
                 { duration: 1, decaysAt: SquaddieConditionDecaysAt.TURN_END },
-                2
+                { amount: 2 }
             )
 
             harness.endSquaddieTurn(liniId)
@@ -79,7 +82,7 @@ describe("conditionDecay", () => {
             addArmorCondition(
                 liniId,
                 { duration: 2, decaysAt: SquaddieConditionDecaysAt.TURN_END },
-                2
+                { amount: 2 }
             )
 
             harness.endSquaddieTurn(liniId)
@@ -103,7 +106,7 @@ describe("conditionDecay", () => {
         it("ARMOR with undefined duration is unchanged after player turn ends", () => {
             advanceHarnessToPlayerTurn(harness)
 
-            addArmorCondition(liniId, undefined, 2)
+            addArmorCondition(liniId, undefined, { amount: 2 })
 
             harness.endSquaddieTurn(liniId)
 
@@ -118,7 +121,7 @@ describe("conditionDecay", () => {
             addArmorCondition(
                 liniId,
                 { duration: 1, decaysAt: SquaddieConditionDecaysAt.TURN_END },
-                2
+                { amount: 2 }
             )
 
             harness.endSquaddieTurn(liniId)
@@ -139,7 +142,7 @@ describe("conditionDecay", () => {
             addArmorCondition(
                 liniId,
                 { duration: 1, decaysAt: SquaddieConditionDecaysAt.TURN_START },
-                2
+                { amount: 2 }
             )
 
             harness.endSquaddieTurn(liniId)
@@ -157,7 +160,7 @@ describe("conditionDecay", () => {
             addArmorCondition(
                 liniId,
                 { duration: 1, decaysAt: SquaddieConditionDecaysAt.TURN_END },
-                2
+                { amount: 2 }
             )
 
             harness.endSquaddieTurn(liniId)
@@ -177,7 +180,7 @@ describe("conditionDecay", () => {
             addArmorCondition(
                 liniId,
                 { duration: 1, decaysAt: SquaddieConditionDecaysAt.TURN_START },
-                2
+                { amount: 2 }
             )
 
             harness.transitionToNextPhase()
@@ -210,12 +213,12 @@ describe("conditionDecay", () => {
             addArmorCondition(
                 liniId,
                 { duration: 1, decaysAt: SquaddieConditionDecaysAt.TURN_END },
-                2
+                { amount: 2 }
             )
             addArmorCondition(
                 slitherDemonId,
                 { duration: 1, decaysAt: SquaddieConditionDecaysAt.TURN_END },
-                2
+                { amount: 2 }
             )
 
             harness.endSquaddieTurn(liniId)

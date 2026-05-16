@@ -687,7 +687,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     duration: 10,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 14,
+                amount: { amount: 14 },
                 source: SquaddieConditionSource.PHYSICAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
@@ -832,7 +832,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     duration: 10,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 1,
+                amount: { amount: 1 },
                 source: SquaddieConditionSource.PHYSICAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
@@ -873,7 +873,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     duration: 10,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 3,
+                amount: { amount: 3 },
                 source: SquaddieConditionSource.PHYSICAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
@@ -941,7 +941,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     duration: 10,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 1,
+                amount: { amount: 1 },
                 source: SquaddieConditionSource.PHYSICAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
@@ -976,7 +976,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 2,
+                amount: { amount: 2 },
                 source: SquaddieConditionSource.ELEMENTAL,
             })
             const absorbCondition2 = SquaddieConditionService.new({
@@ -985,7 +985,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     duration: 10,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 3,
+                amount: { amount: 3 },
                 source: SquaddieConditionSource.ELEMENTAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({
@@ -1026,7 +1026,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 2,
+                amount: { amount: 2 },
                 source: SquaddieConditionSource.ELEMENTAL,
             })
             const absorbSpiritual = SquaddieConditionService.new({
@@ -1035,7 +1035,7 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 3,
+                amount: { amount: 3 },
                 source: SquaddieConditionSource.SPIRITUAL,
             })
             inBattleSquaddieManager.addConditionsToSquaddie({

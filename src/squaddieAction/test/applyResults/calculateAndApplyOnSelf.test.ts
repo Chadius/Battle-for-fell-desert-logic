@@ -137,7 +137,7 @@ describe("Squaddie resolves actions on themself", () => {
                         add: [
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ARMOR,
-                                amount: 1,
+                                amount: { amount: 1 },
                                 duration: {
                                     duration: 1,
                                     decaysAt:
@@ -147,7 +147,7 @@ describe("Squaddie resolves actions on themself", () => {
                             }),
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ARMOR,
-                                amount: 1,
+                                amount: { amount: 1 },
                                 duration: {
                                     duration: 1,
                                     decaysAt:
@@ -272,7 +272,7 @@ describe("Squaddie resolves actions on themself", () => {
             conditionsAdded: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: {
                         duration: 1,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,

@@ -58,7 +58,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorb = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -94,7 +94,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorb = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -141,7 +141,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorb = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -178,7 +178,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorb2 = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -187,7 +187,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorb3 = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 3,
+                amount: { amount: 3 },
                 duration: {
                     duration: 10,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -218,7 +218,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorb = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -336,7 +336,7 @@ describe("InBattleSquaddie", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 5,
+                amount: { amount: 5 },
                 source: SquaddieConditionSource.PHYSICAL,
             })
 
@@ -346,7 +346,7 @@ describe("InBattleSquaddie", () => {
                     duration: 2,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 2,
+                amount: { amount: 2 },
                 source: SquaddieConditionSource.PHYSICAL,
             })
 
@@ -424,7 +424,7 @@ describe("InBattleSquaddie", () => {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
                 },
-                amount: 5,
+                amount: { amount: 5 },
                 source: SquaddieConditionSource.PHYSICAL,
             })
             const addResult = InBattleSquaddieService.addConditionsToSquaddie({
@@ -539,7 +539,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorbElemental = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 3,
+                amount: { amount: 3 },
                 duration: {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -548,7 +548,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorbSpiritual = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -599,7 +599,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorbElemental2 = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -608,7 +608,7 @@ describe("InBattleSquaddie", () => {
             })
             const absorbElemental3 = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 3,
+                amount: { amount: 3 },
                 duration: {
                     duration: 10,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -663,13 +663,13 @@ describe("InBattleSquaddie", () => {
             })
             const armorItem = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 3,
+                amount: { amount: 3 },
                 duration: undefined,
                 source: SquaddieConditionSource.ITEM,
             })
             const armorElemental = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: undefined,
                 source: SquaddieConditionSource.ELEMENTAL,
             })
@@ -696,13 +696,13 @@ describe("InBattleSquaddie", () => {
             })
             const armorElemental2 = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: undefined,
                 source: SquaddieConditionSource.ELEMENTAL,
             })
             const armorElemental1 = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 1,
+                amount: { amount: 1 },
                 duration: undefined,
                 source: SquaddieConditionSource.ELEMENTAL,
             })
@@ -812,6 +812,201 @@ describe("InBattleSquaddie", () => {
                     squaddie: withAttacks,
                 })
             expect(reset.attackContributionThisTurn).toBe(0)
+        })
+    })
+
+    describe("amount decaysAt", () => {
+        let attributeSheet: OutOfBattleSquaddieAttributeSheet
+        let outOfBattleSquaddie: OutOfBattleSquaddie
+        let squaddie: InBattleSquaddie
+
+        beforeEach(() => {
+            attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "sheet-amount-decay",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 0,
+                        [AttributeScore.MIND]: 0,
+                        [AttributeScore.SOUL]: 0,
+                    },
+                    items: { itemIds: [], maxCapacity: 0 },
+                    distancePerAction: 2,
+                    skipOverPits: false,
+                    moveThroughWalls: false,
+                    stopOnSquaddies: false,
+                })
+            outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "squaddie-amount-decay",
+                name: "Amount Decay Test",
+                actionIds: [],
+                attributeSheetId: "sheet-amount-decay",
+                affiliation: SquaddieAffiliation.NONE,
+            })
+            squaddie = InBattleSquaddieService.new({
+                id: 99,
+                name: "Amount Decay Test",
+                outOfBattleSquaddie,
+                attributeSheet,
+            })
+        })
+
+        it("decrements amount.current by 1 per matching round", () => {
+            const { squaddie: withCondition } =
+                InBattleSquaddieService.addConditionsToSquaddie({
+                    squaddie,
+                    conditions: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.ARMOR,
+                            amount: {
+                                amount: 3,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
+                    ],
+                })
+
+            const { squaddie: afterDecay } =
+                InBattleSquaddieService.reduceConditionDurationsByOneRound({
+                    squaddie: withCondition,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                })
+
+            const conditions = afterDecay.conditions.get(
+                SquaddieConditionType.ARMOR
+            )
+            expect(conditions).toBeDefined()
+            expect(conditions![0].amount?.current).toBe(2)
+        })
+
+        it("removes condition when amount.current reaches 0", () => {
+            const { squaddie: withCondition } =
+                InBattleSquaddieService.addConditionsToSquaddie({
+                    squaddie,
+                    conditions: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.ARMOR,
+                            amount: {
+                                amount: 3,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
+                    ],
+                })
+
+            let current = withCondition
+            for (let i = 0; i < 3; i++) {
+                const { squaddie: next } =
+                    InBattleSquaddieService.reduceConditionDurationsByOneRound({
+                        squaddie: current,
+                        decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                    })
+                current = next
+            }
+
+            expect(
+                current.conditions.get(SquaddieConditionType.ARMOR)
+            ).toBeUndefined()
+        })
+
+        it("does not decrement when decaysAt does not match", () => {
+            const { squaddie: withCondition } =
+                InBattleSquaddieService.addConditionsToSquaddie({
+                    squaddie,
+                    conditions: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.ARMOR,
+                            amount: {
+                                amount: 3,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
+                    ],
+                })
+
+            const { squaddie: afterDecay } =
+                InBattleSquaddieService.reduceConditionDurationsByOneRound({
+                    squaddie: withCondition,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_START,
+                })
+
+            const conditions = afterDecay.conditions.get(
+                SquaddieConditionType.ARMOR
+            )
+            expect(conditions![0].amount?.current).toBe(3)
+        })
+
+        it("does not decrement conditions without amount.decaysAt", () => {
+            const { squaddie: withCondition } =
+                InBattleSquaddieService.addConditionsToSquaddie({
+                    squaddie,
+                    conditions: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.ARMOR,
+                            amount: { amount: 3 },
+                            duration: undefined,
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
+                    ],
+                })
+
+            const { squaddie: afterDecay } =
+                InBattleSquaddieService.reduceConditionDurationsByOneRound({
+                    squaddie: withCondition,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                })
+
+            const conditions = afterDecay.conditions.get(
+                SquaddieConditionType.ARMOR
+            )
+            expect(conditions![0].amount?.current).toBe(3)
+        })
+
+        it("amount decay and duration decay are independent; condition removed when amount hits 0 first", () => {
+            const { squaddie: withCondition } =
+                InBattleSquaddieService.addConditionsToSquaddie({
+                    squaddie,
+                    conditions: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.ARMOR,
+                            amount: {
+                                amount: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            duration: {
+                                duration: 5,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            source: SquaddieConditionSource.PHYSICAL,
+                        }),
+                    ],
+                })
+
+            const { squaddie: afterOneTick } =
+                InBattleSquaddieService.reduceConditionDurationsByOneRound({
+                    squaddie: withCondition,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                })
+            const conditionsAfterOne = afterOneTick.conditions.get(
+                SquaddieConditionType.ARMOR
+            )
+            expect(conditionsAfterOne![0].limit.duration?.duration).toBe(4)
+            expect(conditionsAfterOne![0].amount?.current).toBe(1)
+
+            const { squaddie: afterTwoTicks } =
+                InBattleSquaddieService.reduceConditionDurationsByOneRound({
+                    squaddie: afterOneTick,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                })
+            expect(
+                afterTwoTicks.conditions.get(SquaddieConditionType.ARMOR)
+            ).toBeUndefined()
         })
     })
 })

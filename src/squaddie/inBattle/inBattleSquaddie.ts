@@ -190,17 +190,26 @@ export const InBattleSquaddieService = {
     } => {
         const newSquaddie = clone(squaddie)
         reduceEachConditionByOneRound(newSquaddie, decaysAt)
-        const removedConditionTypes =
-            getAllConditionTypesThatHaveZeroDuration(newSquaddie)
 
-        for (const conditionType of removedConditionTypes) {
+        const removedByDuration =
+            getAllConditionTypesThatHaveZeroDuration(newSquaddie)
+        for (const conditionType of removedByDuration) {
             newSquaddie.conditions.delete(conditionType)
         }
         removeAllIndividualConditionsWithZeroDuration(newSquaddie)
 
+        const removedByAmount =
+            getAllConditionTypesThatHaveZeroDecayedAmount(newSquaddie)
+        for (const conditionType of removedByAmount) {
+            newSquaddie.conditions.delete(conditionType)
+        }
+        removeConditionsWithDepletedDecayedAmount(newSquaddie)
+
         return {
             squaddie: newSquaddie,
-            removedConditions: removedConditionTypes,
+            removedConditions: [
+                ...new Set([...removedByDuration, ...removedByAmount]),
+            ],
         }
     },
     giveHealingToSquaddie: ({
@@ -748,10 +757,17 @@ const reduceEachConditionByOneRound = (
                 condition.limit.duration.duration -= 1
                 if (
                     condition.limit.duration.duration > 0 &&
-                    condition.amount?.base != undefined
+                    condition.amount?.base != undefined &&
+                    condition.amount?.decaysAt == undefined
                 ) {
                     condition.amount.current = condition.amount.base
                 }
+            }
+            if (
+                condition.amount?.decaysAt === decaysAt &&
+                condition.amount.current > 0
+            ) {
+                condition.amount.current -= 1
             }
         }
     }
@@ -780,6 +796,34 @@ const removeAllIndividualConditionsWithZeroDuration = (
                     (condition) =>
                         condition.limit.duration == undefined ||
                         condition.limit.duration.duration > 0
+                ) ?? []
+        newSquaddie.conditions.set(conditionType, filtered)
+    }
+}
+const getAllConditionTypesThatHaveZeroDecayedAmount = (
+    newSquaddie: InBattleSquaddie
+): TSquaddieConditionType[] => {
+    return Array.from(newSquaddie.conditions.entries())
+        .filter(([_, conditionList]) =>
+            conditionList.every(
+                (condition) =>
+                    condition.amount?.decaysAt != undefined &&
+                    condition.amount.current <= 0
+            )
+        )
+        .map(([conditionType]) => conditionType)
+}
+const removeConditionsWithDepletedDecayedAmount = (
+    newSquaddie: InBattleSquaddie
+) => {
+    for (const conditionType of newSquaddie.conditions.keys()) {
+        const filtered: SquaddieCondition[] =
+            newSquaddie.conditions
+                .get(conditionType)
+                ?.filter(
+                    (condition) =>
+                        condition.amount?.decaysAt == undefined ||
+                        condition.amount.current > 0
                 ) ?? []
         newSquaddie.conditions.set(conditionType, filtered)
     }

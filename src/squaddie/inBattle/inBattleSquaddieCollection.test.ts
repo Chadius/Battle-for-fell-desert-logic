@@ -158,7 +158,7 @@ describe("InBattleSquaddieCollection", () => {
 
             const absorb = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 5,
+                amount: { amount: 5 },
                 duration: {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,

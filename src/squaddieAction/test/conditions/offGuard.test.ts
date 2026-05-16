@@ -44,7 +44,7 @@ describe("OFF_GUARD condition", () => {
             conditions: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.OFF_GUARD,
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: {
                         duration: 1,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -135,7 +135,7 @@ describe("OFF_GUARD condition", () => {
                             add: [
                                 SquaddieConditionService.new({
                                     type: SquaddieConditionType.OFF_GUARD,
-                                    amount: 1,
+                                    amount: { amount: 1 },
                                     duration: {
                                         duration: 1,
                                         decaysAt:
@@ -496,7 +496,7 @@ describe("OFF_GUARD condition", () => {
                 conditions: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.OFF_GUARD,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,

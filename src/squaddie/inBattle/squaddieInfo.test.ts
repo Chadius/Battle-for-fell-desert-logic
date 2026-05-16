@@ -44,7 +44,7 @@ describe("SquaddieInfo", () => {
             it("flattens conditions map into array", () => {
                 const armorCondition = SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: {
                         duration: 3,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -54,7 +54,7 @@ describe("SquaddieInfo", () => {
 
                 const slowedCondition = SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -107,7 +107,7 @@ describe("SquaddieInfo", () => {
             it("can be serialized to JSON", () => {
                 const armorCondition = SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: 3,
+                    amount: { amount: 3 },
                     duration: {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,

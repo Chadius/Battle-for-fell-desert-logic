@@ -760,7 +760,7 @@ export class MissionManager {
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
                             },
                             source: SquaddieConditionSource.PHYSICAL,
-                            amount: 0,
+                            amount: { amount: 0 },
                         }),
                     ],
                 ])

@@ -58,7 +58,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ARMOR,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 3,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -89,7 +89,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ARMOR,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 3,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -98,7 +98,7 @@ describe("Reversing SquaddieActionResults", () => {
                     }),
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.SLOWED,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 2,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -242,7 +242,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.SLOWED,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 2,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -273,7 +273,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ARMOR,
-                        amount: 2,
+                        amount: { amount: 2 },
                         duration: {
                             duration: 3,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -314,7 +314,7 @@ describe("Reversing SquaddieActionResults", () => {
             >()
             dispelledConditionsMap.set(SquaddieConditionType.ARMOR, [
                 SquaddieConditionService.new({
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: {
                         duration: 3,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -361,7 +361,7 @@ describe("Reversing SquaddieActionResults", () => {
             >()
             treatedConditionsMap.set(SquaddieConditionType.SLOWED, [
                 SquaddieConditionService.new({
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -408,7 +408,7 @@ describe("Reversing SquaddieActionResults", () => {
             >()
             dispelledConditionsMap.set(SquaddieConditionType.ARMOR, [
                 SquaddieConditionService.new({
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: {
                         duration: 3,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -417,7 +417,7 @@ describe("Reversing SquaddieActionResults", () => {
                     type: SquaddieConditionType.ARMOR,
                 }),
                 SquaddieConditionService.new({
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: {
                         duration: 2,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -646,7 +646,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ARMOR,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 3,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -705,7 +705,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.SLOWED,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 2,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -945,7 +945,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ARMOR,
-                        amount: 2,
+                        amount: { amount: 2 },
                         duration: {
                             duration: 3,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -1113,7 +1113,7 @@ describe("Reversing SquaddieActionResults", () => {
                 conditionsAdded: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.SLOWED,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 2,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,

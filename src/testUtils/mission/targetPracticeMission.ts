@@ -277,7 +277,7 @@ function createIntimidatingGlareAction(): SquaddieAction {
                     add: [
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.SLOWED,
-                            amount: 1,
+                            amount: { amount: 1 },
                             duration: {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -354,7 +354,7 @@ function createShieldAction(): SquaddieAction {
                     add: [
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ARMOR,
-                            amount: 1,
+                            amount: { amount: 1 },
                             duration: {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_START,
@@ -363,7 +363,7 @@ function createShieldAction(): SquaddieAction {
                         }),
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ABSORB,
-                            amount: 1,
+                            amount: { amount: 1 },
                             duration: {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_START,

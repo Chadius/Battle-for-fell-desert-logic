@@ -52,6 +52,7 @@ export interface SquaddieCondition {
         | {
               current: number
               base: number | undefined
+              decaysAt?: TSquaddieConditionDecaysAt
           }
         | undefined
     limit: {
@@ -70,7 +71,9 @@ export const SquaddieConditionService = {
         duration:
             | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
             | undefined
-        amount: number | undefined
+        amount:
+            | { amount: number; decaysAt?: TSquaddieConditionDecaysAt }
+            | undefined
         source: TSquaddieConditionSource
     }): SquaddieCondition => newSquaddieCondition(params),
     isBinary: (t: SquaddieCondition): boolean => isBinary(t),
@@ -106,15 +109,18 @@ const newSquaddieCondition = ({
     duration:
         | { duration: number; decaysAt: TSquaddieConditionDecaysAt }
         | undefined
-    amount: number | undefined
+    amount:
+        | { amount: number; decaysAt?: TSquaddieConditionDecaysAt }
+        | undefined
     source: TSquaddieConditionSource
 }): SquaddieCondition => {
     const amountObj =
         amount == undefined
             ? undefined
             : {
-                  current: amount,
-                  base: duration == undefined ? undefined : amount,
+                  current: amount.amount,
+                  base: duration == undefined ? undefined : amount.amount,
+                  decaysAt: amount.decaysAt,
               }
     return {
         type,

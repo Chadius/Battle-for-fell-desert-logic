@@ -306,7 +306,7 @@ describe("Squaddie Actions against foes", () => {
                 SquaddieConditionService.new({
                     duration: undefined,
                     type: SquaddieConditionType.ABSORB,
-                    amount: 1,
+                    amount: { amount: 1 },
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
             ],
@@ -384,13 +384,13 @@ describe("Squaddie Actions against foes", () => {
             conditions: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: 3,
+                    amount: { amount: 3 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: -2,
+                    amount: { amount: -2 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
@@ -402,7 +402,7 @@ describe("Squaddie Actions against foes", () => {
                 }),
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),

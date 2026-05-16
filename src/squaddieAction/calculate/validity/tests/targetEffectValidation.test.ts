@@ -410,7 +410,7 @@ describe("target effect validation", () => {
             conditions: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.ARMOR,
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
@@ -557,7 +557,7 @@ describe("target effect validation", () => {
             conditions: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.SLOWED,
-                    amount: 2,
+                    amount: { amount: 2 },
                     duration: undefined,
                     source: SquaddieConditionSource.PHYSICAL,
                 }),
@@ -651,7 +651,7 @@ describe("target effect validation", () => {
                         add: [
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.SLOWED,
-                                amount: 2,
+                                amount: { amount: 2 },
                                 duration: undefined,
                                 source: SquaddieConditionSource.PHYSICAL,
                             }),
@@ -695,7 +695,7 @@ describe("target effect validation", () => {
                         add: [
                             SquaddieConditionService.new({
                                 type: SquaddieConditionType.ARMOR,
-                                amount: 2,
+                                amount: { amount: 2 },
                                 duration: undefined,
                                 source: SquaddieConditionSource.PHYSICAL,
                             }),

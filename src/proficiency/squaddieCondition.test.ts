@@ -12,7 +12,7 @@ describe("Squaddie Condition", () => {
         it("stores the decay timing on limit.duration when given a TURN_START duration", () => {
             const condition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 1,
                     decaysAt: SquaddieConditionDecaysAt.TURN_START,
@@ -28,7 +28,7 @@ describe("Squaddie Condition", () => {
         it("has undefined limit.duration when duration is undefined (permanent condition)", () => {
             const condition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: undefined,
                 source: SquaddieConditionSource.PHYSICAL,
             })
@@ -38,7 +38,7 @@ describe("Squaddie Condition", () => {
         it("clone preserves decaysAt and duration", () => {
             const original = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 3,
+                amount: { amount: 3 },
                 duration: {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_START,
@@ -55,7 +55,7 @@ describe("Squaddie Condition", () => {
         it("timed condition sets both amount.current and amount.base to the initial amount", () => {
             const condition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 4,
+                amount: { amount: 4 },
                 duration: {
                     duration: 3,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -69,7 +69,7 @@ describe("Squaddie Condition", () => {
         it("permanent condition sets amount.current but leaves amount.base undefined", () => {
             const condition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 4,
+                amount: { amount: 4 },
                 duration: undefined,
                 source: SquaddieConditionSource.PHYSICAL,
             })
@@ -93,7 +93,7 @@ describe("Squaddie Condition", () => {
         it("source stores PHYSICAL when given", () => {
             const condition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 1,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -106,7 +106,7 @@ describe("Squaddie Condition", () => {
         it("source is set when explicitly provided", () => {
             const condition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: 2,
+                amount: { amount: 2 },
                 duration: {
                     duration: 1,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -119,7 +119,7 @@ describe("Squaddie Condition", () => {
         it("clone preserves source", () => {
             const original = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 3,
+                amount: { amount: 3 },
                 duration: {
                     duration: 5,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -133,7 +133,7 @@ describe("Squaddie Condition", () => {
         it("clone deep-copies the amount object so mutating the clone does not affect the original", () => {
             const original = SquaddieConditionService.new({
                 type: SquaddieConditionType.ABSORB,
-                amount: 5,
+                amount: { amount: 5 },
                 duration: {
                     duration: 2,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -167,7 +167,7 @@ describe("Squaddie Condition", () => {
                 SquaddieConditionService.isHelpful(
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ABSORB,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -182,7 +182,7 @@ describe("Squaddie Condition", () => {
                 SquaddieConditionService.isHelpful(
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ARMOR,
-                        amount: -1,
+                        amount: { amount: -1 },
                         duration: {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -199,7 +199,7 @@ describe("Squaddie Condition", () => {
                 SquaddieConditionService.isHindering(
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.SLOWED,
-                        amount: 1,
+                        amount: { amount: 1 },
                         duration: {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -214,7 +214,7 @@ describe("Squaddie Condition", () => {
                 SquaddieConditionService.isHindering(
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.ARMOR,
-                        amount: -1,
+                        amount: { amount: -1 },
                         duration: {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,

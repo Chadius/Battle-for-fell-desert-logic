@@ -45,7 +45,7 @@ describe("Sneak Attack", () => {
             conditions: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.OFF_GUARD,
-                    amount: 1,
+                    amount: { amount: 1 },
                     duration: {
                         duration: 1,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -408,7 +408,7 @@ describe("Sneak Attack", () => {
                             add: [
                                 SquaddieConditionService.new({
                                     type: SquaddieConditionType.OFF_GUARD,
-                                    amount: 1,
+                                    amount: { amount: 1 },
                                     duration: {
                                         duration: 1,
                                         decaysAt:

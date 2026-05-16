@@ -1309,7 +1309,10 @@ const extractConditionsFromMap = (
             conditions.push(
                 SquaddieConditionService.new({
                     type,
-                    amount: conditionData.amount?.current,
+                    amount:
+                        conditionData.amount != undefined
+                            ? { amount: conditionData.amount.current }
+                            : undefined,
                     duration: conditionData.limit.duration,
                     source: SquaddieConditionSource.ITEM,
                 })
