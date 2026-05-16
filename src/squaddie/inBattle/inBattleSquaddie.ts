@@ -1112,6 +1112,12 @@ const calculateConditionAmount = (
         )
         if (offGuardAmount > 0) conditionPenalty -= offGuardAmount
     }
+
+    const frightenedAmount = effectiveConditionAmount(
+        squaddie.conditions.get(SquaddieConditionType.FRIGHTENED)
+    )
+    if (frightenedAmount > 0) conditionPenalty -= frightenedAmount
+
     return { conditionBonus, conditionPenalty }
 }
 

@@ -267,16 +267,34 @@ function createIntimidatingGlareAction(): SquaddieAction {
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
         effectOnActor: {
+            [DegreeOfSuccess.CRITICAL]: {
+                actionPoints: { spent: 1 },
+            },
             [DegreeOfSuccess.SUCCESS]: {
                 actionPoints: { spent: 1 },
             },
         },
         effectOnTarget: {
+            [DegreeOfSuccess.CRITICAL]: {
+                conditions: {
+                    add: [
+                        SquaddieConditionService.new({
+                            type: SquaddieConditionType.FRIGHTENED,
+                            amount: { amount: 2 },
+                            duration: {
+                                duration: 2,
+                                decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                            },
+                            source: SquaddieConditionSource.SPIRITUAL,
+                        }),
+                    ],
+                },
+            },
             [DegreeOfSuccess.SUCCESS]: {
                 conditions: {
                     add: [
                         SquaddieConditionService.new({
-                            type: SquaddieConditionType.SLOWED,
+                            type: SquaddieConditionType.FRIGHTENED,
                             amount: { amount: 1 },
                             duration: {
                                 duration: 1,

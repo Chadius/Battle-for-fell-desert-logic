@@ -29,6 +29,7 @@ import {
     type SquaddieCondition,
     SquaddieConditionService,
     SquaddieConditionSource,
+    SquaddieConditionType,
     type TSquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
 import {
@@ -72,6 +73,8 @@ export interface ActionModifierBreakdown {
     netModifier: number
     isFlankingTarget: boolean
     sneakAttackDamage?: number
+    actorFrightenedPenalty?: number
+    targetFrightenedPenalty?: number
 }
 
 export interface ForecastedActionResult {
@@ -1571,6 +1574,20 @@ const computeModifierBreakdown = ({
         map,
     })
 
+    const actorFrightenedPenalty =
+        inBattleSquaddieManager.calculateConditionAmountForSquaddie({
+            inBattleSquaddieId: actor.inBattleSquaddieId,
+            outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
+            conditionType: SquaddieConditionType.FRIGHTENED,
+        })
+
+    const targetFrightenedPenalty =
+        inBattleSquaddieManager.calculateConditionAmountForSquaddie({
+            inBattleSquaddieId: target.inBattleSquaddieId,
+            outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+            conditionType: SquaddieConditionType.FRIGHTENED,
+        })
+
     return {
         actorProficiencyBonus,
         targetDefensiveBonus,
@@ -1579,6 +1596,10 @@ const computeModifierBreakdown = ({
         isFlankingTarget,
         sneakAttackDamage:
             sneakAttackDamage > 0 ? sneakAttackDamage : undefined,
+        actorFrightenedPenalty:
+            actorFrightenedPenalty > 0 ? actorFrightenedPenalty : undefined,
+        targetFrightenedPenalty:
+            targetFrightenedPenalty > 0 ? targetFrightenedPenalty : undefined,
     }
 }
 
