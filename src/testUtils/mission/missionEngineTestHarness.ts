@@ -38,6 +38,7 @@ import {
     SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
+import { MissionDeploymentService } from "../../mission/missionDeployment"
 
 export const MissionEngineTestHarnessIds = {
     mapId: "test-harness-map",
@@ -78,7 +79,7 @@ export class MissionEngineTestHarness extends MissionEngine {
         super(missionManager, rollGenerator)
         this.liniSquaddieId = liniSquaddieId
         this.slitherDemonSquaddieId = slitherDemonSquaddieId
-        this.addSquaddiesToMap()
+        missionManager.deployRequiredSquaddies()
     }
 
     private static createTestMissionSetup(): TestMissionSetup {
@@ -100,6 +101,24 @@ export class MissionEngineTestHarness extends MissionEngine {
             id: MissionEngineTestHarnessIds.missionStateId,
             mapId: MissionEngineTestHarnessIds.mapId,
             objectives: this.createMissionObjectives(),
+            deployments: {
+                required: [
+                    MissionDeploymentService.new({
+                        id: "lini",
+                        outOfBattleSquaddieId:
+                            MissionEngineTestHarnessIds.lini
+                                .outOfBattleSquaddieId,
+                        coordinates: [{ row: 0, col: 0 }],
+                    }),
+                    MissionDeploymentService.new({
+                        id: "slither-demon",
+                        outOfBattleSquaddieId:
+                            MissionEngineTestHarnessIds.slitherDemon
+                                .outOfBattleSquaddieId,
+                        coordinates: [{ row: 3, col: 4 }],
+                    }),
+                ],
+            },
         })
 
         const missionManager = new MissionManager({
@@ -500,23 +519,6 @@ export class MissionEngineTestHarness extends MissionEngine {
             liniSquaddieId,
             slitherDemonSquaddieId,
         }
-    }
-
-    private addSquaddiesToMap(): void {
-        const coordinateMapCollectionManager =
-            this.missionManager!.coordinateMapCollectionManager!
-
-        coordinateMapCollectionManager.addSquaddie({
-            mapId: MissionEngineTestHarnessIds.mapId,
-            squaddieId: this.liniSquaddieId,
-            coordinate: { row: 0, col: 0 },
-        })
-
-        coordinateMapCollectionManager.addSquaddie({
-            mapId: MissionEngineTestHarnessIds.mapId,
-            squaddieId: this.slitherDemonSquaddieId,
-            coordinate: { row: 3, col: 4 },
-        })
     }
 
     getLiniSquaddieId(): BattleSquaddieId {

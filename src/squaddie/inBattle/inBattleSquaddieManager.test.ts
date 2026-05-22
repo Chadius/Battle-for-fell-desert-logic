@@ -2388,4 +2388,45 @@ describe("In Battle Squaddie Manager", () => {
             expect(parsed.items.itemIdsUsed).toEqual([])
         })
     })
+
+    describe("getBattleSquaddieIdsByOutOfBattleSquaddieId", () => {
+        it("returns BattleSquaddieIds for a given outOfBattleSquaddieId", () => {
+            const battleId = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            const results = manager.getBattleSquaddieIdsByOutOfBattleSquaddieId(
+                outOfBattleSquaddie0.id
+            )
+
+            expect(results).toHaveLength(1)
+            expect(results[0]).toEqual(battleId)
+        })
+
+        it("returns multiple BattleSquaddieIds when multiple instances exist", () => {
+            const first = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+            const second = manager.createNewSquaddie({
+                outOfBattleSquaddieId: outOfBattleSquaddie0.id,
+            })
+
+            const results = manager.getBattleSquaddieIdsByOutOfBattleSquaddieId(
+                outOfBattleSquaddie0.id
+            )
+
+            expect(results).toHaveLength(2)
+            expect(results).toContainEqual(first)
+            expect(results).toContainEqual(second)
+        })
+
+        it("returns empty array when no squaddies exist for that outOfBattleSquaddieId", () => {
+            const results =
+                manager.getBattleSquaddieIdsByOutOfBattleSquaddieId(
+                    "does-not-exist"
+                )
+
+            expect(results).toEqual([])
+        })
+    })
 })

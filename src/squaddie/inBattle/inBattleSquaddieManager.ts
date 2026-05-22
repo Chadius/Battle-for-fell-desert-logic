@@ -81,6 +81,23 @@ export class InBattleSquaddieManager {
         return true
     }
 
+    getBattleSquaddieIdsByOutOfBattleSquaddieId(
+        outOfBattleSquaddieId: string
+    ): BattleSquaddieId[] {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.getBattleSquaddieIdsByOutOfBattleSquaddieId.name
+        )
+        return InBattleSquaddieCollectionService.getSquaddiesByOutOfBattleSquaddieId(
+            {
+                collection: this.inBattleSquaddieCollection!,
+                outOfBattleSquaddieId,
+            }
+        ).map((inBattleSquaddie) => ({
+            outOfBattleSquaddieId,
+            inBattleSquaddieId: inBattleSquaddie.id,
+        }))
+    }
+
     getSquaddie(battleSquaddieId: BattleSquaddieId): {
         inBattleSquaddie: InBattleSquaddie
         outOfBattleSquaddie: OutOfBattleSquaddie

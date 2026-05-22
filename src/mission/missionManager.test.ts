@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { MissionManager } from "./missionManager"
 import { type MissionState, MissionStateService } from "./missionState"
+import { MissionDeploymentService } from "./missionDeployment"
 import { MissionObjectiveService } from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
@@ -3118,6 +3119,238 @@ describe("MissionManager", () => {
                     true
                 )
             })
+        })
+    })
+
+    describe("deployRequiredSquaddies", () => {
+        let inBattleSquaddieManager: InBattleSquaddieManager
+        let coordinateMapCollectionManager: CoordinateMapCollectionManager
+        let liniSquaddieId: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+        let demonSquaddieId: {
+            inBattleSquaddieId: number
+            outOfBattleSquaddieId: string
+        }
+
+        beforeEach(() => {
+            const { manager: outOfBattleSquaddieManager } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    {
+                        sheetId: "lini_sheet",
+                        attributeSheetOptions: { maxHitPoints: 5 },
+                    }
+                )
+
+            const demonSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "demon_sheet",
+                    maxHitPoints: 2,
+                })
+            outOfBattleSquaddieManager.addOrUpdateAttributeSheet(demonSheet)
+
+            const lini = OutOfBattleSquaddieService.new({
+                id: "lini",
+                name: "Lini",
+                affiliation: SquaddieAffiliation.PLAYER,
+                attributeSheetId: "lini_sheet",
+            })
+            const demon = OutOfBattleSquaddieService.new({
+                id: "slither-demon",
+                name: "Slither Demon",
+                affiliation: SquaddieAffiliation.ENEMY,
+                attributeSheetId: "demon_sheet",
+            })
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(lini)
+            outOfBattleSquaddieManager.addOrUpdateSquaddie(demon)
+
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManager
+            )
+            liniSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "lini",
+            })
+            demonSquaddieId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "slither-demon",
+            })
+
+            const map = CoordinateMapService.new({
+                id: "deploy_map",
+                name: "deploy map",
+                movementProperties: ["1 1 1 1 1 "],
+            })
+            coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            coordinateMapCollectionManager.addOrUpdate({ map })
+        })
+
+        it("places squaddies at their deployment coordinates", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-deploy",
+                mapId: "deploy_map",
+                deployments: {
+                    required: [
+                        MissionDeploymentService.new({
+                            id: "lini-start",
+                            outOfBattleSquaddieId: "lini",
+                            coordinates: [{ row: 0, col: 0 }],
+                        }),
+                        MissionDeploymentService.new({
+                            id: "demon-start",
+                            outOfBattleSquaddieId: "slither-demon",
+                            coordinates: [{ row: 0, col: 4 }],
+                        }),
+                    ],
+                },
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            manager.deployRequiredSquaddies()
+
+            expect(
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "deploy_map",
+                    squaddieId: liniSquaddieId,
+                })
+            ).toEqual({ row: 0, col: 0 })
+            expect(
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "deploy_map",
+                    squaddieId: demonSquaddieId,
+                })
+            ).toEqual({ row: 0, col: 4 })
+        })
+
+        it("deploys multiple instances from one deployment object at different coordinates", () => {
+            const secondDemonId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "slither-demon",
+            })
+            const missionState = MissionStateService.new({
+                id: "mission-deploy",
+                mapId: "deploy_map",
+                deployments: {
+                    required: [
+                        MissionDeploymentService.new({
+                            id: "demons",
+                            outOfBattleSquaddieId: "slither-demon",
+                            coordinates: [
+                                { row: 0, col: 1 },
+                                { row: 0, col: 2 },
+                            ],
+                        }),
+                    ],
+                },
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            manager.deployRequiredSquaddies()
+
+            expect(
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "deploy_map",
+                    squaddieId: demonSquaddieId,
+                })
+            ).toEqual({ row: 0, col: 1 })
+            expect(
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "deploy_map",
+                    squaddieId: secondDemonId,
+                })
+            ).toEqual({ row: 0, col: 2 })
+        })
+
+        it("marks all deployed squaddies as complete", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-deploy",
+                mapId: "deploy_map",
+                deployments: {
+                    required: [
+                        MissionDeploymentService.new({
+                            id: "lini-start",
+                            outOfBattleSquaddieId: "lini",
+                            coordinates: [{ row: 0, col: 0 }],
+                        }),
+                    ],
+                },
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            manager.deployRequiredSquaddies()
+
+            expect(
+                MissionStateService.getPendingDeployments(manager.missionState!)
+            ).toHaveLength(0)
+        })
+
+        it("skips squaddies that have already been deployed", () => {
+            const liniDeployment = MissionDeploymentService.new({
+                id: "lini-start",
+                outOfBattleSquaddieId: "lini",
+                coordinates: [{ row: 0, col: 0 }],
+            })
+            let missionState = MissionStateService.new({
+                id: "mission-deploy",
+                mapId: "deploy_map",
+                deployments: { required: [liniDeployment] },
+            })
+            missionState = MissionStateService.markDeploymentComplete(
+                missionState,
+                liniDeployment.id
+            )
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            manager.deployRequiredSquaddies()
+
+            expect(
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "deploy_map",
+                    squaddieId: liniSquaddieId,
+                })
+            ).toBeUndefined()
+        })
+
+        it("throws when no inBattleSquaddie exists for the outOfBattleSquaddieId", () => {
+            const missionState = MissionStateService.new({
+                id: "mission-deploy",
+                mapId: "deploy_map",
+                deployments: {
+                    required: [
+                        MissionDeploymentService.new({
+                            id: "unknown-start",
+                            outOfBattleSquaddieId: "unknown-squaddie",
+                            coordinates: [{ row: 0, col: 0 }],
+                        }),
+                    ],
+                },
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            expect(() => manager.deployRequiredSquaddies()).toThrow(
+                'no inBattleSquaddie found for outOfBattleSquaddieId "unknown-squaddie"'
+            )
         })
     })
 })

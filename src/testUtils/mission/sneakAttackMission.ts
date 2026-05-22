@@ -40,6 +40,7 @@ import {
     SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
+import { MissionDeploymentService } from "../../mission/missionDeployment"
 
 export const SneakAttackMissionIds = {
     mapId: "sneak-attack-map-id",
@@ -92,6 +93,28 @@ export function createSneakAttackMission(): {
         id: SneakAttackMissionIds.missionStateId,
         mapId: SneakAttackMissionIds.mapId,
         objectives: createMissionObjectives(),
+        deployments: {
+            required: [
+                MissionDeploymentService.new({
+                    id: "lini",
+                    outOfBattleSquaddieId:
+                        SneakAttackMissionIds.lini.outOfBattleSquaddieId,
+                    coordinates: [{ row: 1, col: 0 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "vale",
+                    outOfBattleSquaddieId:
+                        SneakAttackMissionIds.vale.outOfBattleSquaddieId,
+                    coordinates: [{ row: 1, col: 2 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "demon",
+                    outOfBattleSquaddieId:
+                        SneakAttackMissionIds.demon.outOfBattleSquaddieId,
+                    coordinates: [{ row: 1, col: 1 }],
+                }),
+            ],
+        },
     })
 
     const missionManager = new MissionManager({
@@ -99,13 +122,6 @@ export function createSneakAttackMission(): {
         inBattleSquaddieManager,
         coordinateMapCollectionManager,
         squaddieActionManager,
-    })
-
-    addSquaddiesToMap({
-        coordinateMapCollectionManager,
-        liniSquaddieId,
-        valeSquaddieId,
-        demonSquaddieId,
     })
 
     return { missionManager, liniSquaddieId, valeSquaddieId, demonSquaddieId }
@@ -575,35 +591,4 @@ function createInBattleSquaddieManager(
         valeSquaddieId,
         demonSquaddieId,
     }
-}
-
-function addSquaddiesToMap({
-    coordinateMapCollectionManager,
-    liniSquaddieId,
-    valeSquaddieId,
-    demonSquaddieId,
-}: {
-    coordinateMapCollectionManager: CoordinateMapCollectionManager
-    liniSquaddieId: BattleSquaddieId
-    valeSquaddieId: BattleSquaddieId
-    demonSquaddieId: BattleSquaddieId
-}): void {
-    // Lini LEFT of demon, Vale RIGHT — opposite hex directions create flanking.
-    coordinateMapCollectionManager.addSquaddie({
-        mapId: SneakAttackMissionIds.mapId,
-        squaddieId: liniSquaddieId,
-        coordinate: { row: 1, col: 0 },
-    })
-
-    coordinateMapCollectionManager.addSquaddie({
-        mapId: SneakAttackMissionIds.mapId,
-        squaddieId: demonSquaddieId,
-        coordinate: { row: 1, col: 1 },
-    })
-
-    coordinateMapCollectionManager.addSquaddie({
-        mapId: SneakAttackMissionIds.mapId,
-        squaddieId: valeSquaddieId,
-        coordinate: { row: 1, col: 2 },
-    })
 }

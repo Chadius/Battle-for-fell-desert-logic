@@ -1,4 +1,5 @@
 import type { MissionState } from "./missionState"
+import { MissionStateService } from "./missionState"
 import {
     MissionAffiliationTurn,
     type MissionTurn,
@@ -793,6 +794,41 @@ export class MissionManager {
                 inBattleSquaddieManager: this.inBattleSquaddieManager!,
                 squaddieAffiliation: affiliation,
             })
+        }
+    }
+
+    deployRequiredSquaddies(): void {
+        this.throwIfStateIsUndefined(this.deployRequiredSquaddies.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.deployRequiredSquaddies.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.deployRequiredSquaddies.name
+        )
+
+        const pending = MissionStateService.getPendingDeployments(
+            this.missionState!
+        )
+        for (const deployment of pending) {
+            const battleSquaddieIds =
+                this.inBattleSquaddieManager!.getBattleSquaddieIdsByOutOfBattleSquaddieId(
+                    deployment.outOfBattleSquaddieId
+                )
+            if (battleSquaddieIds.length < deployment.coordinates.length)
+                throw new Error(
+                    `[MissionManager.${this.deployRequiredSquaddies.name}]: no inBattleSquaddie found for outOfBattleSquaddieId "${deployment.outOfBattleSquaddieId}"`
+                )
+            for (let i = 0; i < deployment.coordinates.length; i++) {
+                this.coordinateMapCollectionManager!.addSquaddie({
+                    mapId: this.missionState!.mapId,
+                    squaddieId: battleSquaddieIds[i],
+                    coordinate: deployment.coordinates[i],
+                })
+            }
+            this.missionState = MissionStateService.markDeploymentComplete(
+                this.missionState!,
+                deployment.id
+            )
         }
     }
 

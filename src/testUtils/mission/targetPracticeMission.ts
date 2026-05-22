@@ -39,6 +39,7 @@ import {
     SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
+import { MissionDeploymentService } from "../../mission/missionDeployment"
 
 export const ValeAndGloriaMissionIds = {
     mapId: "target-practice-map-id",
@@ -75,34 +76,50 @@ export function createTargetPracticeMission(): MissionManager {
     const squaddieActionManager = createSquaddieActionManager()
     const outOfBattleSquaddieManager = createOutOfBattleSquaddieManager()
 
-    const {
-        inBattleSquaddieManager,
-        valeSquaddieId,
-        gloriaSquaddieId,
-        demonSquaddieIds,
-    } = createInBattleSquaddieManager(outOfBattleSquaddieManager)
+    const { inBattleSquaddieManager } = createInBattleSquaddieManager(
+        outOfBattleSquaddieManager
+    )
 
     const missionState = MissionStateService.new({
         id: ValeAndGloriaMissionIds.missionStateId,
         mapId: ValeAndGloriaMissionIds.mapId,
         objectives: createMissionObjectives(),
+        deployments: {
+            required: [
+                MissionDeploymentService.new({
+                    id: "vale",
+                    outOfBattleSquaddieId:
+                        ValeAndGloriaMissionIds.vale.outOfBattleSquaddieId,
+                    coordinates: [{ row: 2, col: 3 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "gloria",
+                    outOfBattleSquaddieId:
+                        ValeAndGloriaMissionIds.gloria.outOfBattleSquaddieId,
+                    coordinates: [{ row: 3, col: 0 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "demons",
+                    outOfBattleSquaddieId:
+                        ValeAndGloriaMissionIds.slitherDemon
+                            .outOfBattleSquaddieId,
+                    coordinates: [
+                        { row: 2, col: 6 },
+                        { row: 2, col: 7 },
+                        { row: 2, col: 8 },
+                        { row: 2, col: 9 },
+                    ],
+                }),
+            ],
+        },
     })
 
-    const missionManager = new MissionManager({
+    return new MissionManager({
         missionState,
         inBattleSquaddieManager,
         coordinateMapCollectionManager,
         squaddieActionManager,
     })
-
-    addSquaddiesToMap({
-        coordinateMapCollectionManager,
-        valeSquaddieId,
-        gloriaSquaddieId,
-        demonSquaddieIds,
-    })
-
-    return missionManager
 }
 
 function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager {
@@ -602,44 +619,5 @@ function createInBattleSquaddieManager(
         valeSquaddieId,
         gloriaSquaddieId,
         demonSquaddieIds,
-    }
-}
-
-function addSquaddiesToMap({
-    coordinateMapCollectionManager,
-    valeSquaddieId,
-    gloriaSquaddieId,
-    demonSquaddieIds,
-}: {
-    coordinateMapCollectionManager: CoordinateMapCollectionManager
-    valeSquaddieId: BattleSquaddieId
-    gloriaSquaddieId: BattleSquaddieId
-    demonSquaddieIds: BattleSquaddieId[]
-}): void {
-    coordinateMapCollectionManager.addSquaddie({
-        mapId: ValeAndGloriaMissionIds.mapId,
-        squaddieId: valeSquaddieId,
-        coordinate: { row: 2, col: 3 },
-    })
-
-    coordinateMapCollectionManager.addSquaddie({
-        mapId: ValeAndGloriaMissionIds.mapId,
-        squaddieId: gloriaSquaddieId,
-        coordinate: { row: 3, col: 0 },
-    })
-
-    const demonCoordinates = [
-        { row: 2, col: 6 },
-        { row: 2, col: 7 },
-        { row: 2, col: 8 },
-        { row: 2, col: 9 },
-    ]
-
-    for (let i = 0; i < demonSquaddieIds.length; i++) {
-        coordinateMapCollectionManager.addSquaddie({
-            mapId: ValeAndGloriaMissionIds.mapId,
-            squaddieId: demonSquaddieIds[i],
-            coordinate: demonCoordinates[i],
-        })
     }
 }

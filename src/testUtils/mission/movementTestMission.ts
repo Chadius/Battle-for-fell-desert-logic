@@ -34,6 +34,7 @@ import {
 } from "../../mission/missionObjective"
 import { MissionObjectiveRewardService } from "../../mission/missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "../../mission/missionObjectiveCriteria"
+import { MissionDeploymentService } from "../../mission/missionDeployment"
 
 export const MovementTestMissionIds = {
     mapId: "movement-test-map-id",
@@ -84,6 +85,34 @@ export function createMovementTestMission(): {
         id: MovementTestMissionIds.missionStateId,
         mapId: MovementTestMissionIds.mapId,
         objectives: createMissionObjectives(),
+        deployments: {
+            required: [
+                MissionDeploymentService.new({
+                    id: "fracta",
+                    outOfBattleSquaddieId:
+                        MovementTestMissionIds.fracta.outOfBattleSquaddieId,
+                    coordinates: [{ row: 2, col: 2 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "vale",
+                    outOfBattleSquaddieId:
+                        MovementTestMissionIds.vale.outOfBattleSquaddieId,
+                    coordinates: [{ row: 5, col: 1 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "slither-demons",
+                    outOfBattleSquaddieId:
+                        MovementTestMissionIds.slitherDemon
+                            .outOfBattleSquaddieId,
+                    coordinates: [
+                        { row: 1, col: 5 },
+                        { row: 2, col: 5 },
+                        { row: 5, col: 0 },
+                        { row: 4, col: 4 },
+                    ],
+                }),
+            ],
+        },
     })
 
     const missionManager = new MissionManager({
@@ -92,13 +121,7 @@ export function createMovementTestMission(): {
         coordinateMapCollectionManager,
         squaddieActionManager,
     })
-
-    addSquaddiesToMap({
-        coordinateMapCollectionManager,
-        fractaSquaddieId,
-        valeSquaddieId,
-        demonSquaddieIds,
-    })
+    missionManager.deployRequiredSquaddies()
 
     return {
         missionManager,
@@ -464,7 +487,6 @@ function createInBattleSquaddieManager(
             MovementTestMissionIds.vale.outOfBattleSquaddieId,
     })
 
-    // Two demons flanking Fracta across the pit cluster.
     const demonSquaddieIds: BattleSquaddieId[] = []
     for (let i = 0; i < 4; i++) {
         const demonId = manager.createNewSquaddie({
@@ -479,46 +501,5 @@ function createInBattleSquaddieManager(
         fractaSquaddieId,
         valeSquaddieId,
         demonSquaddieIds,
-    }
-}
-
-function addSquaddiesToMap({
-    coordinateMapCollectionManager,
-    fractaSquaddieId,
-    valeSquaddieId,
-    demonSquaddieIds,
-}: {
-    coordinateMapCollectionManager: CoordinateMapCollectionManager
-    fractaSquaddieId: BattleSquaddieId
-    valeSquaddieId: BattleSquaddieId
-    demonSquaddieIds: BattleSquaddieId[]
-}): void {
-    // Fracta starts on the left side of the pit cluster.
-    coordinateMapCollectionManager.addSquaddie({
-        mapId: MovementTestMissionIds.mapId,
-        squaddieId: fractaSquaddieId,
-        coordinate: { row: 2, col: 2 },
-    })
-
-    // Vale starts in the lower-left, within Rescue range of Fracta.
-    coordinateMapCollectionManager.addSquaddie({
-        mapId: MovementTestMissionIds.mapId,
-        squaddieId: valeSquaddieId,
-        coordinate: { row: 5, col: 1 },
-    })
-
-    const demonCoordinates = [
-        { row: 1, col: 5 },
-        { row: 2, col: 5 },
-        { row: 5, col: 0 },
-        { row: 4, col: 4 },
-    ]
-
-    for (let i = 0; i < demonSquaddieIds.length; i++) {
-        coordinateMapCollectionManager.addSquaddie({
-            mapId: MovementTestMissionIds.mapId,
-            squaddieId: demonSquaddieIds[i],
-            coordinate: demonCoordinates[i],
-        })
     }
 }

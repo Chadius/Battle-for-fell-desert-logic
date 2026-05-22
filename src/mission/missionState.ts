@@ -8,6 +8,7 @@ import type { TTurnControllerType } from "./turnController"
 import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 import type { StrategyControllerOverrides } from "./strategyController"
 import type { DebugFlags } from "./debugFlags"
+import type { MissionDeployment } from "./missionDeployment"
 
 export interface MissionState {
     id: string
@@ -21,6 +22,10 @@ export interface MissionState {
     }
     strategyControllerOverrides?: StrategyControllerOverrides
     debugFlags?: DebugFlags
+    deployments?: {
+        required: MissionDeployment[]
+        completedDeploymentIds: string[]
+    }
 }
 
 export const MissionStateService = {
@@ -33,6 +38,7 @@ export const MissionStateService = {
         controllerTypeOverrides,
         strategyControllerOverrides,
         debugFlags,
+        deployments,
     }: {
         id: string
         mapId: string
@@ -47,6 +53,7 @@ export const MissionStateService = {
         }
         strategyControllerOverrides?: StrategyControllerOverrides
         debugFlags?: DebugFlags
+        deployments?: { required: MissionDeployment[] }
     }): MissionState => {
         if (id == undefined || id.length === 0) {
             throw new Error(
@@ -69,6 +76,47 @@ export const MissionStateService = {
             controllerTypeOverrides,
             strategyControllerOverrides,
             debugFlags,
+            deployments: deployments
+                ? {
+                      required: deployments.required,
+                      completedDeploymentIds: [],
+                  }
+                : undefined,
+        }
+    },
+
+    getPendingDeployments: (
+        missionState: MissionState
+    ): MissionDeployment[] => {
+        if (missionState.deployments == undefined) return []
+        const completed = new Set(
+            missionState.deployments.completedDeploymentIds
+        )
+        return missionState.deployments.required.filter(
+            (d) => !completed.has(d.id)
+        )
+    },
+
+    markDeploymentComplete: (
+        missionState: MissionState,
+        deploymentId: string
+    ): MissionState => {
+        if (missionState.deployments == undefined) return missionState
+        if (
+            missionState.deployments.completedDeploymentIds.includes(
+                deploymentId
+            )
+        )
+            return missionState
+        return {
+            ...missionState,
+            deployments: {
+                required: [...missionState.deployments.required],
+                completedDeploymentIds: [
+                    ...missionState.deployments.completedDeploymentIds,
+                    deploymentId,
+                ],
+            },
         }
     },
 
