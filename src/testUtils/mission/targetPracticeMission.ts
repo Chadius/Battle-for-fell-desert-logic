@@ -114,12 +114,16 @@ export function createTargetPracticeMission(): MissionManager {
         },
     })
 
-    return new MissionManager({
+    const missionManager = new MissionManager({
         missionState,
         inBattleSquaddieManager,
         coordinateMapCollectionManager,
         squaddieActionManager,
     })
+
+    missionManager.deployRequiredSquaddies()
+
+    return missionManager
 }
 
 function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager {

@@ -123,7 +123,7 @@ export function createSneakAttackMission(): {
         coordinateMapCollectionManager,
         squaddieActionManager,
     })
-
+    missionManager.deployRequiredSquaddies()
     return { missionManager, liniSquaddieId, valeSquaddieId, demonSquaddieId }
 }
 

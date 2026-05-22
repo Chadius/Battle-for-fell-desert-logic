@@ -128,6 +128,8 @@ export class MissionEngineTestHarness extends MissionEngine {
             squaddieActionManager,
         })
 
+        missionManager.deployRequiredSquaddies()
+
         return {
             missionManager,
             liniSquaddieId,
