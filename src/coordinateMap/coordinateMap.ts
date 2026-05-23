@@ -1,3 +1,4 @@
+import { z } from "zod"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo"
 import {
@@ -26,7 +27,7 @@ export type OffsetMaybeOffmapCoordinate = {
 interface Coordinate {
     row: number
     col: number
-    movementCost: number | undefined
+    movementCost?: number
     canStop: boolean
     squaddieId?: BattleSquaddieId
 }
@@ -39,15 +40,36 @@ export interface CoordinateMap {
     coordinatesSquaddiesCannotStopOn: Set<string>
 }
 
-export interface SerializedCoordinateMap {
-    id: string
-    name: string
-    coordinates: Coordinate[][]
-    coordinateBySquaddie: {
-        [squaddieKey: string]: OffsetMaybeOffmapCoordinate
-    }
-    coordinatesSquaddiesCannotStopOn: string[]
-}
+const battleSquaddieIdSchema = z.object({
+    inBattleSquaddieId: z.number(),
+    outOfBattleSquaddieId: z.string(),
+})
+
+const coordinateSchema = z.object({
+    row: z.number(),
+    col: z.number(),
+    movementCost: z.number().optional(),
+    canStop: z.boolean(),
+    squaddieId: battleSquaddieIdSchema.optional(),
+})
+
+const offsetMaybeOffmapCoordinateSchema = z.object({
+    row: z.number().optional(),
+    col: z.number().optional(),
+})
+
+export const coordinateMapSchema = z.object({
+    id: z.string().min(1),
+    name: z.string(),
+    coordinates: z.array(z.array(coordinateSchema)),
+    coordinateBySquaddie: z.record(
+        z.string(),
+        offsetMaybeOffmapCoordinateSchema
+    ),
+    coordinatesSquaddiesCannotStopOn: z.array(z.string()),
+})
+
+export type SerializedCoordinateMap = z.infer<typeof coordinateMapSchema>
 
 export const CoordinateMapService = {
     new: ({
@@ -395,14 +417,26 @@ export const CoordinateMapService = {
             ),
         }
     },
-    deserialize: (serialized: SerializedCoordinateMap): CoordinateMap => {
+    deserialize: (data: unknown): CoordinateMap => {
+        const result = coordinateMapSchema.safeParse(data)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            throw new Error(`[CoordinateMapService.deserialize]: ${details}`)
+        }
+        const serialized = result.data
         const coordinateBySquaddie: Map<string, OffsetMaybeOffmapCoordinate> =
             new Map()
 
         for (const [squaddieKey, coordinate] of Object.entries(
             serialized.coordinateBySquaddie
         )) {
-            coordinateBySquaddie.set(squaddieKey, { ...coordinate })
+            coordinateBySquaddie.set(squaddieKey, {
+                col: undefined,
+                row: undefined,
+                ...coordinate,
+            })
         }
 
         return {
