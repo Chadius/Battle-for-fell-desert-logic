@@ -686,3 +686,279 @@ describe("SquaddieActionService.getRequiredDecisions", () => {
         expect(result.requiresTargetDestination).toBe(false)
     })
 })
+
+describe("SquaddieActionService serialization", () => {
+    it("round-trips a simple action with no movement or effectOnTarget", () => {
+        const action = SquaddieActionService.new({
+            id: "end-turn",
+            name: "End Turn",
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: "all" },
+                },
+            },
+        })
+        const serialized = SquaddieActionService.serialize(action)
+        const deserialized = SquaddieActionService.deserialize(serialized)
+        expect(deserialized).toEqual(action)
+    })
+    it("round-trips an action with effectOnTarget and all degrees", () => {
+        const action = SquaddieActionService.new({
+            id: "scimitar",
+            name: "Scimitar",
+            proficiency: ProficiencyType.WEAPON_MARTIAL,
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    damage: { raw: 2, targetProficiency: ProficiencyType.ARMOR },
+                },
+                [DegreeOfSuccess.CRITICAL]: {
+                    damage: { raw: 4, targetProficiency: ProficiencyType.ARMOR },
+                },
+                [DegreeOfSuccess.FAILURE]: {
+                    damage: { raw: 0, targetProficiency: ProficiencyType.ARMOR },
+                },
+                [DegreeOfSuccess.BOTCH]: {
+                    damage: { raw: 0, targetProficiency: ProficiencyType.ARMOR },
+                },
+            },
+        })
+        const serialized = SquaddieActionService.serialize(action)
+        const deserialized = SquaddieActionService.deserialize(serialized)
+        expect(deserialized).toEqual(action)
+    })
+    it("round-trips ACTOR_CHOSEN movement", () => {
+        const action = SquaddieActionService.defaultMove()
+        const serialized = SquaddieActionService.serialize(action)
+        const deserialized = SquaddieActionService.deserialize(serialized)
+        expect(deserialized).toEqual(action)
+    })
+    it("round-trips ACTOR_CHOSEN_SPECIAL_TRAVERSAL movement", () => {
+        const action = SquaddieActionService.new({
+            id: "phase-walk",
+            name: "Phase Walk",
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 1 },
+                    movement: {
+                        movementType:
+                            MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL,
+                        traversal: {
+                            moveThroughWalls: true,
+                            skipOverPits: true,
+                        },
+                    },
+                },
+            },
+        })
+        const serialized = SquaddieActionService.serialize(action)
+        const deserialized = SquaddieActionService.deserialize(serialized)
+        expect(deserialized).toEqual(action)
+    })
+    it("round-trips TELEPORT_TO_ACTOR_CHOSEN movement", () => {
+        const action = SquaddieActionService.new({
+            id: "rescue",
+            name: "Rescue",
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            affiliationRelationship: { self: false, foe: false, friend: true },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    movement: {
+                        movementType:
+                            MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
+                        destinationRange: ActionRange.MELEE,
+                    },
+                },
+            },
+        })
+        const serialized = SquaddieActionService.serialize(action)
+        const deserialized = SquaddieActionService.deserialize(serialized)
+        expect(deserialized).toEqual(action)
+    })
+    it("round-trips FORCED_TOWARD_ACTOR movement", () => {
+        const action = SquaddieActionService.new({
+            id: "gravity-pull",
+            name: "Gravity Pull",
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    movement: {
+                        movementType: MovementEffectType.FORCED_TOWARD_ACTOR,
+                        forcedDistance: 3,
+                    },
+                },
+            },
+        })
+        const serialized = SquaddieActionService.serialize(action)
+        const deserialized = SquaddieActionService.deserialize(serialized)
+        expect(deserialized).toEqual(action)
+    })
+    it("round-trips an action with conditions applied on target", () => {
+        const action = SquaddieActionService.new({
+            id: "frighten",
+            name: "Frighten",
+            proficiency: ProficiencyType.SKILL_SOUL,
+            howToDetermineDegreeOfSuccess:
+                HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    conditions: {
+                        add: [
+                            {
+                                type: "FRIGHTENED",
+                                source: "SPIRITUAL",
+                                amount: { current: 2, base: 2 },
+                                limit: {
+                                    duration: {
+                                        duration: 2,
+                                        decaysAt: "TURN_END",
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+            },
+        })
+        const serialized = SquaddieActionService.serialize(action)
+        const deserialized = SquaddieActionService.deserialize(serialized)
+        expect(deserialized).toEqual(action)
+    })
+    it("throws with field path when id is missing", () => {
+        expect(() =>
+            SquaddieActionService.deserialize({
+                name: "No ID",
+                attribute: "BODY",
+                proficiency: "ARMOR",
+                howToDetermineDegreeOfSuccess: "AUTOMATIC_SUCCESS",
+                degreesOfSuccess: ["SUCCESS"],
+                targeting: {
+                    range: "MELEE",
+                    shape: "BLOOM",
+                    affiliationRelationship: {
+                        self: false,
+                        foe: true,
+                        friend: false,
+                    },
+                },
+                multipleAttackPenalty: { applies: false, contribution: 0 },
+                effectOnActor: { SUCCESS: { actionPoints: { spent: 1 } } },
+            })
+        ).toThrow("[SquaddieActionService.deserialize]:")
+    })
+    it("throws with field path when proficiency is an invalid enum value", () => {
+        const action = SquaddieActionService.new({
+            id: "test",
+            name: "Test",
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+        const serialized = SquaddieActionService.serialize(action)
+        expect(() =>
+            SquaddieActionService.deserialize({
+                ...serialized,
+                proficiency: "NOT_A_PROFICIENCY",
+            })
+        ).toThrow("[SquaddieActionService.deserialize]:")
+    })
+    it("throws with field path when movementType is invalid", () => {
+        expect(() =>
+            SquaddieActionService.deserialize({
+                id: "bad-move",
+                name: "Bad Move",
+                attribute: "BODY",
+                proficiency: "ARMOR",
+                howToDetermineDegreeOfSuccess: "AUTOMATIC_SUCCESS",
+                degreesOfSuccess: ["SUCCESS"],
+                targeting: {
+                    range: "MELEE",
+                    shape: "BLOOM",
+                    affiliationRelationship: {
+                        self: true,
+                        foe: false,
+                        friend: false,
+                    },
+                },
+                multipleAttackPenalty: { applies: false, contribution: 0 },
+                effectOnActor: {
+                    SUCCESS: {
+                        movement: { movementType: "INVALID_MOVEMENT" },
+                    },
+                },
+            })
+        ).toThrow("[SquaddieActionService.deserialize]:")
+    })
+    it("throws when SUCCESS is missing from effectOnActor", () => {
+        expect(() =>
+            SquaddieActionService.deserialize({
+                id: "no-success",
+                name: "No Success",
+                attribute: "BODY",
+                proficiency: "ARMOR",
+                howToDetermineDegreeOfSuccess: "AUTOMATIC_SUCCESS",
+                degreesOfSuccess: ["SUCCESS"],
+                targeting: {
+                    range: "MELEE",
+                    shape: "BLOOM",
+                    affiliationRelationship: {
+                        self: true,
+                        foe: false,
+                        friend: false,
+                    },
+                },
+                multipleAttackPenalty: { applies: false, contribution: 0 },
+                effectOnActor: {
+                    CRITICAL: { actionPoints: { spent: 1 } },
+                },
+            })
+        ).toThrow("[SquaddieActionService.deserialize]:")
+    })
+    it("throws when a condition type is invalid inside conditions.add", () => {
+        const action = SquaddieActionService.new({
+            id: "test",
+            name: "Test",
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+            },
+        })
+        const serialized = SquaddieActionService.serialize(action)
+        expect(() =>
+            SquaddieActionService.deserialize({
+                ...serialized,
+                effectOnTarget: {
+                    SUCCESS: {
+                        conditions: {
+                            add: [
+                                {
+                                    type: "NOT_A_CONDITION",
+                                    source: "NONE",
+                                    limit: {},
+                                },
+                            ],
+                        },
+                    },
+                },
+            })
+        ).toThrow("[SquaddieActionService.deserialize]:")
+    })
+})

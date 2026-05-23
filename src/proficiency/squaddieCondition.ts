@@ -1,3 +1,4 @@
+import { z } from "zod"
 import type { EnumLike } from "../enum"
 
 export const SquaddieConditionSource = {
@@ -67,6 +68,28 @@ export interface SquaddieCondition {
     }
 }
 
+export const squaddieConditionSchema = z.object({
+    type: z.enum(SquaddieConditionType),
+    source: z.enum(SquaddieConditionSource),
+    amount: z
+        .object({
+            current: z.number(),
+            base: z.number().optional(),
+            decaysAt: z.enum(SquaddieConditionDecaysAt).optional(),
+        })
+        .optional(),
+    limit: z.object({
+        duration: z
+            .object({
+                duration: z.number(),
+                decaysAt: z.enum(SquaddieConditionDecaysAt),
+            })
+            .optional(),
+    }),
+})
+
+export type SerializedSquaddieCondition = z.infer<typeof squaddieConditionSchema>
+
 export const SquaddieConditionService = {
     new: (params: {
         type: TSquaddieConditionType
@@ -97,6 +120,32 @@ export const SquaddieConditionService = {
                     : { ...original.limit.duration },
         },
     }),
+    serialize: (condition: SquaddieCondition): SerializedSquaddieCondition => ({
+        type: condition.type,
+        source: condition.source,
+        amount:
+            condition.amount == undefined
+                ? undefined
+                : { ...condition.amount },
+        limit: {
+            duration:
+                condition.limit.duration == undefined
+                    ? undefined
+                    : { ...condition.limit.duration },
+        },
+    }),
+    deserialize: (data: unknown): SquaddieCondition => {
+        const result = squaddieConditionSchema.safeParse(data)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            throw new Error(
+                `[SquaddieConditionService.deserialize]: ${details}`
+            )
+        }
+        return result.data as SquaddieCondition
+    },
 }
 
 const isBinary = (t: SquaddieCondition): boolean => binaryTypes.has(t.type)

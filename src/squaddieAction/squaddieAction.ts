@@ -1,31 +1,27 @@
-import {
-    AttributeScore,
-    type AttributeScoreType,
-} from "../proficiency/attributeScore"
+import { z } from "zod"
+import { AttributeScore, type AttributeScoreType, } from "../proficiency/attributeScore"
 import { ActionRange, type TActionRange } from "./actionRange"
-import {
-    CoordinateGeneratorShape,
-    type TCoordinateGeneratorShape,
-} from "../coordinateMap/shape"
-import {
-    DegreeOfSuccess,
-    type TDegreeOfSuccess,
-} from "../degreesOfSuccess/degreeOfSuccess"
-import {
-    ProficiencyType,
-    type TProficiencyType,
-} from "../proficiency/proficiencyLevel"
+import { CoordinateGeneratorShape, type TCoordinateGeneratorShape, } from "../coordinateMap/shape"
+import { DegreeOfSuccess, type TDegreeOfSuccess, } from "../degreesOfSuccess/degreeOfSuccess"
+import { ProficiencyType, type TProficiencyType, } from "../proficiency/proficiencyLevel"
 import type { EnumLike } from "../enum"
-import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo"
-import type { SquaddieActionEffect } from "./squaddieActionEffect"
+import {
+    type SquaddieActionEffect,
+    squaddieActionEffectSchema,
+    SquaddieActionEffectService,
+} from "./squaddieActionEffect"
+import { MovementEffectType } from "./squaddieActionMovementEffect"
 
-export const MovementEffectType = {
-    ACTOR_CHOSEN: "ACTOR_CHOSEN",
-    ACTOR_CHOSEN_SPECIAL_TRAVERSAL: "ACTOR_CHOSEN_SPECIAL_TRAVERSAL",
-    TELEPORT_TO_ACTOR_CHOSEN: "TELEPORT_TO_ACTOR_CHOSEN",
-    FORCED_TOWARD_ACTOR: "FORCED_TOWARD_ACTOR",
-} as const satisfies Record<string, string>
-export type TMovementEffectType = EnumLike<typeof MovementEffectType>
+export {
+    type TMovementEffectType,
+    type SquaddieActionMovementEffect,
+    type TeleportToActorChosenMovement,
+    MovementEffectType,
+} from "./squaddieActionMovementEffect"
+export {
+    type SerializedSquaddieActionEffect,
+    SquaddieActionEffectService,
+} from "./squaddieActionEffect"
 
 export const HowToDetermineDegreeOfSuccess = {
     ACTOR_ROLLS_TO_HIT: "ACTOR_ROLLS_TO_HIT",
@@ -51,31 +47,6 @@ interface SquaddieActionTargeting {
 }
 
 export type ActionPointCost = number | "all"
-
-type ActorChosenMovement = {
-    movementType: typeof MovementEffectType.ACTOR_CHOSEN
-}
-
-type ActorChosenSpecialTraversalMovement = {
-    movementType: typeof MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL
-    traversal: Partial<Omit<SquaddieMovementInfo, "movementPointsPerAction">>
-}
-
-export type TeleportToActorChosenMovement = {
-    movementType: typeof MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN
-    destinationRange?: TActionRange
-}
-
-type ForcedTowardActorMovement = {
-    movementType: typeof MovementEffectType.FORCED_TOWARD_ACTOR
-    forcedDistance: number
-}
-
-export type SquaddieActionMovementEffect =
-    | ActorChosenMovement
-    | ActorChosenSpecialTraversalMovement
-    | TeleportToActorChosenMovement
-    | ForcedTowardActorMovement
 
 type DegreeOfSuccessEffects = {
     SUCCESS: SquaddieActionEffect
@@ -106,6 +77,87 @@ const WEAPON_PROFICIENCY_TYPES: ReadonlySet<TProficiencyType> = new Set([
     ProficiencyType.WEAPON_SIMPLE,
     ProficiencyType.WEAPON_MARTIAL,
 ])
+
+const degreeOfSuccessEffectsSchema = z.object({
+    SUCCESS: squaddieActionEffectSchema,
+    CRITICAL: squaddieActionEffectSchema.optional(),
+    FAILURE: squaddieActionEffectSchema.optional(),
+    BOTCH: squaddieActionEffectSchema.optional(),
+})
+
+type SerializedDegreeOfSuccessEffects = z.infer<
+    typeof degreeOfSuccessEffectsSchema
+>
+
+export const squaddieActionSchema = z.object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    attribute: z.enum(AttributeScore),
+    degreesOfSuccess: z.array(z.enum(DegreeOfSuccess)),
+    targeting: z.object({
+        range: z.enum(ActionRange),
+        shape: z.enum(CoordinateGeneratorShape),
+        affiliationRelationship: z.object({
+            self: z.boolean(),
+            foe: z.boolean(),
+            friend: z.boolean(),
+        }),
+        areaOfEffectSize: z.number().optional(),
+        aimCoordinateRequiresTarget: z.boolean().optional(),
+        skipOverPits: z.boolean().optional(),
+        moveThroughWalls: z.boolean().optional(),
+    }),
+    proficiency: z.enum(ProficiencyType),
+    howToDetermineDegreeOfSuccess: z.enum(HowToDetermineDegreeOfSuccess),
+    multipleAttackPenalty: z.object({
+        applies: z.boolean(),
+        contribution: z.number(),
+    }),
+    effectOnActor: degreeOfSuccessEffectsSchema,
+    effectOnTarget: degreeOfSuccessEffectsSchema.optional(),
+})
+
+export type SerializedSquaddieAction = z.infer<typeof squaddieActionSchema>
+
+const serializeDegreeOfSuccessEffects = (
+    effects: DegreeOfSuccessEffects
+): SerializedDegreeOfSuccessEffects => {
+    const result: SerializedDegreeOfSuccessEffects = {
+        SUCCESS: SquaddieActionEffectService.serialize(effects.SUCCESS),
+    }
+    if (effects.CRITICAL != undefined)
+        result.CRITICAL = SquaddieActionEffectService.serialize(
+            effects.CRITICAL
+        )
+    if (effects.FAILURE != undefined)
+        result.FAILURE = SquaddieActionEffectService.serialize(effects.FAILURE)
+    if (effects.BOTCH != undefined)
+        result.BOTCH = SquaddieActionEffectService.serialize(effects.BOTCH)
+    return result
+}
+
+const serializeSquaddieAction = (
+    action: SquaddieAction
+): SerializedSquaddieAction => ({
+    id: action.id,
+    name: action.name,
+    attribute: action.attribute,
+    degreesOfSuccess: [...action.degreesOfSuccess],
+    targeting: {
+        ...action.targeting,
+        affiliationRelationship: {
+            ...action.targeting.affiliationRelationship,
+        },
+    },
+    proficiency: action.proficiency,
+    howToDetermineDegreeOfSuccess: action.howToDetermineDegreeOfSuccess,
+    multipleAttackPenalty: { ...action.multipleAttackPenalty },
+    effectOnActor: serializeDegreeOfSuccessEffects(action.effectOnActor),
+    effectOnTarget:
+        action.effectOnTarget == undefined
+            ? undefined
+            : serializeDegreeOfSuccessEffects(action.effectOnTarget),
+})
 
 export const SquaddieActionService = {
     new: ({
@@ -216,6 +268,18 @@ export const SquaddieActionService = {
                 },
             },
         })
+    },
+    serialize: (action: SquaddieAction): SerializedSquaddieAction =>
+        serializeSquaddieAction(action),
+    deserialize: (data: unknown): SquaddieAction => {
+        const result = squaddieActionSchema.safeParse(data)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            throw new Error(`[SquaddieActionService.deserialize]: ${details}`)
+        }
+        return result.data as SquaddieAction
     },
     getRequiredDecisions: (
         action: SquaddieAction
