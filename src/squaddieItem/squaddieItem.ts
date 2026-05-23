@@ -1,4 +1,5 @@
-import type { TProficiencyType } from "../proficiency/proficiencyLevel"
+import { z } from "zod"
+import { type TProficiencyType } from "../proficiency/proficiencyLevel"
 
 export interface SquaddieItem {
     id: string
@@ -7,6 +8,16 @@ export interface SquaddieItem {
     passiveProficiencyBonuses: Map<TProficiencyType, number>
     actionIds: Set<string>
 }
+
+export const squaddieItemSchema = z.object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    numberOfUses: z.number().optional(),
+    passiveProficiencyBonuses: z.record(z.string(), z.number()),
+    actionIds: z.array(z.string()),
+})
+
+export type SerializedSquaddieItem = z.infer<typeof squaddieItemSchema>
 
 export const SquaddieItemService = {
     new: ({
@@ -42,6 +53,41 @@ export const SquaddieItemService = {
     ): Map<TProficiencyType, number> => {
         throwIfItemIsUndefined(squaddieItem, "getPassiveProficiencyBonuses")
         return new Map(squaddieItem.passiveProficiencyBonuses)
+    },
+    serialize: (item: SquaddieItem): SerializedSquaddieItem => {
+        const passiveProficiencyBonuses: Record<string, number> = {}
+        item.passiveProficiencyBonuses.forEach((value, key) => {
+            passiveProficiencyBonuses[key] = value
+        })
+        return {
+            id: item.id,
+            name: item.name,
+            numberOfUses: item.numberOfUses,
+            passiveProficiencyBonuses,
+            actionIds: Array.from(item.actionIds),
+        }
+    },
+    deserialize: (data: unknown): SquaddieItem => {
+        const result = squaddieItemSchema.safeParse(data)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            throw new Error(`[SquaddieItemService.deserialize]: ${details}`)
+        }
+        const serialized = result.data
+        return {
+            id: serialized.id,
+            name: serialized.name,
+            numberOfUses: serialized.numberOfUses,
+            passiveProficiencyBonuses: new Map(
+                Object.entries(serialized.passiveProficiencyBonuses) as [
+                    TProficiencyType,
+                    number,
+                ][]
+            ),
+            actionIds: new Set(serialized.actionIds),
+        }
     },
 }
 
