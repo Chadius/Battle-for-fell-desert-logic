@@ -229,7 +229,10 @@ describe("Squaddie Condition", () => {
         it("round-trips a quantified timed condition", () => {
             const condition = SquaddieConditionService.new({
                 type: SquaddieConditionType.ARMOR,
-                amount: { amount: 3, decaysAt: SquaddieConditionDecaysAt.TURN_END },
+                amount: {
+                    amount: 3,
+                    decaysAt: SquaddieConditionDecaysAt.TURN_END,
+                },
                 duration: {
                     duration: 2,
                     decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -237,7 +240,8 @@ describe("Squaddie Condition", () => {
                 source: SquaddieConditionSource.ITEM,
             })
             const serialized = SquaddieConditionService.serialize(condition)
-            const deserialized = SquaddieConditionService.deserialize(serialized)
+            const deserialized =
+                SquaddieConditionService.deserialize(serialized)
             expect(deserialized).toEqual(condition)
         })
         it("round-trips a permanent quantified condition", () => {
@@ -248,7 +252,8 @@ describe("Squaddie Condition", () => {
                 source: SquaddieConditionSource.PHYSICAL,
             })
             const serialized = SquaddieConditionService.serialize(condition)
-            const deserialized = SquaddieConditionService.deserialize(serialized)
+            const deserialized =
+                SquaddieConditionService.deserialize(serialized)
             expect(deserialized).toEqual(condition)
         })
         it("round-trips a binary condition", () => {
@@ -262,7 +267,8 @@ describe("Squaddie Condition", () => {
                 source: SquaddieConditionSource.UNKNOWN,
             })
             const serialized = SquaddieConditionService.serialize(condition)
-            const deserialized = SquaddieConditionService.deserialize(serialized)
+            const deserialized =
+                SquaddieConditionService.deserialize(serialized)
             expect(deserialized).toEqual(condition)
         })
         it("throws with a descriptive message on invalid type", () => {
@@ -276,7 +282,9 @@ describe("Squaddie Condition", () => {
         })
         it("throws when required fields are missing", () => {
             expect(() =>
-                SquaddieConditionService.deserialize({ type: SquaddieConditionType.ARMOR })
+                SquaddieConditionService.deserialize({
+                    type: SquaddieConditionType.ARMOR,
+                })
             ).toThrow("[SquaddieConditionService.deserialize]:")
         })
     })

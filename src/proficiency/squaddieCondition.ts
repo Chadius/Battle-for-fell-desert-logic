@@ -88,7 +88,9 @@ export const squaddieConditionSchema = z.object({
     }),
 })
 
-export type SerializedSquaddieCondition = z.infer<typeof squaddieConditionSchema>
+export type SerializedSquaddieCondition = z.infer<
+    typeof squaddieConditionSchema
+>
 
 export const SquaddieConditionService = {
     new: (params: {
@@ -124,9 +126,7 @@ export const SquaddieConditionService = {
         type: condition.type,
         source: condition.source,
         amount:
-            condition.amount == undefined
-                ? undefined
-                : { ...condition.amount },
+            condition.amount == undefined ? undefined : { ...condition.amount },
         limit: {
             duration:
                 condition.limit.duration == undefined

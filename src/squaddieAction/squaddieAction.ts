@@ -1,9 +1,21 @@
 import { z } from "zod"
-import { AttributeScore, type AttributeScoreType, } from "../proficiency/attributeScore"
+import {
+    AttributeScore,
+    type AttributeScoreType,
+} from "../proficiency/attributeScore"
 import { ActionRange, type TActionRange } from "./actionRange"
-import { CoordinateGeneratorShape, type TCoordinateGeneratorShape, } from "../coordinateMap/shape"
-import { DegreeOfSuccess, type TDegreeOfSuccess, } from "../degreesOfSuccess/degreeOfSuccess"
-import { ProficiencyType, type TProficiencyType, } from "../proficiency/proficiencyLevel"
+import {
+    CoordinateGeneratorShape,
+    type TCoordinateGeneratorShape,
+} from "../coordinateMap/shape"
+import {
+    DegreeOfSuccess,
+    type TDegreeOfSuccess,
+} from "../degreesOfSuccess/degreeOfSuccess"
+import {
+    ProficiencyType,
+    type TProficiencyType,
+} from "../proficiency/proficiencyLevel"
 import type { EnumLike } from "../enum"
 import {
     type SquaddieActionEffect,

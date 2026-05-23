@@ -714,16 +714,28 @@ describe("SquaddieActionService serialization", () => {
             },
             effectOnTarget: {
                 [DegreeOfSuccess.SUCCESS]: {
-                    damage: { raw: 2, targetProficiency: ProficiencyType.ARMOR },
+                    damage: {
+                        raw: 2,
+                        targetProficiency: ProficiencyType.ARMOR,
+                    },
                 },
                 [DegreeOfSuccess.CRITICAL]: {
-                    damage: { raw: 4, targetProficiency: ProficiencyType.ARMOR },
+                    damage: {
+                        raw: 4,
+                        targetProficiency: ProficiencyType.ARMOR,
+                    },
                 },
                 [DegreeOfSuccess.FAILURE]: {
-                    damage: { raw: 0, targetProficiency: ProficiencyType.ARMOR },
+                    damage: {
+                        raw: 0,
+                        targetProficiency: ProficiencyType.ARMOR,
+                    },
                 },
                 [DegreeOfSuccess.BOTCH]: {
-                    damage: { raw: 0, targetProficiency: ProficiencyType.ARMOR },
+                    damage: {
+                        raw: 0,
+                        targetProficiency: ProficiencyType.ARMOR,
+                    },
                 },
             },
         })

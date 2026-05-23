@@ -136,9 +136,8 @@ const serializeSquaddieActionEffect = (
 })
 
 export const SquaddieActionEffectService = {
-    serialize: (
-        effect: SquaddieActionEffect
-    ): SerializedSquaddieActionEffect => serializeSquaddieActionEffect(effect),
+    serialize: (effect: SquaddieActionEffect): SerializedSquaddieActionEffect =>
+        serializeSquaddieActionEffect(effect),
     deserialize: (data: unknown): SquaddieActionEffect => {
         const result = squaddieActionEffectSchema.safeParse(data)
         if (!result.success) {
