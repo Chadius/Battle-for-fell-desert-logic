@@ -370,17 +370,22 @@ export class MissionEngine {
     getDebugFlags(): DebugFlags | undefined {
         this.throwIfMissionManagerIsUndefined(this.getDebugFlags.name)
         const missionState = this.missionManager!.missionState!
-        return missionState.debugFlags
+        return missionState.overrides?.debugFlags
     }
 
     setDebugFlag(flag: keyof DebugFlags, value: boolean): void {
         this.throwIfMissionManagerIsUndefined(this.setDebugFlag.name)
         const missionState = this.missionManager!.missionState!
-        missionState.debugFlags = DebugFlagsService.setFlag({
-            debugFlags: missionState.debugFlags ?? DebugFlagsService.new(),
-            flag,
-            value,
-        })
+        missionState.overrides = {
+            ...missionState.overrides,
+            debugFlags: DebugFlagsService.setFlag({
+                debugFlags:
+                    missionState.overrides?.debugFlags ??
+                    DebugFlagsService.new(),
+                flag,
+                value,
+            }),
+        }
     }
 
     previewReadiedActionAndForecastResults(): SerializedForecastedActionResult[] {
@@ -549,9 +554,9 @@ export class MissionEngine {
                     battleSquaddieId: squaddieId,
                     affiliation,
                     squaddieOverrides:
-                        missionState?.controllerTypeOverrides?.squaddie,
+                        missionState?.overrides?.controllerType?.squaddie,
                     affiliationOverrides:
-                        missionState?.controllerTypeOverrides?.affiliation,
+                        missionState?.overrides?.controllerType?.affiliation,
                 })
             return controllerType === TurnControllerType.HUMAN
         })
@@ -572,7 +577,7 @@ export class MissionEngine {
             this.missionManager!.getSquaddieAffiliation(squaddieId)
 
         if (
-            missionState?.debugFlags?.enemyAlwaysEndsTheirTurn &&
+            missionState?.overrides?.debugFlags?.enemyAlwaysEndsTheirTurn &&
             affiliation === SquaddieAffiliation.ENEMY
         ) {
             this.missionManager!.useActionAndGetResults({
@@ -588,7 +593,7 @@ export class MissionEngine {
             StrategyControllerService.getStrategyForSquaddie({
                 battleSquaddieId: squaddieId,
                 affiliation,
-                overrides: missionState?.strategyControllerOverrides,
+                overrides: missionState?.overrides?.strategy,
             }) ?? defaultStrategyByAffiliation[affiliation]
 
         const decidedAction = strategy?.decideAction({
@@ -1031,9 +1036,9 @@ export class MissionEngine {
                     battleSquaddieId: actor,
                     affiliation: actorAffiliation,
                     squaddieOverrides:
-                        missionState?.controllerTypeOverrides?.squaddie,
+                        missionState?.overrides?.controllerType?.squaddie,
                     affiliationOverrides:
-                        missionState?.controllerTypeOverrides?.affiliation,
+                        missionState?.overrides?.controllerType?.affiliation,
                 })
             if (controllerType === TurnControllerType.AI) {
                 return {

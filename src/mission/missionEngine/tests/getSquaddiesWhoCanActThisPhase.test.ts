@@ -261,9 +261,11 @@ describe("getSquaddiesWhoCanActThisPhase", () => {
                 turn: MissionTurnService.new({
                     missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
                 }),
-                controllerTypeOverrides: {
-                    affiliation: {
-                        [SquaddieAffiliation.PLAYER]: TurnControllerType.AI,
+                overrides: {
+                    controllerType: {
+                        affiliation: {
+                            [SquaddieAffiliation.PLAYER]: TurnControllerType.AI,
+                        },
                     },
                 },
             })
@@ -302,9 +304,11 @@ describe("getSquaddiesWhoCanActThisPhase", () => {
                 turn: MissionTurnService.new({
                     missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
                 }),
-                controllerTypeOverrides: {
-                    squaddie: {
-                        [player1Key]: TurnControllerType.AI,
+                overrides: {
+                    controllerType: {
+                        squaddie: {
+                            [player1Key]: TurnControllerType.AI,
+                        },
                     },
                 },
             })

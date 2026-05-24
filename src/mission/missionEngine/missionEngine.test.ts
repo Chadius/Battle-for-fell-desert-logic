@@ -1230,7 +1230,7 @@ describe("MissionEngine", () => {
                         missionAffiliationTurn:
                             MissionAffiliationTurn.PLAYER_TURN,
                     }),
-                    debugFlags,
+                    overrides: debugFlags ? { debugFlags } : undefined,
                 })
 
                 const missionManager = new MissionManager({

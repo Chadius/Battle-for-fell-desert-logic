@@ -16,16 +16,20 @@ export interface MissionState {
     objectives: MissionObjective[]
     turn: MissionTurn
     history?: MissionHistory
-    controllerTypeOverrides?: {
-        affiliation?: Partial<Record<TSquaddieAffiliation, TTurnControllerType>>
-        squaddie?: Record<string, TTurnControllerType>
-    }
-    strategyControllerOverrides?: StrategyControllerOverrides
-    debugFlags?: DebugFlags
+    overrides?: MissionStateOverrides
     deployments?: {
         required: MissionDeployment[]
         completedDeploymentIds: string[]
     }
+}
+
+export interface MissionStateOverrides {
+    controllerType?: {
+        affiliation?: Partial<Record<TSquaddieAffiliation, TTurnControllerType>>
+        squaddie?: Record<string, TTurnControllerType>
+    }
+    strategy?: StrategyControllerOverrides
+    debugFlags?: DebugFlags
 }
 
 export const MissionStateService = {
@@ -35,9 +39,7 @@ export const MissionStateService = {
         objectives,
         turn,
         history,
-        controllerTypeOverrides,
-        strategyControllerOverrides,
-        debugFlags,
+        overrides,
         deployments,
     }: {
         id: string
@@ -45,14 +47,7 @@ export const MissionStateService = {
         objectives?: MissionObjective[]
         turn?: MissionTurn
         history?: MissionHistory
-        controllerTypeOverrides?: {
-            affiliation?: Partial<
-                Record<TSquaddieAffiliation, TTurnControllerType>
-            >
-            squaddie?: Record<string, TTurnControllerType>
-        }
-        strategyControllerOverrides?: StrategyControllerOverrides
-        debugFlags?: DebugFlags
+        overrides?: MissionStateOverrides
         deployments?: { required: MissionDeployment[] }
     }): MissionState => {
         if (id == undefined || id.length === 0) {
@@ -73,9 +68,7 @@ export const MissionStateService = {
             objectives: objectives ?? [],
             turn: turn ?? MissionTurnService.new(),
             history: history ?? MissionHistoryService.new(),
-            controllerTypeOverrides,
-            strategyControllerOverrides,
-            debugFlags,
+            overrides,
             deployments: deployments
                 ? {
                       required: deployments.required,

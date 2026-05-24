@@ -290,9 +290,11 @@ describe("endSquaddieTurn", () => {
                 turn: MissionTurnService.new({
                     missionAffiliationTurn: MissionAffiliationTurn.PLAYER_TURN,
                 }),
-                controllerTypeOverrides: {
-                    squaddie: {
-                        [liniKey]: TurnControllerType.AI,
+                overrides: {
+                    controllerType: {
+                        squaddie: {
+                            [liniKey]: TurnControllerType.AI,
+                        },
                     },
                 },
             })
@@ -344,9 +346,11 @@ describe("endSquaddieTurn", () => {
                 turn: MissionTurnService.new({
                     missionAffiliationTurn: MissionAffiliationTurn.ENEMY_TURN,
                 }),
-                controllerTypeOverrides: {
-                    squaddie: {
-                        [slitherKey]: TurnControllerType.HUMAN,
+                overrides: {
+                    controllerType: {
+                        squaddie: {
+                            [slitherKey]: TurnControllerType.HUMAN,
+                        },
                     },
                 },
             })
