@@ -1,3 +1,4 @@
+import { z } from "zod"
 import type { EnumLike } from "../enum"
 
 export const MissionObjectiveRewardType = {
@@ -35,6 +36,23 @@ export type MissionObjectiveReward =
     | MissionEndsReward
     | MissionFailureReward
 
+export const missionObjectiveRewardSchema = z.discriminatedUnion("type", [
+    z.object({
+        type: z.literal(MissionObjectiveRewardType.DIALOGUE),
+        dialogueIds: z.array(z.string()),
+    }),
+    z.object({
+        type: z.literal(MissionObjectiveRewardType.NEXT_MISSIONS),
+        missionIds: z.array(z.string()),
+    }),
+    z.object({ type: z.literal(MissionObjectiveRewardType.MISSION_ENDS) }),
+    z.object({ type: z.literal(MissionObjectiveRewardType.MISSION_FAILURE) }),
+])
+
+export type SerializedMissionObjectiveReward = z.infer<
+    typeof missionObjectiveRewardSchema
+>
+
 export const MissionObjectiveRewardService = {
     newDialogueReward: (dialogueIds: string[]): DialogueReward => {
         if (dialogueIds == undefined || dialogueIds.length === 0) {
@@ -66,6 +84,18 @@ export const MissionObjectiveRewardService = {
             type: MissionObjectiveRewardType.MISSION_FAILURE,
         }
     },
+    serialize: (
+        reward: MissionObjectiveReward
+    ): SerializedMissionObjectiveReward => {
+        if (reward.type === MissionObjectiveRewardType.DIALOGUE) {
+            return { type: reward.type, dialogueIds: [...reward.dialogueIds] }
+        }
+        if (reward.type === MissionObjectiveRewardType.NEXT_MISSIONS) {
+            return { type: reward.type, missionIds: [...reward.missionIds] }
+        }
+        return { type: reward.type }
+    },
+
     createFromJSON: (data: {
         type: string
         dialogueIds?: string[]

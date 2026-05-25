@@ -1,8 +1,17 @@
-import type { MissionObjectiveReward } from "./missionObjectiveReward"
-import { MissionObjectiveRewardService } from "./missionObjectiveReward"
-import type { MissionObjectiveCriteria } from "./missionObjectiveCriteria"
-import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
+import { z } from "zod"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    type MissionObjectiveCriteria,
+    missionObjectiveCriteriaSchema,
+    MissionObjectiveCriteriaService,
+    type SerializedMissionObjectiveCriteria,
+} from "./missionObjectiveCriteria"
+import {
+    type MissionObjectiveReward,
+    missionObjectiveRewardSchema,
+    MissionObjectiveRewardService,
+    type SerializedMissionObjectiveReward,
+} from "./missionObjectiveReward"
 
 export interface MissionObjective {
     id: string
@@ -10,6 +19,15 @@ export interface MissionObjective {
     hasGivenReward: boolean
     criteria: MissionObjectiveCriteria[]
 }
+
+export const missionObjectiveSchema = z.object({
+    id: z.string().min(1),
+    rewards: z.array(missionObjectiveRewardSchema),
+    criteria: z.array(missionObjectiveCriteriaSchema),
+    hasGivenReward: z.boolean(),
+})
+
+export type SerializedMissionObjective = z.infer<typeof missionObjectiveSchema>
 
 export const MissionObjectiveService = {
     new: ({
@@ -46,6 +64,23 @@ export const MissionObjectiveService = {
             rewards: [...rewards],
             hasGivenReward,
             criteria: [...criteria],
+        }
+    },
+
+    serialize: (objective: MissionObjective): SerializedMissionObjective => {
+        return {
+            id: objective.id,
+            rewards: objective.rewards.map(
+                (r: MissionObjectiveReward): SerializedMissionObjectiveReward =>
+                    MissionObjectiveRewardService.serialize(r)
+            ),
+            criteria: objective.criteria.map(
+                (
+                    c: MissionObjectiveCriteria
+                ): SerializedMissionObjectiveCriteria =>
+                    MissionObjectiveCriteriaService.serialize(c)
+            ),
+            hasGivenReward: objective.hasGivenReward,
         }
     },
 

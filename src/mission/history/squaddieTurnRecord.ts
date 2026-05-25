@@ -1,4 +1,7 @@
-import type { SquaddieTurnActionRecord } from "./squaddieTurnActionRecord"
+import type {
+    SquaddieTurnActionRecord,
+    SerializedSquaddieTurnActionRecord,
+} from "./squaddieTurnActionRecord"
 import { SquaddieTurnActionRecordService } from "./squaddieTurnActionRecord"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
@@ -6,6 +9,11 @@ import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 export interface SquaddieTurnRecord {
     actingBattleSquaddieId: string
     actions: SquaddieTurnActionRecord[]
+}
+
+export interface SerializedSquaddieTurnRecord {
+    actingBattleSquaddieId: string
+    actions: SerializedSquaddieTurnActionRecord[]
 }
 
 export const SquaddieTurnRecordService = {
@@ -96,6 +104,15 @@ export const SquaddieTurnRecordService = {
             original.actingBattleSquaddieId,
             original.actions
         )
+    },
+
+    serialize: (record: SquaddieTurnRecord): SerializedSquaddieTurnRecord => {
+        return {
+            actingBattleSquaddieId: record.actingBattleSquaddieId,
+            actions: record.actions.map(
+                SquaddieTurnActionRecordService.serialize
+            ),
+        }
     },
 }
 

@@ -1,5 +1,8 @@
 import type { TMissionAffiliationTurn } from "../missionTurn"
-import type { SquaddieTurnRecord } from "./squaddieTurnRecord"
+import type {
+    SquaddieTurnRecord,
+    SerializedSquaddieTurnRecord,
+} from "./squaddieTurnRecord"
 import { SquaddieTurnRecordService } from "./squaddieTurnRecord"
 import {
     type SquaddieTurnActionRecord,
@@ -12,6 +15,12 @@ export interface MissionTurnHistoryEntry {
     turnNumber: number
     missionAffiliationTurn: TMissionAffiliationTurn
     squaddieTurnRecords: SquaddieTurnRecord[]
+}
+
+export interface SerializedMissionTurnHistoryEntry {
+    turnNumber: number
+    missionAffiliationTurn: string
+    squaddieTurnRecords: SerializedSquaddieTurnRecord[]
 }
 
 export const MissionTurnHistoryEntryService = {
@@ -244,6 +253,18 @@ export const MissionTurnHistoryEntryService = {
                 squaddieTurnRecords: newSquaddieRecords,
             },
             removed: removedAction,
+        }
+    },
+
+    serialize: (
+        entry: MissionTurnHistoryEntry
+    ): SerializedMissionTurnHistoryEntry => {
+        return {
+            turnNumber: entry.turnNumber,
+            missionAffiliationTurn: entry.missionAffiliationTurn,
+            squaddieTurnRecords: entry.squaddieTurnRecords.map(
+                SquaddieTurnRecordService.serialize
+            ),
         }
     },
 }

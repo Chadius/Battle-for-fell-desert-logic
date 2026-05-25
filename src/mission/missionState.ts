@@ -1,14 +1,32 @@
-import type { MissionObjective } from "./missionObjective"
-import { MissionObjectiveService } from "./missionObjective"
-import type { MissionTurn } from "./missionTurn"
-import { MissionTurnService } from "./missionTurn"
-import type { MissionHistory } from "./history/missionHistory"
-import { MissionHistoryService } from "./history/missionHistory"
+import { z } from "zod"
+import {
+    type MissionObjective,
+    missionObjectiveSchema,
+    MissionObjectiveService,
+    type SerializedMissionObjective,
+} from "./missionObjective"
+import {
+    type MissionTurn,
+    missionTurnSchema,
+    MissionTurnService,
+    type SerializedMissionTurn,
+} from "./missionTurn"
+import {
+    type MissionHistory,
+    MissionHistoryService,
+    type SerializedMissionHistory,
+    missionHistorySchema,
+} from "./history/missionHistory"
 import type { TTurnControllerType } from "./turnController"
 import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 import type { StrategyControllerOverrides } from "./strategyController"
 import type { DebugFlags } from "./debugFlags"
-import type { MissionDeployment } from "./missionDeployment"
+import {
+    type MissionDeployment,
+    missionDeploymentSchema,
+    MissionDeploymentService,
+    type SerializedMissionDeployment,
+} from "./missionDeployment"
 
 export interface MissionState {
     id: string
@@ -19,6 +37,32 @@ export interface MissionState {
     overrides?: MissionStateOverrides
     deployments?: {
         required: MissionDeployment[]
+        completedDeploymentIds: string[]
+    }
+}
+
+export const missionStateSchema = z.object({
+    id: z.string().min(1),
+    mapId: z.string().min(1),
+    objectives: z.array(missionObjectiveSchema),
+    turn: missionTurnSchema,
+    history: missionHistorySchema.optional(),
+    deployments: z
+        .object({
+            required: z.array(missionDeploymentSchema),
+            completedDeploymentIds: z.array(z.string()),
+        })
+        .optional(),
+})
+
+export type SerializedMissionState = {
+    id: string
+    mapId: string
+    objectives: SerializedMissionObjective[]
+    turn: SerializedMissionTurn
+    history?: SerializedMissionHistory
+    deployments?: {
+        required: SerializedMissionDeployment[]
         completedDeploymentIds: string[]
     }
 }
@@ -137,5 +181,72 @@ export const MissionStateService = {
             turn: parsedTurn,
             history: parsedHistory,
         })
+    },
+
+    serialize: (state: MissionState): SerializedMissionState => {
+        return {
+            id: state.id,
+            mapId: state.mapId,
+            objectives: state.objectives.map(MissionObjectiveService.serialize),
+            turn: MissionTurnService.serialize(state.turn),
+            history: state.history
+                ? MissionHistoryService.serialize(state.history)
+                : undefined,
+            deployments: state.deployments
+                ? {
+                      required: state.deployments.required.map(
+                          MissionDeploymentService.serialize
+                      ),
+                      completedDeploymentIds: [
+                          ...state.deployments.completedDeploymentIds,
+                      ],
+                  }
+                : undefined,
+        }
+    },
+
+    deserialize: (data: unknown): MissionState => {
+        const result = missionStateSchema.safeParse(data)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            throw new Error(`[MissionStateService.deserialize]: ${details}`)
+        }
+        const parsed = result.data
+
+        const objectives = parsed.objectives.map((obj) =>
+            MissionObjectiveService.createFromJSON(obj)
+        )
+        const turn = MissionTurnService.createFromJSON(
+            parsed.turn as Parameters<
+                typeof MissionTurnService.createFromJSON
+            >[0]
+        )
+        const history = parsed.history
+            ? MissionHistoryService.createFromJSON(
+                  parsed.history as Parameters<
+                      typeof MissionHistoryService.createFromJSON
+                  >[0]
+              )
+            : undefined
+
+        return {
+            id: parsed.id,
+            mapId: parsed.mapId,
+            objectives,
+            turn,
+            history,
+            deployments: parsed.deployments
+                ? {
+                      required: parsed.deployments.required.map((d) =>
+                          MissionDeploymentService.new(d)
+                      ),
+                      completedDeploymentIds: [
+                          ...parsed.deployments.completedDeploymentIds,
+                      ],
+                  }
+                : undefined,
+        }
     },
 }

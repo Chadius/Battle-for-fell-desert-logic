@@ -4,7 +4,7 @@ import { MissionObjectiveService } from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
-import { MissionTurnService } from "./missionTurn"
+import { MissionTurnService, MissionAffiliationTurn } from "./missionTurn"
 import { MissionHistoryService } from "./history/missionHistory"
 import { MissionDeploymentService } from "./missionDeployment"
 
@@ -341,6 +341,184 @@ describe("MissionState", () => {
             )
 
             expect(result).toBe(state)
+        })
+    })
+
+    describe("serialize and deserialize", () => {
+        const makeObjective = () =>
+            MissionObjectiveService.new({
+                id: "obj-1",
+                rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
+                criteria: [
+                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        { affiliations: [SquaddieAffiliation.ENEMY] }
+                    ),
+                ],
+            })
+
+        it("round-trips a minimal MissionState", () => {
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.id).toBe(state.id)
+            expect(deserialized.mapId).toBe(state.mapId)
+            expect(deserialized.objectives).toEqual(state.objectives)
+            expect(deserialized.turn).toEqual(state.turn)
+        })
+
+        it("round-trips objectives with criteria and rewards", () => {
+            const objective = makeObjective()
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                objectives: [objective],
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.objectives).toHaveLength(1)
+            expect(deserialized.objectives[0].id).toBe("obj-1")
+            expect(deserialized.objectives[0].hasGivenReward).toBe(false)
+            expect(deserialized.objectives[0].rewards[0].type).toBe(
+                "MISSION_ENDS"
+            )
+            expect(deserialized.objectives[0].criteria[0].type).toBe(
+                "SQUADDIES_DEFEATED"
+            )
+        })
+
+        it("round-trips objectives with battleSquaddieIds criteria", () => {
+            const criteria =
+                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
+                    battleSquaddieIds: [
+                        {
+                            inBattleSquaddieId: 1,
+                            outOfBattleSquaddieId: "lini",
+                        },
+                    ],
+                })
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                objectives: [
+                    MissionObjectiveService.new({
+                        id: "obj-1",
+                        rewards: [
+                            MissionObjectiveRewardService.newMissionEndsReward(),
+                        ],
+                        criteria: [criteria],
+                    }),
+                ],
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.objectives[0].criteria[0]).toEqual(criteria)
+        })
+
+        it("round-trips a non-default turn", () => {
+            const turn = MissionTurnService.new({
+                turnCount: 3,
+                missionAffiliationTurn: MissionAffiliationTurn.ENEMY_TURN,
+            })
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                turn,
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.turn.turnCount).toBe(3)
+            expect(deserialized.turn.missionAffiliationTurn).toBe(
+                MissionAffiliationTurn.ENEMY_TURN
+            )
+        })
+
+        it("round-trips deployments including completedDeploymentIds", () => {
+            const deployment = MissionDeploymentService.new({
+                id: "lini-start",
+                outOfBattleSquaddieId: "lini",
+                coordinates: [{ row: 0, col: 0 }],
+            })
+            let state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                deployments: { required: [deployment] },
+            })
+            state = MissionStateService.markDeploymentComplete(
+                state,
+                deployment.id
+            )
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.deployments?.required).toHaveLength(1)
+            expect(deserialized.deployments?.required[0].id).toBe("lini-start")
+            expect(deserialized.deployments?.completedDeploymentIds).toContain(
+                "lini-start"
+            )
+        })
+
+        it("round-trips without deployments", () => {
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.deployments).toBeUndefined()
+        })
+
+        it("deserialize throws a descriptive error for missing id", () => {
+            expect(() =>
+                MissionStateService.deserialize({ mapId: "map-1" })
+            ).toThrow("[MissionStateService.deserialize]:")
+        })
+
+        it("deserialize throws a descriptive error for empty id", () => {
+            expect(() =>
+                MissionStateService.deserialize({
+                    id: "",
+                    mapId: "map-1",
+                    objectives: [],
+                    turn: {
+                        turnCount: 0,
+                        missionAffiliationTurn: "TURN_START",
+                    },
+                })
+            ).toThrow("[MissionStateService.deserialize]:")
+        })
+
+        it("omits overrides from serialized output", () => {
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                overrides: {
+                    debugFlags: { enemyAlwaysEndsTheirTurn: true },
+                },
+            })
+
+            const serialized = MissionStateService.serialize(state)
+
+            expect(serialized).not.toHaveProperty("overrides")
         })
     })
 })

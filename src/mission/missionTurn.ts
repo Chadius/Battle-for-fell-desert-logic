@@ -1,3 +1,4 @@
+import { z } from "zod"
 import type { EnumLike } from "../enum"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { CoordinateMap } from "../coordinateMap/coordinateMap"
@@ -30,6 +31,13 @@ export interface MissionTurn {
     missionAffiliationTurn: TMissionAffiliationTurn
 }
 
+export const missionTurnSchema = z.object({
+    turnCount: z.number(),
+    missionAffiliationTurn: z.string(),
+})
+
+export type SerializedMissionTurn = z.infer<typeof missionTurnSchema>
+
 export const MissionTurnService = {
     new: ({
         turnCount = 0,
@@ -41,6 +49,13 @@ export const MissionTurnService = {
         return {
             turnCount,
             missionAffiliationTurn,
+        }
+    },
+
+    serialize: (missionTurn: MissionTurn): SerializedMissionTurn => {
+        return {
+            turnCount: missionTurn.turnCount,
+            missionAffiliationTurn: missionTurn.missionAffiliationTurn,
         }
     },
 

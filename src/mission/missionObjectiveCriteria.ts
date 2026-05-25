@@ -1,3 +1,4 @@
+import { z } from "zod"
 import type { EnumLike } from "../enum"
 import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService"
@@ -20,6 +21,22 @@ export interface SquaddiesDefeatedCriteria {
 }
 
 export type MissionObjectiveCriteria = SquaddiesDefeatedCriteria
+
+const serializedBattleSquaddieIdSchema = z.object({
+    inBattleSquaddieId: z.number(),
+    outOfBattleSquaddieId: z.string().min(1),
+})
+
+export const missionObjectiveCriteriaSchema = z.object({
+    type: z.literal(MissionObjectiveCriteriaType.SQUADDIES_DEFEATED),
+    affiliations: z.array(z.string()).optional(),
+    outOfBattleSquaddieIds: z.array(z.string()).optional(),
+    battleSquaddieIds: z.array(serializedBattleSquaddieIdSchema).optional(),
+})
+
+export type SerializedMissionObjectiveCriteria = z.infer<
+    typeof missionObjectiveCriteriaSchema
+>
 
 export const MissionObjectiveCriteriaService = {
     newSquaddiesDefeatedCriteria: ({
@@ -59,6 +76,30 @@ export const MissionObjectiveCriteriaService = {
                   )
                 : undefined,
         }
+    },
+
+    serialize: (
+        criteria: MissionObjectiveCriteria
+    ): SerializedMissionObjectiveCriteria => {
+        if (criteria.type === MissionObjectiveCriteriaType.SQUADDIES_DEFEATED) {
+            return {
+                type: criteria.type,
+                affiliations: criteria.affiliations
+                    ? [...criteria.affiliations]
+                    : undefined,
+                outOfBattleSquaddieIds: criteria.outOfBattleSquaddieIds
+                    ? [...criteria.outOfBattleSquaddieIds]
+                    : undefined,
+                battleSquaddieIds: criteria.battleSquaddieIds
+                    ? [...criteria.battleSquaddieIds].map((key) =>
+                          SquaddieIdConverterService.keyToSquaddieId(key)
+                      )
+                    : undefined,
+            }
+        }
+        throw new Error(
+            `[MissionObjectiveCriteriaService.serialize]: unknown criteria type`
+        )
     },
 
     createFromJSON: (data: {
