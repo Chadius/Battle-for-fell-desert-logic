@@ -1,4 +1,8 @@
-import type { SquaddieItem } from "./squaddieItem"
+import {
+    type SerializedSquaddieItem,
+    type SquaddieItem,
+    SquaddieItemService,
+} from "./squaddieItem"
 
 export interface SquaddieItemCollection {
     itemById: Map<string, SquaddieItem>
@@ -6,6 +10,29 @@ export interface SquaddieItemCollection {
 
 export const SquaddieItemCollectionService = {
     new: (): SquaddieItemCollection => constructNew(),
+    serialize: (
+        collection: SquaddieItemCollection
+    ): SerializedSquaddieItem[] => {
+        throwIfCollectionIsUndefined(collection, "serialize")
+        return Array.from(collection.itemById.values()).map(
+            SquaddieItemService.serialize
+        )
+    },
+    deserializeAll: (
+        data: unknown[]
+    ): { collection: SquaddieItemCollection; errors: string[] } => {
+        const collection = constructNew()
+        const errors: string[] = []
+        for (const item of data) {
+            try {
+                const squaddieItem = SquaddieItemService.deserialize(item)
+                collection.itemById.set(squaddieItem.id, squaddieItem)
+            } catch (e) {
+                errors.push(e instanceof Error ? e.message : String(e))
+            }
+        }
+        return { collection, errors }
+    },
     addOrUpdate: ({
         collection,
         squaddieItem,

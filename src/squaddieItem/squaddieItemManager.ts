@@ -2,7 +2,7 @@ import {
     type SquaddieItemCollection,
     SquaddieItemCollectionService,
 } from "./squaddieItemCollection"
-import type { SquaddieItem } from "./squaddieItem"
+import { type SerializedSquaddieItem, type SquaddieItem } from "./squaddieItem"
 
 export class SquaddieItemManager {
     collection?: SquaddieItemCollection
@@ -47,6 +47,25 @@ export class SquaddieItemManager {
             collection: this.collection!,
             id: squaddieItemId,
         })
+    }
+
+    serialize(): SerializedSquaddieItem[] {
+        this.throwIfCollectionIsUndefined(this.serialize.name)
+        return SquaddieItemCollectionService.serialize(this.collection!)
+    }
+
+    addItemsFromJson(data: unknown): string[] {
+        this.throwIfCollectionIsUndefined(this.addItemsFromJson.name)
+        const items = Array.isArray(data) ? data : [data]
+        const { collection, errors } =
+            SquaddieItemCollectionService.deserializeAll(items)
+        for (const squaddieItem of collection.itemById.values()) {
+            this.collection = SquaddieItemCollectionService.addOrUpdate({
+                collection: this.collection!,
+                squaddieItem,
+            })
+        }
+        return errors
     }
 
     private throwIfCollectionIsUndefined(callName: string) {
