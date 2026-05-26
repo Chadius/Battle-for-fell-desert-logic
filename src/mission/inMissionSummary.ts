@@ -102,7 +102,7 @@ export const InMissionSummaryService = {
             InBattleSquaddieCollectionService.serialize(
                 InMissionSummary.inBattleSquaddieCollection
             )
-        inBattleSquaddieManager.loadCollectionFromJSON(serializedCollection)
+        inBattleSquaddieManager.addFromJson(serializedCollection)
 
         return missionObjectives.map((missionObjective) => {
             const savedState = InMissionSummary.missionObjectives.find(

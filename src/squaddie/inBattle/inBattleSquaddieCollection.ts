@@ -1,7 +1,9 @@
+import { z } from "zod"
 import {
     type BattleSquaddieId,
     type InBattleSquaddie,
     InBattleSquaddieService,
+    serializedInBattleSquaddieSchema,
     type SerializedInBattleSquaddie,
 } from "./inBattleSquaddie"
 import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
@@ -24,12 +26,16 @@ export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: Map<string, InBattleSquaddie[]>
 }
 
-export type SerializedInBattleSquaddieCollection = Omit<
-    InBattleSquaddieCollection,
-    "byOutOfBattleSquaddieId"
-> & {
-    byOutOfBattleSquaddieId: { [key: string]: SerializedInBattleSquaddie[] }
-}
+export const serializedInBattleSquaddieCollectionSchema = z.object({
+    byOutOfBattleSquaddieId: z.record(
+        z.string(),
+        z.array(serializedInBattleSquaddieSchema)
+    ),
+})
+
+export type SerializedInBattleSquaddieCollection = z.infer<
+    typeof serializedInBattleSquaddieCollectionSchema
+>
 
 export const InBattleSquaddieCollectionService = {
     new: (): InBattleSquaddieCollection => ({
@@ -826,14 +832,22 @@ export const InBattleSquaddieCollectionService = {
         }
         return { byOutOfBattleSquaddieId }
     },
-    deserialize: (
-        serializable: SerializedInBattleSquaddieCollection
-    ): InBattleSquaddieCollection => {
+    deserialize: (data: unknown): InBattleSquaddieCollection => {
+        const result =
+            serializedInBattleSquaddieCollectionSchema.safeParse(data)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            throw new Error(
+                `[InBattleSquaddieCollectionService.deserialize]: ${details}`
+            )
+        }
         const byOutOfBattleSquaddieId = new Map<string, InBattleSquaddie[]>()
         for (const [
             outOfBattleSquaddieId,
             serializableSquaddies,
-        ] of Object.entries(serializable.byOutOfBattleSquaddieId)) {
+        ] of Object.entries(result.data.byOutOfBattleSquaddieId)) {
             byOutOfBattleSquaddieId.set(
                 outOfBattleSquaddieId,
                 serializableSquaddies.map((s) =>
@@ -848,8 +862,18 @@ export const InBattleSquaddieCollectionService = {
         serializable,
     }: {
         collection: InBattleSquaddieCollection
-        serializable: SerializedInBattleSquaddieCollection
+        serializable: unknown
     }): InBattleSquaddieCollection => {
+        const result =
+            serializedInBattleSquaddieCollectionSchema.safeParse(serializable)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            throw new Error(
+                `[InBattleSquaddieCollectionService.updateFromSerializedCollection]: ${details}`
+            )
+        }
         throwIfCollectionIsUndefined(
             collection,
             "updateFromSerializedCollection"
@@ -859,7 +883,7 @@ export const InBattleSquaddieCollectionService = {
         for (const [
             outOfBattleSquaddieId,
             serializableSquaddies,
-        ] of Object.entries(serializable.byOutOfBattleSquaddieId)) {
+        ] of Object.entries(result.data.byOutOfBattleSquaddieId)) {
             if (
                 !updatedCollection.byOutOfBattleSquaddieId.has(
                     outOfBattleSquaddieId

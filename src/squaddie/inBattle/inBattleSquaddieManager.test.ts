@@ -2031,12 +2031,12 @@ describe("In Battle Squaddie Manager", () => {
     })
 
     describe("serialization", () => {
-        it("serializeCollection returns a serializable representation", () => {
+        it("serialize returns a serializable representation", () => {
             manager.createNewSquaddie({
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
 
-            const serializable = manager.serializeCollection()
+            const serializable = manager.serialize()
 
             expect(serializable.byOutOfBattleSquaddieId).toBeDefined()
             expect(
@@ -2044,7 +2044,7 @@ describe("In Battle Squaddie Manager", () => {
             ).toHaveLength(1)
         })
 
-        it("loadCollectionFromJSON replaces the collection", () => {
+        it("addFromJson replaces the collection", () => {
             manager.createNewSquaddie({
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
@@ -2093,7 +2093,7 @@ describe("In Battle Squaddie Manager", () => {
                 },
             }
 
-            manager.loadCollectionFromJSON(newSerialized)
+            manager.addFromJson(newSerialized)
 
             expect(
                 manager.doesSquaddieExist({
@@ -2116,7 +2116,7 @@ describe("In Battle Squaddie Manager", () => {
             expect(hitPoints.current).toBe(3)
         })
 
-        it("updateCollectionFromJSON updates existing squaddies and adds new ones", () => {
+        it("updateFromJson updates existing squaddies and adds new ones", () => {
             const id0 = manager.createNewSquaddie({
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
             })
@@ -2182,7 +2182,7 @@ describe("In Battle Squaddie Manager", () => {
                 },
             }
 
-            manager.updateCollectionFromJSON(updateSerialized)
+            manager.updateFromJson(updateSerialized)
 
             const updatedHitPoints = manager.getHitPoints({
                 outOfBattleSquaddieId: outOfBattleSquaddie0.id,
@@ -2210,7 +2210,7 @@ describe("In Battle Squaddie Manager", () => {
                 manager.outOfBattleSquaddieManager
             )
 
-            expect(() => emptyManager.serializeCollection()).toThrow(
+            expect(() => emptyManager.serialize()).toThrow(
                 /inBattleSquaddieCollection must be defined/
             )
         })
@@ -2222,7 +2222,7 @@ describe("In Battle Squaddie Manager", () => {
             )
 
             expect(() =>
-                emptyManager.updateCollectionFromJSON({
+                emptyManager.updateFromJson({
                     byOutOfBattleSquaddieId: {},
                 })
             ).toThrow(/inBattleSquaddieCollection must be defined/)

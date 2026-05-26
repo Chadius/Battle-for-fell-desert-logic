@@ -946,10 +946,8 @@ export class InBattleSquaddieManager {
         return allSquaddies
     }
 
-    serializeCollection(): SerializedInBattleSquaddieCollection {
-        this.throwIfInBattleSquaddieCollectionIsUndefined(
-            this.serializeCollection.name
-        )
+    serialize(): SerializedInBattleSquaddieCollection {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(this.serialize.name)
         return InBattleSquaddieCollectionService.serialize(
             this.inBattleSquaddieCollection!
         )
@@ -959,30 +957,38 @@ export class InBattleSquaddieManager {
         this.throwIfInBattleSquaddieCollectionIsUndefined(
             this.cloneCollection.name
         )
-        const serializedCollection = this.serializeCollection()
+        const serializedCollection = this.serialize()
         return InBattleSquaddieCollectionService.deserialize(
             serializedCollection
         )
     }
 
-    loadCollectionFromJSON(
-        serializable: SerializedInBattleSquaddieCollection
-    ): void {
-        this.inBattleSquaddieCollection =
-            InBattleSquaddieCollectionService.deserialize(serializable)
+    addFromJson(data: unknown): string[] {
+        try {
+            this.inBattleSquaddieCollection =
+                InBattleSquaddieCollectionService.deserialize(data)
+            return []
+        } catch (e) {
+            return [e instanceof Error ? e.message : String(e)]
+        }
     }
 
-    updateCollectionFromJSON(
-        serializable: SerializedInBattleSquaddieCollection
-    ): void {
+    updateFromJson(data: unknown): string[] {
         this.throwIfInBattleSquaddieCollectionIsUndefined(
-            this.updateCollectionFromJSON.name
+            this.updateFromJson.name
         )
-        this.inBattleSquaddieCollection =
-            InBattleSquaddieCollectionService.updateFromSerializedCollection({
-                collection: this.inBattleSquaddieCollection!,
-                serializable,
-            })
+        try {
+            this.inBattleSquaddieCollection =
+                InBattleSquaddieCollectionService.updateFromSerializedCollection(
+                    {
+                        collection: this.inBattleSquaddieCollection!,
+                        serializable: data,
+                    }
+                )
+            return []
+        } catch (e) {
+            return [e instanceof Error ? e.message : String(e)]
+        }
     }
 
     private throwIfInBattleSquaddieCollectionIsUndefined(callName: string) {

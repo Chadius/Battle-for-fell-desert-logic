@@ -3,12 +3,14 @@ import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBatt
 import { type AttributeScoreType } from "../../proficiency/attributeScore"
 import {
     type SquaddieCondition,
+    squaddieConditionSchema,
     SquaddieConditionService,
     SquaddieConditionType,
     type TSquaddieConditionDecaysAt,
     type TSquaddieConditionSource,
     type TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
+import { z } from "zod"
 import {
     ProficiencyLevel,
     ProficiencyLevelConst,
@@ -43,12 +45,28 @@ export interface InBattleSquaddie {
     itemIdsUsed: string[]
 }
 
-export type SerializedInBattleSquaddie = Omit<
-    InBattleSquaddie,
-    "conditions"
-> & {
-    conditions: { [key: string]: SquaddieCondition[] }
-}
+export const serializedInBattleSquaddieSchema = z.object({
+    id: z.number(),
+    outOfBattleSquaddieId: z.string(),
+    name: z.string(),
+    hitPoints: z.object({
+        max: z.number(),
+        current: z.number(),
+    }),
+    conditions: z.record(z.string(), z.array(squaddieConditionSchema)),
+    actionPoints: z.object({
+        current: z.number(),
+    }),
+    attackContributionThisTurn: z.number().default(0),
+    actionIds: z.object({
+        natural: z.array(z.string()),
+    }),
+    itemIdsUsed: z.array(z.string()),
+})
+
+export type SerializedInBattleSquaddie = z.infer<
+    typeof serializedInBattleSquaddieSchema
+>
 
 export const InBattleSquaddieService = {
     new: ({
@@ -504,8 +522,16 @@ export const InBattleSquaddieService = {
     },
     serialize: (squaddie: InBattleSquaddie): SerializedInBattleSquaddie =>
         serialize(squaddie),
-    deserialize: (serializable: SerializedInBattleSquaddie): InBattleSquaddie =>
-        deserialize(serializable),
+    deserialize: (data: unknown): InBattleSquaddie => {
+        const result = serializedInBattleSquaddieSchema.safeParse(data)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            throw new Error(`[InBattleSquaddieService.deserialize]: ${details}`)
+        }
+        return deserialize(result.data)
+    },
 }
 
 const clone = (original: InBattleSquaddie): InBattleSquaddie => {
