@@ -1,6 +1,7 @@
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
+    type SerializedOutOfBattleSquaddie,
 } from "./outOfBattleSquaddie"
 import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
 
@@ -12,6 +13,30 @@ export const OutOfBattleSquaddieCollectionService = {
     new: (): OutOfBattleSquaddieCollection => ({
         outOfBattleSquaddieById: new Map(),
     }),
+    serialize: (
+        collection: OutOfBattleSquaddieCollection
+    ): SerializedOutOfBattleSquaddie[] => {
+        return Array.from(collection.outOfBattleSquaddieById.values()).map(
+            OutOfBattleSquaddieService.serialize
+        )
+    },
+    deserializeAll: (
+        data: unknown[]
+    ): { collection: OutOfBattleSquaddieCollection; errors: string[] } => {
+        const collection: OutOfBattleSquaddieCollection = {
+            outOfBattleSquaddieById: new Map(),
+        }
+        const errors: string[] = []
+        for (const item of data) {
+            try {
+                const squaddie = OutOfBattleSquaddieService.deserialize(item)
+                collection.outOfBattleSquaddieById.set(squaddie.id, squaddie)
+            } catch (e) {
+                errors.push(e instanceof Error ? e.message : String(e))
+            }
+        }
+        return { collection, errors }
+    },
     addOrUpdateOutOfBattleSquaddie: ({
         collection,
         outOfBattleSquaddie,

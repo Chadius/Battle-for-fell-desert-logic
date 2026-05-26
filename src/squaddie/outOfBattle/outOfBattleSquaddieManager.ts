@@ -6,8 +6,14 @@ import {
     type OutOfBattleSquaddieAttributeSheetCollection,
     OutOfBattleSquaddieAttributeSheetCollectionService,
 } from "./outOfBattleSquaddieAttributeSheetCollection"
-import { type OutOfBattleSquaddieAttributeSheet } from "./outOfBattleSquaddieAttributeSheet"
-import type { OutOfBattleSquaddie } from "./outOfBattleSquaddie"
+import {
+    type OutOfBattleSquaddieAttributeSheet,
+    type SerializedOutOfBattleSquaddieAttributeSheet,
+} from "./outOfBattleSquaddieAttributeSheet"
+import {
+    type OutOfBattleSquaddie,
+    type SerializedOutOfBattleSquaddie,
+} from "./outOfBattleSquaddie"
 import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
 import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
 
@@ -338,6 +344,62 @@ export class OutOfBattleSquaddieManager {
                 squaddieAffiliation,
             }
         )
+    }
+
+    serializeSquaddies(): SerializedOutOfBattleSquaddie[] {
+        this.throwIfSquaddieCollectionIsUndefined(this.serializeSquaddies.name)
+        return OutOfBattleSquaddieCollectionService.serialize(
+            this.squaddieCollection!
+        )
+    }
+
+    addSquaddiesFromJson(data: unknown): string[] {
+        this.throwIfSquaddieCollectionIsUndefined(
+            this.addSquaddiesFromJson.name
+        )
+        const items = Array.isArray(data) ? data : [data]
+        const { collection, errors } =
+            OutOfBattleSquaddieCollectionService.deserializeAll(items)
+        for (const squaddie of collection.outOfBattleSquaddieById.values()) {
+            this.squaddieCollection =
+                OutOfBattleSquaddieCollectionService.addOrUpdateOutOfBattleSquaddie(
+                    {
+                        collection: this.squaddieCollection!,
+                        outOfBattleSquaddie: squaddie,
+                    }
+                )
+        }
+        return errors
+    }
+
+    serializeAttributeSheets(): SerializedOutOfBattleSquaddieAttributeSheet[] {
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.serializeAttributeSheets.name
+        )
+        return OutOfBattleSquaddieAttributeSheetCollectionService.serialize(
+            this.attributeSheetCollection!
+        )
+    }
+
+    addAttributeSheetsFromJson(data: unknown): string[] {
+        this.throwIfAttributeSheetCollectionIsUndefined(
+            this.addAttributeSheetsFromJson.name
+        )
+        const items = Array.isArray(data) ? data : [data]
+        const { collection, errors } =
+            OutOfBattleSquaddieAttributeSheetCollectionService.deserializeAll(
+                items
+            )
+        for (const sheet of collection.sheetById.values()) {
+            this.attributeSheetCollection =
+                OutOfBattleSquaddieAttributeSheetCollectionService.addOrUpdateAttributeSheet(
+                    {
+                        collection: this.attributeSheetCollection!,
+                        attributeSheet: sheet,
+                    }
+                )
+        }
+        return errors
     }
 
     private throwIfSquaddieCollectionIsUndefined(callName: string) {

@@ -7,7 +7,10 @@ import {
     type OutOfBattleSquaddieAttributeSheetCollection,
     OutOfBattleSquaddieAttributeSheetCollectionService,
 } from "./outOfBattleSquaddieAttributeSheetCollection"
-import type { OutOfBattleSquaddieAttributeSheet } from "./outOfBattleSquaddieAttributeSheet"
+import {
+    type OutOfBattleSquaddieAttributeSheet,
+    OutOfBattleSquaddieAttributeSheetService,
+} from "./outOfBattleSquaddieAttributeSheet"
 import {
     ProficiencyLevel,
     ProficiencyType,
@@ -235,6 +238,188 @@ describe("Out of Battle Squaddie Manager", () => {
                     squaddieId: squaddie.id,
                 })
             ).toEqual(["powerRune", "plateMail"])
+        })
+    })
+
+    describe("JSON serialization", () => {
+        beforeEach(() => {
+            manager.addOrUpdateAttributeSheet(attributeSheet)
+            manager.addOrUpdateSquaddie(squaddie)
+        })
+
+        describe("serializeSquaddies / addSquaddiesFromJson", () => {
+            it("serializes squaddies to a plain array", () => {
+                const serialized = manager.serializeSquaddies()
+                expect(serialized).toHaveLength(1)
+                expect(serialized[0]).toEqual(
+                    OutOfBattleSquaddieService.serialize(squaddie)
+                )
+            })
+
+            it("serializes an empty collection as an empty array", () => {
+                const emptyManager = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                expect(emptyManager.serializeSquaddies()).toEqual([])
+            })
+
+            it("loads a single squaddie blob", () => {
+                const fresh = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                const blob = OutOfBattleSquaddieService.serialize(squaddie)
+                const errors = fresh.addSquaddiesFromJson(blob)
+                expect(errors).toHaveLength(0)
+                expect(fresh.getRawOutOfBattleSquaddie(squaddie.id)).toEqual(
+                    squaddie
+                )
+            })
+
+            it("loads an array of squaddie blobs", () => {
+                const second = OutOfBattleSquaddieService.new({
+                    id: "secondSquaddie",
+                    name: "Second",
+                    actionIds: [],
+                    attributeSheetId: "test sheet",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+                manager.addOrUpdateSquaddie(second)
+                const serialized = manager.serializeSquaddies()
+
+                const fresh = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                const errors = fresh.addSquaddiesFromJson(serialized)
+                expect(errors).toHaveLength(0)
+                expect(fresh.getRawOutOfBattleSquaddie(squaddie.id)).toEqual(
+                    squaddie
+                )
+                expect(
+                    fresh.getRawOutOfBattleSquaddie("secondSquaddie")
+                ).toEqual(second)
+            })
+
+            it("returns errors for invalid blobs and still loads valid ones", () => {
+                const blobs = [
+                    OutOfBattleSquaddieService.serialize(squaddie),
+                    {
+                        id: "",
+                        name: "Bad",
+                        affiliation: "PLAYER",
+                        actionIds: [],
+                        attributeSheetId: "x",
+                    },
+                ]
+                const fresh = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                const errors = fresh.addSquaddiesFromJson(blobs)
+                expect(errors).toHaveLength(1)
+                expect(errors[0]).toContain(
+                    "OutOfBattleSquaddieService.deserialize"
+                )
+                expect(fresh.getRawOutOfBattleSquaddie(squaddie.id)).toEqual(
+                    squaddie
+                )
+            })
+
+            it("round-trips squaddies", () => {
+                const serialized = manager.serializeSquaddies()
+                const fresh = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                fresh.addSquaddiesFromJson(serialized)
+                expect(fresh.getRawOutOfBattleSquaddie(squaddie.id)).toEqual(
+                    squaddie
+                )
+            })
+        })
+
+        describe("serializeAttributeSheets / addAttributeSheetsFromJson", () => {
+            it("serializes attribute sheets to a plain array", () => {
+                const serialized = manager.serializeAttributeSheets()
+                expect(serialized).toHaveLength(1)
+                expect(serialized[0]).toEqual(
+                    OutOfBattleSquaddieAttributeSheetService.serialize(
+                        attributeSheet
+                    )
+                )
+            })
+
+            it("serializes an empty collection as an empty array", () => {
+                const emptyManager = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                expect(emptyManager.serializeAttributeSheets()).toEqual([])
+            })
+
+            it("loads a single attribute sheet blob", () => {
+                const fresh = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                const blob =
+                    OutOfBattleSquaddieAttributeSheetService.serialize(
+                        attributeSheet
+                    )
+                const errors = fresh.addAttributeSheetsFromJson(blob)
+                expect(errors).toHaveLength(0)
+                expect(fresh.getAttributeSheet(attributeSheet.id)).toEqual(
+                    attributeSheet
+                )
+            })
+
+            it("loads an array of attribute sheet blobs", () => {
+                const serialized = manager.serializeAttributeSheets()
+                const fresh = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                const errors = fresh.addAttributeSheetsFromJson(serialized)
+                expect(errors).toHaveLength(0)
+                expect(fresh.getAttributeSheet(attributeSheet.id)).toEqual(
+                    attributeSheet
+                )
+            })
+
+            it("returns errors for invalid blobs and still loads valid ones", () => {
+                const blobs = [
+                    OutOfBattleSquaddieAttributeSheetService.serialize(
+                        attributeSheet
+                    ),
+                    { id: "" },
+                ]
+                const fresh = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                const errors = fresh.addAttributeSheetsFromJson(blobs)
+                expect(errors).toHaveLength(1)
+                expect(errors[0]).toContain(
+                    "OutOfBattleSquaddieAttributeSheetService.deserialize"
+                )
+                expect(fresh.getAttributeSheet(attributeSheet.id)).toEqual(
+                    attributeSheet
+                )
+            })
+
+            it("round-trips attribute sheets", () => {
+                const serialized = manager.serializeAttributeSheets()
+                const fresh = new OutOfBattleSquaddieManager(
+                    OutOfBattleSquaddieCollectionService.new(),
+                    OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                )
+                fresh.addAttributeSheetsFromJson(serialized)
+                expect(fresh.getAttributeSheet(attributeSheet.id)).toEqual(
+                    attributeSheet
+                )
+            })
         })
     })
 })

@@ -1,6 +1,7 @@
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
+    type SerializedOutOfBattleSquaddieAttributeSheet,
 } from "./outOfBattleSquaddieAttributeSheet"
 import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
 
@@ -11,6 +12,32 @@ export interface OutOfBattleSquaddieAttributeSheetCollection {
 export const OutOfBattleSquaddieAttributeSheetCollectionService = {
     new: (): OutOfBattleSquaddieAttributeSheetCollection =>
         constructNewCollection(),
+    serialize: (
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+    ): SerializedOutOfBattleSquaddieAttributeSheet[] => {
+        return Array.from(collection.sheetById.values()).map(
+            OutOfBattleSquaddieAttributeSheetService.serialize
+        )
+    },
+    deserializeAll: (
+        data: unknown[]
+    ): {
+        collection: OutOfBattleSquaddieAttributeSheetCollection
+        errors: string[]
+    } => {
+        const collection = constructNewCollection()
+        const errors: string[] = []
+        for (const item of data) {
+            try {
+                const sheet =
+                    OutOfBattleSquaddieAttributeSheetService.deserialize(item)
+                collection.sheetById.set(sheet.id, sheet)
+            } catch (e) {
+                errors.push(e instanceof Error ? e.message : String(e))
+            }
+        }
+        return { collection, errors }
+    },
     addOrUpdateAttributeSheet: ({
         collection,
         attributeSheet,
