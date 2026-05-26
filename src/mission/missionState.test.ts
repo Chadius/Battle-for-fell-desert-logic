@@ -487,6 +487,48 @@ describe("MissionState", () => {
             expect(deserialized.deployments).toBeUndefined()
         })
 
+        it("round-trips a MissionState with history", () => {
+            const history = MissionHistoryService.createFromJSON({
+                turns: [
+                    {
+                        turnNumber: 1,
+                        missionAffiliationTurn: "PLAYER_TURN",
+                        squaddieTurnRecords: [
+                            {
+                                actingBattleSquaddieId: "lini+++1",
+                                actions: [
+                                    {
+                                        action: {
+                                            id: "scimitar",
+                                            name: "Scimitar",
+                                        },
+                                        results: [
+                                            {
+                                                inBattleSquaddieId: 1,
+                                                outOfBattleSquaddieId: "lini",
+                                                actionPoints: { spent: 1 },
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            })
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                history,
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.history).toEqual(state.history)
+        })
+
         it("deserialize throws a descriptive error for missing id", () => {
             expect(() =>
                 MissionStateService.deserialize({ mapId: "map-1" })

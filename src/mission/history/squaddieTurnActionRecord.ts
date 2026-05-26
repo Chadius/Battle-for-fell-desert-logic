@@ -1,8 +1,10 @@
+import { z } from "zod"
 import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 import {
     type SerializedSquaddieActionResult,
     type SquaddieActionResult,
     SquaddieActionResultService,
+    squaddieActionResultSchema,
 } from "../../squaddieAction/calculate/result/squaddieActionResult"
 import {
     SquaddieAffiliationService,
@@ -28,6 +30,11 @@ export type SerializedSquaddieTurnActionRecord = Omit<
 > & {
     results: SerializedSquaddieActionResult[]
 }
+
+export const squaddieTurnActionRecordSchema = z.object({
+    action: z.object({ id: z.string(), name: z.string() }),
+    results: z.array(squaddieActionResultSchema),
+})
 
 export const SquaddieTurnActionRecordService = {
     new: ({

@@ -1,8 +1,12 @@
+import { z } from "zod"
 import type {
     SquaddieTurnActionRecord,
     SerializedSquaddieTurnActionRecord,
 } from "./squaddieTurnActionRecord"
-import { SquaddieTurnActionRecordService } from "./squaddieTurnActionRecord"
+import {
+    SquaddieTurnActionRecordService,
+    squaddieTurnActionRecordSchema,
+} from "./squaddieTurnActionRecord"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 
@@ -15,6 +19,11 @@ export interface SerializedSquaddieTurnRecord {
     actingBattleSquaddieId: string
     actions: SerializedSquaddieTurnActionRecord[]
 }
+
+export const squaddieTurnRecordSchema = z.object({
+    actingBattleSquaddieId: z.string(),
+    actions: z.array(squaddieTurnActionRecordSchema),
+})
 
 export const SquaddieTurnRecordService = {
     new: ({

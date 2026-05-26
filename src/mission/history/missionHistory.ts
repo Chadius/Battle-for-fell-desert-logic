@@ -3,7 +3,10 @@ import type {
     MissionTurnHistoryEntry,
     SerializedMissionTurnHistoryEntry,
 } from "./missionTurnHistoryEntry"
-import { MissionTurnHistoryEntryService } from "./missionTurnHistoryEntry"
+import {
+    MissionTurnHistoryEntryService,
+    missionTurnHistoryEntrySchema,
+} from "./missionTurnHistoryEntry"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
@@ -19,13 +22,7 @@ export interface SerializedMissionHistory {
 }
 
 export const missionHistorySchema = z.object({
-    turns: z.array(
-        z.object({
-            turnNumber: z.number(),
-            missionAffiliationTurn: z.string(),
-            squaddieTurnRecords: z.array(z.unknown()),
-        })
-    ),
+    turns: z.array(missionTurnHistoryEntrySchema),
 })
 
 export const MissionHistoryService = {

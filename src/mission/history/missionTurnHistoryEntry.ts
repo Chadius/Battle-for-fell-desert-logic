@@ -1,9 +1,13 @@
+import { z } from "zod"
 import type { TMissionAffiliationTurn } from "../missionTurn"
 import type {
     SquaddieTurnRecord,
     SerializedSquaddieTurnRecord,
 } from "./squaddieTurnRecord"
-import { SquaddieTurnRecordService } from "./squaddieTurnRecord"
+import {
+    SquaddieTurnRecordService,
+    squaddieTurnRecordSchema,
+} from "./squaddieTurnRecord"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
@@ -22,6 +26,12 @@ export interface SerializedMissionTurnHistoryEntry {
     missionAffiliationTurn: string
     squaddieTurnRecords: SerializedSquaddieTurnRecord[]
 }
+
+export const missionTurnHistoryEntrySchema = z.object({
+    turnNumber: z.number(),
+    missionAffiliationTurn: z.string(),
+    squaddieTurnRecords: z.array(squaddieTurnRecordSchema),
+})
 
 export const MissionTurnHistoryEntryService = {
     new: ({

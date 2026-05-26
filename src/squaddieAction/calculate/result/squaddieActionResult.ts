@@ -1,8 +1,15 @@
+import { z } from "zod"
+import { AttributeScore } from "../../../proficiency/attributeScore"
 import type { AttributeScoreType } from "../../../proficiency/attributeScore"
+import {
+    squaddieConditionSchema,
+    SquaddieConditionType,
+} from "../../../proficiency/squaddieCondition"
 import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../../../proficiency/squaddieCondition"
+import { coordinateMovePathSchema } from "../../../coordinateMap/path/path"
 import type { CoordinateMovePath } from "../../../coordinateMap/path/path"
 
 export type DamageResult = {
@@ -82,6 +89,57 @@ export type SerializedSquaddieActionResult = Omit<
         }
     }
 }
+
+const conditionWithoutTypeSchema = squaddieConditionSchema.omit({ type: true })
+
+const conditionsByTypeSchema = z.record(
+    z.string(),
+    z.array(conditionWithoutTypeSchema)
+)
+
+export const squaddieActionResultSchema = z.object({
+    inBattleSquaddieId: z.number(),
+    outOfBattleSquaddieId: z.string(),
+    actionPoints: z
+        .object({
+            spent: z.number(),
+            restore: z.object({ net: z.number(), raw: z.number() }).optional(),
+        })
+        .optional(),
+    damage: z
+        .object({
+            net: z.number(),
+            raw: z.number(),
+            absorbed: z.number(),
+            willKo: z.boolean(),
+            type: z.enum(AttributeScore).optional(),
+            sneakAttackDamage: z.number().optional(),
+        })
+        .optional(),
+    healing: z.object({ net: z.number(), raw: z.number() }).optional(),
+    conditionsAdded: z.array(squaddieConditionSchema).optional(),
+    dispel: z
+        .object({
+            conditionTypes: z.object({
+                all: z.boolean().optional(),
+                types: z.array(z.enum(SquaddieConditionType)).optional(),
+            }),
+            amount: z.number().optional(),
+            dispelledConditions: conditionsByTypeSchema.optional(),
+        })
+        .optional(),
+    treat: z
+        .object({
+            conditionTypes: z.object({
+                all: z.boolean().optional(),
+                types: z.array(z.enum(SquaddieConditionType)).optional(),
+            }),
+            amount: z.number().optional(),
+            treatedConditions: conditionsByTypeSchema.optional(),
+        })
+        .optional(),
+    movement: z.object({ expectedPath: coordinateMovePathSchema }).optional(),
+})
 
 export const SquaddieActionResultService = {
     clone: (original: SquaddieActionResult): SquaddieActionResult => {

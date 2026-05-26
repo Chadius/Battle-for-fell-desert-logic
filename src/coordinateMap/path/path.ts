@@ -1,3 +1,4 @@
+import { z } from "zod"
 import type { EnumLike } from "../../enum"
 import type { OffsetCoordinate } from "../offsetCoordinate"
 
@@ -27,6 +28,26 @@ export type CoordinateMovementInstruction = {
     end: OffsetCoordinate
     moveType: TCoordinateMovePathMoveType
 }
+
+const coordinateMovePathStepSchema = z.object({
+    row: z.number(),
+    col: z.number(),
+    moveType: z.enum(CoordinateMovePathMoveType),
+    moveCost: z.number(),
+})
+
+const coordinateMovementInstructionSchema = z.object({
+    start: z.object({ row: z.number(), col: z.number() }),
+    end: z.object({ row: z.number(), col: z.number() }),
+    moveType: z.enum(CoordinateMovePathMoveType),
+})
+
+export const coordinateMovePathSchema = z.object({
+    steps: z.array(coordinateMovePathStepSchema),
+    movementInstruction: z
+        .array(coordinateMovementInstructionSchema)
+        .optional(),
+})
 
 export const CoordinateMovePathService = {
     new: ({
