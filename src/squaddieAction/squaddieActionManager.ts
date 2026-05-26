@@ -2,7 +2,7 @@ import {
     type SquaddieActionCollection,
     SquaddieActionCollectionService,
 } from "./squaddieActionCollection"
-import type { SquaddieAction } from "./squaddieAction"
+import type { SerializedSquaddieAction, SquaddieAction } from "./squaddieAction"
 
 export class SquaddieActionManager {
     collection?: SquaddieActionCollection
@@ -46,6 +46,25 @@ export class SquaddieActionManager {
             collection: this.collection!,
             actionId,
         })
+    }
+
+    serialize(): SerializedSquaddieAction[] {
+        this.throwIfActionCollectionIsUndefined(this.serialize.name)
+        return SquaddieActionCollectionService.serialize(this.collection!)
+    }
+
+    addActionsFromJson(data: unknown): string[] {
+        this.throwIfActionCollectionIsUndefined(this.addActionsFromJson.name)
+        const items = Array.isArray(data) ? data : [data]
+        const { collection, errors } =
+            SquaddieActionCollectionService.deserializeAll(items)
+        for (const action of collection.actionById.values()) {
+            this.collection = SquaddieActionCollectionService.addOrUpdate({
+                collection: this.collection!,
+                squaddieAction: action,
+            })
+        }
+        return errors
     }
 
     private throwIfActionCollectionIsUndefined(callName: string) {
