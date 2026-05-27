@@ -250,6 +250,30 @@ export class CoordinateMapCollectionManager {
         })!
     }
 
+    serialize(): SerializedCoordinateMap[] {
+        this.throwIfCoordinateMapCollectionIsUndefined(this.serialize.name)
+        return Array.from(this.coordinateMapCollection!.mapById.values()).map(
+            (map) => CoordinateMapService.serialize(map)
+        )
+    }
+
+    addMapsFromJson(data: unknown): string[] {
+        this.throwIfCoordinateMapCollectionIsUndefined(
+            this.addMapsFromJson.name
+        )
+        const items: unknown[] = Array.isArray(data) ? data : [data]
+        const errors: string[] = []
+        for (const item of items) {
+            try {
+                const map = CoordinateMapService.deserialize(item)
+                this.addOrUpdate({ map })
+            } catch (e) {
+                errors.push(e instanceof Error ? e.message : String(e))
+            }
+        }
+        return errors
+    }
+
     serializeMap(mapId: string): SerializedCoordinateMap {
         this.throwIfCoordinateMapCollectionIsUndefined(this.serializeMap.name)
         this.throwIfCoordinateMapCollectionWithMapIdIsUndefined(

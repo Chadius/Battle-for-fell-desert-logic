@@ -384,6 +384,119 @@ describe("Coordinate Map Manager", () => {
         })
     })
 
+    describe("serialize all maps", () => {
+        beforeEach(() => {
+            coordinateMapCollection = CoordinateMapCollectionService.new()
+            manager = new CoordinateMapCollectionManager(
+                coordinateMapCollection
+            )
+        })
+
+        it("serializes an empty collection as an empty array", () => {
+            expect(manager.serialize()).toEqual([])
+        })
+
+        it("serializes all maps in the collection", () => {
+            manager.addOrUpdate({
+                map: CoordinateMapService.new({
+                    id: "mapA",
+                    name: "Map A",
+                    movementProperties: ["1 1 1 "],
+                }),
+            })
+            manager.addOrUpdate({
+                map: CoordinateMapService.new({
+                    id: "mapB",
+                    name: "Map B",
+                    movementProperties: ["1 1 "],
+                }),
+            })
+            const serialized = manager.serialize()
+            expect(serialized).toHaveLength(2)
+            expect(serialized.map((s) => s.id)).toEqual(
+                expect.arrayContaining(["mapA", "mapB"])
+            )
+        })
+    })
+
+    describe("addMapsFromJson", () => {
+        let testMap: CoordinateMap
+
+        beforeEach(() => {
+            coordinateMapCollection = CoordinateMapCollectionService.new()
+            manager = new CoordinateMapCollectionManager(
+                coordinateMapCollection
+            )
+            testMap = CoordinateMapService.new({
+                id: "testMap",
+                name: "testMap",
+                movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
+            })
+        })
+
+        it("loads a single map blob and makes it retrievable", () => {
+            const errors = manager.addMapsFromJson(
+                CoordinateMapService.serialize(testMap)
+            )
+            expect(errors).toHaveLength(0)
+            expect(manager.getMapById("testMap").id).toBe("testMap")
+        })
+
+        it("loads an array of map blobs", () => {
+            const secondMap = CoordinateMapService.new({
+                id: "secondMap",
+                name: "Second Map",
+                movementProperties: ["1 1 "],
+            })
+            const errors = manager.addMapsFromJson([
+                CoordinateMapService.serialize(testMap),
+                CoordinateMapService.serialize(secondMap),
+            ])
+            expect(errors).toHaveLength(0)
+            expect(manager.getMapById("testMap").id).toBe("testMap")
+            expect(manager.getMapById("secondMap").id).toBe("secondMap")
+        })
+
+        it("returns errors for invalid blobs and still loads valid ones", () => {
+            const errors = manager.addMapsFromJson([
+                CoordinateMapService.serialize(testMap),
+                { id: "" },
+            ])
+            expect(errors).toHaveLength(1)
+            expect(errors[0]).toContain("CoordinateMapService.deserialize")
+            expect(manager.getMapById("testMap").id).toBe("testMap")
+        })
+
+        it("round-trips: serialize then addMapsFromJson restores maps with squaddies", () => {
+            manager.addOrUpdate({ map: testMap })
+            manager.addSquaddie({
+                mapId: "testMap",
+                squaddieId: {
+                    inBattleSquaddieId: 0,
+                    outOfBattleSquaddieId: "soldier",
+                },
+                coordinate: { row: 0, col: 2 },
+            })
+
+            const serialized = manager.serialize()
+            const freshManager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            const errors = freshManager.addMapsFromJson(serialized)
+            expect(errors).toHaveLength(0)
+            expect(freshManager.getMapById("testMap").id).toBe("testMap")
+            expect(
+                freshManager.getSquaddieCoordinate({
+                    mapId: "testMap",
+                    squaddieId: {
+                        inBattleSquaddieId: 0,
+                        outOfBattleSquaddieId: "soldier",
+                    },
+                })
+            ).toEqual({ row: 0, col: 2 })
+        })
+    })
+
     describe("Serialize a map", () => {
         it("will throw an error if there is no collection", () => {
             manager = new CoordinateMapCollectionManager()
