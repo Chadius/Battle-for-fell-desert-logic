@@ -21,7 +21,6 @@ import type { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerat
 import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
 import { ApplyResultService } from "../squaddieAction/apply/applyResultService"
-import type { SquaddieAction } from "../squaddieAction/squaddieAction"
 import {
     type MissionHistory,
     MissionHistoryService,
@@ -35,6 +34,7 @@ import {
     InMissionSummaryService,
 } from "./inMissionSummary"
 import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap"
+import type { SquaddieAction } from "../squaddieAction/squaddieAction"
 import { type TSquaddieAffiliation } from "../affiliation/affiliation"
 import { SquaddieActionValidationService } from "../squaddieAction/calculate/validity/squaddieActionValidationService"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
@@ -830,6 +830,51 @@ export class MissionManager {
                 deployment.id
             )
         }
+    }
+
+    addSquaddiesFromJson(data: unknown): string[] {
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.addSquaddiesFromJson.name
+        )
+        return this.inBattleSquaddieManager!.addFromJson(data)
+    }
+
+    addMapsFromJson(data: unknown): string[] {
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.addMapsFromJson.name
+        )
+        return this.coordinateMapCollectionManager!.addMapsFromJson(data)
+    }
+
+    addActionsFromJson(data: unknown): string[] {
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.addActionsFromJson.name
+        )
+        return this.squaddieActionManager!.addActionsFromJson(data)
+    }
+
+    validate(): { isValid: boolean; errors: string[] } {
+        const errors: string[] = []
+        if (this.missionState == undefined)
+            errors.push("missionState must be defined")
+        if (this.inBattleSquaddieManager == undefined)
+            errors.push("inBattleSquaddieManager must be defined")
+        if (this.coordinateMapCollectionManager == undefined) {
+            errors.push("coordinateMapCollectionManager must be defined")
+        } else if (this.missionState != undefined) {
+            try {
+                this.coordinateMapCollectionManager.getMapById(
+                    this.missionState.mapId
+                )
+            } catch {
+                errors.push(
+                    `map "${this.missionState.mapId}" not found in coordinateMapCollectionManager`
+                )
+            }
+        }
+        if (this.squaddieActionManager == undefined)
+            errors.push("squaddieActionManager must be defined")
+        return { isValid: errors.length === 0, errors }
     }
 
     private throwIfStateIsUndefined(callName: string) {
