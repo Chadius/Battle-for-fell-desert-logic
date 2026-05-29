@@ -326,7 +326,7 @@ describe("MissionManager", () => {
             })
         })
 
-        it("loadMissionStateFromJson sets the missionState", () => {
+        it("loadMissionStateFromJson sets the missionState after validate", () => {
             const targetManager = new MissionManager({
                 inBattleSquaddieManager,
                 coordinateMapCollectionManager,
@@ -336,6 +336,7 @@ describe("MissionManager", () => {
                 MissionStateService.new({ id: "mission-1", mapId: "test-map" })
             )
             targetManager.loadMissionStateFromJson(serialized)
+            targetManager.validate()
             expect(targetManager.missionState?.id).toBe("mission-1")
         })
 
@@ -345,7 +346,7 @@ describe("MissionManager", () => {
             ).toThrow("MissionStateService.deserialize")
         })
 
-        it("addActionsFromJson loads actions into the squaddieActionManager", () => {
+        it("addActionsFromJson loads actions into the squaddieActionManager after validate", () => {
             const targetManager = new MissionManager({
                 missionState: MissionStateService.new({
                     id: "mission-1",
@@ -360,6 +361,7 @@ describe("MissionManager", () => {
             const serialized = squaddieActionManager.serialize()
             const errors = targetManager.addActionsFromJson(serialized)
             expect(errors).toHaveLength(0)
+            targetManager.validate()
             expect(
                 targetManager.squaddieActionManager!.has("attack")
             ).toBeTruthy()
@@ -371,11 +373,10 @@ describe("MissionManager", () => {
             expect(errors[0]).toContain("SquaddieActionService.deserialize")
         })
 
-        it("throws if squaddieActionManager is undefined when calling addActionsFromJson", () => {
+        it("addActionsFromJson works without a pre-existing squaddieActionManager by staging a new one", () => {
             const empty = new MissionManager()
-            expect(() => empty.addActionsFromJson([])).toThrow(
-                "squaddieActionManager must be defined"
-            )
+            expect(() => empty.addActionsFromJson([])).not.toThrow()
+            expect(empty.squaddieActionManager).toBeUndefined()
         })
     })
 

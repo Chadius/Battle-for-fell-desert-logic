@@ -1,6 +1,9 @@
 import type { MissionState } from "./missionState"
 import { MissionStateService } from "./missionState"
-import { MissionManagerValidationService } from "./missionManagerValidationService"
+import {
+    MissionManagerValidationService,
+    type MissionManagerValidationInput,
+} from "./missionManagerValidationService"
 import {
     MissionAffiliationTurn,
     type MissionTurn,
@@ -9,7 +12,8 @@ import {
 } from "./missionTurn"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
-import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
+import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
+import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
 import { MissionObjectiveRewardType } from "./missionObjectiveReward"
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
@@ -55,6 +59,8 @@ export class MissionManager {
     inBattleSquaddieManager?: InBattleSquaddieManager
     coordinateMapCollectionManager?: CoordinateMapCollectionManager
     squaddieActionManager?: SquaddieActionManager
+
+    private _staged: MissionManagerValidationInput | undefined = undefined
 
     constructor({
         missionState,
@@ -834,18 +840,63 @@ export class MissionManager {
     }
 
     loadMissionStateFromJson(data: unknown): void {
-        this.missionState = MissionStateService.deserialize(data)
+        this.initializeStagingIfNeeded()
+        this._staged!.missionState = MissionStateService.deserialize(data)
     }
 
     addActionsFromJson(data: unknown): string[] {
-        this.throwIfSquaddieActionManagerIsUndefined(
-            this.addActionsFromJson.name
-        )
-        return this.squaddieActionManager!.addActionsFromJson(data)
+        this.initializeStagingIfNeeded()
+        if (this._staged!.squaddieActionManager == undefined) {
+            this._staged!.squaddieActionManager =
+                this.cloneOrCreateSquaddieActionManager()
+        }
+        return this._staged!.squaddieActionManager.addActionsFromJson(data)
     }
 
     validate(): { isValid: boolean; errors: string[] } {
-        return MissionManagerValidationService.validate(this)
+        if (this._staged == undefined) {
+            return MissionManagerValidationService.validate(this)
+        }
+
+        const candidate: MissionManagerValidationInput = {
+            missionState: this._staged.missionState ?? this.missionState,
+            inBattleSquaddieManager:
+                this._staged.inBattleSquaddieManager ??
+                this.inBattleSquaddieManager,
+            coordinateMapCollectionManager:
+                this._staged.coordinateMapCollectionManager ??
+                this.coordinateMapCollectionManager,
+            squaddieActionManager:
+                this._staged.squaddieActionManager ??
+                this.squaddieActionManager,
+        }
+
+        const result = MissionManagerValidationService.validate(candidate)
+
+        if (result.isValid) {
+            this.missionState = candidate.missionState
+            this.inBattleSquaddieManager = candidate.inBattleSquaddieManager
+            this.coordinateMapCollectionManager =
+                candidate.coordinateMapCollectionManager
+            this.squaddieActionManager = candidate.squaddieActionManager
+        }
+
+        this._staged = undefined
+        return result
+    }
+
+    private initializeStagingIfNeeded(): void {
+        if (this._staged == undefined) this._staged = {}
+    }
+
+    private cloneOrCreateSquaddieActionManager(): SquaddieActionManager {
+        const manager = new SquaddieActionManager(
+            SquaddieActionCollectionService.new()
+        )
+        if (this.squaddieActionManager != undefined) {
+            manager.addActionsFromJson(this.squaddieActionManager.serialize())
+        }
+        return manager
     }
 
     private throwIfStateIsUndefined(callName: string) {
