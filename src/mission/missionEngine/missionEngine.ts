@@ -962,6 +962,17 @@ export class MissionEngine {
         return this.missionManager!.squaddieActionManager!.get(actionId)
     }
 
+    loadMissionStateFromJson(data: unknown): {
+        isValid: boolean
+        errors: string[]
+    } {
+        this.throwIfMissionManagerIsUndefined(
+            this.loadMissionStateFromJson.name
+        )
+        this.missionManager!.loadMissionStateFromJson(data)
+        return this.missionManager!.validate()
+    }
+
     serialize(): SerializedMissionEngine {
         return {
             missionState: this.missionManager?.missionState
