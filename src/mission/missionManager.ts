@@ -832,18 +832,8 @@ export class MissionManager {
         }
     }
 
-    addSquaddiesFromJson(data: unknown): string[] {
-        this.throwIfInBattleSquaddieManagerIsUndefined(
-            this.addSquaddiesFromJson.name
-        )
-        return this.inBattleSquaddieManager!.addFromJson(data)
-    }
-
-    addMapsFromJson(data: unknown): string[] {
-        this.throwIfCoordinateMapCollectionManagerIsUndefined(
-            this.addMapsFromJson.name
-        )
-        return this.coordinateMapCollectionManager!.addMapsFromJson(data)
+    loadMissionStateFromJson(data: unknown): void {
+        this.missionState = MissionStateService.deserialize(data)
     }
 
     addActionsFromJson(data: unknown): string[] {

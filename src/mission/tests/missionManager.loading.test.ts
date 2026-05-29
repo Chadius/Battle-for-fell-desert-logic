@@ -326,61 +326,23 @@ describe("MissionManager", () => {
             })
         })
 
-        it("addSquaddiesFromJson loads squaddies into the inBattleSquaddieManager", () => {
+        it("loadMissionStateFromJson sets the missionState", () => {
             const targetManager = new MissionManager({
-                missionState: MissionStateService.new({
-                    id: "mission-1",
-                    mapId: "test-map",
-                }),
-                inBattleSquaddieManager: new InBattleSquaddieManager(
-                    InBattleSquaddieCollectionService.new()
-                ),
+                inBattleSquaddieManager,
                 coordinateMapCollectionManager,
                 squaddieActionManager,
             })
-            const serialized = inBattleSquaddieManager.serialize()
-            const errors = targetManager.addSquaddiesFromJson(serialized)
-            expect(errors).toHaveLength(0)
-            const reSerialized =
-                targetManager.inBattleSquaddieManager!.serialize()
-            expect(
-                Object.keys(reSerialized.byOutOfBattleSquaddieId)
-            ).toHaveLength(1)
+            const serialized = MissionStateService.serialize(
+                MissionStateService.new({ id: "mission-1", mapId: "test-map" })
+            )
+            targetManager.loadMissionStateFromJson(serialized)
+            expect(targetManager.missionState?.id).toBe("mission-1")
         })
 
-        it("addSquaddiesFromJson returns errors for invalid data", () => {
-            const errors = manager.addSquaddiesFromJson({ invalid: true })
-            expect(errors).toHaveLength(1)
-            expect(errors[0]).toContain("InBattleSquaddieCollectionService")
-        })
-
-        it("addMapsFromJson loads maps into the coordinateMapCollectionManager", () => {
-            const targetManager = new MissionManager({
-                missionState: MissionStateService.new({
-                    id: "mission-1",
-                    mapId: "test-map",
-                }),
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager:
-                    new CoordinateMapCollectionManager(
-                        CoordinateMapCollectionService.new()
-                    ),
-                squaddieActionManager,
-            })
-            const serialized = coordinateMapCollectionManager.serialize()
-            const errors = targetManager.addMapsFromJson(serialized)
-            expect(errors).toHaveLength(0)
-            expect(
-                targetManager.coordinateMapCollectionManager!.getMapById(
-                    "test-map"
-                ).id
-            ).toBe("test-map")
-        })
-
-        it("addMapsFromJson returns errors for invalid data", () => {
-            const errors = manager.addMapsFromJson([{ id: "" }])
-            expect(errors).toHaveLength(1)
-            expect(errors[0]).toContain("CoordinateMapService.deserialize")
+        it("loadMissionStateFromJson throws on invalid data", () => {
+            expect(() =>
+                manager.loadMissionStateFromJson({ invalid: true })
+            ).toThrow("MissionStateService.deserialize")
         })
 
         it("addActionsFromJson loads actions into the squaddieActionManager", () => {
@@ -409,14 +371,8 @@ describe("MissionManager", () => {
             expect(errors[0]).toContain("SquaddieActionService.deserialize")
         })
 
-        it("throws if sub-manager is undefined when calling delegation methods", () => {
+        it("throws if squaddieActionManager is undefined when calling addActionsFromJson", () => {
             const empty = new MissionManager()
-            expect(() => empty.addSquaddiesFromJson({})).toThrow(
-                "inBattleSquaddieManager must be defined"
-            )
-            expect(() => empty.addMapsFromJson([])).toThrow(
-                "coordinateMapCollectionManager must be defined"
-            )
             expect(() => empty.addActionsFromJson([])).toThrow(
                 "squaddieActionManager must be defined"
             )
