@@ -28,9 +28,9 @@ import {
     MissionTurnService,
     type TMissionAffiliationTurn,
 } from "../missionTurn"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 import {
     type SerializedSquaddieAction,
+    type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction/squaddieAction"
 import {

@@ -1,5 +1,6 @@
 import type { MissionState } from "./missionState"
 import { MissionStateService } from "./missionState"
+import { MissionManagerValidationService } from "./missionManagerValidationService"
 import {
     MissionAffiliationTurn,
     type MissionTurn,
@@ -844,27 +845,7 @@ export class MissionManager {
     }
 
     validate(): { isValid: boolean; errors: string[] } {
-        const errors: string[] = []
-        if (this.missionState == undefined)
-            errors.push("missionState must be defined")
-        if (this.inBattleSquaddieManager == undefined)
-            errors.push("inBattleSquaddieManager must be defined")
-        if (this.coordinateMapCollectionManager == undefined) {
-            errors.push("coordinateMapCollectionManager must be defined")
-        } else if (this.missionState != undefined) {
-            try {
-                this.coordinateMapCollectionManager.getMapById(
-                    this.missionState.mapId
-                )
-            } catch {
-                errors.push(
-                    `map "${this.missionState.mapId}" not found in coordinateMapCollectionManager`
-                )
-            }
-        }
-        if (this.squaddieActionManager == undefined)
-            errors.push("squaddieActionManager must be defined")
-        return { isValid: errors.length === 0, errors }
+        return MissionManagerValidationService.validate(this)
     }
 
     private throwIfStateIsUndefined(callName: string) {
