@@ -29,7 +29,10 @@ import {
     type TMissionAffiliationTurn,
 } from "../missionTurn"
 import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
-import { SquaddieActionService } from "../../squaddieAction/squaddieAction"
+import {
+    type SerializedSquaddieAction,
+    SquaddieActionService,
+} from "../../squaddieAction/squaddieAction"
 import {
     type ActionResult,
     ActionResultsService,
@@ -52,13 +55,32 @@ import {
     SquaddieActionValidationService,
     type SquaddieActionValidity,
 } from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
-import type { OffsetMaybeOffmapCoordinate } from "../../coordinateMap/coordinateMap"
+import type {
+    OffsetMaybeOffmapCoordinate,
+    SerializedCoordinateMap,
+} from "../../coordinateMap/coordinateMap"
 import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
 import { TurnControllerService, TurnControllerType } from "../turnController"
 import { StrategyControllerService } from "../strategyController"
 import { SimpleAggressorStrategy } from "../strategies/simpleAggressorStrategy"
 import type { AiStrategy } from "../aiStrategy"
 import { type DebugFlags, DebugFlagsService } from "../debugFlags"
+import { z } from "zod"
+import {
+    type MissionState,
+    MissionStateService,
+    type SerializedMissionState,
+} from "../missionState"
+import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
+import {
+    InBattleSquaddieCollectionService,
+    type SerializedInBattleSquaddieCollection,
+} from "../../squaddie/inBattle/inBattleSquaddieCollection"
+import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
+import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
+import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
+import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
+import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 
 export interface MapTileInfo {
     row: number
@@ -77,12 +99,24 @@ export interface MapOverview {
 const MAX_PHASE_TRANSITIONS = 20
 
 const defaultAiStrategy = new SimpleAggressorStrategy()
+
 const defaultStrategyByAffiliation: Partial<
     Record<TSquaddieAffiliation, AiStrategy>
 > = {
     [SquaddieAffiliation.ENEMY]: defaultAiStrategy,
     [SquaddieAffiliation.ALLY]: defaultAiStrategy,
     [SquaddieAffiliation.NONE]: defaultAiStrategy,
+}
+export interface SerializedMissionEngine {
+    missionState?: SerializedMissionState
+    inBattleSquaddieCollection?: SerializedInBattleSquaddieCollection
+    coordinateMaps?: SerializedCoordinateMap[]
+    squaddieActions?: SerializedSquaddieAction[]
+    readiedAction?: SerializedReadiedAction
+    rollGeneratorQueue: number[]
+    actionResults?: SerializedActionResults
+    recentPhaseTransitions: TMissionAffiliationTurn[]
+    recentTransitionResults: SerializedSquaddieActionResult[]
 }
 
 export class MissionEngine {
@@ -926,6 +960,127 @@ export class MissionEngine {
         this.throwIfSquaddieActionManagerIsUndefined(this.getActionById.name)
 
         return this.missionManager!.squaddieActionManager!.get(actionId)
+    }
+
+    serialize(): SerializedMissionEngine {
+        return {
+            missionState: this.missionManager?.missionState
+                ? MissionStateService.serialize(
+                      this.missionManager.missionState
+                  )
+                : undefined,
+            inBattleSquaddieCollection: this.missionManager
+                ?.inBattleSquaddieManager
+                ? this.missionManager.inBattleSquaddieManager.serialize()
+                : undefined,
+            coordinateMaps: this.missionManager?.coordinateMapCollectionManager
+                ? this.missionManager.coordinateMapCollectionManager.serialize()
+                : undefined,
+            squaddieActions: this.missionManager?.squaddieActionManager
+                ? this.missionManager.squaddieActionManager.serialize()
+                : undefined,
+            readiedAction: this.readiedAction
+                ? ReadiedActionService.serialize(this.readiedAction)
+                : undefined,
+            rollGeneratorQueue: this.rollGenerator.getQueue(),
+            actionResults: this.actionResults
+                ? ActionResultsService.serialize(this.actionResults)
+                : undefined,
+            recentPhaseTransitions: [...this.recentPhaseTransitions],
+            recentTransitionResults: [...this.recentTransitionResults],
+        }
+    }
+
+    static deserialize(
+        data: unknown,
+        outOfBattleSquaddieManager: OutOfBattleSquaddieManager
+    ): MissionEngine {
+        const schema = z.object({
+            missionState: z.unknown().optional(),
+            inBattleSquaddieCollection: z.unknown().optional(),
+            coordinateMaps: z.array(z.unknown()).optional(),
+            squaddieActions: z.array(z.unknown()).optional(),
+            readiedAction: z.unknown().optional(),
+            rollGeneratorQueue: z.array(z.number()).default([]),
+            actionResults: z.unknown().optional(),
+            recentPhaseTransitions: z.array(z.string()).default([]),
+            recentTransitionResults: z.array(z.unknown()).default([]),
+        })
+
+        const result = schema.safeParse(data)
+        if (!result.success) {
+            const details = result.error.issues
+                .map((i) => `${i.path.join(".")}: ${i.message}`)
+                .join("; ")
+            throw new Error(`[MissionEngine.deserialize]: ${details}`)
+        }
+
+        const parsed = result.data
+
+        let missionState: MissionState | undefined
+        if (parsed.missionState != undefined) {
+            missionState = MissionStateService.deserialize(parsed.missionState)
+        }
+
+        let inBattleSquaddieManager: InBattleSquaddieManager | undefined
+        if (parsed.inBattleSquaddieCollection != undefined) {
+            const collection = InBattleSquaddieCollectionService.deserialize(
+                parsed.inBattleSquaddieCollection
+            )
+            inBattleSquaddieManager = new InBattleSquaddieManager(
+                collection,
+                outOfBattleSquaddieManager
+            )
+        }
+
+        let coordinateMapCollectionManager:
+            | CoordinateMapCollectionManager
+            | undefined
+        if (parsed.coordinateMaps != undefined) {
+            coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+                CoordinateMapCollectionService.new()
+            )
+            coordinateMapCollectionManager.addMapsFromJson(
+                parsed.coordinateMaps
+            )
+        }
+
+        let squaddieActionManager: SquaddieActionManager | undefined
+        if (parsed.squaddieActions != undefined) {
+            squaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+            squaddieActionManager.addActionsFromJson(parsed.squaddieActions)
+        }
+
+        const missionManager = new MissionManager({
+            missionState,
+            inBattleSquaddieManager,
+            coordinateMapCollectionManager,
+            squaddieActionManager,
+        })
+
+        const rollGenerator = new RollGenerator(parsed.rollGeneratorQueue)
+        const engine = new MissionEngine(missionManager, rollGenerator)
+
+        if (parsed.readiedAction != undefined) {
+            engine.readiedAction = ReadiedActionService.deserialize(
+                parsed.readiedAction as SerializedReadiedAction
+            )
+        }
+
+        if (parsed.actionResults != undefined) {
+            engine.actionResults = ActionResultsService.deserialize(
+                parsed.actionResults as SerializedActionResults
+            )
+        }
+
+        engine.recentPhaseTransitions =
+            parsed.recentPhaseTransitions as TMissionAffiliationTurn[]
+        engine.recentTransitionResults =
+            parsed.recentTransitionResults as SerializedSquaddieActionResult[]
+
+        return engine
     }
 
     private throwIfMissionManagerIsUndefined(callingFunction: string): void {

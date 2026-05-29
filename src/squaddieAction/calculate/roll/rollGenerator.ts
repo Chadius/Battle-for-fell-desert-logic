@@ -25,4 +25,8 @@ export class RollGenerator {
     addToQueue(numbers: number[]) {
         this.queue.push(...numbers)
     }
+
+    getQueue(): number[] {
+        return [...this.queue]
+    }
 }
