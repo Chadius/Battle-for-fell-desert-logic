@@ -1,6 +1,9 @@
 import { MissionEngine } from "../../mission/missionEngine/missionEngine"
 import { MissionManager } from "../../mission/missionManager"
-import { MissionStateService } from "../../mission/missionState"
+import {
+    MissionStateService,
+    type SerializedMissionState,
+} from "../../mission/missionState"
 import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
@@ -97,10 +100,35 @@ export class MissionEngineTestHarness extends MissionEngine {
             outOfBattleSquaddieManager
         )
 
-        const missionState = MissionStateService.new({
+        const missionState = MissionEngineTestHarness.createMissionState()
+
+        const missionManager = new MissionManager({
+            missionState,
+            inBattleSquaddieManager,
+            coordinateMapCollectionManager,
+            squaddieActionManager,
+        })
+
+        missionManager.deployRequiredSquaddies()
+
+        return {
+            missionManager,
+            liniSquaddieId,
+            slitherDemonSquaddieId,
+        }
+    }
+
+    static serializeMissionState(): SerializedMissionState {
+        return MissionStateService.serialize(
+            MissionEngineTestHarness.createMissionState()
+        )
+    }
+
+    private static createMissionState() {
+        return MissionStateService.new({
             id: MissionEngineTestHarnessIds.missionStateId,
             mapId: MissionEngineTestHarnessIds.mapId,
-            objectives: this.createMissionObjectives(),
+            objectives: MissionEngineTestHarness.createMissionObjectives(),
             deployments: {
                 required: [
                     MissionDeploymentService.new({
@@ -120,21 +148,6 @@ export class MissionEngineTestHarness extends MissionEngine {
                 ],
             },
         })
-
-        const missionManager = new MissionManager({
-            missionState,
-            inBattleSquaddieManager,
-            coordinateMapCollectionManager,
-            squaddieActionManager,
-        })
-
-        missionManager.deployRequiredSquaddies()
-
-        return {
-            missionManager,
-            liniSquaddieId,
-            slitherDemonSquaddieId,
-        }
     }
 
     private static readonly createMissionObjectives =
