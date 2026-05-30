@@ -973,6 +973,30 @@ export class MissionEngine {
         return this.missionManager!.validate()
     }
 
+    loadMissionFromJson(data: {
+        squaddies?: unknown
+        attributeSheets?: unknown
+        items?: unknown
+        maps?: unknown
+        actions?: unknown
+        missionState: unknown
+    }): { isValid: boolean; errors: string[] } {
+        this.missionManager ??= new MissionManager()
+        return this.missionManager.loadMissionFromJson(data)
+    }
+
+    finalizeLoadingMission(): { isValid: boolean; errors: string[] } {
+        const validation = this.missionManager?.validate() ?? {
+            isValid: false,
+            errors: ["missionManager is undefined"],
+        }
+        if (!validation.isValid) {
+            return validation
+        }
+        this.missionManager!.deployRequiredSquaddies()
+        return { isValid: true, errors: [] }
+    }
+
     serialize(): SerializedMissionEngine {
         return {
             missionState: this.missionManager?.missionState

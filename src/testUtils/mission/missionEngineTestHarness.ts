@@ -4,6 +4,7 @@ import {
     MissionStateService,
     type SerializedMissionState,
 } from "../../mission/missionState"
+import type { SerializedCoordinateMap } from "../../coordinateMap/coordinateMap"
 import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
 import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
@@ -14,11 +15,16 @@ import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBatt
 import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 import { OutOfBattleSquaddieAttributeSheetService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
+import {
+    OutOfBattleSquaddieService,
+    type SerializedOutOfBattleSquaddie,
+} from "../../squaddie/outOfBattle/outOfBattleSquaddie"
+import type { SerializedOutOfBattleSquaddieAttributeSheet } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import {
     HowToDetermineDegreeOfSuccess,
+    type SerializedSquaddieAction,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction/squaddieAction"
@@ -122,6 +128,22 @@ export class MissionEngineTestHarness extends MissionEngine {
         return MissionStateService.serialize(
             MissionEngineTestHarness.createMissionState()
         )
+    }
+
+    static serializeSquaddies(): SerializedOutOfBattleSquaddie[] {
+        return MissionEngineTestHarness.createOutOfBattleSquaddieManager().serializeSquaddies()
+    }
+
+    static serializeAttributeSheets(): SerializedOutOfBattleSquaddieAttributeSheet[] {
+        return MissionEngineTestHarness.createOutOfBattleSquaddieManager().serializeAttributeSheets()
+    }
+
+    static serializeMaps(): SerializedCoordinateMap[] {
+        return MissionEngineTestHarness.createCoordinateMapCollectionManager().serialize()
+    }
+
+    static serializeActions(): SerializedSquaddieAction[] {
+        return MissionEngineTestHarness.createSquaddieActionManager().serialize()
     }
 
     private static createMissionState() {

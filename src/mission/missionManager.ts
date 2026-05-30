@@ -1,8 +1,8 @@
 import type { MissionState } from "./missionState"
 import { MissionStateService } from "./missionState"
 import {
-    MissionManagerValidationService,
     type MissionManagerValidationInput,
+    MissionManagerValidationService,
 } from "./missionManagerValidationService"
 import {
     MissionAffiliationTurn,
@@ -10,10 +10,11 @@ import {
     MissionTurnService,
     type TMissionAffiliationTurn,
 } from "./missionTurn"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
-import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
+import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { MissionObjectiveRewardType } from "./missionObjectiveReward"
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
@@ -41,6 +42,7 @@ import {
 import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap"
 import type { SquaddieAction } from "../squaddieAction/squaddieAction"
 import { type TSquaddieAffiliation } from "../affiliation/affiliation"
+import { MissionResourceLoader } from "./missionResourceLoader"
 import { SquaddieActionValidationService } from "../squaddieAction/calculate/validity/squaddieActionValidationService"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
 import { AoeTargetResolutionService } from "../squaddieAction/calculate/aoe/aoeTargetResolutionService"
@@ -59,24 +61,28 @@ export class MissionManager {
     inBattleSquaddieManager?: InBattleSquaddieManager
     coordinateMapCollectionManager?: CoordinateMapCollectionManager
     squaddieActionManager?: SquaddieActionManager
+    outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
 
-    private _staged: MissionManagerValidationInput | undefined = undefined
+    private _loader: MissionResourceLoader | undefined = undefined
 
     constructor({
         missionState,
         inBattleSquaddieManager,
         coordinateMapCollectionManager,
         squaddieActionManager,
+        outOfBattleSquaddieManager,
     }: {
         missionState?: MissionState
         inBattleSquaddieManager?: InBattleSquaddieManager
         coordinateMapCollectionManager?: CoordinateMapCollectionManager
         squaddieActionManager?: SquaddieActionManager
+        outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
     } = {}) {
         this.missionState = missionState
         this.inBattleSquaddieManager = inBattleSquaddieManager
         this.coordinateMapCollectionManager = coordinateMapCollectionManager
         this.squaddieActionManager = squaddieActionManager
+        this.outOfBattleSquaddieManager = outOfBattleSquaddieManager
     }
 
     hasMissionEnded(): boolean {
@@ -435,7 +441,7 @@ export class MissionManager {
         )
 
         const mapId = this.missionState!.mapId
-        let mapName = ""
+        let mapName
         try {
             mapName =
                 this.coordinateMapCollectionManager?.getMapById(mapId)?.name ??
@@ -840,34 +846,71 @@ export class MissionManager {
     }
 
     loadMissionStateFromJson(data: unknown): void {
-        this.initializeStagingIfNeeded()
-        this._staged!.missionState = MissionStateService.deserialize(data)
+        this.initializeLoaderIfNeeded()
+        this._loader!.loadMissionStateFromJson(data)
+    }
+
+    addSquaddiesFromJson(data: unknown): string[] {
+        this.initializeLoaderIfNeeded()
+        return this._loader!.addSquaddiesFromJson(data)
+    }
+
+    addAttributeSheetsFromJson(data: unknown): string[] {
+        this.initializeLoaderIfNeeded()
+        return this._loader!.addAttributeSheetsFromJson(data)
+    }
+
+    addItemsFromJson(data: unknown): string[] {
+        this.initializeLoaderIfNeeded()
+        return this._loader!.addItemsFromJson(data)
+    }
+
+    addMapsFromJson(data: unknown): string[] {
+        this.initializeLoaderIfNeeded()
+        return this._loader!.addMapsFromJson(data)
     }
 
     addActionsFromJson(data: unknown): string[] {
-        this.initializeStagingIfNeeded()
-        if (this._staged!.squaddieActionManager == undefined) {
-            this._staged!.squaddieActionManager =
-                this.cloneOrCreateSquaddieActionManager()
-        }
-        return this._staged!.squaddieActionManager.addActionsFromJson(data)
+        this.initializeLoaderIfNeeded()
+        return this._loader!.addActionsFromJson(data)
+    }
+
+    loadMissionFromJson(data: {
+        squaddies?: unknown
+        attributeSheets?: unknown
+        items?: unknown
+        maps?: unknown
+        actions?: unknown
+        missionState: unknown
+    }): { isValid: boolean; errors: string[] } {
+        if (data.squaddies !== undefined)
+            this.addSquaddiesFromJson(data.squaddies)
+        if (data.attributeSheets !== undefined)
+            this.addAttributeSheetsFromJson(data.attributeSheets)
+        if (data.items !== undefined) this.addItemsFromJson(data.items)
+        if (data.maps !== undefined) this.addMapsFromJson(data.maps)
+        if (data.actions !== undefined) this.addActionsFromJson(data.actions)
+        this.loadMissionStateFromJson(data.missionState)
+        return this.validate()
     }
 
     validate(): { isValid: boolean; errors: string[] } {
-        if (this._staged == undefined) {
+        if (this._loader == undefined) {
             return MissionManagerValidationService.validate(this)
         }
 
+        const inBattleSquaddieManager =
+            this.inBattleSquaddieManager ??
+            this.createInBattleSquaddiesFromLoader()
+
         const candidate: MissionManagerValidationInput = {
-            missionState: this._staged.missionState ?? this.missionState,
-            inBattleSquaddieManager:
-                this._staged.inBattleSquaddieManager ??
-                this.inBattleSquaddieManager,
+            missionState: this._loader.missionState ?? this.missionState,
+            inBattleSquaddieManager,
             coordinateMapCollectionManager:
-                this._staged.coordinateMapCollectionManager ??
+                this._loader.coordinateMapCollectionManager ??
                 this.coordinateMapCollectionManager,
             squaddieActionManager:
-                this._staged.squaddieActionManager ??
+                this._loader.squaddieActionManager ??
                 this.squaddieActionManager,
         }
 
@@ -879,24 +922,44 @@ export class MissionManager {
             this.coordinateMapCollectionManager =
                 candidate.coordinateMapCollectionManager
             this.squaddieActionManager = candidate.squaddieActionManager
+            this.outOfBattleSquaddieManager =
+                this._loader.outOfBattleSquaddieManager ??
+                this.outOfBattleSquaddieManager
         }
 
-        this._staged = undefined
+        this._loader = undefined
         return result
     }
 
-    private initializeStagingIfNeeded(): void {
-        if (this._staged == undefined) this._staged = {}
+    private createInBattleSquaddiesFromLoader():
+        | InBattleSquaddieManager
+        | undefined {
+        if (
+            this._loader?.outOfBattleSquaddieManager == undefined ||
+            this._loader?.missionState == undefined
+        ) {
+            return undefined
+        }
+
+        const manager = new InBattleSquaddieManager(
+            InBattleSquaddieCollectionService.new(),
+            this._loader.outOfBattleSquaddieManager
+        )
+
+        const pending = MissionStateService.getPendingDeployments(
+            this._loader.missionState
+        )
+        for (const deployment of pending) {
+            manager.createNewSquaddie({
+                outOfBattleSquaddieId: deployment.outOfBattleSquaddieId,
+            })
+        }
+
+        return manager
     }
 
-    private cloneOrCreateSquaddieActionManager(): SquaddieActionManager {
-        const manager = new SquaddieActionManager(
-            SquaddieActionCollectionService.new()
-        )
-        if (this.squaddieActionManager != undefined) {
-            manager.addActionsFromJson(this.squaddieActionManager.serialize())
-        }
-        return manager
+    private initializeLoaderIfNeeded(): void {
+        this._loader ??= new MissionResourceLoader()
     }
 
     private throwIfStateIsUndefined(callName: string) {

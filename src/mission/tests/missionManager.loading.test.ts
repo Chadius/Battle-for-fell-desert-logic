@@ -18,6 +18,9 @@ import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
 import { ActionRange } from "../../squaddieAction/actionRange"
 import { CoordinateGeneratorShape } from "../../coordinateMap/shape"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
+import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
+import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
 
 describe("MissionManager", () => {
     describe("deployRequiredSquaddies", () => {
@@ -377,6 +380,117 @@ describe("MissionManager", () => {
             const empty = new MissionManager()
             expect(() => empty.addActionsFromJson([])).not.toThrow()
             expect(empty.squaddieActionManager).toBeUndefined()
+        })
+
+        describe("addSquaddiesFromJson", () => {
+            let sourceOutOfBattleSquaddieManager: OutOfBattleSquaddieManager
+
+            beforeEach(() => {
+                const { manager, attributeSheet } =
+                    OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                        {
+                            sheetId: "hero_sheet",
+                            attributeSheetOptions: { maxHitPoints: 10 },
+                        }
+                    )
+                manager.addOrUpdateSquaddie(
+                    OutOfBattleSquaddieService.new({
+                        id: "hero",
+                        name: "Hero",
+                        affiliation: SquaddieAffiliation.PLAYER,
+                        attributeSheetId: attributeSheet.id,
+                    })
+                )
+                sourceOutOfBattleSquaddieManager = manager
+            })
+
+            it("loads squaddies into outOfBattleSquaddieManager after validate", () => {
+                const targetManager = new MissionManager({
+                    missionState: MissionStateService.new({
+                        id: "mission-1",
+                        mapId: "test-map",
+                    }),
+                    inBattleSquaddieManager,
+                    coordinateMapCollectionManager,
+                    squaddieActionManager,
+                })
+                const errors = targetManager.addSquaddiesFromJson(
+                    sourceOutOfBattleSquaddieManager.serializeSquaddies()
+                )
+                expect(errors).toHaveLength(0)
+                targetManager.validate()
+                expect(
+                    targetManager.outOfBattleSquaddieManager?.getRawOutOfBattleSquaddie(
+                        "hero"
+                    )
+                ).toBeDefined()
+            })
+
+            it("returns errors for invalid data", () => {
+                const errors = manager.addSquaddiesFromJson([
+                    { notASquaddie: true },
+                ])
+                expect(errors).toHaveLength(1)
+            })
+
+            it("works without a pre-existing outOfBattleSquaddieManager", () => {
+                const empty = new MissionManager()
+                expect(() => empty.addSquaddiesFromJson([])).not.toThrow()
+                expect(empty.outOfBattleSquaddieManager).toBeUndefined()
+            })
+        })
+
+        describe("addAttributeSheetsFromJson", () => {
+            let sourceOutOfBattleSquaddieManager: OutOfBattleSquaddieManager
+
+            beforeEach(() => {
+                sourceOutOfBattleSquaddieManager =
+                    new OutOfBattleSquaddieManager(
+                        OutOfBattleSquaddieCollectionService.new(),
+                        OutOfBattleSquaddieAttributeSheetCollectionService.new()
+                    )
+                sourceOutOfBattleSquaddieManager.addOrUpdateAttributeSheet(
+                    OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                        id: "hero_sheet",
+                        maxHitPoints: 10,
+                    })
+                )
+            })
+
+            it("loads attribute sheets into outOfBattleSquaddieManager after validate", () => {
+                const targetManager = new MissionManager({
+                    missionState: MissionStateService.new({
+                        id: "mission-1",
+                        mapId: "test-map",
+                    }),
+                    inBattleSquaddieManager,
+                    coordinateMapCollectionManager,
+                    squaddieActionManager,
+                })
+                const errors = targetManager.addAttributeSheetsFromJson(
+                    sourceOutOfBattleSquaddieManager.serializeAttributeSheets()
+                )
+                expect(errors).toHaveLength(0)
+                targetManager.validate()
+                expect(() =>
+                    targetManager.outOfBattleSquaddieManager?.getAttributeSheet(
+                        "hero_sheet"
+                    )
+                ).not.toThrow()
+            })
+
+            it("returns errors for invalid data", () => {
+                const errors = manager.addAttributeSheetsFromJson([
+                    { notASheet: true },
+                ])
+                expect(errors).toHaveLength(1)
+            })
+
+            it("works without a pre-existing outOfBattleSquaddieManager", () => {
+                const empty = new MissionManager()
+                expect(() => empty.addAttributeSheetsFromJson([])).not.toThrow()
+                expect(empty.outOfBattleSquaddieManager).toBeUndefined()
+            })
         })
     })
 
