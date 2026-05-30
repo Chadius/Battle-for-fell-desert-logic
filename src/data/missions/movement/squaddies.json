@@ -1,0 +1,23 @@
+[
+    {
+        "id": "fracta",
+        "name": "Fracta",
+        "attributeSheetId": "fracta-attribute-sheet",
+        "actionIds": ["fracta-axe-strike", "fracta-leap"],
+        "affiliation": "PLAYER"
+    },
+    {
+        "id": "vale-movement-test",
+        "name": "Vale",
+        "attributeSheetId": "vale-movement-test-attribute-sheet",
+        "actionIds": ["vale-mt-rescue", "vale-mt-gravity-pull"],
+        "affiliation": "PLAYER"
+    },
+    {
+        "id": "slither-demon-v3",
+        "name": "Slither Demon",
+        "attributeSheetId": "slither-demon-v3-attribute-sheet",
+        "actionIds": ["slither-demon-v3-bite"],
+        "affiliation": "ENEMY"
+    }
+]

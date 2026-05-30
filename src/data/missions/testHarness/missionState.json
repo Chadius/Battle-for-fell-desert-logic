@@ -1,0 +1,68 @@
+{
+    "id": "test-harness-mission",
+    "mapId": "test-harness-map",
+    "objectives": [
+        {
+            "id": "missionObjectiveDefeatAllEnemies",
+            "rewards": [
+                {
+                    "type": "MISSION_ENDS"
+                }
+            ],
+            "criteria": [
+                {
+                    "type": "SQUADDIES_DEFEATED",
+                    "affiliations": ["ENEMY"]
+                }
+            ],
+            "hasGivenReward": false
+        },
+        {
+            "id": "missionObjectiveDefeatAllPlayers",
+            "rewards": [
+                {
+                    "type": "MISSION_FAILURE"
+                }
+            ],
+            "criteria": [
+                {
+                    "type": "SQUADDIES_DEFEATED",
+                    "affiliations": ["PLAYER"]
+                }
+            ],
+            "hasGivenReward": false
+        }
+    ],
+    "turn": {
+        "turnCount": 0,
+        "missionAffiliationTurn": "TURN_START"
+    },
+    "history": {
+        "turns": []
+    },
+    "deployments": {
+        "required": [
+            {
+                "id": "lini",
+                "outOfBattleSquaddieId": "lini",
+                "coordinates": [
+                    {
+                        "row": 0,
+                        "col": 0
+                    }
+                ]
+            },
+            {
+                "id": "slither-demon",
+                "outOfBattleSquaddieId": "slither-demon",
+                "coordinates": [
+                    {
+                        "row": 3,
+                        "col": 4
+                    }
+                ]
+            }
+        ],
+        "completedDeploymentIds": []
+    }
+}

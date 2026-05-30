@@ -1,0 +1,106 @@
+[
+    {
+        "id": "sneak-attack-map-id",
+        "name": "Sneak Attack Test",
+        "coordinates": [
+            [
+                {
+                    "row": 0,
+                    "col": 0,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 0,
+                    "col": 1,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 0,
+                    "col": 2,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 0,
+                    "col": 3,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 0,
+                    "col": 4,
+                    "movementCost": 1,
+                    "canStop": true
+                }
+            ],
+            [
+                {
+                    "row": 1,
+                    "col": 0,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 1,
+                    "col": 1,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 1,
+                    "col": 2,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 1,
+                    "col": 3,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 1,
+                    "col": 4,
+                    "movementCost": 1,
+                    "canStop": true
+                }
+            ],
+            [
+                {
+                    "row": 2,
+                    "col": 0,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 2,
+                    "col": 1,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 2,
+                    "col": 2,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 2,
+                    "col": 3,
+                    "movementCost": 1,
+                    "canStop": true
+                },
+                {
+                    "row": 2,
+                    "col": 4,
+                    "movementCost": 1,
+                    "canStop": true
+                }
+            ]
+        ],
+        "coordinateBySquaddie": {},
+        "coordinatesSquaddiesCannotStopOn": []
+    }
+]

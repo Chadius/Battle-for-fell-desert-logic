@@ -1,21 +1,34 @@
 import { MissionManager } from "../../mission/missionManager"
-import { MissionStateService } from "../../mission/missionState"
+import {
+    MissionStateService,
+    type SerializedMissionState,
+} from "../../mission/missionState"
 import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
+import {
+    CoordinateMapService,
+    type SerializedCoordinateMap,
+} from "../../coordinateMap/coordinateMap"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
+import {
+    OutOfBattleSquaddieAttributeSheetService,
+    type SerializedOutOfBattleSquaddieAttributeSheet,
+} from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import {
+    OutOfBattleSquaddieService,
+    type SerializedOutOfBattleSquaddie,
+} from "../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import {
     HowToDetermineDegreeOfSuccess,
     MovementEffectType,
+    type SerializedSquaddieAction,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction/squaddieAction"
@@ -591,4 +604,51 @@ function createInBattleSquaddieManager(
         valeSquaddieId,
         demonSquaddieId,
     }
+}
+
+export function serializeMissionState(): SerializedMissionState {
+    const missionState = MissionStateService.new({
+        id: SneakAttackMissionIds.missionStateId,
+        mapId: SneakAttackMissionIds.mapId,
+        objectives: createMissionObjectives(),
+        deployments: {
+            required: [
+                MissionDeploymentService.new({
+                    id: "lini",
+                    outOfBattleSquaddieId:
+                        SneakAttackMissionIds.lini.outOfBattleSquaddieId,
+                    coordinates: [{ row: 1, col: 0 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "vale",
+                    outOfBattleSquaddieId:
+                        SneakAttackMissionIds.vale.outOfBattleSquaddieId,
+                    coordinates: [{ row: 1, col: 2 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "demon",
+                    outOfBattleSquaddieId:
+                        SneakAttackMissionIds.demon.outOfBattleSquaddieId,
+                    coordinates: [{ row: 1, col: 1 }],
+                }),
+            ],
+        },
+    })
+    return MissionStateService.serialize(missionState)
+}
+
+export function serializeSquaddies(): SerializedOutOfBattleSquaddie[] {
+    return createOutOfBattleSquaddieManager().serializeSquaddies()
+}
+
+export function serializeAttributeSheets(): SerializedOutOfBattleSquaddieAttributeSheet[] {
+    return createOutOfBattleSquaddieManager().serializeAttributeSheets()
+}
+
+export function serializeMaps(): SerializedCoordinateMap[] {
+    return createCoordinateMapCollectionManager().serialize()
+}
+
+export function serializeActions(): SerializedSquaddieAction[] {
+    return createSquaddieActionManager().serialize()
 }

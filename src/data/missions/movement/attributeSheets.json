@@ -1,0 +1,72 @@
+[
+    {
+        "id": "fracta-attribute-sheet",
+        "maxHitPoints": 5,
+        "movement": {
+            "movementPointsPerAction": 3,
+            "skipOverPits": false,
+            "moveThroughWalls": false,
+            "stopOnSquaddies": false,
+            "reduceMoveCosts": false
+        },
+        "proficiencyLevels": {
+            "WEAPON_MARTIAL": "EXPERT"
+        },
+        "attributeScores": {
+            "BODY": 2,
+            "MIND": -1,
+            "SOUL": 0
+        },
+        "rank": 1,
+        "items": {
+            "maxCapacity": 3,
+            "itemIds": []
+        }
+    },
+    {
+        "id": "vale-movement-test-attribute-sheet",
+        "maxHitPoints": 4,
+        "movement": {
+            "movementPointsPerAction": 2,
+            "skipOverPits": false,
+            "moveThroughWalls": false,
+            "stopOnSquaddies": false,
+            "reduceMoveCosts": false
+        },
+        "proficiencyLevels": {
+            "SKILL_MIND": "EXPERT"
+        },
+        "attributeScores": {
+            "BODY": 0,
+            "MIND": 2,
+            "SOUL": 0
+        },
+        "rank": 1,
+        "items": {
+            "maxCapacity": 3,
+            "itemIds": []
+        }
+    },
+    {
+        "id": "slither-demon-v3-attribute-sheet",
+        "maxHitPoints": 3,
+        "movement": {
+            "movementPointsPerAction": 2,
+            "skipOverPits": false,
+            "moveThroughWalls": false,
+            "stopOnSquaddies": false,
+            "reduceMoveCosts": false
+        },
+        "proficiencyLevels": {},
+        "attributeScores": {
+            "BODY": 0,
+            "MIND": -1,
+            "SOUL": -1
+        },
+        "rank": 0,
+        "items": {
+            "maxCapacity": 3,
+            "itemIds": []
+        }
+    }
+]

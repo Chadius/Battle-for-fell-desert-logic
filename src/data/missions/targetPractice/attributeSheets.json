@@ -1,0 +1,73 @@
+[
+    {
+        "id": "vale-attribute-sheet",
+        "maxHitPoints": 4,
+        "movement": {
+            "movementPointsPerAction": 2,
+            "skipOverPits": true,
+            "moveThroughWalls": false,
+            "stopOnSquaddies": false,
+            "reduceMoveCosts": true
+        },
+        "proficiencyLevels": {
+            "SKILL_MIND": "EXPERT"
+        },
+        "attributeScores": {
+            "BODY": -1,
+            "MIND": 2,
+            "SOUL": 1
+        },
+        "rank": 1,
+        "items": {
+            "maxCapacity": 3,
+            "itemIds": []
+        }
+    },
+    {
+        "id": "gloria-attribute-sheet",
+        "maxHitPoints": 6,
+        "movement": {
+            "movementPointsPerAction": 2,
+            "skipOverPits": false,
+            "moveThroughWalls": false,
+            "stopOnSquaddies": false,
+            "reduceMoveCosts": false
+        },
+        "proficiencyLevels": {
+            "WEAPON_MARTIAL": "EXPERT",
+            "ARMOR": "EXPERT"
+        },
+        "attributeScores": {
+            "BODY": 2,
+            "MIND": -1,
+            "SOUL": 1
+        },
+        "rank": 1,
+        "items": {
+            "maxCapacity": 3,
+            "itemIds": []
+        }
+    },
+    {
+        "id": "slither-demon-v2-attribute-sheet",
+        "maxHitPoints": 3,
+        "movement": {
+            "movementPointsPerAction": 2,
+            "skipOverPits": false,
+            "moveThroughWalls": false,
+            "stopOnSquaddies": false,
+            "reduceMoveCosts": false
+        },
+        "proficiencyLevels": {},
+        "attributeScores": {
+            "BODY": 0,
+            "MIND": -1,
+            "SOUL": -1
+        },
+        "rank": 0,
+        "items": {
+            "maxCapacity": 3,
+            "itemIds": []
+        }
+    }
+]

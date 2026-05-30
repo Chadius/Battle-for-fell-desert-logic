@@ -1,0 +1,451 @@
+[
+    {
+        "id": "vale-lightning-bolt",
+        "name": "Lightning Bolt",
+        "attribute": "MIND",
+        "degreesOfSuccess": ["SUCCESS", "FAILURE"],
+        "targeting": {
+            "range": "LONG",
+            "shape": "LINE",
+            "affiliationRelationship": {
+                "self": false,
+                "foe": true,
+                "friend": false
+            },
+            "areaOfEffectSize": 0,
+            "aimCoordinateRequiresTarget": true,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "SKILL_MIND",
+        "howToDetermineDegreeOfSuccess": "ACTOR_ROLLS_TO_HIT",
+        "multipleAttackPenalty": {
+            "applies": false,
+            "contribution": 0
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": 2
+                }
+            }
+        },
+        "effectOnTarget": {
+            "SUCCESS": {
+                "damage": {
+                    "raw": 2,
+                    "targetProficiency": "ARMOR"
+                }
+            },
+            "FAILURE": {}
+        }
+    },
+    {
+        "id": "vale-dagger",
+        "name": "Dagger Stab",
+        "attribute": "BODY",
+        "degreesOfSuccess": ["SUCCESS", "CRITICAL", "FAILURE"],
+        "targeting": {
+            "range": "MELEE",
+            "shape": "BLOOM",
+            "affiliationRelationship": {
+                "self": false,
+                "foe": true,
+                "friend": false
+            },
+            "areaOfEffectSize": 0,
+            "aimCoordinateRequiresTarget": true,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "WEAPON_SIMPLE",
+        "howToDetermineDegreeOfSuccess": "ACTOR_ROLLS_TO_HIT",
+        "multipleAttackPenalty": {
+            "applies": true,
+            "contribution": 1
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": 1
+                }
+            }
+        },
+        "effectOnTarget": {
+            "SUCCESS": {
+                "damage": {
+                    "raw": 1,
+                    "targetProficiency": "ARMOR",
+                    "sneakAttackDamage": 1
+                }
+            },
+            "CRITICAL": {
+                "damage": {
+                    "raw": 2,
+                    "targetProficiency": "ARMOR",
+                    "sneakAttackDamage": 2
+                }
+            },
+            "FAILURE": {}
+        }
+    },
+    {
+        "id": "vale-intimidating-glare",
+        "name": "Intimidating Glare",
+        "attribute": "MIND",
+        "degreesOfSuccess": ["CRITICAL", "SUCCESS", "FAILURE"],
+        "targeting": {
+            "range": "SHORT",
+            "shape": "BLOOM",
+            "affiliationRelationship": {
+                "self": false,
+                "foe": true,
+                "friend": false
+            },
+            "areaOfEffectSize": 0,
+            "aimCoordinateRequiresTarget": true,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "SKILL_MIND",
+        "howToDetermineDegreeOfSuccess": "ACTOR_ROLLS_TO_HIT",
+        "multipleAttackPenalty": {
+            "applies": false,
+            "contribution": 0
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": 1
+                }
+            },
+            "CRITICAL": {
+                "actionPoints": {
+                    "spent": 1
+                }
+            }
+        },
+        "effectOnTarget": {
+            "SUCCESS": {
+                "conditions": {
+                    "add": [
+                        {
+                            "type": "FRIGHTENED",
+                            "source": "SPIRITUAL",
+                            "amount": {
+                                "current": 1,
+                                "base": 1
+                            },
+                            "limit": {
+                                "duration": {
+                                    "duration": 1,
+                                    "decaysAt": "TURN_END"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "CRITICAL": {
+                "conditions": {
+                    "add": [
+                        {
+                            "type": "FRIGHTENED",
+                            "source": "SPIRITUAL",
+                            "amount": {
+                                "current": 2,
+                                "base": 2
+                            },
+                            "limit": {
+                                "duration": {
+                                    "duration": 2,
+                                    "decaysAt": "TURN_END"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "FAILURE": {}
+        }
+    },
+    {
+        "id": "gloria-longsword",
+        "name": "Longsword",
+        "attribute": "BODY",
+        "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
+        "targeting": {
+            "range": "MELEE",
+            "shape": "BLOOM",
+            "affiliationRelationship": {
+                "self": false,
+                "foe": true,
+                "friend": false
+            },
+            "areaOfEffectSize": 0,
+            "aimCoordinateRequiresTarget": true,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "WEAPON_MARTIAL",
+        "howToDetermineDegreeOfSuccess": "ACTOR_ROLLS_TO_HIT",
+        "multipleAttackPenalty": {
+            "applies": true,
+            "contribution": 1
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": 1
+                }
+            }
+        },
+        "effectOnTarget": {
+            "SUCCESS": {
+                "damage": {
+                    "raw": 2,
+                    "targetProficiency": "ARMOR"
+                }
+            },
+            "CRITICAL": {
+                "damage": {
+                    "raw": 4,
+                    "targetProficiency": "ARMOR"
+                }
+            },
+            "FAILURE": {}
+        }
+    },
+    {
+        "id": "gloria-shield",
+        "name": "Shield",
+        "attribute": "BODY",
+        "degreesOfSuccess": ["SUCCESS"],
+        "targeting": {
+            "range": "SELF",
+            "shape": "BLOOM",
+            "affiliationRelationship": {
+                "self": true,
+                "foe": false,
+                "friend": false
+            },
+            "areaOfEffectSize": 0,
+            "aimCoordinateRequiresTarget": true,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "SKILL_BODY",
+        "howToDetermineDegreeOfSuccess": "AUTOMATIC_SUCCESS",
+        "multipleAttackPenalty": {
+            "applies": false,
+            "contribution": 0
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": 1
+                }
+            }
+        },
+        "effectOnTarget": {
+            "SUCCESS": {
+                "conditions": {
+                    "add": [
+                        {
+                            "type": "ARMOR",
+                            "source": "ITEM",
+                            "amount": {
+                                "current": 1,
+                                "base": 1
+                            },
+                            "limit": {
+                                "duration": {
+                                    "duration": 1,
+                                    "decaysAt": "TURN_START"
+                                }
+                            }
+                        },
+                        {
+                            "type": "ABSORB",
+                            "source": "ITEM",
+                            "amount": {
+                                "current": 1,
+                                "base": 1
+                            },
+                            "limit": {
+                                "duration": {
+                                    "duration": 1,
+                                    "decaysAt": "TURN_START"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    {
+        "id": "gloria-sweep",
+        "name": "Sweep",
+        "attribute": "BODY",
+        "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
+        "targeting": {
+            "range": "MELEE",
+            "shape": "LINE",
+            "affiliationRelationship": {
+                "self": false,
+                "foe": true,
+                "friend": false
+            },
+            "areaOfEffectSize": 1,
+            "aimCoordinateRequiresTarget": false,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "WEAPON_MARTIAL",
+        "howToDetermineDegreeOfSuccess": "ACTOR_ROLLS_TO_HIT",
+        "multipleAttackPenalty": {
+            "applies": true,
+            "contribution": 1
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": 2
+                }
+            }
+        },
+        "effectOnTarget": {
+            "SUCCESS": {
+                "damage": {
+                    "raw": 2,
+                    "targetProficiency": "ARMOR"
+                }
+            },
+            "CRITICAL": {
+                "damage": {
+                    "raw": 4,
+                    "targetProficiency": "ARMOR"
+                }
+            },
+            "FAILURE": {}
+        }
+    },
+    {
+        "id": "slither-demon-v2-bite",
+        "name": "Bite",
+        "attribute": "BODY",
+        "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
+        "targeting": {
+            "range": "MELEE",
+            "shape": "BLOOM",
+            "affiliationRelationship": {
+                "self": false,
+                "foe": true,
+                "friend": false
+            },
+            "areaOfEffectSize": 0,
+            "aimCoordinateRequiresTarget": true,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "WEAPON_NATURAL",
+        "howToDetermineDegreeOfSuccess": "ACTOR_ROLLS_TO_HIT",
+        "multipleAttackPenalty": {
+            "applies": true,
+            "contribution": 1
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": 1
+                }
+            }
+        },
+        "effectOnTarget": {
+            "SUCCESS": {
+                "damage": {
+                    "raw": 2,
+                    "targetProficiency": "ARMOR"
+                }
+            },
+            "CRITICAL": {
+                "damage": {
+                    "raw": 3,
+                    "targetProficiency": "ARMOR"
+                }
+            },
+            "FAILURE": {}
+        }
+    },
+    {
+        "id": "default-move",
+        "name": "Move",
+        "attribute": "BODY",
+        "degreesOfSuccess": ["SUCCESS"],
+        "targeting": {
+            "range": "MELEE",
+            "shape": "BLOOM",
+            "affiliationRelationship": {
+                "self": true,
+                "foe": false,
+                "friend": false
+            },
+            "areaOfEffectSize": 0,
+            "aimCoordinateRequiresTarget": true,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "UNKNOWN",
+        "howToDetermineDegreeOfSuccess": "AUTOMATIC_SUCCESS",
+        "multipleAttackPenalty": {
+            "applies": false,
+            "contribution": 0
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": 0,
+                    "additional": {
+                        "movementPathActionPointCost": true
+                    }
+                },
+                "movement": {
+                    "movementType": "ACTOR_CHOSEN"
+                }
+            }
+        }
+    },
+    {
+        "id": "default-end-turn",
+        "name": "End Turn",
+        "attribute": "BODY",
+        "degreesOfSuccess": ["SUCCESS"],
+        "targeting": {
+            "range": "SELF",
+            "shape": "BLOOM",
+            "affiliationRelationship": {
+                "self": true,
+                "foe": false,
+                "friend": false
+            },
+            "areaOfEffectSize": 0,
+            "aimCoordinateRequiresTarget": true,
+            "skipOverPits": true,
+            "moveThroughWalls": false
+        },
+        "proficiency": "UNKNOWN",
+        "howToDetermineDegreeOfSuccess": "AUTOMATIC_SUCCESS",
+        "multipleAttackPenalty": {
+            "applies": false,
+            "contribution": 0
+        },
+        "effectOnActor": {
+            "SUCCESS": {
+                "actionPoints": {
+                    "spent": "all"
+                }
+            }
+        }
+    }
+]

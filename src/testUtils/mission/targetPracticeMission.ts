@@ -1,20 +1,33 @@
 import { MissionManager } from "../../mission/missionManager"
-import { MissionStateService } from "../../mission/missionState"
+import {
+    MissionStateService,
+    type SerializedMissionState,
+} from "../../mission/missionState"
 import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
+import {
+    CoordinateMapService,
+    type SerializedCoordinateMap,
+} from "../../coordinateMap/coordinateMap"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
+import {
+    OutOfBattleSquaddieAttributeSheetService,
+    type SerializedOutOfBattleSquaddieAttributeSheet,
+} from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import {
+    OutOfBattleSquaddieService,
+    type SerializedOutOfBattleSquaddie,
+} from "../../squaddie/outOfBattle/outOfBattleSquaddie"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import {
     HowToDetermineDegreeOfSuccess,
+    type SerializedSquaddieAction,
     type SquaddieAction,
     SquaddieActionService,
 } from "../../squaddieAction/squaddieAction"
@@ -624,4 +637,57 @@ function createInBattleSquaddieManager(
         gloriaSquaddieId,
         demonSquaddieIds,
     }
+}
+
+export function serializeMissionState(): SerializedMissionState {
+    const missionState = MissionStateService.new({
+        id: ValeAndGloriaMissionIds.missionStateId,
+        mapId: ValeAndGloriaMissionIds.mapId,
+        objectives: createMissionObjectives(),
+        deployments: {
+            required: [
+                MissionDeploymentService.new({
+                    id: "vale",
+                    outOfBattleSquaddieId:
+                        ValeAndGloriaMissionIds.vale.outOfBattleSquaddieId,
+                    coordinates: [{ row: 2, col: 3 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "gloria",
+                    outOfBattleSquaddieId:
+                        ValeAndGloriaMissionIds.gloria.outOfBattleSquaddieId,
+                    coordinates: [{ row: 3, col: 0 }],
+                }),
+                MissionDeploymentService.new({
+                    id: "demons",
+                    outOfBattleSquaddieId:
+                        ValeAndGloriaMissionIds.slitherDemon
+                            .outOfBattleSquaddieId,
+                    coordinates: [
+                        { row: 2, col: 6 },
+                        { row: 2, col: 7 },
+                        { row: 2, col: 8 },
+                        { row: 2, col: 9 },
+                    ],
+                }),
+            ],
+        },
+    })
+    return MissionStateService.serialize(missionState)
+}
+
+export function serializeSquaddies(): SerializedOutOfBattleSquaddie[] {
+    return createOutOfBattleSquaddieManager().serializeSquaddies()
+}
+
+export function serializeAttributeSheets(): SerializedOutOfBattleSquaddieAttributeSheet[] {
+    return createOutOfBattleSquaddieManager().serializeAttributeSheets()
+}
+
+export function serializeMaps(): SerializedCoordinateMap[] {
+    return createCoordinateMapCollectionManager().serialize()
+}
+
+export function serializeActions(): SerializedSquaddieAction[] {
+    return createSquaddieActionManager().serialize()
 }

@@ -1,0 +1,31 @@
+[
+    {
+        "id": "lini-sneak",
+        "name": "Lini",
+        "attributeSheetId": "lini-sneak-attribute-sheet",
+        "actionIds": [
+            "lini-sneak-scimitar",
+            "lini-sneak-heal",
+            "lini-sneak-solar-sphere"
+        ],
+        "affiliation": "PLAYER"
+    },
+    {
+        "id": "vale-sneak",
+        "name": "Vale",
+        "attributeSheetId": "vale-sneak-attribute-sheet",
+        "actionIds": [
+            "vale-sneak-dagger",
+            "vale-sneak-lightning-bolt",
+            "vale-sneak-rescue"
+        ],
+        "affiliation": "PLAYER"
+    },
+    {
+        "id": "goblin-grunt",
+        "name": "Goblin Grunt",
+        "attributeSheetId": "goblin-grunt-attribute-sheet",
+        "actionIds": ["goblin-grunt-claw"],
+        "affiliation": "ENEMY"
+    }
+]

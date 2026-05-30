@@ -1,0 +1,21 @@
+[
+    {
+        "id": "lini",
+        "name": "Lini",
+        "attributeSheetId": "lini-attribute-sheet",
+        "actionIds": [
+            "lini-scimitar",
+            "lini-blessing",
+            "lini-heal",
+            "lini-solar-sphere"
+        ],
+        "affiliation": "PLAYER"
+    },
+    {
+        "id": "slither-demon",
+        "name": "Slither Demon",
+        "attributeSheetId": "slither-demon-attribute-sheet",
+        "actionIds": ["slither-demon-claw"],
+        "affiliation": "ENEMY"
+    }
+]

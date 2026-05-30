@@ -1,0 +1,90 @@
+{
+    "id": "targetPracticeMissionId",
+    "mapId": "target-practice-map-id",
+    "objectives": [
+        {
+            "id": "vg-missionObjectiveDefeatAllEnemies",
+            "rewards": [
+                {
+                    "type": "MISSION_ENDS"
+                }
+            ],
+            "criteria": [
+                {
+                    "type": "SQUADDIES_DEFEATED",
+                    "affiliations": ["ENEMY"]
+                }
+            ],
+            "hasGivenReward": false
+        },
+        {
+            "id": "vg-missionObjectiveDefeatAllPlayers",
+            "rewards": [
+                {
+                    "type": "MISSION_FAILURE"
+                }
+            ],
+            "criteria": [
+                {
+                    "type": "SQUADDIES_DEFEATED",
+                    "affiliations": ["PLAYER"]
+                }
+            ],
+            "hasGivenReward": false
+        }
+    ],
+    "turn": {
+        "turnCount": 0,
+        "missionAffiliationTurn": "TURN_START"
+    },
+    "history": {
+        "turns": []
+    },
+    "deployments": {
+        "required": [
+            {
+                "id": "vale",
+                "outOfBattleSquaddieId": "vale",
+                "coordinates": [
+                    {
+                        "row": 2,
+                        "col": 3
+                    }
+                ]
+            },
+            {
+                "id": "gloria",
+                "outOfBattleSquaddieId": "gloria",
+                "coordinates": [
+                    {
+                        "row": 3,
+                        "col": 0
+                    }
+                ]
+            },
+            {
+                "id": "demons",
+                "outOfBattleSquaddieId": "slither-demon-v2",
+                "coordinates": [
+                    {
+                        "row": 2,
+                        "col": 6
+                    },
+                    {
+                        "row": 2,
+                        "col": 7
+                    },
+                    {
+                        "row": 2,
+                        "col": 8
+                    },
+                    {
+                        "row": 2,
+                        "col": 9
+                    }
+                ]
+            }
+        ],
+        "completedDeploymentIds": []
+    }
+}

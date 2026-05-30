@@ -1,0 +1,78 @@
+{
+    "id": "sneakAttackMissionId",
+    "mapId": "sneak-attack-map-id",
+    "objectives": [
+        {
+            "id": "sneak-missionObjectiveDefeatAllEnemies",
+            "rewards": [
+                {
+                    "type": "MISSION_ENDS"
+                }
+            ],
+            "criteria": [
+                {
+                    "type": "SQUADDIES_DEFEATED",
+                    "affiliations": ["ENEMY"]
+                }
+            ],
+            "hasGivenReward": false
+        },
+        {
+            "id": "sneak-missionObjectiveDefeatAllPlayers",
+            "rewards": [
+                {
+                    "type": "MISSION_FAILURE"
+                }
+            ],
+            "criteria": [
+                {
+                    "type": "SQUADDIES_DEFEATED",
+                    "affiliations": ["PLAYER"]
+                }
+            ],
+            "hasGivenReward": false
+        }
+    ],
+    "turn": {
+        "turnCount": 0,
+        "missionAffiliationTurn": "TURN_START"
+    },
+    "history": {
+        "turns": []
+    },
+    "deployments": {
+        "required": [
+            {
+                "id": "lini",
+                "outOfBattleSquaddieId": "lini-sneak",
+                "coordinates": [
+                    {
+                        "row": 1,
+                        "col": 0
+                    }
+                ]
+            },
+            {
+                "id": "vale",
+                "outOfBattleSquaddieId": "vale-sneak",
+                "coordinates": [
+                    {
+                        "row": 1,
+                        "col": 2
+                    }
+                ]
+            },
+            {
+                "id": "demon",
+                "outOfBattleSquaddieId": "goblin-grunt",
+                "coordinates": [
+                    {
+                        "row": 1,
+                        "col": 1
+                    }
+                ]
+            }
+        ],
+        "completedDeploymentIds": []
+    }
+}
