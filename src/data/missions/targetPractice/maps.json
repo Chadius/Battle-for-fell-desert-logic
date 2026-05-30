@@ -1,316 +1,326 @@
-[
-    {
-        "id": "target-practice-map-id",
-        "name": "Target Practice",
-        "coordinates": [
-            [
-                {
-                    "row": 0,
-                    "col": 0,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 1,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 2,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 3,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 4,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 5,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 6,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 7,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 8,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 0,
-                    "col": 9,
-                    "movementCost": 2,
-                    "canStop": true
-                }
+{
+    "createdAt": "2026-05-30T18:05:25.808Z",
+    "updatedAt": "2026-05-30T18:05:45.946Z",
+    "data": [
+        {
+            "id": "target-practice-map-id",
+            "name": "Target Practice",
+            "coordinates": [
+                [
+                    {
+                        "row": 0,
+                        "col": 0,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 1,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 2,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 3,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 4,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 5,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 6,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 7,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 8,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 0,
+                        "col": 9,
+                        "movementCost": 2,
+                        "canStop": true
+                    }
+                ],
+                [
+                    {
+                        "row": 1,
+                        "col": 0,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 1,
+                        "col": 1,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 1,
+                        "col": 2,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 1,
+                        "col": 3,
+                        "canStop": false
+                    },
+                    {
+                        "row": 1,
+                        "col": 4,
+                        "canStop": false
+                    },
+                    {
+                        "row": 1,
+                        "col": 5,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 1,
+                        "col": 6,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 1,
+                        "col": 7,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 1,
+                        "col": 8,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 1,
+                        "col": 9,
+                        "movementCost": 2,
+                        "canStop": true
+                    }
+                ],
+                [
+                    {
+                        "row": 2,
+                        "col": 0,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 2,
+                        "col": 1,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 2,
+                        "col": 2,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 2,
+                        "col": 3,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 2,
+                        "col": 4,
+                        "movementCost": 1,
+                        "canStop": false
+                    },
+                    {
+                        "row": 2,
+                        "col": 5,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 2,
+                        "col": 6,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 2,
+                        "col": 7,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 2,
+                        "col": 8,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 2,
+                        "col": 9,
+                        "movementCost": 2,
+                        "canStop": true
+                    }
+                ],
+                [
+                    {
+                        "row": 3,
+                        "col": 0,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 3,
+                        "col": 1,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 3,
+                        "col": 2,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 3,
+                        "col": 3,
+                        "canStop": false
+                    },
+                    {
+                        "row": 3,
+                        "col": 4,
+                        "canStop": false
+                    },
+                    {
+                        "row": 3,
+                        "col": 5,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 3,
+                        "col": 6,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 3,
+                        "col": 7,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 3,
+                        "col": 8,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 3,
+                        "col": 9,
+                        "movementCost": 2,
+                        "canStop": true
+                    }
+                ],
+                [
+                    {
+                        "row": 4,
+                        "col": 0,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 1,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 2,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 3,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 4,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 5,
+                        "movementCost": 1,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 6,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 7,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 8,
+                        "movementCost": 2,
+                        "canStop": true
+                    },
+                    {
+                        "row": 4,
+                        "col": 9,
+                        "movementCost": 2,
+                        "canStop": true
+                    }
+                ]
             ],
-            [
-                {
-                    "row": 1,
-                    "col": 0,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 1,
-                    "col": 1,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 1,
-                    "col": 2,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 1,
-                    "col": 3,
-                    "canStop": false
-                },
-                {
-                    "row": 1,
-                    "col": 4,
-                    "canStop": false
-                },
-                {
-                    "row": 1,
-                    "col": 5,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 1,
-                    "col": 6,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 1,
-                    "col": 7,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 1,
-                    "col": 8,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 1,
-                    "col": 9,
-                    "movementCost": 2,
-                    "canStop": true
-                }
-            ],
-            [
-                {
-                    "row": 2,
-                    "col": 0,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 2,
-                    "col": 1,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 2,
-                    "col": 2,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 2,
-                    "col": 3,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 2,
-                    "col": 4,
-                    "movementCost": 1,
-                    "canStop": false
-                },
-                {
-                    "row": 2,
-                    "col": 5,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 2,
-                    "col": 6,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 2,
-                    "col": 7,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 2,
-                    "col": 8,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 2,
-                    "col": 9,
-                    "movementCost": 2,
-                    "canStop": true
-                }
-            ],
-            [
-                {
-                    "row": 3,
-                    "col": 0,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 3,
-                    "col": 1,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 3,
-                    "col": 2,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 3,
-                    "col": 3,
-                    "canStop": false
-                },
-                {
-                    "row": 3,
-                    "col": 4,
-                    "canStop": false
-                },
-                {
-                    "row": 3,
-                    "col": 5,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 3,
-                    "col": 6,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 3,
-                    "col": 7,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 3,
-                    "col": 8,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 3,
-                    "col": 9,
-                    "movementCost": 2,
-                    "canStop": true
-                }
-            ],
-            [
-                {
-                    "row": 4,
-                    "col": 0,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 1,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 2,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 3,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 4,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 5,
-                    "movementCost": 1,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 6,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 7,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 8,
-                    "movementCost": 2,
-                    "canStop": true
-                },
-                {
-                    "row": 4,
-                    "col": 9,
-                    "movementCost": 2,
-                    "canStop": true
-                }
+            "coordinateBySquaddie": {},
+            "coordinatesSquaddiesCannotStopOn": [
+                "1,3",
+                "1,4",
+                "2,4",
+                "3,3",
+                "3,4"
             ]
-        ],
-        "coordinateBySquaddie": {},
-        "coordinatesSquaddiesCannotStopOn": ["1,3", "1,4", "2,4", "3,3", "3,4"]
-    }
-]
+        }
+    ]
+}

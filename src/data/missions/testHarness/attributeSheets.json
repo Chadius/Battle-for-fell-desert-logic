@@ -1,47 +1,51 @@
-[
-    {
-        "id": "lini-attribute-sheet",
-        "maxHitPoints": 5,
-        "movement": {
-            "movementPointsPerAction": 2,
-            "skipOverPits": false,
-            "moveThroughWalls": false,
-            "stopOnSquaddies": false,
-            "reduceMoveCosts": false
+{
+    "createdAt": "2026-05-30T18:05:25.797Z",
+    "updatedAt": "2026-05-30T18:05:45.941Z",
+    "data": [
+        {
+            "id": "lini-attribute-sheet",
+            "maxHitPoints": 5,
+            "movement": {
+                "movementPointsPerAction": 2,
+                "skipOverPits": false,
+                "moveThroughWalls": false,
+                "stopOnSquaddies": false,
+                "reduceMoveCosts": false
+            },
+            "proficiencyLevels": {},
+            "attributeScores": {
+                "BODY": 1,
+                "MIND": 0,
+                "SOUL": 1
+            },
+            "rank": 1,
+            "items": {
+                "maxCapacity": 3,
+                "itemIds": []
+            },
+            "sneakAttackDamage": 1
         },
-        "proficiencyLevels": {},
-        "attributeScores": {
-            "BODY": 1,
-            "MIND": 0,
-            "SOUL": 1
-        },
-        "rank": 1,
-        "items": {
-            "maxCapacity": 3,
-            "itemIds": []
-        },
-        "sneakAttackDamage": 1
-    },
-    {
-        "id": "slither-demon-attribute-sheet",
-        "maxHitPoints": 3,
-        "movement": {
-            "movementPointsPerAction": 2,
-            "skipOverPits": false,
-            "moveThroughWalls": false,
-            "stopOnSquaddies": false,
-            "reduceMoveCosts": false
-        },
-        "proficiencyLevels": {},
-        "attributeScores": {
-            "BODY": 0,
-            "MIND": -1,
-            "SOUL": -1
-        },
-        "rank": 0,
-        "items": {
-            "maxCapacity": 3,
-            "itemIds": []
+        {
+            "id": "slither-demon-attribute-sheet",
+            "maxHitPoints": 3,
+            "movement": {
+                "movementPointsPerAction": 2,
+                "skipOverPits": false,
+                "moveThroughWalls": false,
+                "stopOnSquaddies": false,
+                "reduceMoveCosts": false
+            },
+            "proficiencyLevels": {},
+            "attributeScores": {
+                "BODY": 0,
+                "MIND": -1,
+                "SOUL": -1
+            },
+            "rank": 0,
+            "items": {
+                "maxCapacity": 3,
+                "itemIds": []
+            }
         }
-    }
-]
+    ]
+}

@@ -5,9 +5,12 @@
  * Reads each test mission's serialize functions and writes JSON bundles to
  * src/data/missions/{testHarness,movement,targetPractice,sneakAttack}/.
  * Re-run whenever a mission's squaddies, map, actions, or state changes.
+ *
+ * Each file is wrapped with { createdAt, updatedAt, data }. createdAt is
+ * preserved across regenerations; updatedAt is always the current run time.
  */
 
-import { writeFileSync, mkdirSync } from "fs"
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 import { MissionEngineTestHarness } from "../src/testUtils/mission/missionEngineTestHarness.js"
@@ -18,6 +21,32 @@ import * as sneakAttack from "../src/testUtils/mission/sneakAttackMission.js"
 const __filename = fileURLToPath(import.meta.url)
 const projectRoot = join(dirname(__filename), "..")
 const outputRoot = join(projectRoot, "src", "data", "missions")
+
+function readExistingCreatedAt(filePath: string): string | undefined {
+    if (!existsSync(filePath)) return undefined
+    try {
+        const existing = JSON.parse(readFileSync(filePath, "utf-8")) as unknown
+        if (
+            typeof existing === "object" &&
+            existing !== null &&
+            "createdAt" in existing &&
+            typeof (existing as { createdAt: unknown }).createdAt === "string"
+        ) {
+            return (existing as { createdAt: string }).createdAt
+        }
+    } catch {
+        // Unparseable — treat as new file
+    }
+    return undefined
+}
+
+function writeJsonFile(filePath: string, data: unknown, now: string): void {
+    const createdAt = readExistingCreatedAt(filePath) ?? now
+    writeFileSync(
+        filePath,
+        JSON.stringify({ createdAt, updatedAt: now, data }, null, 2)
+    )
+}
 
 function writeMissionBundle(
     folderName: string,
@@ -31,27 +60,17 @@ function writeMissionBundle(
 ): void {
     const dir = join(outputRoot, folderName)
     mkdirSync(dir, { recursive: true })
-    writeFileSync(
-        join(dir, "missionState.json"),
-        JSON.stringify(serialize.missionState(), null, 2)
-    )
-    writeFileSync(
-        join(dir, "squaddies.json"),
-        JSON.stringify(serialize.squaddies(), null, 2)
-    )
-    writeFileSync(
+    const now = new Date().toISOString()
+    writeJsonFile(join(dir, "missionState.json"), serialize.missionState(), now)
+    writeJsonFile(join(dir, "squaddies.json"), serialize.squaddies(), now)
+    writeJsonFile(
         join(dir, "attributeSheets.json"),
-        JSON.stringify(serialize.attributeSheets(), null, 2)
+        serialize.attributeSheets(),
+        now
     )
-    writeFileSync(
-        join(dir, "maps.json"),
-        JSON.stringify(serialize.maps(), null, 2)
-    )
-    writeFileSync(
-        join(dir, "actions.json"),
-        JSON.stringify(serialize.actions(), null, 2)
-    )
-    writeFileSync(join(dir, "items.json"), JSON.stringify([], null, 2))
+    writeJsonFile(join(dir, "maps.json"), serialize.maps(), now)
+    writeJsonFile(join(dir, "actions.json"), serialize.actions(), now)
+    writeJsonFile(join(dir, "items.json"), [], now)
     console.log(`Generated: ${dir}`)
 }
 

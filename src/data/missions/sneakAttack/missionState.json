@@ -1,78 +1,82 @@
 {
-    "id": "sneakAttackMissionId",
-    "mapId": "sneak-attack-map-id",
-    "objectives": [
-        {
-            "id": "sneak-missionObjectiveDefeatAllEnemies",
-            "rewards": [
-                {
-                    "type": "MISSION_ENDS"
-                }
-            ],
-            "criteria": [
-                {
-                    "type": "SQUADDIES_DEFEATED",
-                    "affiliations": ["ENEMY"]
-                }
-            ],
-            "hasGivenReward": false
-        },
-        {
-            "id": "sneak-missionObjectiveDefeatAllPlayers",
-            "rewards": [
-                {
-                    "type": "MISSION_FAILURE"
-                }
-            ],
-            "criteria": [
-                {
-                    "type": "SQUADDIES_DEFEATED",
-                    "affiliations": ["PLAYER"]
-                }
-            ],
-            "hasGivenReward": false
-        }
-    ],
-    "turn": {
-        "turnCount": 0,
-        "missionAffiliationTurn": "TURN_START"
-    },
-    "history": {
-        "turns": []
-    },
-    "deployments": {
-        "required": [
+    "createdAt": "2026-05-30T18:05:25.810Z",
+    "updatedAt": "2026-05-30T18:05:45.947Z",
+    "data": {
+        "id": "sneakAttackMissionId",
+        "mapId": "sneak-attack-map-id",
+        "objectives": [
             {
-                "id": "lini",
-                "outOfBattleSquaddieId": "lini-sneak",
-                "coordinates": [
+                "id": "sneak-missionObjectiveDefeatAllEnemies",
+                "rewards": [
                     {
-                        "row": 1,
-                        "col": 0
+                        "type": "MISSION_ENDS"
                     }
-                ]
+                ],
+                "criteria": [
+                    {
+                        "type": "SQUADDIES_DEFEATED",
+                        "affiliations": ["ENEMY"]
+                    }
+                ],
+                "hasGivenReward": false
             },
             {
-                "id": "vale",
-                "outOfBattleSquaddieId": "vale-sneak",
-                "coordinates": [
+                "id": "sneak-missionObjectiveDefeatAllPlayers",
+                "rewards": [
                     {
-                        "row": 1,
-                        "col": 2
+                        "type": "MISSION_FAILURE"
                     }
-                ]
-            },
-            {
-                "id": "demon",
-                "outOfBattleSquaddieId": "goblin-grunt",
-                "coordinates": [
+                ],
+                "criteria": [
                     {
-                        "row": 1,
-                        "col": 1
+                        "type": "SQUADDIES_DEFEATED",
+                        "affiliations": ["PLAYER"]
                     }
-                ]
+                ],
+                "hasGivenReward": false
             }
         ],
-        "completedDeploymentIds": []
+        "turn": {
+            "turnCount": 0,
+            "missionAffiliationTurn": "TURN_START"
+        },
+        "history": {
+            "turns": []
+        },
+        "deployments": {
+            "required": [
+                {
+                    "id": "lini",
+                    "outOfBattleSquaddieId": "lini-sneak",
+                    "coordinates": [
+                        {
+                            "row": 1,
+                            "col": 0
+                        }
+                    ]
+                },
+                {
+                    "id": "vale",
+                    "outOfBattleSquaddieId": "vale-sneak",
+                    "coordinates": [
+                        {
+                            "row": 1,
+                            "col": 2
+                        }
+                    ]
+                },
+                {
+                    "id": "demon",
+                    "outOfBattleSquaddieId": "goblin-grunt",
+                    "coordinates": [
+                        {
+                            "row": 1,
+                            "col": 1
+                        }
+                    ]
+                }
+            ],
+            "completedDeploymentIds": []
+        }
     }
 }

@@ -18,19 +18,23 @@ export class MissionResourceLoader {
 
     addSquaddiesFromJson(data: unknown): string[] {
         this.outOfBattleSquaddieManager ??= createOutOfBattleSquaddieManager()
-        return this.outOfBattleSquaddieManager.addSquaddiesFromJson(data)
+        return this.outOfBattleSquaddieManager.addSquaddiesFromJson(
+            extractData(data)
+        )
     }
 
     addAttributeSheetsFromJson(data: unknown): string[] {
         this.outOfBattleSquaddieManager ??= createOutOfBattleSquaddieManager()
-        return this.outOfBattleSquaddieManager.addAttributeSheetsFromJson(data)
+        return this.outOfBattleSquaddieManager.addAttributeSheetsFromJson(
+            extractData(data)
+        )
     }
 
     addItemsFromJson(data: unknown): string[] {
         this.squaddieItemManager ??= new SquaddieItemManager(
             SquaddieItemCollectionService.new()
         )
-        return this.squaddieItemManager.addItemsFromJson(data)
+        return this.squaddieItemManager.addItemsFromJson(extractData(data))
     }
 
     addMapsFromJson(data: unknown): string[] {
@@ -38,18 +42,20 @@ export class MissionResourceLoader {
             new CoordinateMapCollectionManager(
                 CoordinateMapCollectionService.new()
             )
-        return this.coordinateMapCollectionManager.addMapsFromJson(data)
+        return this.coordinateMapCollectionManager.addMapsFromJson(
+            extractData(data)
+        )
     }
 
     addActionsFromJson(data: unknown): string[] {
         this.squaddieActionManager ??= new SquaddieActionManager(
             SquaddieActionCollectionService.new()
         )
-        return this.squaddieActionManager.addActionsFromJson(data)
+        return this.squaddieActionManager.addActionsFromJson(extractData(data))
     }
 
     loadMissionStateFromJson(data: unknown): void {
-        this.missionState = MissionStateService.deserialize(data)
+        this.missionState = MissionStateService.deserialize(extractData(data))
     }
 
     validate(): { isValid: boolean; errors: string[] } {
@@ -86,3 +92,15 @@ const createOutOfBattleSquaddieManager = (): OutOfBattleSquaddieManager =>
         OutOfBattleSquaddieCollectionService.new(),
         OutOfBattleSquaddieAttributeSheetCollectionService.new()
     )
+
+function extractData(input: unknown): unknown {
+    if (
+        typeof input === "object" &&
+        input !== null &&
+        "createdAt" in input &&
+        "data" in input
+    ) {
+        return (input as { data: unknown }).data
+    }
+    return input
+}
