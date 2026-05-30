@@ -950,9 +950,11 @@ export class MissionManager {
             this._loader.missionState
         )
         for (const deployment of pending) {
-            manager.createNewSquaddie({
-                outOfBattleSquaddieId: deployment.outOfBattleSquaddieId,
-            })
+            for (const _coordinate of deployment.coordinates) {
+                manager.createNewSquaddie({
+                    outOfBattleSquaddieId: deployment.outOfBattleSquaddieId,
+                })
+            }
         }
 
         return manager

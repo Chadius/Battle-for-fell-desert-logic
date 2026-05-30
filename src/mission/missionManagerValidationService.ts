@@ -1,4 +1,5 @@
 import type { MissionState } from "./missionState"
+import { MissionStateService } from "./missionState"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
@@ -20,6 +21,7 @@ export const MissionManagerValidationService = {
         validateManagersDefined(input, errors)
         validateMapId(input, errors)
         validateInBattleSquaddieReferences(input, errors)
+        validateDeploymentSquaddieCounts(input, errors)
         return { isValid: errors.length === 0, errors }
     },
 }
@@ -202,6 +204,34 @@ const validateItemIdsUsed = (
         if (!squaddieItemManager.has(itemId)) {
             errors.push(
                 `[MissionManagerValidationService.validate]: item "${itemId}" used by inBattleSquaddie "${outOfBattleSquaddieId}.${inBattleSquaddieId}" not found in squaddieItemManager`
+            )
+        }
+    }
+}
+
+const validateDeploymentSquaddieCounts = (
+    input: MissionManagerValidationInput,
+    errors: string[]
+): void => {
+    if (
+        input.missionState == undefined ||
+        input.inBattleSquaddieManager == undefined
+    )
+        return
+
+    const pending = MissionStateService.getPendingDeployments(
+        input.missionState
+    )
+    const collection = input.inBattleSquaddieManager.inBattleSquaddieCollection
+
+    for (const deployment of pending) {
+        const existing =
+            collection.byOutOfBattleSquaddieId.get(
+                deployment.outOfBattleSquaddieId
+            ) ?? []
+        if (existing.length < deployment.coordinates.length) {
+            errors.push(
+                `[MissionManagerValidationService.validate]: deployment "${deployment.id}" requires ${deployment.coordinates.length} inBattleSquaddies for outOfBattleSquaddieId "${deployment.outOfBattleSquaddieId}" but only ${existing.length} exist`
             )
         }
     }
