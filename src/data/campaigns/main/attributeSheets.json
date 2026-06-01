@@ -1,5 +1,102 @@
 {
     "createdAt": "2026-06-01T00:00:00.000Z",
     "updatedAt": "2026-06-01T00:00:00.000Z",
-    "data": []
+    "data": [
+        {
+            "id": "lini-attribute-sheet",
+            "maxHitPoints": 5,
+            "movement": {
+                "movementPointsPerAction": 2,
+                "skipOverPits": false,
+                "moveThroughWalls": false,
+                "stopOnSquaddies": false,
+                "reduceMoveCosts": false
+            },
+            "proficiencyLevels": {},
+            "attributeScores": {
+                "BODY": 1,
+                "MIND": 0,
+                "SOUL": 1
+            },
+            "rank": 1,
+            "items": {
+                "maxCapacity": 3,
+                "itemIds": []
+            },
+            "sneakAttackDamage": 1
+        },
+        {
+            "id": "vale-attribute-sheet",
+            "maxHitPoints": 4,
+            "movement": {
+                "movementPointsPerAction": 2,
+                "skipOverPits": true,
+                "moveThroughWalls": false,
+                "stopOnSquaddies": false,
+                "reduceMoveCosts": true
+            },
+            "proficiencyLevels": {
+                "SKILL_MIND": "EXPERT"
+            },
+            "attributeScores": {
+                "BODY": -1,
+                "MIND": 2,
+                "SOUL": 1
+            },
+            "rank": 1,
+            "items": {
+                "maxCapacity": 3,
+                "itemIds": []
+            }
+        },
+        {
+            "id": "gloria-attribute-sheet",
+            "maxHitPoints": 6,
+            "movement": {
+                "movementPointsPerAction": 2,
+                "skipOverPits": false,
+                "moveThroughWalls": false,
+                "stopOnSquaddies": false,
+                "reduceMoveCosts": false
+            },
+            "proficiencyLevels": {
+                "WEAPON_MARTIAL": "EXPERT",
+                "ARMOR": "EXPERT"
+            },
+            "attributeScores": {
+                "BODY": 2,
+                "MIND": -1,
+                "SOUL": 1
+            },
+            "rank": 1,
+            "items": {
+                "maxCapacity": 3,
+                "itemIds": []
+            }
+        },
+        {
+            "id": "fracta-attribute-sheet",
+            "maxHitPoints": 5,
+            "movement": {
+                "movementPointsPerAction": 3,
+                "skipOverPits": false,
+                "moveThroughWalls": false,
+                "stopOnSquaddies": false,
+                "reduceMoveCosts": false
+            },
+            "proficiencyLevels": {
+                "WEAPON_MARTIAL": "EXPERT"
+            },
+            "attributeScores": {
+                "BODY": 2,
+                "MIND": -1,
+                "SOUL": 0
+            },
+            "rank": 1,
+            "items": {
+                "maxCapacity": 3,
+                "itemIds": []
+            }
+        }
+    ]
 }

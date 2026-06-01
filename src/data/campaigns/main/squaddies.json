@@ -1,5 +1,44 @@
 {
     "createdAt": "2026-06-01T00:00:00.000Z",
     "updatedAt": "2026-06-01T00:00:00.000Z",
-    "data": []
+    "data": [
+        {
+            "id": "lini",
+            "name": "Lini",
+            "attributeSheetId": "lini-attribute-sheet",
+            "actionIds": [
+                "lini-scimitar",
+                "lini-blessing",
+                "lini-heal",
+                "lini-solar-sphere"
+            ],
+            "affiliation": "PLAYER"
+        },
+        {
+            "id": "vale",
+            "name": "Vale",
+            "attributeSheetId": "vale-attribute-sheet",
+            "actionIds": [
+                "vale-lightning-bolt",
+                "vale-dagger",
+                "vale-intimidating-glare",
+                "vale-rescue"
+            ],
+            "affiliation": "PLAYER"
+        },
+        {
+            "id": "gloria",
+            "name": "Gloria",
+            "attributeSheetId": "gloria-attribute-sheet",
+            "actionIds": ["gloria-longsword", "gloria-shield", "gloria-sweep"],
+            "affiliation": "PLAYER"
+        },
+        {
+            "id": "fracta",
+            "name": "Fracta",
+            "attributeSheetId": "fracta-attribute-sheet",
+            "actionIds": ["fracta-axe-strike", "fracta-leap"],
+            "affiliation": "PLAYER"
+        }
+    ]
 }

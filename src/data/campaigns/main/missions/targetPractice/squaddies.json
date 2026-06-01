@@ -1,25 +1,7 @@
 {
     "createdAt": "2026-05-30T18:05:25.808Z",
-    "updatedAt": "2026-05-30T18:05:45.946Z",
+    "updatedAt": "2026-06-01T00:00:00.000Z",
     "data": [
-        {
-            "id": "vale",
-            "name": "Vale",
-            "attributeSheetId": "vale-attribute-sheet",
-            "actionIds": [
-                "vale-lightning-bolt",
-                "vale-intimidating-glare",
-                "vale-dagger"
-            ],
-            "affiliation": "PLAYER"
-        },
-        {
-            "id": "gloria",
-            "name": "Gloria",
-            "attributeSheetId": "gloria-attribute-sheet",
-            "actionIds": ["gloria-longsword", "gloria-shield", "gloria-sweep"],
-            "affiliation": "PLAYER"
-        },
         {
             "id": "slither-demon-v2",
             "name": "Slither Demon",

@@ -7,9 +7,28 @@ import { MissionResourceLoader } from "../../../../mission/missionResourceLoader
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+const campaignFolderPath = join(__dirname, "..")
 
 function loadMissionBundle(folderPath: string): MissionResourceLoader {
     const loader = new MissionResourceLoader()
+    loader.addSquaddiesFromJson(
+        JSON.parse(
+            readFileSync(join(campaignFolderPath, "squaddies.json"), "utf-8")
+        )
+    )
+    loader.addAttributeSheetsFromJson(
+        JSON.parse(
+            readFileSync(
+                join(campaignFolderPath, "attributeSheets.json"),
+                "utf-8"
+            )
+        )
+    )
+    loader.addActionsFromJson(
+        JSON.parse(
+            readFileSync(join(campaignFolderPath, "actions.json"), "utf-8")
+        )
+    )
     loader.addSquaddiesFromJson(
         JSON.parse(readFileSync(join(folderPath, "squaddies.json"), "utf-8"))
     )
