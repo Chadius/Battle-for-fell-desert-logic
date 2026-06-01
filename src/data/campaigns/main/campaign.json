@@ -1,0 +1,32 @@
+{
+    "createdAt": "2026-06-01T00:00:00.000Z",
+    "updatedAt": "2026-06-01T00:00:00.000Z",
+    "displayName": {
+        "en-US": "Main Campaign"
+    },
+    "description": {
+        "en-US": "Welcome to the Battle of Fell Desert!"
+    },
+    "events": [
+        {
+            "type": "Mission",
+            "missionFilename": "testHarness",
+            "missionDisplayName": { "en-US": "Test Harness" }
+        },
+        {
+            "type": "Mission",
+            "missionFilename": "movement",
+            "missionDisplayName": { "en-US": "Movement" }
+        },
+        {
+            "type": "Mission",
+            "missionFilename": "targetPractice",
+            "missionDisplayName": { "en-US": "Target Practice" }
+        },
+        {
+            "type": "Mission",
+            "missionFilename": "sneakAttack",
+            "missionDisplayName": { "en-US": "Sneak Attack" }
+        }
+    ]
+}
