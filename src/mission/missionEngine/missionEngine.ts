@@ -980,7 +980,13 @@ export class MissionEngine {
         maps?: unknown
         actions?: unknown
         missionState: unknown
-    }): { isValid: boolean; errors: string[] } {
+        campaignData?: {
+            squaddies?: unknown
+            attributeSheets?: unknown
+            items?: unknown
+            actions?: unknown
+        }
+    }): { isValid: boolean; errors: string[]; warnings: string[] } {
         this.missionManager ??= new MissionManager()
         return this.missionManager.loadMissionFromJson(data)
     }

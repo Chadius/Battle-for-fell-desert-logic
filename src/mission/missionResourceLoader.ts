@@ -85,6 +85,10 @@ export class MissionResourceLoader {
         }
         return { isValid: errors.length === 0, errors }
     }
+
+    static extractDataFromJson(input: unknown): unknown {
+        return extractData(input)
+    }
 }
 
 const createOutOfBattleSquaddieManager = (): OutOfBattleSquaddieManager =>
@@ -93,7 +97,7 @@ const createOutOfBattleSquaddieManager = (): OutOfBattleSquaddieManager =>
         OutOfBattleSquaddieAttributeSheetCollectionService.new()
     )
 
-function extractData(input: unknown): unknown {
+const extractData = (input: unknown): unknown => {
     if (
         typeof input === "object" &&
         input !== null &&

@@ -882,7 +882,29 @@ export class MissionManager {
         maps?: unknown
         actions?: unknown
         missionState: unknown
-    }): { isValid: boolean; errors: string[] } {
+        campaignData?: {
+            squaddies?: unknown
+            attributeSheets?: unknown
+            items?: unknown
+            actions?: unknown
+        }
+    }): { isValid: boolean; errors: string[]; warnings: string[] } {
+        const warnings: string[] = []
+
+        if (data.campaignData !== undefined) {
+            const campaign = data.campaignData
+            if (campaign.squaddies !== undefined)
+                this.addSquaddiesFromJson(campaign.squaddies)
+            if (campaign.attributeSheets !== undefined)
+                this.addAttributeSheetsFromJson(campaign.attributeSheets)
+            if (campaign.items !== undefined)
+                this.addItemsFromJson(campaign.items)
+            if (campaign.actions !== undefined)
+                this.addActionsFromJson(campaign.actions)
+
+            this.collectCampaignMissionCollisionWarnings(data, warnings)
+        }
+
         if (data.squaddies !== undefined)
             this.addSquaddiesFromJson(data.squaddies)
         if (data.attributeSheets !== undefined)
@@ -891,7 +913,83 @@ export class MissionManager {
         if (data.maps !== undefined) this.addMapsFromJson(data.maps)
         if (data.actions !== undefined) this.addActionsFromJson(data.actions)
         this.loadMissionStateFromJson(data.missionState)
-        return this.validate()
+
+        const { isValid, errors } = this.validate()
+        return { isValid, errors, warnings }
+    }
+
+    private collectCampaignMissionCollisionWarnings(
+        data: {
+            squaddies?: unknown
+            attributeSheets?: unknown
+            items?: unknown
+            actions?: unknown
+            campaignData?: {
+                squaddies?: unknown
+                attributeSheets?: unknown
+                items?: unknown
+                actions?: unknown
+            }
+        },
+        warnings: string[]
+    ): void {
+        const collisionTypes: Array<{
+            label: string
+            campaignData: unknown
+            missionData: unknown
+        }> = [
+            {
+                label: "Squaddie",
+                campaignData: data.campaignData?.squaddies,
+                missionData: data.squaddies,
+            },
+            {
+                label: "AttributeSheet",
+                campaignData: data.campaignData?.attributeSheets,
+                missionData: data.attributeSheets,
+            },
+            {
+                label: "Item",
+                campaignData: data.campaignData?.items,
+                missionData: data.items,
+            },
+            {
+                label: "Action",
+                campaignData: data.campaignData?.actions,
+                missionData: data.actions,
+            },
+        ]
+
+        for (const { label, campaignData, missionData } of collisionTypes) {
+            if (campaignData === undefined || missionData === undefined)
+                continue
+            const campaignIds = this.extractIdsFromData(campaignData)
+            const missionIds = this.extractIdsFromData(missionData)
+            for (const id of missionIds) {
+                if (campaignIds.has(id)) {
+                    warnings.push(
+                        `${label} "${id}" is defined in both campaign and mission data; mission version will be used`
+                    )
+                }
+            }
+        }
+    }
+
+    private extractIdsFromData(data: unknown): Set<string> {
+        const unwrapped = MissionResourceLoader.extractDataFromJson(data)
+        if (!Array.isArray(unwrapped)) return new Set()
+        const ids = new Set<string>()
+        for (const item of unwrapped) {
+            if (
+                typeof item === "object" &&
+                item !== null &&
+                "id" in item &&
+                typeof (item as { id: unknown }).id === "string"
+            ) {
+                ids.add((item as { id: string }).id)
+            }
+        }
+        return ids
     }
 
     validate(): { isValid: boolean; errors: string[] } {
