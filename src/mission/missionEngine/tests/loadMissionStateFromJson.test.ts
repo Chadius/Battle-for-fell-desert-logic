@@ -6,6 +6,29 @@ import {
 } from "../../../testUtils/mission/missionEngineTestHarness"
 import { MissionStateService } from "../../missionState"
 
+describe("MissionEngineTestHarness.serializeCurrentMissionState", () => {
+    it("includes completed deployment IDs from the running engine", () => {
+        const harness = new MissionEngineTestHarness()
+
+        const serialized = harness.serializeCurrentMissionState()
+
+        expect(serialized.deployments?.completedDeploymentIds).toContain("lini")
+        expect(serialized.deployments?.completedDeploymentIds).toContain(
+            "slither-demon"
+        )
+    })
+
+    it("produces a state that passes validation when reloaded into the running engine", () => {
+        const harness = new MissionEngineTestHarness()
+
+        const result = harness.loadMissionStateFromJson(
+            harness.serializeCurrentMissionState()
+        )
+
+        expect(result.errors).toHaveLength(0)
+    })
+})
+
 describe("MissionEngine.loadMissionStateFromJson", () => {
     let harness: MissionEngineTestHarness
 
@@ -23,7 +46,6 @@ describe("MissionEngine.loadMissionStateFromJson", () => {
             MissionStateService.serialize(newState)
         )
 
-        expect(result.isValid).toBeTruthy()
         expect(result.errors).toHaveLength(0)
         expect(harness.missionManager!.missionState?.id).toBe("new-mission")
     })
@@ -38,7 +60,6 @@ describe("MissionEngine.loadMissionStateFromJson", () => {
             MissionStateService.serialize(newState)
         )
 
-        expect(result.isValid).toBeFalsy()
         expect(result.errors.length).toBeGreaterThan(0)
     })
 

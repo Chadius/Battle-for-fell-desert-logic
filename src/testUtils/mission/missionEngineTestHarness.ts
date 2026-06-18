@@ -130,6 +130,10 @@ export class MissionEngineTestHarness extends MissionEngine {
         )
     }
 
+    serializeCurrentMissionState(): SerializedMissionState {
+        return MissionStateService.serialize(this.missionManager!.missionState!)
+    }
+
     static serializeSquaddies(): SerializedOutOfBattleSquaddie[] {
         return MissionEngineTestHarness.createOutOfBattleSquaddieManager().serializeSquaddies()
     }
