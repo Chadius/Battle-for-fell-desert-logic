@@ -55,6 +55,7 @@ import {
     type TSquaddieConditionType,
 } from "../proficiency/squaddieCondition"
 import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
+import { MovieManager } from "../movie/movieManager"
 
 export class MissionManager {
     missionState?: MissionState
@@ -62,6 +63,7 @@ export class MissionManager {
     coordinateMapCollectionManager?: CoordinateMapCollectionManager
     squaddieActionManager?: SquaddieActionManager
     outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
+    movieManager?: MovieManager
 
     private _loader: MissionResourceLoader | undefined = undefined
 
@@ -71,18 +73,21 @@ export class MissionManager {
         coordinateMapCollectionManager,
         squaddieActionManager,
         outOfBattleSquaddieManager,
+        movieManager,
     }: {
         missionState?: MissionState
         inBattleSquaddieManager?: InBattleSquaddieManager
         coordinateMapCollectionManager?: CoordinateMapCollectionManager
         squaddieActionManager?: SquaddieActionManager
         outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
+        movieManager?: MovieManager
     } = {}) {
         this.missionState = missionState
         this.inBattleSquaddieManager = inBattleSquaddieManager
         this.coordinateMapCollectionManager = coordinateMapCollectionManager
         this.squaddieActionManager = squaddieActionManager
         this.outOfBattleSquaddieManager = outOfBattleSquaddieManager
+        this.movieManager = movieManager
     }
 
     hasMissionEnded(): boolean {

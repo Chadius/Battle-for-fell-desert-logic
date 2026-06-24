@@ -9,3 +9,5 @@ dist/
 *.js.map
 /memory/
 /tsconfig.tsbuildinfo
+*.d.ts
+*.d.ts.map

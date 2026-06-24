@@ -18,3 +18,5 @@ phased implementation plan.
   identifiers.
 - Follow the Data Object → Collection → Manager abstraction pattern. An example is SquaddieItem →
   SquaddieItemCollection → SquaddieItemManager.
+- If the function's complexity is over 15 (evaluated by SonarQube), split it into helper functions to increase
+  readability.

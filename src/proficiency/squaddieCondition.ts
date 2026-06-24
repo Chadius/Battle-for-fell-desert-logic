@@ -51,20 +51,16 @@ const hinderingTypes = new Set<TSquaddieConditionType>([
 export interface SquaddieCondition {
     type: TSquaddieConditionType
     source: TSquaddieConditionSource
-    amount:
-        | {
-              current: number
-              base: number | undefined
-              decaysAt?: TSquaddieConditionDecaysAt
-          }
-        | undefined
+    amount?: {
+        current: number
+        base?: number | undefined
+        decaysAt?: TSquaddieConditionDecaysAt
+    }
     limit: {
-        duration:
-            | {
-                  duration: number
-                  decaysAt: TSquaddieConditionDecaysAt
-              }
-            | undefined
+        duration?: {
+            duration: number
+            decaysAt: TSquaddieConditionDecaysAt
+        }
     }
 }
 

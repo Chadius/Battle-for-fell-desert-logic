@@ -4,6 +4,7 @@ import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquad
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
 import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
 import type { OutOfBattleSquaddie } from "../squaddie/outOfBattle/outOfBattleSquaddie"
+import { CoordinateMapService } from "../coordinateMap/coordinateMap"
 
 export interface MissionManagerValidationInput {
     missionState?: MissionState
@@ -17,19 +18,21 @@ export const MissionManagerValidationService = {
         isValid: boolean
         errors: string[]
     } {
-        const errors: string[] = []
-        validateManagersDefined(input, errors)
-        validateMapId(input, errors)
-        validateInBattleSquaddieReferences(input, errors)
-        validateDeploymentSquaddieCounts(input, errors)
+        const errors = [
+            ...validateManagersDefined(input),
+            ...validateMapId(input),
+            ...validateInBattleSquaddieReferences(input),
+            ...validateDeploymentSquaddieCounts(input),
+            ...validateDeploymentCoordinates(input),
+        ]
         return { isValid: errors.length === 0, errors }
     },
 }
 
 const validateManagersDefined = (
-    input: MissionManagerValidationInput,
-    errors: string[]
-): void => {
+    input: MissionManagerValidationInput
+): string[] => {
+    const errors: string[] = []
     if (input.missionState == undefined)
         errors.push("missionState must be defined")
     if (input.inBattleSquaddieManager == undefined)
@@ -38,195 +41,191 @@ const validateManagersDefined = (
         errors.push("coordinateMapCollectionManager must be defined")
     if (input.squaddieActionManager == undefined)
         errors.push("squaddieActionManager must be defined")
+    return errors
 }
 
-const validateMapId = (
-    input: MissionManagerValidationInput,
-    errors: string[]
-): void => {
+const validateMapId = (input: MissionManagerValidationInput): string[] => {
     if (
         input.coordinateMapCollectionManager == undefined ||
         input.missionState == undefined
     )
-        return
+        return []
     try {
         input.coordinateMapCollectionManager.getMapById(
             input.missionState.mapId
         )
+        return []
     } catch {
-        errors.push(
-            `map "${input.missionState.mapId}" not found in coordinateMapCollectionManager`
-        )
+        return [
+            `map "${input.missionState.mapId}" not found in coordinateMapCollectionManager`,
+        ]
     }
 }
 
 const validateInBattleSquaddieReferences = (
-    input: MissionManagerValidationInput,
-    errors: string[]
-): void => {
+    input: MissionManagerValidationInput
+): string[] => {
     if (input.inBattleSquaddieManager?.inBattleSquaddieCollection == undefined)
-        return
+        return []
 
-    const collection = input.inBattleSquaddieManager.inBattleSquaddieCollection
+    const inBattleSquaddieCollection =
+        input.inBattleSquaddieManager.inBattleSquaddieCollection
+    const errors: string[] = []
     for (const [
         outOfBattleSquaddieId,
         inBattleSquaddies,
-    ] of collection.byOutOfBattleSquaddieId) {
-        const rawSquaddie = validateOutOfBattleSquaddie(
-            outOfBattleSquaddieId,
-            input,
-            errors
-        )
-        if (rawSquaddie != undefined) {
-            validateAttributeSheet(
-                rawSquaddie.attributeSheetId,
-                outOfBattleSquaddieId,
-                input,
-                errors
-            )
-            validateActionIds(
-                rawSquaddie.actionIds,
-                outOfBattleSquaddieId,
-                input,
-                errors
+    ] of inBattleSquaddieCollection.byOutOfBattleSquaddieId) {
+        const { outOfBattleSquaddie, errors: squaddieErrors } =
+            outOfBattleSquaddieOrErrors(outOfBattleSquaddieId, input)
+        errors.push(...squaddieErrors)
+        if (outOfBattleSquaddie != undefined) {
+            errors.push(
+                ...validateAttributeSheet(
+                    outOfBattleSquaddie.attributeSheetId,
+                    outOfBattleSquaddieId,
+                    input
+                ),
+                ...validateActionIds(
+                    outOfBattleSquaddie.actionIds,
+                    outOfBattleSquaddieId,
+                    input
+                )
             )
         }
         for (const inBattleSquaddie of inBattleSquaddies) {
-            validateItemIdsUsed(
-                inBattleSquaddie.itemIdsUsed,
-                inBattleSquaddie.id,
-                outOfBattleSquaddieId,
-                input,
-                errors
+            errors.push(
+                ...validateItemIdsUsed(
+                    inBattleSquaddie.itemIdsUsed,
+                    inBattleSquaddie.id,
+                    outOfBattleSquaddieId,
+                    input
+                )
             )
         }
     }
+    return errors
 }
 
-const validateOutOfBattleSquaddie = (
+const outOfBattleSquaddieOrErrors = (
     outOfBattleSquaddieId: string,
-    input: MissionManagerValidationInput,
+    input: MissionManagerValidationInput
+): {
+    outOfBattleSquaddie: OutOfBattleSquaddie | undefined
     errors: string[]
-): OutOfBattleSquaddie | undefined => {
+} => {
     const outOfBattleSquaddieManager =
         input.inBattleSquaddieManager?.outOfBattleSquaddieManager
-    if (outOfBattleSquaddieManager == undefined) return undefined
+    if (outOfBattleSquaddieManager == undefined)
+        return { outOfBattleSquaddie: undefined, errors: [] }
 
-    const rawSquaddie = outOfBattleSquaddieManager.getRawOutOfBattleSquaddie(
-        outOfBattleSquaddieId
-    )
-    if (rawSquaddie == undefined) {
-        errors.push(
-            `[MissionManagerValidationService.validate]: outOfBattleSquaddie "${outOfBattleSquaddieId}" not found`
+    const outOfBattleSquaddie =
+        outOfBattleSquaddieManager.getRawOutOfBattleSquaddie(
+            outOfBattleSquaddieId
         )
-        return undefined
+    if (outOfBattleSquaddie == undefined) {
+        return {
+            outOfBattleSquaddie: undefined,
+            errors: [
+                `[MissionManagerValidationService.validate]: outOfBattleSquaddie "${outOfBattleSquaddieId}" not found`,
+            ],
+        }
     }
-    return rawSquaddie
+    return { outOfBattleSquaddie, errors: [] }
 }
 
 const validateAttributeSheet = (
     attributeSheetId: string,
     outOfBattleSquaddieId: string,
-    input: MissionManagerValidationInput,
-    errors: string[]
-): void => {
+    input: MissionManagerValidationInput
+): string[] => {
     const outOfBattleSquaddieManager =
         input.inBattleSquaddieManager?.outOfBattleSquaddieManager
-    if (outOfBattleSquaddieManager == undefined) return
+    if (outOfBattleSquaddieManager == undefined) return []
 
-    let attributeSheet
     try {
-        attributeSheet =
+        const attributeSheet =
             outOfBattleSquaddieManager.getAttributeSheet(attributeSheetId)
-    } catch {
-        errors.push(
-            `[MissionManagerValidationService.validate]: attributeSheet "${attributeSheetId}" for outOfBattleSquaddie "${outOfBattleSquaddieId}" not found`
+        return validateAttributeSheetItemIds(
+            attributeSheet.items.itemIds,
+            attributeSheetId,
+            input
         )
-        return
+    } catch {
+        return [
+            `[MissionManagerValidationService.validate]: attributeSheet "${attributeSheetId}" for outOfBattleSquaddie "${outOfBattleSquaddieId}" not found`,
+        ]
     }
-
-    validateAttributeSheetItemIds(
-        attributeSheet.items.itemIds,
-        attributeSheetId,
-        input,
-        errors
-    )
 }
 
 const validateAttributeSheetItemIds = (
     itemIds: string[],
     attributeSheetId: string,
-    input: MissionManagerValidationInput,
-    errors: string[]
-): void => {
+    input: MissionManagerValidationInput
+): string[] => {
     const squaddieItemManager =
         input.inBattleSquaddieManager?.squaddieItemManager
-    if (squaddieItemManager == undefined) return
+    if (squaddieItemManager == undefined) return []
 
-    for (const itemId of itemIds) {
-        if (!squaddieItemManager.has(itemId)) {
-            errors.push(
+    return itemIds
+        .filter((itemId) => !squaddieItemManager.has(itemId))
+        .map(
+            (itemId) =>
                 `[MissionManagerValidationService.validate]: item "${itemId}" referenced by attributeSheet "${attributeSheetId}" not found in squaddieItemManager`
-            )
-        }
-    }
+        )
 }
 
 const validateActionIds = (
     actionIds: string[],
     outOfBattleSquaddieId: string,
-    input: MissionManagerValidationInput,
-    errors: string[]
-): void => {
-    if (input.squaddieActionManager == undefined) return
+    input: MissionManagerValidationInput
+): string[] => {
+    if (input.squaddieActionManager == undefined) return []
 
-    for (const actionId of actionIds) {
-        if (!input.squaddieActionManager.has(actionId)) {
-            errors.push(
+    return actionIds
+        .filter((actionId) => !input.squaddieActionManager!.has(actionId))
+        .map(
+            (actionId) =>
                 `[MissionManagerValidationService.validate]: action "${actionId}" referenced by outOfBattleSquaddie "${outOfBattleSquaddieId}" not found in squaddieActionManager`
-            )
-        }
-    }
+        )
 }
 
 const validateItemIdsUsed = (
     itemIdsUsed: string[],
     inBattleSquaddieId: number,
     outOfBattleSquaddieId: string,
-    input: MissionManagerValidationInput,
-    errors: string[]
-): void => {
+    input: MissionManagerValidationInput
+): string[] => {
     const squaddieItemManager =
         input.inBattleSquaddieManager?.squaddieItemManager
-    if (squaddieItemManager == undefined) return
+    if (squaddieItemManager == undefined) return []
 
-    for (const itemId of itemIdsUsed) {
-        if (!squaddieItemManager.has(itemId)) {
-            errors.push(
+    return itemIdsUsed
+        .filter((itemId) => !squaddieItemManager.has(itemId))
+        .map(
+            (itemId) =>
                 `[MissionManagerValidationService.validate]: item "${itemId}" used by inBattleSquaddie "${outOfBattleSquaddieId}.${inBattleSquaddieId}" not found in squaddieItemManager`
-            )
-        }
-    }
+        )
 }
 
 const validateDeploymentSquaddieCounts = (
-    input: MissionManagerValidationInput,
-    errors: string[]
-): void => {
+    input: MissionManagerValidationInput
+): string[] => {
     if (
         input.missionState == undefined ||
         input.inBattleSquaddieManager == undefined
     )
-        return
+        return []
 
     const pending = MissionStateService.getPendingDeployments(
         input.missionState
     )
-    const collection = input.inBattleSquaddieManager.inBattleSquaddieCollection
+    const inBattleSquaddieCollection =
+        input.inBattleSquaddieManager.inBattleSquaddieCollection
 
+    const errors: string[] = []
     for (const deployment of pending) {
         const existing =
-            collection.byOutOfBattleSquaddieId.get(
+            inBattleSquaddieCollection?.byOutOfBattleSquaddieId.get(
                 deployment.outOfBattleSquaddieId
             ) ?? []
         if (existing.length < deployment.coordinates.length) {
@@ -235,4 +234,45 @@ const validateDeploymentSquaddieCounts = (
             )
         }
     }
+    return errors
+}
+
+const validateDeploymentCoordinates = (
+    input: MissionManagerValidationInput
+): string[] => {
+    if (
+        input.missionState == undefined ||
+        input.coordinateMapCollectionManager == undefined
+    )
+        return []
+
+    let map
+    try {
+        map = input.coordinateMapCollectionManager.getMapById(
+            input.missionState.mapId
+        )
+    } catch {
+        return []
+    }
+
+    const pending = MissionStateService.getPendingDeployments(
+        input.missionState
+    )
+
+    const errors: string[] = []
+    for (const deployment of pending) {
+        for (const coordinate of deployment.coordinates) {
+            if (
+                !CoordinateMapService.canSquaddieStopAtCoordinate({
+                    map,
+                    coordinate,
+                })
+            ) {
+                errors.push(
+                    `[MissionManagerValidationService.validate]: deployment "${deployment.id}" coordinate (row ${coordinate.row}, col ${coordinate.col}) is not a valid stopping point`
+                )
+            }
+        }
+    }
+    return errors
 }

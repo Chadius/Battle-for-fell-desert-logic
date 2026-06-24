@@ -168,6 +168,18 @@ describe("Mission Objective Reward", () => {
         })
     })
 
+    describe("PlayMovieReward", () => {
+        it("creates a reward carrying the movie id", () => {
+            const reward =
+                MissionObjectiveRewardService.newPlayMovieReward(
+                    "some-movie-id"
+                )
+
+            expect(reward.type).toBe(MissionObjectiveRewardType.PLAY_MOVIE)
+            expect(reward.movieId).toBe("some-movie-id")
+        })
+    })
+
     describe("Multiple Rewards Example", () => {
         it("Can create array of multiple rewards for single objective", () => {
             const rewards = [

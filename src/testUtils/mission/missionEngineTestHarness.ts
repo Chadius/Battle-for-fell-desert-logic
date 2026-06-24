@@ -48,6 +48,8 @@ import {
     SquaddieConditionType,
 } from "../../proficiency/squaddieCondition"
 import { MissionDeploymentService } from "../../mission/missionDeployment"
+import type { Movie } from "../../movie/movie"
+import { MovieManager } from "../../movie/movieManager"
 
 export const MissionEngineTestHarnessIds = {
     mapId: "test-harness-map",
@@ -568,5 +570,28 @@ export class MissionEngineTestHarness extends MissionEngine {
 
     getSlitherDemonSquaddieId(): BattleSquaddieId {
         return this.slitherDemonSquaddieId
+    }
+
+    registerMovie(movie: Movie): void {
+        if (!this.missionManager!.movieManager) {
+            this.missionManager!.movieManager = new MovieManager()
+        }
+        this.missionManager!.movieManager.add(movie)
+    }
+
+    addObjective(objective: MissionObjective): void {
+        this.missionManager!.missionState!.objectives.push(objective)
+    }
+
+    defeatSlitherDemon(): void {
+        this.missionManager!.inBattleSquaddieManager!.dealDamageToSquaddie({
+            ...this.slitherDemonSquaddieId,
+            damage: { amount: 999, type: undefined },
+        })
+    }
+
+    advanceToPlayerTurn(): void {
+        this.transitionToNextPhase()
+        this.transitionToNextPhase()
     }
 }

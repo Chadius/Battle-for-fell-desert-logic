@@ -1,4 +1,14 @@
 import { MissionManager } from "../missionManager"
+import type { Movie } from "../../movie/movie"
+import type { ResourceManifestCollection } from "../../resource/resourceManifestCollection"
+import {
+    MovieEngine,
+    MovieEngineState,
+    MovieEngineCommand,
+    type TMovieEngineCommand,
+} from "../../movie/movieEngine"
+import { MovieSceneType } from "../../movie/movieScene"
+import { MissionObjectiveRewardType } from "../missionObjectiveReward"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
@@ -81,6 +91,7 @@ import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMa
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
+import { MovieManager } from "../../movie/movieManager"
 
 export interface MapTileInfo {
     row: number
@@ -107,6 +118,14 @@ const defaultStrategyByAffiliation: Partial<
     [SquaddieAffiliation.ALLY]: defaultAiStrategy,
     [SquaddieAffiliation.NONE]: defaultAiStrategy,
 }
+export const MissionMovieEvent = {
+    MOVIE_STARTED: "MOVIE_STARTED",
+    MOVIE_COMPLETE: "MOVIE_COMPLETE",
+} as const satisfies Record<string, string>
+
+export type TMissionMovieEvent =
+    (typeof MissionMovieEvent)[keyof typeof MissionMovieEvent]
+
 export interface SerializedMissionEngine {
     missionState?: SerializedMissionState
     inBattleSquaddieCollection?: SerializedInBattleSquaddieCollection
@@ -126,6 +145,8 @@ export class MissionEngine {
     actionResults?: ActionResult
     private recentPhaseTransitions: TMissionAffiliationTurn[] = []
     private recentTransitionResults: SerializedSquaddieActionResult[] = []
+    private activeMovieEngine?: MovieEngine
+    private recentMovieEvents: TMissionMovieEvent[] = []
 
     constructor(
         missionManager?: MissionManager,
@@ -139,6 +160,14 @@ export class MissionEngine {
         isValid: boolean
         message?: string
     } {
+        if (this.isMoviePlaying()) {
+            return {
+                isValid: false,
+                message:
+                    "[MissionEngine.readyAction]: a movie is currently playing",
+            }
+        }
+
         let validityCheck = this.canReadyActionBecauseOfAffiliationTurn({
             actor,
             targets,
@@ -232,6 +261,7 @@ export class MissionEngine {
 
         this.readiedAction = undefined
 
+        this.triggerPlayMovieRewards()
         this.autoAdvanceThroughBookendAffiliationTurns()
 
         return this.actionResults
@@ -288,6 +318,40 @@ export class MissionEngine {
         )
 
         return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives()
+    }
+
+    getCompletedTerminalButNotRewardedObjectives(): MissionObjective[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getCompletedTerminalButNotRewardedObjectives.name
+        )
+
+        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives().filter(
+            (objective) =>
+                objective.rewards.some(
+                    (reward) =>
+                        reward.type ===
+                            MissionObjectiveRewardType.MISSION_ENDS ||
+                        reward.type ===
+                            MissionObjectiveRewardType.MISSION_FAILURE
+                )
+        )
+    }
+
+    getCompletedNonTerminalButNotRewardedObjectives(): MissionObjective[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getCompletedNonTerminalButNotRewardedObjectives.name
+        )
+
+        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives().filter(
+            (objective) =>
+                !objective.rewards.some(
+                    (reward) =>
+                        reward.type ===
+                            MissionObjectiveRewardType.MISSION_ENDS ||
+                        reward.type ===
+                            MissionObjectiveRewardType.MISSION_FAILURE
+                )
+        )
     }
 
     getCompletedAndRewardedMissionObjectives(): MissionObjective[] {
@@ -422,6 +486,67 @@ export class MissionEngine {
         }
     }
 
+    registerMovieManager(movieManager: MovieManager): void {
+        this.throwIfMissionManagerIsUndefined(this.registerMovieManager.name)
+        this.missionManager!.movieManager = movieManager
+    }
+
+    registerMovie(movie: Movie): void {
+        this.throwIfMissionManagerIsUndefined(this.registerMovie.name)
+        if (this.missionManager!.movieManager == undefined) {
+            this.missionManager!.movieManager = new MovieManager()
+        }
+        this.missionManager!.movieManager.add(movie)
+    }
+
+    playMovie(
+        movie: Movie,
+        resourceCollections: ResourceManifestCollection[]
+    ): void {
+        this.activeMovieEngine = new MovieEngine(movie, resourceCollections)
+        this.recentMovieEvents = [MissionMovieEvent.MOVIE_STARTED]
+    }
+
+    getRecentMovieEvents(): TMissionMovieEvent[] {
+        return [...this.recentMovieEvents]
+    }
+
+    isMoviePlaying(): boolean {
+        return (
+            this.activeMovieEngine?.status().state === MovieEngineState.PLAYING
+        )
+    }
+
+    processMovieCommand(command: TMovieEngineCommand): void {
+        this.activeMovieEngine?.processCommand(command)
+        this.recordMovieCompleteIfTerminated()
+    }
+
+    selectMovieDecision(decisionId: string): {
+        isValid: boolean
+        message?: string
+    } {
+        if (!this.activeMovieEngine) {
+            return {
+                isValid: false,
+                message:
+                    "[MissionEngine.selectMovieDecision]: no movie is playing",
+            }
+        }
+        const result = this.activeMovieEngine.selectDecision(decisionId)
+        this.recordMovieCompleteIfTerminated()
+        return result
+    }
+
+    tickMovie(elapsedMs: number): void {
+        this.activeMovieEngine?.tick(elapsedMs)
+        this.recordMovieCompleteIfTerminated()
+    }
+
+    getMovieStatus(): ReturnType<MovieEngine["status"]> | undefined {
+        return this.activeMovieEngine?.status()
+    }
+
     previewReadiedActionAndForecastResults(): SerializedForecastedActionResult[] {
         this.throwIfMissionManagerIsUndefined(
             this.previewReadiedActionAndForecastResults.name
@@ -522,6 +647,37 @@ export class MissionEngine {
         }
 
         return this.useActionAndGetResults()
+    }
+
+    private recordMovieCompleteIfTerminated(): void {
+        if (!this.activeMovieEngine) return
+        if (this.activeMovieEngine.status().state === MovieEngineState.PLAYING)
+            return
+        if (this.recentMovieEvents.includes(MissionMovieEvent.MOVIE_COMPLETE))
+            return
+        this.recentMovieEvents = [
+            ...this.recentMovieEvents,
+            MissionMovieEvent.MOVIE_COMPLETE,
+        ]
+    }
+
+    private triggerPlayMovieRewards(): void {
+        if (!this.missionManager) return
+        const movieManager = this.missionManager.movieManager
+        if (!movieManager) return
+
+        const objectivesWithoutReward =
+            this.missionManager.calculateCompletedButNotRewardedMissionObjectives()
+
+        for (const objective of objectivesWithoutReward) {
+            for (const reward of objective.rewards) {
+                if (reward.type !== MissionObjectiveRewardType.PLAY_MOVIE)
+                    continue
+                const movie = movieManager.get(reward.movieId)
+                this.playMovie(movie, [])
+                this.missionManager.setMissionObjectiveAsRewarded(objective.id)
+            }
+        }
     }
 
     private autoAdvanceThroughBookendAffiliationTurns(): void {
@@ -1249,3 +1405,6 @@ export class MissionEngine {
         }
     }
 }
+
+export { MovieEngineCommand, MovieSceneType }
+export type { TMovieEngineCommand }

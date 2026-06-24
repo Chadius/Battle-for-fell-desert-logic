@@ -6,6 +6,7 @@ export const MissionObjectiveRewardType = {
     NEXT_MISSIONS: "NEXT_MISSIONS",
     MISSION_ENDS: "MISSION_ENDS",
     MISSION_FAILURE: "MISSION_FAILURE",
+    PLAY_MOVIE: "PLAY_MOVIE",
 } as const satisfies Record<string, string>
 
 export type TMissionObjectiveRewardType = EnumLike<
@@ -30,11 +31,17 @@ export interface MissionFailureReward {
     type: typeof MissionObjectiveRewardType.MISSION_FAILURE
 }
 
+export interface PlayMovieReward {
+    type: typeof MissionObjectiveRewardType.PLAY_MOVIE
+    movieId: string
+}
+
 export type MissionObjectiveReward =
     | DialogueReward
     | NextMissionsReward
     | MissionEndsReward
     | MissionFailureReward
+    | PlayMovieReward
 
 export const missionObjectiveRewardSchema = z.discriminatedUnion("type", [
     z.object({
@@ -47,6 +54,10 @@ export const missionObjectiveRewardSchema = z.discriminatedUnion("type", [
     }),
     z.object({ type: z.literal(MissionObjectiveRewardType.MISSION_ENDS) }),
     z.object({ type: z.literal(MissionObjectiveRewardType.MISSION_FAILURE) }),
+    z.object({
+        type: z.literal(MissionObjectiveRewardType.PLAY_MOVIE),
+        movieId: z.string(),
+    }),
 ])
 
 export type SerializedMissionObjectiveReward = z.infer<
@@ -84,6 +95,13 @@ export const MissionObjectiveRewardService = {
             type: MissionObjectiveRewardType.MISSION_FAILURE,
         }
     },
+
+    newPlayMovieReward: (movieId: string): PlayMovieReward => {
+        return {
+            type: MissionObjectiveRewardType.PLAY_MOVIE,
+            movieId,
+        }
+    },
     serialize: (
         reward: MissionObjectiveReward
     ): SerializedMissionObjectiveReward => {
@@ -93,6 +111,9 @@ export const MissionObjectiveRewardService = {
         if (reward.type === MissionObjectiveRewardType.NEXT_MISSIONS) {
             return { type: reward.type, missionIds: [...reward.missionIds] }
         }
+        if (reward.type === MissionObjectiveRewardType.PLAY_MOVIE) {
+            return { type: reward.type, movieId: reward.movieId }
+        }
         return { type: reward.type }
     },
 
@@ -100,6 +121,7 @@ export const MissionObjectiveRewardService = {
         type: string
         dialogueIds?: string[]
         missionIds?: string[]
+        movieId?: string
     }): MissionObjectiveReward => {
         if (data.type === MissionObjectiveRewardType.DIALOGUE) {
             return MissionObjectiveRewardService.newDialogueReward(
@@ -118,7 +140,17 @@ export const MissionObjectiveRewardService = {
         }
 
         if (data.type === MissionObjectiveRewardType.MISSION_FAILURE) {
-            return MissionObjectiveRewardService.newMissionEndsReward()
+            return MissionObjectiveRewardService.newMissionFailureReward()
+        }
+
+        if (data.type === MissionObjectiveRewardType.PLAY_MOVIE) {
+            if (data.movieId === undefined)
+                throw new Error(
+                    `[MissionObjectiveRewardService.createFromJSON]: movieId is required for PLAY_MOVIE reward`
+                )
+            return MissionObjectiveRewardService.newPlayMovieReward(
+                data.movieId
+            )
         }
 
         throw new Error(
