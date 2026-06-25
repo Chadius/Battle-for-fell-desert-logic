@@ -27,6 +27,7 @@ import {
 import { type SquaddieInfo, SquaddieInfoService } from "./squaddieInfo"
 import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect"
+import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection
@@ -813,6 +814,59 @@ export class InBattleSquaddieManager {
                 collection: this.inBattleSquaddieCollection!,
                 battleSquaddieId: params,
                 item,
+            })
+    }
+
+    putActionOnCooldown({
+        battleSquaddieId,
+        action,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        action: SquaddieAction
+    }): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.putActionOnCooldown.name
+        )
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.putActionOnCooldown({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+                action,
+            })
+    }
+
+    recordCooldown({
+        battleSquaddieId,
+        actionId,
+        turnsRemaining,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+        turnsRemaining: number
+    }): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.recordCooldown.name
+        )
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.recordCooldown({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+                actionId,
+                turnsRemaining,
+            })
+    }
+
+    decrementActionCooldowns(battleSquaddieId: BattleSquaddieId): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.decrementActionCooldowns.name
+        )
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.decrementActionCooldowns({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
             })
     }
 

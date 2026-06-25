@@ -109,6 +109,15 @@ export const SquaddieActionValidationService = {
     }): ActionValidationResult => {
         const squaddieAction = managers.squaddieActionManager.get(action.id)
 
+        const cooldownValidation = validateActionCooldown({
+            actor,
+            squaddieAction,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        })
+        if (!cooldownValidation.isValid) {
+            return cooldownValidation
+        }
+
         if (
             SquaddieActionService.getRequiredDecisions(squaddieAction)
                 .requiresTargetDestination &&
@@ -374,6 +383,20 @@ export const SquaddieActionValidationService = {
         for (const actionId of actionIds) {
             if (!managers.squaddieActionManager.has(actionId)) continue
             const squaddieAction = managers.squaddieActionManager.get(actionId)
+
+            const cooldownValidation = validateActionCooldown({
+                actor,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            })
+            if (!cooldownValidation.isValid) {
+                invalidActions.push({
+                    actionId,
+                    actionName: squaddieAction.name,
+                    reason: cooldownValidation.reason!,
+                })
+                continue
+            }
 
             const apReason = getActionPointInvalidReason({
                 actionPointCost:
@@ -944,6 +967,28 @@ const filterTargetsByLineOfSight = ({
             moveThroughWalls,
         })
     })
+}
+
+const validateActionCooldown = ({
+    actor,
+    squaddieAction,
+    inBattleSquaddieManager,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): ActionValidationResult => {
+    const actorSquaddie =
+        inBattleSquaddieManager.getSquaddie(actor).inBattleSquaddie
+    const turnsRemaining = actorSquaddie.actionCooldowns.get(squaddieAction.id)
+    const pluralTurns = turnsRemaining == 1 ? "turn" : "turns"
+    if (turnsRemaining != undefined) {
+        return {
+            isValid: false,
+            reason: `Cannot be used for ${turnsRemaining} ${pluralTurns}`,
+        }
+    }
+    return { isValid: true }
 }
 
 const validateActionPointCost = ({

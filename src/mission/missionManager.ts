@@ -759,6 +759,12 @@ export class MissionManager {
             )
 
         for (const battleSquaddieId of battleSquaddieIds) {
+            if (turnEndPhases.has(currentPhase)) {
+                this.inBattleSquaddieManager!.decrementActionCooldowns(
+                    battleSquaddieId
+                )
+            }
+
             const dispelledConditions =
                 this.inBattleSquaddieManager!.reduceConditionDurationsByOneRound(
                     { ...battleSquaddieId, decaysAt }

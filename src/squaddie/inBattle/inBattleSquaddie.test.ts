@@ -4,6 +4,8 @@ import {
     InBattleSquaddieService,
     type SerializedInBattleSquaddie,
 } from "./inBattleSquaddie"
+import { SquaddieActionService } from "../../squaddieAction/squaddieAction"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
@@ -1007,6 +1009,100 @@ describe("InBattleSquaddie", () => {
             expect(
                 afterTwoTicks.conditions.get(SquaddieConditionType.ARMOR)
             ).toBeUndefined()
+        })
+    })
+})
+
+describe("actionCooldowns", () => {
+    let freshSquaddie: InBattleSquaddie
+
+    beforeEach(() => {
+        const attributeSheet =
+            OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                id: "sheet",
+                maxHitPoints: 10,
+                attributeScores: {
+                    [AttributeScore.BODY]: 5,
+                    [AttributeScore.MIND]: 5,
+                    [AttributeScore.SOUL]: 5,
+                },
+                items: { itemIds: [], maxCapacity: 0 },
+                distancePerAction: 2,
+                skipOverPits: false,
+                moveThroughWalls: false,
+                stopOnSquaddies: false,
+            })
+        const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+            id: "squaddie-out",
+            name: "Test Squaddie",
+            actionIds: [],
+            attributeSheetId: "sheet",
+            affiliation: SquaddieAffiliation.NONE,
+        })
+        freshSquaddie = InBattleSquaddieService.new({
+            id: 1,
+            name: "Test Squaddie",
+            outOfBattleSquaddie,
+            attributeSheet,
+        })
+    })
+
+    describe("when a new InBattleSquaddie is created", () => {
+        it("has an empty actionCooldowns map", () => {
+            expect(freshSquaddie.actionCooldowns.size).toBe(0)
+        })
+    })
+
+    describe("putActionOnCooldown", () => {
+        describe("when called with an action that has cooldownTurns", () => {
+            it("records the action in actionCooldowns with the specified turns remaining", () => {
+                const actionWithCooldown = SquaddieActionService.new({
+                    id: "freeze-blast",
+                    name: "Freeze Blast",
+                    cooldownTurns: 2,
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                })
+
+                const { squaddie } =
+                    InBattleSquaddieService.putActionOnCooldown({
+                        squaddie: freshSquaddie,
+                        action: actionWithCooldown,
+                    })
+
+                expect(squaddie.actionCooldowns.get("freeze-blast")).toBe(2)
+            })
+        })
+    })
+
+    describe("serialization", () => {
+        describe("when an InBattleSquaddie with actionCooldowns is serialized and deserialized", () => {
+            it("preserves the actionCooldowns map", () => {
+                const { squaddie: squaddieWithCooldown } =
+                    InBattleSquaddieService.putActionOnCooldown({
+                        squaddie: freshSquaddie,
+                        action: SquaddieActionService.new({
+                            id: "freeze-blast",
+                            name: "Freeze Blast",
+                            cooldownTurns: 2,
+                            effectOnActor: {
+                                [DegreeOfSuccess.SUCCESS]: {
+                                    actionPoints: { spent: 1 },
+                                },
+                            },
+                        }),
+                    })
+
+                const serialized =
+                    InBattleSquaddieService.serialize(squaddieWithCooldown)
+                const deserialized =
+                    InBattleSquaddieService.deserialize(serialized)
+
+                expect(deserialized.actionCooldowns.get("freeze-blast")).toBe(2)
+            })
         })
     })
 })

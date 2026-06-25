@@ -82,6 +82,7 @@ export interface SquaddieAction {
     multipleAttackPenalty: MultipleAttackPenalty
     effectOnActor: DegreeOfSuccessEffects
     effectOnTarget?: DegreeOfSuccessEffects
+    cooldownTurns?: number
 }
 
 const WEAPON_PROFICIENCY_TYPES: ReadonlySet<TProficiencyType> = new Set([
@@ -127,6 +128,7 @@ export const squaddieActionSchema = z.object({
     }),
     effectOnActor: degreeOfSuccessEffectsSchema,
     effectOnTarget: degreeOfSuccessEffectsSchema.optional(),
+    cooldownTurns: z.number().optional(),
 })
 
 export type SerializedSquaddieAction = z.infer<typeof squaddieActionSchema>
@@ -169,6 +171,7 @@ const serializeSquaddieAction = (
         action.effectOnTarget == undefined
             ? undefined
             : serializeDegreeOfSuccessEffects(action.effectOnTarget),
+    cooldownTurns: action.cooldownTurns,
 })
 
 export const SquaddieActionService = {
@@ -190,6 +193,7 @@ export const SquaddieActionService = {
         effectOnTarget,
         howToDetermineDegreeOfSuccess,
         multipleAttackPenalty,
+        cooldownTurns,
     }: Omit<Partial<SquaddieAction>, "multipleAttackPenalty"> &
         Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
         Partial<SquaddieActionTargeting> & {
@@ -232,6 +236,7 @@ export const SquaddieActionService = {
             multipleAttackPenalty: resolvedMultipleAttackPenalty,
             effectOnActor,
             effectOnTarget,
+            cooldownTurns,
         }
     },
     defaultEndTurn: (): SquaddieAction => {

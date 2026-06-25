@@ -66,6 +66,10 @@ export interface SquaddieActionResult {
     movement?: {
         expectedPath: CoordinateMovePath
     }
+    cooldown?: {
+        actionId: string
+        turnsRemaining: number
+    }
 }
 
 export type SerializedSquaddieActionResult = Omit<

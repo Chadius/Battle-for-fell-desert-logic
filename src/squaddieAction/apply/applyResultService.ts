@@ -45,6 +45,7 @@ const applyResultToSquaddie = ({
     })
     applyDamageResultToSquaddie({ inBattleSquaddieManager, result })
     applyHealingResultToSquaddie({ inBattleSquaddieManager, result })
+    applyActionCooldownResultToSquaddie({ inBattleSquaddieManager, result })
     moveSquaddie({ result, map })
 }
 
@@ -160,6 +161,25 @@ const treatConditionsResultToSquaddie = ({
         inBattleSquaddieId: result.inBattleSquaddieId,
         outOfBattleSquaddieId: result.outOfBattleSquaddieId,
         ...result.treat,
+    })
+}
+
+const applyActionCooldownResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.cooldown == undefined) return
+
+    inBattleSquaddieManager.recordCooldown({
+        battleSquaddieId: {
+            inBattleSquaddieId: result.inBattleSquaddieId,
+            outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        },
+        actionId: result.cooldown.actionId,
+        turnsRemaining: result.cooldown.turnsRemaining,
     })
 }
 

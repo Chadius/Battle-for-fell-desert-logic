@@ -572,6 +572,50 @@ describe("categorizeSquaddieActions", () => {
         })
     })
 
+    describe("when the actor has an action on cooldown with 2 turns remaining", () => {
+        it("lists the action in invalidActions with the cooldown reason", () => {
+            const cooldownAction = SquaddieActionService.new({
+                id: meleeAttackId,
+                name: "Melee Attack",
+                cooldownTurns: 2,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+                effectOnTarget: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        damage: {
+                            raw: 2,
+                            targetProficiency: ProficiencyType.ARMOR,
+                        },
+                    },
+                },
+            })
+            squaddieActionManager.addOrUpdate(cooldownAction)
+            inBattleSquaddieManager.putActionOnCooldown({
+                battleSquaddieId: actor,
+                action: cooldownAction,
+            })
+
+            const result =
+                SquaddieActionValidationService.categorizeSquaddieActions({
+                    actor,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager,
+                        coordinateMapCollectionManager,
+                    },
+                    map: { mapId },
+                })
+
+            expect(result.invalidActions).toContainEqual(
+                expect.objectContaining({
+                    actionId: meleeAttackId,
+                    reason: "Cannot be used for 2 turns",
+                })
+            )
+        })
+    })
+
     it("Movement is invalid when surrounded with no reachable destinations", () => {
         let smallMapCollection = CoordinateMapCollectionService.new()
         smallMapCollection = CoordinateMapCollectionService.addOrUpdate({

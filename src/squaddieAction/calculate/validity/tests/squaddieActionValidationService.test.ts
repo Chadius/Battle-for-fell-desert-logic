@@ -715,4 +715,41 @@ describe("SquaddieActionValidationService", () => {
             expect(result.isValid).toBe(true)
         })
     })
+
+    describe("cooldown validation", () => {
+        describe("when the actor's action is on cooldown with 2 turns remaining", () => {
+            it("returns invalid with a message stating how many turns remain", () => {
+                const cooldownAction = SquaddieActionService.new({
+                    id: "freeze-blast",
+                    name: "Freeze Blast",
+                    cooldownTurns: 2,
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                })
+                squaddieActionManager.addOrUpdate(cooldownAction)
+                inBattleSquaddieManager.putActionOnCooldown({
+                    battleSquaddieId: actor,
+                    action: cooldownAction,
+                })
+
+                const result = SquaddieActionValidationService.isActionValid({
+                    actor,
+                    action: { id: cooldownAction.id },
+                    targets: [],
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager,
+                        coordinateMapCollectionManager,
+                    },
+                    map: { mapId },
+                })
+
+                expect(result.isValid).toBe(false)
+                expect(result.reason).toBe("Cannot be used for 2 turns")
+            })
+        })
+    })
 })

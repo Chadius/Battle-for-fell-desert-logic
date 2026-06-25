@@ -974,3 +974,20 @@ describe("SquaddieActionService serialization", () => {
         ).toThrow("[SquaddieActionService.deserialize]:")
     })
 })
+
+describe("cooldownTurns", () => {
+    describe("when a SquaddieAction is created with cooldownTurns", () => {
+        it("stores the specified cooldown duration", () => {
+            const action = SquaddieActionService.new({
+                id: "freeze-blast",
+                name: "Freeze Blast",
+                cooldownTurns: 2,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.cooldownTurns).toBe(2)
+        })
+    })
+})

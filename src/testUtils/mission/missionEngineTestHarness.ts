@@ -594,4 +594,23 @@ export class MissionEngineTestHarness extends MissionEngine {
         this.transitionToNextPhase()
         this.transitionToNextPhase()
     }
+
+    putActionOnCooldown(
+        battleSquaddieId: BattleSquaddieId,
+        action: SquaddieAction
+    ): void {
+        this.missionManager!.inBattleSquaddieManager!.putActionOnCooldown({
+            battleSquaddieId,
+            action,
+        })
+    }
+
+    getActionCooldownRemainingForSquaddie(
+        battleSquaddieId: BattleSquaddieId,
+        actionId: string
+    ): number | undefined {
+        return this.missionManager!.inBattleSquaddieManager!.getSquaddie(
+            battleSquaddieId
+        ).inBattleSquaddie.actionCooldowns.get(actionId)
+    }
 }
