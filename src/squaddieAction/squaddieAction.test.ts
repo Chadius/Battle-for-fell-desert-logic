@@ -976,7 +976,7 @@ describe("SquaddieActionService serialization", () => {
 })
 
 describe("cooldownTurns", () => {
-    describe("when a SquaddieAction is created with cooldownTurns", () => {
+    describe("when a SquaddieAction is created with a positive cooldownTurns", () => {
         it("stores the specified cooldown duration", () => {
             const action = SquaddieActionService.new({
                 id: "freeze-blast",
