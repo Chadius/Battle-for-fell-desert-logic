@@ -128,7 +128,7 @@ export const squaddieActionSchema = z.object({
     }),
     effectOnActor: degreeOfSuccessEffectsSchema,
     effectOnTarget: degreeOfSuccessEffectsSchema.optional(),
-    cooldownTurns: z.number().optional(),
+    cooldownTurns: z.number().min(1).optional(),
 })
 
 export type SerializedSquaddieAction = z.infer<typeof squaddieActionSchema>
@@ -199,6 +199,11 @@ export const SquaddieActionService = {
         Partial<SquaddieActionTargeting> & {
             multipleAttackPenalty?: Partial<MultipleAttackPenalty>
         }): SquaddieAction => {
+        if (cooldownTurns != undefined && cooldownTurns <= 0) {
+            throw new Error(
+                `[SquaddieActionService.new]: cooldownTurns must be positive, got ${cooldownTurns}`
+            )
+        }
         const resolvedProficiency = proficiency ?? ProficiencyType.UNKNOWN
         const isWeapon = WEAPON_PROFICIENCY_TYPES.has(resolvedProficiency)
         const resolvedMultipleAttackPenalty: MultipleAttackPenalty = {
