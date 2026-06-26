@@ -135,14 +135,23 @@ export const SquaddieActionResultCalculator = {
         )
 
         const actorResults: SquaddieActionResult[] = includeActorEffects
-            ? calculateEffectOnSquaddie({
-                  effect: squaddieAction.effectOnActor[actorEffectiveDegree],
-                  decisions: action.decisions,
-                  map,
-                  managers,
-                  actor: actorSquaddie,
-                  target: actorSquaddie,
-              })
+            ? [
+                  ...calculateEffectOnSquaddie({
+                      effect: squaddieAction.effectOnActor[
+                          actorEffectiveDegree
+                      ],
+                      decisions: action.decisions,
+                      map,
+                      managers,
+                      actor: actorSquaddie,
+                      target: actorSquaddie,
+                  }),
+                  ...calculateCooldownResult({
+                      battleSquaddieId: actor,
+                      actionId: action.id,
+                      cooldownTurns: squaddieAction.cooldownTurns,
+                  }),
+              ]
             : []
 
         const coordinateMap = map?.mapId
@@ -471,6 +480,25 @@ const calculateActionPointChange = ({
                         ? target.inBattleSquaddie.actionPoints.current
                         : actionPoints.spent,
             }),
+        },
+    ]
+}
+
+const calculateCooldownResult = ({
+    battleSquaddieId,
+    actionId,
+    cooldownTurns,
+}: {
+    battleSquaddieId: BattleSquaddieId
+    actionId: string
+    cooldownTurns: number | undefined
+}): SquaddieActionResult[] => {
+    if (cooldownTurns == undefined) return []
+    return [
+        {
+            inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,
+            outOfBattleSquaddieId: battleSquaddieId.outOfBattleSquaddieId,
+            cooldown: { actionId, turnsRemaining: cooldownTurns },
         },
     ]
 }

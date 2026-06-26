@@ -103,8 +103,7 @@ export const SquaddieConditionService = {
         isBinary(squaddieCondition),
     isHelpful: (squaddieCondition: SquaddieCondition): boolean =>
         helpfulTypes.has(squaddieCondition.type) &&
-        (isBinary(squaddieCondition) ||
-            squaddieCondition.amount!.current > 0),
+        (isBinary(squaddieCondition) || squaddieCondition.amount!.current > 0),
     isHindering: (squaddieCondition: SquaddieCondition): boolean =>
         (hinderingTypes.has(squaddieCondition.type) &&
             (isBinary(squaddieCondition) ||

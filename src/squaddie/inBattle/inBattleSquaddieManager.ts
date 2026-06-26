@@ -860,9 +860,9 @@ export class InBattleSquaddieManager {
         this.throwIfInBattleSquaddieCollectionIsUndefined(
             this.getActionCooldown.name
         )
-        return this.getSquaddie(battleSquaddieId).inBattleSquaddie.actionCooldowns.get(
-            actionId
-        )
+        return this.getSquaddie(
+            battleSquaddieId
+        ).inBattleSquaddie.actionCooldowns.get(actionId)
     }
 
     getPassiveItemIds(

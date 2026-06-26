@@ -1040,7 +1040,9 @@ describe("cooldownTurns", () => {
                 cooldownTurns: 0,
             }
 
-            expect(() => SquaddieActionService.deserialize(serialized)).toThrow()
+            expect(() =>
+                SquaddieActionService.deserialize(serialized)
+            ).toThrow()
         })
     })
 })
