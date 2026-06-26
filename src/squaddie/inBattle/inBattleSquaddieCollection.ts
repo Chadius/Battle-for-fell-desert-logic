@@ -814,6 +814,68 @@ export const InBattleSquaddieCollectionService = {
             battleSquaddieId,
         })
     },
+    recordCooldown: ({
+        collection,
+        battleSquaddieId,
+        actionId,
+        turnsRemaining,
+    }: {
+        collection: InBattleSquaddieCollection
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+        turnsRemaining: number
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "recordCooldown")
+        const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
+            collection,
+            battleSquaddieId,
+        })
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "recordCooldown",
+            collection,
+            battleSquaddieId,
+        })
+
+        const { squaddie } = InBattleSquaddieService.recordCooldown({
+            squaddie: inBattleSquaddie!,
+            actionId,
+            turnsRemaining,
+        })
+
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: squaddie,
+            battleSquaddieId,
+        })
+    },
+    decrementActionCooldowns: ({
+        collection,
+        battleSquaddieId,
+    }: {
+        collection: InBattleSquaddieCollection
+        battleSquaddieId: BattleSquaddieId
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "decrementActionCooldowns")
+        const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
+            collection,
+            battleSquaddieId,
+        })
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "decrementActionCooldowns",
+            collection,
+            battleSquaddieId,
+        })
+
+        const { squaddie } = InBattleSquaddieService.decrementActionCooldowns({
+            squaddie: inBattleSquaddie!,
+        })
+
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: squaddie,
+            battleSquaddieId,
+        })
+    },
     serialize: (
         collection: InBattleSquaddieCollection
     ): SerializedInBattleSquaddieCollection => {

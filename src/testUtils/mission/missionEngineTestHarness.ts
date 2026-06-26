@@ -5,21 +5,21 @@ import {
     type SerializedMissionState,
 } from "../../mission/missionState"
 import type { SerializedCoordinateMap } from "../../coordinateMap/coordinateMap"
+import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
 import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
 import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
 import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
 import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
+import type { SerializedOutOfBattleSquaddieAttributeSheet } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { OutOfBattleSquaddieAttributeSheetService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import {
     OutOfBattleSquaddieService,
     type SerializedOutOfBattleSquaddie,
 } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
-import type { SerializedOutOfBattleSquaddieAttributeSheet } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import {
@@ -296,6 +296,7 @@ export class MissionEngineTestHarness extends MissionEngine {
             proficiency: ProficiencyType.SKILL_SOUL,
             range: ActionRange.SHORT,
             shape: CoordinateGeneratorShape.BLOOM,
+            cooldownTurns: 2,
             affiliationRelationship: {
                 self: true,
                 foe: false,
@@ -593,5 +594,27 @@ export class MissionEngineTestHarness extends MissionEngine {
     advanceToPlayerTurn(): void {
         this.transitionToNextPhase()
         this.transitionToNextPhase()
+    }
+
+    putActionOnCooldown(
+        battleSquaddieId: BattleSquaddieId,
+        squaddieAction: SquaddieAction
+    ): void {
+        if (squaddieAction.cooldownTurns == undefined) return
+        this.missionManager!.inBattleSquaddieManager!.recordCooldown({
+            battleSquaddieId,
+            actionId: squaddieAction.id,
+            turnsRemaining: squaddieAction.cooldownTurns,
+        })
+    }
+
+    getActionCooldownRemainingForSquaddie(
+        battleSquaddieId: BattleSquaddieId,
+        actionId: string
+    ): number | undefined {
+        return this.missionManager!.inBattleSquaddieManager!.getActionCooldown({
+            battleSquaddieId,
+            actionId,
+        })
     }
 }

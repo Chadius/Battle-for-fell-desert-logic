@@ -49,6 +49,8 @@ export interface InvalidSquaddieAction {
     actionId: string
     actionName: string
     reason: string
+    apCost?: ActionPointCost
+    cooldownTurns?: number
 }
 
 export interface ValidSquaddieAction {
@@ -56,6 +58,8 @@ export interface ValidSquaddieAction {
     actionName: string
     reachableCoordinates: OffsetCoordinate[]
     aimCoordinateResults: AimCoordinateResult[]
+    apCost?: ActionPointCost
+    cooldownTurns?: number
 }
 
 export interface SquaddieActionValidity {
@@ -108,6 +112,15 @@ export const SquaddieActionValidationService = {
         }
     }): ActionValidationResult => {
         const squaddieAction = managers.squaddieActionManager.get(action.id)
+
+        const cooldownValidation = validateActionCooldown({
+            actor,
+            squaddieAction,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        })
+        if (!cooldownValidation.isValid) {
+            return cooldownValidation
+        }
 
         if (
             SquaddieActionService.getRequiredDecisions(squaddieAction)
@@ -375,9 +388,27 @@ export const SquaddieActionValidationService = {
             if (!managers.squaddieActionManager.has(actionId)) continue
             const squaddieAction = managers.squaddieActionManager.get(actionId)
 
+            const cooldownValidation = validateActionCooldown({
+                actor,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            })
+            const apCost =
+                squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
+
+            if (!cooldownValidation.isValid) {
+                invalidActions.push({
+                    actionId,
+                    actionName: squaddieAction.name,
+                    reason: cooldownValidation.reason!,
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
+                })
+                continue
+            }
+
             const apReason = getActionPointInvalidReason({
-                actionPointCost:
-                    squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent,
+                actionPointCost: apCost,
                 currentActionPoints,
             })
             if (apReason != undefined) {
@@ -385,6 +416,8 @@ export const SquaddieActionValidationService = {
                     actionId,
                     actionName: squaddieAction.name,
                     reason: apReason,
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
                 })
                 continue
             }
@@ -412,6 +445,8 @@ export const SquaddieActionValidationService = {
                     actionId,
                     actionName: squaddieAction.name,
                     reason: "No applicable targets in range",
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
                 })
                 continue
             }
@@ -433,6 +468,8 @@ export const SquaddieActionValidationService = {
                     actionId,
                     actionName: squaddieAction.name,
                     reason: "No targets can be affected",
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
                 })
                 continue
             }
@@ -442,6 +479,8 @@ export const SquaddieActionValidationService = {
                 actionName: squaddieAction.name,
                 reachableCoordinates,
                 aimCoordinateResults: effectiveAimCoordinateResults,
+                apCost,
+                cooldownTurns: squaddieAction.cooldownTurns,
             })
         }
 
@@ -450,6 +489,7 @@ export const SquaddieActionValidationService = {
             actionName: "End Turn",
             reachableCoordinates: [],
             aimCoordinateResults: [],
+            apCost: "all",
         })
         checkForValidMovementAction(
             actor,
@@ -944,6 +984,29 @@ const filterTargetsByLineOfSight = ({
             moveThroughWalls,
         })
     })
+}
+
+const validateActionCooldown = ({
+    actor,
+    squaddieAction,
+    inBattleSquaddieManager,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): ActionValidationResult => {
+    const turnsRemaining = inBattleSquaddieManager.getActionCooldown({
+        battleSquaddieId: actor,
+        actionId: squaddieAction.id,
+    })
+    const pluralTurns = turnsRemaining == 1 ? "turn" : "turns"
+    if (turnsRemaining != undefined) {
+        return {
+            isValid: false,
+            reason: `Cannot be used for ${turnsRemaining} ${pluralTurns}`,
+        }
+    }
+    return { isValid: true }
 }
 
 const validateActionPointCost = ({

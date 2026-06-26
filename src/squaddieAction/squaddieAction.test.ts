@@ -974,3 +974,75 @@ describe("SquaddieActionService serialization", () => {
         ).toThrow("[SquaddieActionService.deserialize]:")
     })
 })
+
+describe("cooldownTurns", () => {
+    describe("when a SquaddieAction is created with a positive cooldownTurns", () => {
+        it("stores the specified cooldown duration", () => {
+            const action = SquaddieActionService.new({
+                id: "freeze-blast",
+                name: "Freeze Blast",
+                cooldownTurns: 2,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+
+            expect(action.cooldownTurns).toBe(2)
+        })
+    })
+
+    describe("when a SquaddieAction is created with cooldownTurns of 0", () => {
+        it("throws because cooldownTurns must be a positive number", () => {
+            expect(() =>
+                SquaddieActionService.new({
+                    id: "freeze-blast",
+                    name: "Freeze Blast",
+                    cooldownTurns: 0,
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                })
+            ).toThrow()
+        })
+    })
+
+    describe("when a SquaddieAction is created with a negative cooldownTurns", () => {
+        it("throws because cooldownTurns must be a positive number", () => {
+            expect(() =>
+                SquaddieActionService.new({
+                    id: "freeze-blast",
+                    name: "Freeze Blast",
+                    cooldownTurns: -1,
+                    effectOnActor: {
+                        [DegreeOfSuccess.SUCCESS]: {
+                            actionPoints: { spent: 1 },
+                        },
+                    },
+                })
+            ).toThrow()
+        })
+    })
+
+    describe("when a SquaddieAction is deserialized with cooldownTurns of 0", () => {
+        it("throws because cooldownTurns must be a positive number", () => {
+            const validAction = SquaddieActionService.new({
+                id: "freeze-blast",
+                name: "Freeze Blast",
+                cooldownTurns: 1,
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
+                },
+            })
+            const serialized = {
+                ...SquaddieActionService.serialize(validAction),
+                cooldownTurns: 0,
+            }
+
+            expect(() =>
+                SquaddieActionService.deserialize(serialized)
+            ).toThrow()
+        })
+    })
+})

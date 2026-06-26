@@ -99,13 +99,18 @@ export const SquaddieConditionService = {
             | undefined
         source: TSquaddieConditionSource
     }): SquaddieCondition => newSquaddieCondition(params),
-    isBinary: (t: SquaddieCondition): boolean => isBinary(t),
-    isHelpful: (t: SquaddieCondition): boolean =>
-        helpfulTypes.has(t.type) && (isBinary(t) || t.amount!.current > 0),
-    isHindering: (t: SquaddieCondition): boolean =>
-        (hinderingTypes.has(t.type) &&
-            (isBinary(t) || t.amount!.current > 0)) ||
-        (helpfulTypes.has(t.type) && !isBinary(t) && t.amount!.current < 0),
+    isBinary: (squaddieCondition: SquaddieCondition): boolean =>
+        isBinary(squaddieCondition),
+    isHelpful: (squaddieCondition: SquaddieCondition): boolean =>
+        helpfulTypes.has(squaddieCondition.type) &&
+        (isBinary(squaddieCondition) || squaddieCondition.amount!.current > 0),
+    isHindering: (squaddieCondition: SquaddieCondition): boolean =>
+        (hinderingTypes.has(squaddieCondition.type) &&
+            (isBinary(squaddieCondition) ||
+                squaddieCondition.amount!.current > 0)) ||
+        (helpfulTypes.has(squaddieCondition.type) &&
+            !isBinary(squaddieCondition) &&
+            squaddieCondition.amount!.current < 0),
     clone: (original: SquaddieCondition): SquaddieCondition => ({
         type: original.type,
         source: original.source,
@@ -144,7 +149,8 @@ export const SquaddieConditionService = {
     },
 }
 
-const isBinary = (t: SquaddieCondition): boolean => binaryTypes.has(t.type)
+const isBinary = (squaddieCondition: SquaddieCondition): boolean =>
+    binaryTypes.has(squaddieCondition.type)
 
 const newSquaddieCondition = ({
     type,

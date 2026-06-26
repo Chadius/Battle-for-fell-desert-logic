@@ -816,6 +816,55 @@ export class InBattleSquaddieManager {
             })
     }
 
+    recordCooldown({
+        battleSquaddieId,
+        actionId,
+        turnsRemaining,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+        turnsRemaining: number
+    }): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.recordCooldown.name
+        )
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.recordCooldown({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+                actionId,
+                turnsRemaining,
+            })
+    }
+
+    decrementActionCooldowns(battleSquaddieId: BattleSquaddieId): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.decrementActionCooldowns.name
+        )
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.decrementActionCooldowns({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+            })
+    }
+
+    getActionCooldown({
+        battleSquaddieId,
+        actionId,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): number | undefined {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.getActionCooldown.name
+        )
+        return this.getSquaddie(
+            battleSquaddieId
+        ).inBattleSquaddie.actionCooldowns.get(actionId)
+    }
+
     getPassiveItemIds(
         battleSquaddieId: BattleSquaddieId
     ): Map<
