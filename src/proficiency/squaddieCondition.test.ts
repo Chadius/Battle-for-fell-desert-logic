@@ -225,6 +225,46 @@ describe("Squaddie Condition", () => {
             ).toBeTruthy()
         })
     })
+    describe("classifying a condition type as helpful", () => {
+        it.each([
+            SquaddieConditionType.ARMOR,
+            SquaddieConditionType.ABSORB,
+            SquaddieConditionType.ELUSIVE,
+            SquaddieConditionType.HUSTLE,
+        ])("%s is a helpful type", (type) => {
+            expect(SquaddieConditionService.isHelpfulType(type)).toBe(true)
+        })
+
+        it.each([
+            SquaddieConditionType.FRIGHTENED,
+            SquaddieConditionType.OFF_GUARD,
+            SquaddieConditionType.SLOWED,
+            SquaddieConditionType.UNKNOWN,
+        ])("%s is not a helpful type", (type) => {
+            expect(SquaddieConditionService.isHelpfulType(type)).toBe(false)
+        })
+    })
+
+    describe("classifying a condition type as hindering", () => {
+        it.each([
+            SquaddieConditionType.FRIGHTENED,
+            SquaddieConditionType.OFF_GUARD,
+            SquaddieConditionType.SLOWED,
+        ])("%s is a hindering type", (type) => {
+            expect(SquaddieConditionService.isHinderingType(type)).toBe(true)
+        })
+
+        it.each([
+            SquaddieConditionType.ARMOR,
+            SquaddieConditionType.ABSORB,
+            SquaddieConditionType.ELUSIVE,
+            SquaddieConditionType.HUSTLE,
+            SquaddieConditionType.UNKNOWN,
+        ])("%s is not a hindering type", (type) => {
+            expect(SquaddieConditionService.isHinderingType(type)).toBe(false)
+        })
+    })
+
     describe("serialization", () => {
         it("round-trips a quantified timed condition", () => {
             const condition = SquaddieConditionService.new({
