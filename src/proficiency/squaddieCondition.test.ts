@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 
 import {
+    ConditionTypesByClassification,
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
@@ -262,6 +263,44 @@ describe("Squaddie Condition", () => {
             SquaddieConditionType.UNKNOWN,
         ])("%s is not a hindering type", (type) => {
             expect(SquaddieConditionService.isHinderingType(type)).toBe(false)
+        })
+    })
+
+    describe("classifying all condition types as helpful, hindering, or unclassified", () => {
+        let classification: ConditionTypesByClassification
+        beforeEach(() => {
+            classification =
+                SquaddieConditionService.conditionTypesByClassification()
+        })
+
+        it("groups helpful buff types together", () => {
+            expect(classification.helpful).toEqual(
+                expect.arrayContaining([
+                    SquaddieConditionType.ARMOR,
+                    SquaddieConditionType.ABSORB,
+                    SquaddieConditionType.ELUSIVE,
+                    SquaddieConditionType.HUSTLE,
+                ])
+            )
+            expect(classification.helpful).toHaveLength(4)
+        })
+
+        it("groups hindering debuff types together", () => {
+            expect(classification.hindering).toEqual(
+                expect.arrayContaining([
+                    SquaddieConditionType.FRIGHTENED,
+                    SquaddieConditionType.OFF_GUARD,
+                    SquaddieConditionType.SLOWED,
+                ])
+            )
+            expect(classification.hindering).toHaveLength(3)
+        })
+
+        it("groups types that are neither helpful nor hindering as unclassified", () => {
+            expect(classification.unclassified).toEqual(
+                expect.arrayContaining([SquaddieConditionType.UNKNOWN])
+            )
+            expect(classification.unclassified).toHaveLength(1)
         })
     })
 

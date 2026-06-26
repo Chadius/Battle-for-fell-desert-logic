@@ -48,6 +48,12 @@ const hinderingTypes = new Set<TSquaddieConditionType>([
     SquaddieConditionType.SLOWED,
 ])
 
+export interface ConditionTypesByClassification {
+    helpful: TSquaddieConditionType[]
+    hindering: TSquaddieConditionType[]
+    unclassified: TSquaddieConditionType[]
+}
+
 export interface SquaddieCondition {
     type: TSquaddieConditionType
     source: TSquaddieConditionSource
@@ -105,6 +111,17 @@ export const SquaddieConditionService = {
         helpfulTypes.has(type),
     isHinderingType: (type: TSquaddieConditionType): boolean =>
         hinderingTypes.has(type),
+    conditionTypesByClassification: (): ConditionTypesByClassification => ({
+        helpful: Object.values(SquaddieConditionType).filter((type) =>
+            helpfulTypes.has(type)
+        ),
+        hindering: Object.values(SquaddieConditionType).filter((type) =>
+            hinderingTypes.has(type)
+        ),
+        unclassified: Object.values(SquaddieConditionType).filter(
+            (type) => !helpfulTypes.has(type) && !hinderingTypes.has(type)
+        ),
+    }),
     isHelpful: (squaddieCondition: SquaddieCondition): boolean =>
         helpfulTypes.has(squaddieCondition.type) &&
         (isBinary(squaddieCondition) ||
