@@ -4,7 +4,6 @@ import {
     InBattleSquaddieService,
     type SerializedInBattleSquaddie,
 } from "./inBattleSquaddie"
-import { SquaddieActionService } from "../../squaddieAction/squaddieAction"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
 import {
     SquaddieConditionDecaysAt,
@@ -1053,47 +1052,14 @@ describe("actionCooldowns", () => {
         })
     })
 
-    describe("putActionOnCooldown", () => {
-        describe("when called with an action that has cooldownTurns", () => {
-            it("records the action in actionCooldowns with the specified turns remaining", () => {
-                const actionWithCooldown = SquaddieActionService.new({
-                    id: "freeze-blast",
-                    name: "Freeze Blast",
-                    cooldownTurns: 2,
-                    effectOnActor: {
-                        [DegreeOfSuccess.SUCCESS]: {
-                            actionPoints: { spent: 1 },
-                        },
-                    },
-                })
-
-                const { squaddie } =
-                    InBattleSquaddieService.putActionOnCooldown({
-                        squaddie: freshSquaddie,
-                        action: actionWithCooldown,
-                    })
-
-                expect(squaddie.actionCooldowns.get("freeze-blast")).toBe(2)
-            })
-        })
-    })
-
     describe("serialization", () => {
         describe("when an InBattleSquaddie with actionCooldowns is serialized and deserialized", () => {
             it("preserves the actionCooldowns map", () => {
                 const { squaddie: squaddieWithCooldown } =
-                    InBattleSquaddieService.putActionOnCooldown({
+                    InBattleSquaddieService.recordCooldown({
                         squaddie: freshSquaddie,
-                        action: SquaddieActionService.new({
-                            id: "freeze-blast",
-                            name: "Freeze Blast",
-                            cooldownTurns: 2,
-                            effectOnActor: {
-                                [DegreeOfSuccess.SUCCESS]: {
-                                    actionPoints: { spent: 1 },
-                                },
-                            },
-                        }),
+                        actionId: "freeze-blast",
+                        turnsRemaining: 2,
                     })
 
                 const serialized =

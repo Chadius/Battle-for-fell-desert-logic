@@ -14,7 +14,7 @@ describe("cooldownDecay", () => {
     })
 
     describe("when a squaddie has an action on cooldown with 2 turns remaining", () => {
-        it("decrements the cooldown to 1 after the player turn ends", () => {
+        beforeEach(() => {
             harness.advanceToPlayerTurn()
             harness.putActionOnCooldown(
                 liniId,
@@ -29,9 +29,10 @@ describe("cooldownDecay", () => {
                     },
                 })
             )
-
             harness.endSquaddieTurn(liniId)
+        })
 
+        it("decrements the cooldown to 1 after the player turn ends", () => {
             expect(
                 harness.getActionCooldownRemainingForSquaddie(
                     liniId,
@@ -42,7 +43,7 @@ describe("cooldownDecay", () => {
     })
 
     describe("when a squaddie has an action on cooldown with 1 turn remaining", () => {
-        it("removes the cooldown after the player turn ends", () => {
+        beforeEach(() => {
             harness.advanceToPlayerTurn()
             harness.putActionOnCooldown(
                 liniId,
@@ -57,9 +58,10 @@ describe("cooldownDecay", () => {
                     },
                 })
             )
-
             harness.endSquaddieTurn(liniId)
+        })
 
+        it("removes the cooldown after the player turn ends", () => {
             expect(
                 harness.getActionCooldownRemainingForSquaddie(
                     liniId,

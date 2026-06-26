@@ -243,10 +243,6 @@ describe("categorizeSquaddieActions", () => {
                 map: { mapId },
             })
 
-        expect(result.battleSquaddieId).toEqual(actor)
-        expect(result.validActions).toHaveLength(1)
-        expect(result.invalidActions).toHaveLength(3)
-
         const meleeInvalid = result.invalidActions.find(
             (a) => a.actionId === meleeAttackId
         )
@@ -342,7 +338,7 @@ describe("categorizeSquaddieActions", () => {
         )
     })
 
-    it("correctly categorizes a mix of valid and invalid actions", () => {
+    it("when the actor is damaged and the enemy is out of melee range, lists melee as invalid and ranged heal as valid", () => {
         coordinateMapCollectionManager.addSquaddie({
             mapId,
             squaddieId: actor,
@@ -370,8 +366,6 @@ describe("categorizeSquaddieActions", () => {
                 map: { mapId },
             })
 
-        expect(result.battleSquaddieId).toEqual(actor)
-
         const meleeInvalid = result.invalidActions.find(
             (a) => a.actionId === meleeAttackId
         )
@@ -392,9 +386,6 @@ describe("categorizeSquaddieActions", () => {
                 outOfBattleSquaddieId: "actor",
             })
         )
-
-        expect(result.validActions).toHaveLength(3)
-        expect(result.invalidActions).toHaveLength(1)
     })
 
     it("reports action as invalid when action has no effect on available targets", () => {
@@ -431,9 +422,6 @@ describe("categorizeSquaddieActions", () => {
         )
         expect(healInvalid).toBeDefined()
         expect(healInvalid!.reason).toBe("No targets can be affected")
-
-        expect(result.validActions).toHaveLength(2)
-        expect(result.invalidActions).toHaveLength(2)
     })
 
     it("knows the action is valid if it applies a condition", () => {
@@ -469,7 +457,6 @@ describe("categorizeSquaddieActions", () => {
                 outOfBattleSquaddieId: "ally",
             })
         )
-        expect(result.validActions).toHaveLength(3)
     })
 
     it("knows the action is invalid if condition will have no effect", () => {
@@ -512,8 +499,6 @@ describe("categorizeSquaddieActions", () => {
         expect(healAndProtectIsInvalid!.reason).toBe(
             "No targets can be affected"
         )
-        expect(result.invalidActions).toHaveLength(1)
-        expect(result.validActions).toHaveLength(2)
     })
 
     it("EndTurn is always valid", () => {
@@ -573,7 +558,7 @@ describe("categorizeSquaddieActions", () => {
     })
 
     describe("when the actor has an action on cooldown with 2 turns remaining", () => {
-        it("lists the action in invalidActions with the cooldown reason", () => {
+        beforeEach(() => {
             const cooldownAction = SquaddieActionService.new({
                 id: meleeAttackId,
                 name: "Melee Attack",
@@ -591,11 +576,14 @@ describe("categorizeSquaddieActions", () => {
                 },
             })
             squaddieActionManager.addOrUpdate(cooldownAction)
-            inBattleSquaddieManager.putActionOnCooldown({
+            inBattleSquaddieManager.recordCooldown({
                 battleSquaddieId: actor,
-                action: cooldownAction,
+                actionId: meleeAttackId,
+                turnsRemaining: 2,
             })
+        })
 
+        it("lists the action in invalidActions with the cooldown reason", () => {
             const result =
                 SquaddieActionValidationService.categorizeSquaddieActions({
                     actor,

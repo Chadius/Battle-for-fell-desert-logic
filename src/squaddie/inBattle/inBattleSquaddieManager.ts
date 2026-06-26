@@ -27,7 +27,6 @@ import {
 import { type SquaddieInfo, SquaddieInfoService } from "./squaddieInfo"
 import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection
@@ -817,25 +816,6 @@ export class InBattleSquaddieManager {
             })
     }
 
-    putActionOnCooldown({
-        battleSquaddieId,
-        action,
-    }: {
-        battleSquaddieId: BattleSquaddieId
-        action: SquaddieAction
-    }): void {
-        this.throwIfInBattleSquaddieCollectionIsUndefined(
-            this.putActionOnCooldown.name
-        )
-
-        this.inBattleSquaddieCollection =
-            InBattleSquaddieCollectionService.putActionOnCooldown({
-                collection: this.inBattleSquaddieCollection!,
-                battleSquaddieId,
-                action,
-            })
-    }
-
     recordCooldown({
         battleSquaddieId,
         actionId,
@@ -868,6 +848,21 @@ export class InBattleSquaddieManager {
                 collection: this.inBattleSquaddieCollection!,
                 battleSquaddieId,
             })
+    }
+
+    getActionCooldown({
+        battleSquaddieId,
+        actionId,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): number | undefined {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.getActionCooldown.name
+        )
+        return this.getSquaddie(battleSquaddieId).inBattleSquaddie.actionCooldowns.get(
+            actionId
+        )
     }
 
     getPassiveItemIds(

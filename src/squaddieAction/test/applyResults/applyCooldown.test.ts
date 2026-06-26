@@ -54,9 +54,12 @@ describe("ApplyResultService cooldown", () => {
                 results: [actorResult],
             })
 
-            const actor =
-                inBattleSquaddieManager.getSquaddie(actorId).inBattleSquaddie
-            expect(actor.actionCooldowns.get("freeze-blast")).toBe(2)
+            expect(
+                inBattleSquaddieManager.getActionCooldown({
+                    battleSquaddieId: actorId,
+                    actionId: "freeze-blast",
+                })
+            ).toBe(2)
         })
     })
 })

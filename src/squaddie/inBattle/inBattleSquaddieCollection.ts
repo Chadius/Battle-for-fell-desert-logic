@@ -21,7 +21,6 @@ import {
 import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
 import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 
 export interface InBattleSquaddieCollection {
     byOutOfBattleSquaddieId: Map<string, InBattleSquaddie[]>
@@ -807,37 +806,6 @@ export const InBattleSquaddieCollectionService = {
         const squaddie = InBattleSquaddieService.useItem({
             squaddie: inBattleSquaddie!,
             item,
-        })
-
-        return addOrUpdateSquaddie({
-            collection,
-            inBattleSquaddie: squaddie,
-            battleSquaddieId,
-        })
-    },
-    putActionOnCooldown: ({
-        collection,
-        battleSquaddieId,
-        action,
-    }: {
-        collection: InBattleSquaddieCollection
-        battleSquaddieId: BattleSquaddieId
-        action: SquaddieAction
-    }): InBattleSquaddieCollection => {
-        throwIfCollectionIsUndefined(collection, "putActionOnCooldown")
-        const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
-            collection,
-            battleSquaddieId,
-        })
-        throwErrorsIfSquaddieIsUndefined({
-            functionName: "putActionOnCooldown",
-            collection,
-            battleSquaddieId,
-        })
-
-        const { squaddie } = InBattleSquaddieService.putActionOnCooldown({
-            squaddie: inBattleSquaddie!,
-            action,
         })
 
         return addOrUpdateSquaddie({

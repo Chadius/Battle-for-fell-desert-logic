@@ -992,7 +992,7 @@ describe("cooldownTurns", () => {
     })
 
     describe("when a SquaddieAction is created with cooldownTurns of 0", () => {
-        it("throws an error", () => {
+        it("throws because cooldownTurns must be a positive number", () => {
             expect(() =>
                 SquaddieActionService.new({
                     id: "freeze-blast",
@@ -1009,7 +1009,7 @@ describe("cooldownTurns", () => {
     })
 
     describe("when a SquaddieAction is created with a negative cooldownTurns", () => {
-        it("throws an error", () => {
+        it("throws because cooldownTurns must be a positive number", () => {
             expect(() =>
                 SquaddieActionService.new({
                     id: "freeze-blast",
@@ -1026,7 +1026,7 @@ describe("cooldownTurns", () => {
     })
 
     describe("when a SquaddieAction is deserialized with cooldownTurns of 0", () => {
-        it("throws an error", () => {
+        it("throws because cooldownTurns must be a positive number", () => {
             const validAction = SquaddieActionService.new({
                 id: "freeze-blast",
                 name: "Freeze Blast",

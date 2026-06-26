@@ -49,6 +49,8 @@ export interface InvalidSquaddieAction {
     actionId: string
     actionName: string
     reason: string
+    apCost?: ActionPointCost
+    cooldownTurns?: number
 }
 
 export interface ValidSquaddieAction {
@@ -56,6 +58,8 @@ export interface ValidSquaddieAction {
     actionName: string
     reachableCoordinates: OffsetCoordinate[]
     aimCoordinateResults: AimCoordinateResult[]
+    apCost?: ActionPointCost
+    cooldownTurns?: number
 }
 
 export interface SquaddieActionValidity {
@@ -389,18 +393,22 @@ export const SquaddieActionValidationService = {
                 squaddieAction,
                 inBattleSquaddieManager: managers.inBattleSquaddieManager,
             })
+            const apCost =
+                squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
+
             if (!cooldownValidation.isValid) {
                 invalidActions.push({
                     actionId,
                     actionName: squaddieAction.name,
                     reason: cooldownValidation.reason!,
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
                 })
                 continue
             }
 
             const apReason = getActionPointInvalidReason({
-                actionPointCost:
-                    squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent,
+                actionPointCost: apCost,
                 currentActionPoints,
             })
             if (apReason != undefined) {
@@ -408,6 +416,8 @@ export const SquaddieActionValidationService = {
                     actionId,
                     actionName: squaddieAction.name,
                     reason: apReason,
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
                 })
                 continue
             }
@@ -435,6 +445,8 @@ export const SquaddieActionValidationService = {
                     actionId,
                     actionName: squaddieAction.name,
                     reason: "No applicable targets in range",
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
                 })
                 continue
             }
@@ -456,6 +468,8 @@ export const SquaddieActionValidationService = {
                     actionId,
                     actionName: squaddieAction.name,
                     reason: "No targets can be affected",
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
                 })
                 continue
             }
@@ -465,6 +479,8 @@ export const SquaddieActionValidationService = {
                 actionName: squaddieAction.name,
                 reachableCoordinates,
                 aimCoordinateResults: effectiveAimCoordinateResults,
+                apCost,
+                cooldownTurns: squaddieAction.cooldownTurns,
             })
         }
 
@@ -978,9 +994,10 @@ const validateActionCooldown = ({
     squaddieAction: SquaddieAction
     inBattleSquaddieManager: InBattleSquaddieManager
 }): ActionValidationResult => {
-    const actorSquaddie =
-        inBattleSquaddieManager.getSquaddie(actor).inBattleSquaddie
-    const turnsRemaining = actorSquaddie.actionCooldowns.get(squaddieAction.id)
+    const turnsRemaining = inBattleSquaddieManager.getActionCooldown({
+        battleSquaddieId: actor,
+        actionId: squaddieAction.id,
+    })
     const pluralTurns = turnsRemaining == 1 ? "turn" : "turns"
     if (turnsRemaining != undefined) {
         return {

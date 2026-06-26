@@ -718,26 +718,32 @@ describe("SquaddieActionValidationService", () => {
 
     describe("cooldown validation", () => {
         describe("when the actor's action is on cooldown with 2 turns remaining", () => {
-            it("returns invalid with a message stating how many turns remain", () => {
-                const cooldownAction = SquaddieActionService.new({
-                    id: "freeze-blast",
-                    name: "Freeze Blast",
-                    cooldownTurns: 2,
-                    effectOnActor: {
-                        [DegreeOfSuccess.SUCCESS]: {
-                            actionPoints: { spent: 1 },
-                        },
-                    },
-                })
-                squaddieActionManager.addOrUpdate(cooldownAction)
-                inBattleSquaddieManager.putActionOnCooldown({
-                    battleSquaddieId: actor,
-                    action: cooldownAction,
-                })
+            const frozenActionId = "freeze-blast"
 
+            beforeEach(() => {
+                squaddieActionManager.addOrUpdate(
+                    SquaddieActionService.new({
+                        id: frozenActionId,
+                        name: "Freeze Blast",
+                        cooldownTurns: 2,
+                        effectOnActor: {
+                            [DegreeOfSuccess.SUCCESS]: {
+                                actionPoints: { spent: 1 },
+                            },
+                        },
+                    })
+                )
+                inBattleSquaddieManager.recordCooldown({
+                    battleSquaddieId: actor,
+                    actionId: frozenActionId,
+                    turnsRemaining: 2,
+                })
+            })
+
+            it("returns invalid with a message stating how many turns remain", () => {
                 const result = SquaddieActionValidationService.isActionValid({
                     actor,
-                    action: { id: cooldownAction.id },
+                    action: { id: frozenActionId },
                     targets: [],
                     managers: {
                         inBattleSquaddieManager,

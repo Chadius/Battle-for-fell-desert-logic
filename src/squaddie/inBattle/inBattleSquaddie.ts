@@ -21,7 +21,6 @@ import {
 import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
 import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
 import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
 
 export const DEFAULT_ACTION_POINTS = 3
 
@@ -523,20 +522,6 @@ export const InBattleSquaddieService = {
         const newSquaddie = clone(squaddie)
         newSquaddie.itemIdsUsed.push(item.id)
         return newSquaddie
-    },
-    putActionOnCooldown: ({
-        squaddie,
-        action,
-    }: {
-        squaddie: InBattleSquaddie
-        action: SquaddieAction
-    }): { squaddie: InBattleSquaddie } => {
-        if (action.cooldownTurns == undefined) return { squaddie }
-        return InBattleSquaddieService.recordCooldown({
-            squaddie,
-            actionId: action.id,
-            turnsRemaining: action.cooldownTurns,
-        })
     },
     recordCooldown: ({
         squaddie,
@@ -1209,8 +1194,8 @@ const serialize = (squaddie: InBattleSquaddie): SerializedInBattleSquaddie => {
     }
 
     const actionCooldowns: Record<string, number> = {}
-    for (const [actionId, turns] of squaddie.actionCooldowns) {
-        actionCooldowns[actionId] = turns
+    for (const [actionId, turnsRemaining] of squaddie.actionCooldowns) {
+        actionCooldowns[actionId] = turnsRemaining
     }
 
     return {
