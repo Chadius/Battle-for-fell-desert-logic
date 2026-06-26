@@ -489,6 +489,7 @@ export const SquaddieActionValidationService = {
             actionName: "End Turn",
             reachableCoordinates: [],
             aimCoordinateResults: [],
+            apCost: "all",
         })
         checkForValidMovementAction(
             actor,
