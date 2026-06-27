@@ -62,6 +62,7 @@ export const MissionEngineTestHarnessIds = {
         blessingActionId: "lini-blessing",
         healActionId: "lini-heal",
         solarSphereActionId: "lini-solar-sphere",
+        limitedBlastActionId: "lini-limited-blast",
     },
     slitherDemon: {
         outOfBattleSquaddieId: "slither-demon",
@@ -245,6 +246,7 @@ export class MissionEngineTestHarness extends MissionEngine {
         manager.addOrUpdate(MissionEngineTestHarness.createBlessingAction())
         manager.addOrUpdate(MissionEngineTestHarness.createHealAction())
         manager.addOrUpdate(MissionEngineTestHarness.createSolarSphereAction())
+        manager.addOrUpdate(MissionEngineTestHarness.createLimitedBlastAction())
         manager.addOrUpdate(MissionEngineTestHarness.createClawAction())
         manager.addOrUpdate(SquaddieActionService.defaultMove())
         manager.addOrUpdate(SquaddieActionService.defaultEndTurn())
@@ -433,6 +435,44 @@ export class MissionEngineTestHarness extends MissionEngine {
         })
     }
 
+    private static createLimitedBlastAction(): SquaddieAction {
+        return SquaddieActionService.new({
+            id: MissionEngineTestHarnessIds.lini.limitedBlastActionId,
+            name: "Limited Blast",
+            usesPerTurn: 1,
+            range: ActionRange.MELEE,
+            shape: CoordinateGeneratorShape.BLOOM,
+            affiliationRelationship: {
+                self: true,
+                foe: false,
+                friend: false,
+            },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 1 },
+                },
+            },
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    conditions: {
+                        add: [
+                            SquaddieConditionService.new({
+                                type: SquaddieConditionType.ARMOR,
+                                amount: { amount: 1 },
+                                duration: {
+                                    duration: 1,
+                                    decaysAt:
+                                        SquaddieConditionDecaysAt.TURN_END,
+                                },
+                                source: SquaddieConditionSource.SPIRITUAL,
+                            }),
+                        ],
+                    },
+                },
+            },
+        })
+    }
+
     private static createClawAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.slitherDemon.clawActionId,
@@ -502,6 +542,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                 MissionEngineTestHarnessIds.lini.blessingActionId,
                 MissionEngineTestHarnessIds.lini.healActionId,
                 MissionEngineTestHarnessIds.lini.solarSphereActionId,
+                MissionEngineTestHarnessIds.lini.limitedBlastActionId,
             ],
             affiliation: SquaddieAffiliation.PLAYER,
         })
@@ -616,5 +657,27 @@ export class MissionEngineTestHarness extends MissionEngine {
             battleSquaddieId,
             actionId,
         })
+    }
+
+    recordActionUse(
+        battleSquaddieId: BattleSquaddieId,
+        actionId: string
+    ): void {
+        this.missionManager!.inBattleSquaddieManager!.recordActionUse({
+            battleSquaddieId,
+            actionId,
+        })
+    }
+
+    getActionUsesThisTurnForSquaddie(
+        battleSquaddieId: BattleSquaddieId,
+        actionId: string
+    ): number {
+        return this.missionManager!.inBattleSquaddieManager!.getActionUsesThisTurn(
+            {
+                battleSquaddieId,
+                actionId,
+            }
+        )
     }
 }

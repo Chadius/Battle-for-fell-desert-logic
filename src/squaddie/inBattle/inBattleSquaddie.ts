@@ -44,6 +44,7 @@ export interface InBattleSquaddie {
     }
     itemIdsUsed: string[]
     actionCooldowns: Map<string, number>
+    actionUsesThisTurn: Map<string, number>
 }
 
 export const serializedInBattleSquaddieSchema = z.object({
@@ -63,7 +64,12 @@ export const serializedInBattleSquaddieSchema = z.object({
         natural: z.array(z.string()),
     }),
     itemIdsUsed: z.array(z.string()),
-    actionCooldowns: z.record(z.string(), z.number()).default({}),
+    actionCooldowns: z
+        .record(z.string(), z.number().int().nonnegative())
+        .default({}),
+    actionUsesThisTurn: z
+        .record(z.string(), z.number().int().nonnegative())
+        .default({}),
 })
 
 export type SerializedInBattleSquaddie = z.infer<
@@ -98,6 +104,7 @@ export const InBattleSquaddieService = {
             },
             itemIdsUsed: [],
             actionCooldowns: new Map(),
+            actionUsesThisTurn: new Map(),
         }
     },
     calculateConditionAmount: ({
@@ -554,6 +561,34 @@ export const InBattleSquaddieService = {
         }
         return { squaddie: newSquaddie, expiredActionIds }
     },
+    recordActionUse: ({
+        squaddie,
+        actionId,
+    }: {
+        squaddie: InBattleSquaddie
+        actionId: string
+    }): InBattleSquaddie => {
+        const newSquaddie = clone(squaddie)
+        const currentUses = newSquaddie.actionUsesThisTurn.get(actionId) ?? 0
+        newSquaddie.actionUsesThisTurn.set(actionId, currentUses + 1)
+        return newSquaddie
+    },
+    resetActionUsesThisTurn: ({
+        squaddie,
+    }: {
+        squaddie: InBattleSquaddie
+    }): InBattleSquaddie => {
+        const newSquaddie = clone(squaddie)
+        newSquaddie.actionUsesThisTurn = new Map()
+        return newSquaddie
+    },
+    getActionUsesThisTurn: ({
+        squaddie,
+        actionId,
+    }: {
+        squaddie: InBattleSquaddie
+        actionId: string
+    }): number => squaddie.actionUsesThisTurn.get(actionId) ?? 0,
     serialize: (squaddie: InBattleSquaddie): SerializedInBattleSquaddie =>
         serialize(squaddie),
     deserialize: (data: unknown): InBattleSquaddie => {
@@ -584,6 +619,7 @@ const clone = (original: InBattleSquaddie): InBattleSquaddie => {
             natural: [...original.actionIds.natural],
         },
         actionCooldowns: new Map(original.actionCooldowns),
+        actionUsesThisTurn: new Map(original.actionUsesThisTurn),
     }
 }
 
@@ -1198,6 +1234,11 @@ const serialize = (squaddie: InBattleSquaddie): SerializedInBattleSquaddie => {
         actionCooldowns[actionId] = turnsRemaining
     }
 
+    const actionUsesThisTurn: Record<string, number> = {}
+    for (const [actionId, useCount] of squaddie.actionUsesThisTurn) {
+        actionUsesThisTurn[actionId] = useCount
+    }
+
     return {
         id: squaddie.id,
         outOfBattleSquaddieId: squaddie.outOfBattleSquaddieId,
@@ -1216,6 +1257,7 @@ const serialize = (squaddie: InBattleSquaddie): SerializedInBattleSquaddie => {
         },
         itemIdsUsed: [...squaddie.itemIdsUsed],
         actionCooldowns,
+        actionUsesThisTurn,
     }
 }
 
@@ -1234,6 +1276,10 @@ const deserialize = (
 
     const actionCooldowns = new Map<string, number>(
         Object.entries(serializable.actionCooldowns ?? {})
+    )
+
+    const actionUsesThisTurn = new Map<string, number>(
+        Object.entries(serializable.actionUsesThisTurn ?? {})
     )
 
     return {
@@ -1255,5 +1301,6 @@ const deserialize = (
         },
         itemIdsUsed: [...serializable.itemIdsUsed],
         actionCooldowns,
+        actionUsesThisTurn,
     }
 }

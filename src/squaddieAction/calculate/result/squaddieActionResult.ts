@@ -70,6 +70,9 @@ export interface SquaddieActionResult {
         actionId: string
         turnsRemaining: number
     }
+    actionUse?: {
+        actionId: string
+    }
 }
 
 export type SerializedSquaddieActionResult = Omit<

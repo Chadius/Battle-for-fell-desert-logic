@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import {
-    MissionAffiliationTurn,
-    type MissionTurn,
-    MissionTurnService,
-} from "./missionTurn"
+import { MissionAffiliationTurn, type MissionTurn, MissionTurnService, } from "./missionTurn"
 import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
@@ -675,7 +671,7 @@ describe("MissionTurn", () => {
                 actionPoints: 3,
             })
 
-            MissionTurnService.resetActionPointsForSquaddieAffiliation({
+            MissionTurnService.resetActionResourcesForSquaddieAffiliation({
                 inBattleSquaddieManager,
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
             })

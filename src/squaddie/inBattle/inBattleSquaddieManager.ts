@@ -865,6 +865,52 @@ export class InBattleSquaddieManager {
         ).inBattleSquaddie.actionCooldowns.get(actionId)
     }
 
+    recordActionUse({
+        battleSquaddieId,
+        actionId,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.recordActionUse.name
+        )
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.recordActionUse({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+                actionId,
+            })
+    }
+
+    resetActionUsesThisTurn(battleSquaddieId: BattleSquaddieId): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.resetActionUsesThisTurn.name
+        )
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.resetActionUsesThisTurn({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+            })
+    }
+
+    getActionUsesThisTurn({
+        battleSquaddieId,
+        actionId,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): number {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.getActionUsesThisTurn.name
+        )
+        return (
+            this.getSquaddie(
+                battleSquaddieId
+            ).inBattleSquaddie.actionUsesThisTurn.get(actionId) ?? 0
+        )
+    }
+
     getPassiveItemIds(
         battleSquaddieId: BattleSquaddieId
     ): Map<

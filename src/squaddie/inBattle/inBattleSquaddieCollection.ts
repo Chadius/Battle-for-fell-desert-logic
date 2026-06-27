@@ -876,6 +876,64 @@ export const InBattleSquaddieCollectionService = {
             battleSquaddieId,
         })
     },
+    recordActionUse: ({
+        collection,
+        battleSquaddieId,
+        actionId,
+    }: {
+        collection: InBattleSquaddieCollection
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "recordActionUse")
+        const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
+            collection,
+            battleSquaddieId,
+        })
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "recordActionUse",
+            collection,
+            battleSquaddieId,
+        })
+
+        const updatedSquaddie = InBattleSquaddieService.recordActionUse({
+            squaddie: inBattleSquaddie!,
+            actionId,
+        })
+
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: updatedSquaddie,
+            battleSquaddieId,
+        })
+    },
+    resetActionUsesThisTurn: ({
+        collection,
+        battleSquaddieId,
+    }: {
+        collection: InBattleSquaddieCollection
+        battleSquaddieId: BattleSquaddieId
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "resetActionUsesThisTurn")
+        const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
+            collection,
+            battleSquaddieId,
+        })
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "resetActionUsesThisTurn",
+            collection,
+            battleSquaddieId,
+        })
+
+        const resetSquaddie = InBattleSquaddieService.resetActionUsesThisTurn({
+            squaddie: inBattleSquaddie!,
+        })
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: resetSquaddie,
+            battleSquaddieId,
+        })
+    },
     serialize: (
         collection: InBattleSquaddieCollection
     ): SerializedInBattleSquaddieCollection => {

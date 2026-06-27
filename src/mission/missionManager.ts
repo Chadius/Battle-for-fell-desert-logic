@@ -814,7 +814,7 @@ export class MissionManager {
             MissionTurnService.getAffiliationsToResetForPhase(currentPhase)
 
         for (const affiliation of affiliationsToReset) {
-            MissionTurnService.resetActionPointsForSquaddieAffiliation({
+            MissionTurnService.resetActionResourcesForSquaddieAffiliation({
                 inBattleSquaddieManager: this.inBattleSquaddieManager!,
                 squaddieAffiliation: affiliation,
             })
