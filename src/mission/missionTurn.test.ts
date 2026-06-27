@@ -675,7 +675,7 @@ describe("MissionTurn", () => {
                 actionPoints: 3,
             })
 
-            MissionTurnService.resetActionPointsForSquaddieAffiliation({
+            MissionTurnService.resetActionResourcesForSquaddieAffiliation({
                 inBattleSquaddieManager,
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
             })

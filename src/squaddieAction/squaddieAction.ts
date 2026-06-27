@@ -83,6 +83,7 @@ export interface SquaddieAction {
     effectOnActor: DegreeOfSuccessEffects
     effectOnTarget?: DegreeOfSuccessEffects
     cooldownTurns?: number
+    usesPerTurn?: number
 }
 
 const WEAPON_PROFICIENCY_TYPES: ReadonlySet<TProficiencyType> = new Set([
@@ -128,7 +129,8 @@ export const squaddieActionSchema = z.object({
     }),
     effectOnActor: degreeOfSuccessEffectsSchema,
     effectOnTarget: degreeOfSuccessEffectsSchema.optional(),
-    cooldownTurns: z.number().min(1).optional(),
+    cooldownTurns: z.number().int().min(1).optional(),
+    usesPerTurn: z.number().int().min(1).optional(),
 })
 
 export type SerializedSquaddieAction = z.infer<typeof squaddieActionSchema>
@@ -172,6 +174,7 @@ const serializeSquaddieAction = (
             ? undefined
             : serializeDegreeOfSuccessEffects(action.effectOnTarget),
     cooldownTurns: action.cooldownTurns,
+    usesPerTurn: action.usesPerTurn,
 })
 
 export const SquaddieActionService = {
@@ -194,14 +197,26 @@ export const SquaddieActionService = {
         howToDetermineDegreeOfSuccess,
         multipleAttackPenalty,
         cooldownTurns,
+        usesPerTurn,
     }: Omit<Partial<SquaddieAction>, "multipleAttackPenalty"> &
         Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
         Partial<SquaddieActionTargeting> & {
             multipleAttackPenalty?: Partial<MultipleAttackPenalty>
         }): SquaddieAction => {
-        if (cooldownTurns != undefined && cooldownTurns <= 0) {
+        if (
+            cooldownTurns != undefined &&
+            (!Number.isInteger(cooldownTurns) || cooldownTurns < 1)
+        ) {
             throw new Error(
-                `[SquaddieActionService.new]: cooldownTurns must be positive, got ${cooldownTurns}`
+                `[SquaddieActionService.new]: cooldownTurns must be positive integer, got ${cooldownTurns}`
+            )
+        }
+        if (
+            usesPerTurn != undefined &&
+            (!Number.isInteger(usesPerTurn) || usesPerTurn < 1)
+        ) {
+            throw new Error(
+                `[SquaddieActionService.new]: usesPerTurn must be a positive integer, got ${usesPerTurn}`
             )
         }
         const resolvedProficiency = proficiency ?? ProficiencyType.UNKNOWN
@@ -242,6 +257,7 @@ export const SquaddieActionService = {
             effectOnActor,
             effectOnTarget,
             cooldownTurns,
+            usesPerTurn,
         }
     },
     defaultEndTurn: (): SquaddieAction => {

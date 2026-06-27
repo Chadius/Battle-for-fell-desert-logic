@@ -117,7 +117,7 @@ export const MissionTurnService = {
 
         return missionTurn
     },
-    resetActionPointsForSquaddieAffiliation({
+    resetActionResourcesForSquaddieAffiliation({
         inBattleSquaddieManager,
         squaddieAffiliation,
     }: {
@@ -133,6 +133,7 @@ export const MissionTurnService = {
             inBattleSquaddieManager.resetAttackContributionThisTurn(
                 battleSquaddieId
             )
+            inBattleSquaddieManager.resetActionUsesThisTurn(battleSquaddieId)
         }
     },
     getSquaddieAffiliationForAffiliationTurn(

@@ -51,6 +51,7 @@ export interface InvalidSquaddieAction {
     reason: string
     apCost?: ActionPointCost
     cooldownTurns?: number
+    usesPerTurn?: number
 }
 
 export interface ValidSquaddieAction {
@@ -60,6 +61,7 @@ export interface ValidSquaddieAction {
     aimCoordinateResults: AimCoordinateResult[]
     apCost?: ActionPointCost
     cooldownTurns?: number
+    usesPerTurn?: number
 }
 
 export interface SquaddieActionValidity {
@@ -120,6 +122,15 @@ export const SquaddieActionValidationService = {
         })
         if (!cooldownValidation.isValid) {
             return cooldownValidation
+        }
+
+        const usesValidation = validateActionUsesPerTurn({
+            actor,
+            squaddieAction,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        })
+        if (!usesValidation.isValid) {
+            return usesValidation
         }
 
         if (
@@ -403,6 +414,24 @@ export const SquaddieActionValidationService = {
                     reason: cooldownValidation.reason!,
                     apCost,
                     cooldownTurns: squaddieAction.cooldownTurns,
+                    usesPerTurn: squaddieAction.usesPerTurn,
+                })
+                continue
+            }
+
+            const usesValidation = validateActionUsesPerTurn({
+                actor,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            })
+            if (!usesValidation.isValid) {
+                invalidActions.push({
+                    actionId,
+                    actionName: squaddieAction.name,
+                    reason: usesValidation.reason!,
+                    apCost,
+                    cooldownTurns: squaddieAction.cooldownTurns,
+                    usesPerTurn: squaddieAction.usesPerTurn,
                 })
                 continue
             }
@@ -418,6 +447,7 @@ export const SquaddieActionValidationService = {
                     reason: apReason,
                     apCost,
                     cooldownTurns: squaddieAction.cooldownTurns,
+                    usesPerTurn: squaddieAction.usesPerTurn,
                 })
                 continue
             }
@@ -447,6 +477,7 @@ export const SquaddieActionValidationService = {
                     reason: "No applicable targets in range",
                     apCost,
                     cooldownTurns: squaddieAction.cooldownTurns,
+                    usesPerTurn: squaddieAction.usesPerTurn,
                 })
                 continue
             }
@@ -470,6 +501,7 @@ export const SquaddieActionValidationService = {
                     reason: "No targets can be affected",
                     apCost,
                     cooldownTurns: squaddieAction.cooldownTurns,
+                    usesPerTurn: squaddieAction.usesPerTurn,
                 })
                 continue
             }
@@ -481,6 +513,7 @@ export const SquaddieActionValidationService = {
                 aimCoordinateResults: effectiveAimCoordinateResults,
                 apCost,
                 cooldownTurns: squaddieAction.cooldownTurns,
+                usesPerTurn: squaddieAction.usesPerTurn,
             })
         }
 
@@ -1004,6 +1037,29 @@ const validateActionCooldown = ({
         return {
             isValid: false,
             reason: `Cannot be used for ${turnsRemaining} ${pluralTurns}`,
+        }
+    }
+    return { isValid: true }
+}
+
+const validateActionUsesPerTurn = ({
+    actor,
+    squaddieAction,
+    inBattleSquaddieManager,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): ActionValidationResult => {
+    if (squaddieAction.usesPerTurn == undefined) return { isValid: true }
+    const usesThisTurn = inBattleSquaddieManager.getActionUsesThisTurn({
+        battleSquaddieId: actor,
+        actionId: squaddieAction.id,
+    })
+    if (usesThisTurn >= squaddieAction.usesPerTurn) {
+        return {
+            isValid: false,
+            reason: `Already used ${usesThisTurn} of ${squaddieAction.usesPerTurn} time${squaddieAction.usesPerTurn === 1 ? "" : "s"} this turn`,
         }
     }
     return { isValid: true }

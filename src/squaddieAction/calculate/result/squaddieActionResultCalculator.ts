@@ -151,6 +151,11 @@ export const SquaddieActionResultCalculator = {
                       actionId: action.id,
                       cooldownTurns: squaddieAction.cooldownTurns,
                   }),
+                  ...calculateActionUseResult({
+                      battleSquaddieId: actor,
+                      actionId: action.id,
+                      usesPerTurn: squaddieAction.usesPerTurn,
+                  }),
               ]
             : []
 
@@ -499,6 +504,25 @@ const calculateCooldownResult = ({
             inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,
             outOfBattleSquaddieId: battleSquaddieId.outOfBattleSquaddieId,
             cooldown: { actionId, turnsRemaining: cooldownTurns },
+        },
+    ]
+}
+
+const calculateActionUseResult = ({
+    battleSquaddieId,
+    actionId,
+    usesPerTurn,
+}: {
+    battleSquaddieId: BattleSquaddieId
+    actionId: string
+    usesPerTurn: number | undefined
+}): SquaddieActionResult[] => {
+    if (usesPerTurn == undefined) return []
+    return [
+        {
+            inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,
+            outOfBattleSquaddieId: battleSquaddieId.outOfBattleSquaddieId,
+            actionUse: { actionId },
         },
     ]
 }
