@@ -6,24 +6,29 @@ import {
 
 export interface ActionResult {
     actorRoll?: [number, number]
+    actorSquaddieKey?: string
     targetResults: { [squaddieKey: string]: TargetResult }
 }
 
 export interface SerializedActionResults {
     actorRoll?: [number, number]
+    actorSquaddieKey?: string
     targetResults: { [squaddieKey: string]: SerializedTargetResult }
 }
 
 export const ActionResultsService = {
     new: ({
         actorRoll,
+        actorSquaddieKey,
         targetResults,
     }: {
         actorRoll?: [number, number]
+        actorSquaddieKey?: string
         targetResults: { [_: string]: TargetResult }
     }): ActionResult => {
         return {
             actorRoll,
+            actorSquaddieKey,
             targetResults,
         }
     },
@@ -41,6 +46,7 @@ export const ActionResultsService = {
 
         return {
             actorRoll: actionResults.actorRoll,
+            actorSquaddieKey: actionResults.actorSquaddieKey,
             targetResults: serializedTargetResults,
         }
     },
@@ -58,6 +64,7 @@ export const ActionResultsService = {
 
         return ActionResultsService.new({
             actorRoll: serializable.actorRoll,
+            actorSquaddieKey: serializable.actorSquaddieKey,
             targetResults,
         })
     },

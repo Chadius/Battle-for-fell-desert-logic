@@ -2,6 +2,7 @@ import { z } from "zod"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import {
     type MissionObjectiveCriteria,
+    type MissionObjectiveCriteriaContext,
     missionObjectiveCriteriaSchema,
     MissionObjectiveCriteriaService,
     type SerializedMissionObjectiveCriteria,
@@ -108,12 +109,14 @@ export const MissionObjectiveService = {
 
     isComplete: (
         objective: MissionObjective,
-        inBattleSquaddieManager: InBattleSquaddieManager
+        inBattleSquaddieManager: InBattleSquaddieManager,
+        context?: MissionObjectiveCriteriaContext
     ): boolean => {
         return objective.criteria.every((criterion) =>
             MissionObjectiveCriteriaService.isSatisfied(
                 criterion,
-                inBattleSquaddieManager
+                inBattleSquaddieManager,
+                context
             )
         )
     },
@@ -133,12 +136,14 @@ export const MissionObjectiveService = {
 
     getCompletedObjectivesWithoutReward: (
         objectives: MissionObjective[],
-        inBattleSquaddieManager: InBattleSquaddieManager
+        inBattleSquaddieManager: InBattleSquaddieManager,
+        context?: MissionObjectiveCriteriaContext
     ): MissionObjective[] => {
         return objectives.filter((objective) => {
             const isComplete = MissionObjectiveService.isComplete(
                 objective,
-                inBattleSquaddieManager
+                inBattleSquaddieManager,
+                context
             )
             const hasNotGivenReward = !objective.hasGivenReward
             return isComplete && hasNotGivenReward

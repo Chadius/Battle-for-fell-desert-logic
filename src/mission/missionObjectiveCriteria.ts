@@ -4,9 +4,14 @@ import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService"
 import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
 import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
+import { SquaddieConditionService } from "../proficiency/squaddieCondition"
+import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
+import type { ActionResult } from "./actionResult"
 
 export const MissionObjectiveCriteriaType = {
     SQUADDIES_DEFEATED: "SQUADDIES_DEFEATED",
+    SQUADDIES_INJURED: "SQUADDIES_INJURED",
+    SPECIFIC_SQUADDIES_DEFEATED: "SPECIFIC_SQUADDIES_DEFEATED",
 } as const satisfies Record<string, string>
 
 export type TMissionObjectiveCriteriaType = EnumLike<
@@ -20,23 +25,60 @@ export interface SquaddiesDefeatedCriteria {
     battleSquaddieIds?: Set<string>
 }
 
-export type MissionObjectiveCriteria = SquaddiesDefeatedCriteria
+export interface SquaddiesInjuredCriteria {
+    type: typeof MissionObjectiveCriteriaType.SQUADDIES_INJURED
+    battleSquaddieIds?: Set<string>
+    outOfBattleSquaddieIds?: Set<string>
+}
+
+export interface SpecificSquaddiesDefeatedCriteria {
+    type: typeof MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_DEFEATED
+    battleSquaddieIds?: Set<string>
+    outOfBattleSquaddieIds?: Set<string>
+}
+
+export type MissionObjectiveCriteria =
+    | SquaddiesDefeatedCriteria
+    | SquaddiesInjuredCriteria
+    | SpecificSquaddiesDefeatedCriteria
 
 const serializedBattleSquaddieIdSchema = z.object({
     inBattleSquaddieId: z.number(),
     outOfBattleSquaddieId: z.string().min(1),
 })
 
-export const missionObjectiveCriteriaSchema = z.object({
+const squaddiesDefeatedCriteriaSchema = z.object({
     type: z.literal(MissionObjectiveCriteriaType.SQUADDIES_DEFEATED),
     affiliations: z.array(z.string()).optional(),
     outOfBattleSquaddieIds: z.array(z.string()).optional(),
     battleSquaddieIds: z.array(serializedBattleSquaddieIdSchema).optional(),
 })
 
+const squaddiesInjuredCriteriaSchema = z.object({
+    type: z.literal(MissionObjectiveCriteriaType.SQUADDIES_INJURED),
+    outOfBattleSquaddieIds: z.array(z.string()).optional(),
+    battleSquaddieIds: z.array(serializedBattleSquaddieIdSchema).optional(),
+})
+
+const specificSquaddiesDefeatedCriteriaSchema = z.object({
+    type: z.literal(MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_DEFEATED),
+    outOfBattleSquaddieIds: z.array(z.string()).optional(),
+    battleSquaddieIds: z.array(serializedBattleSquaddieIdSchema).optional(),
+})
+
+export const missionObjectiveCriteriaSchema = z.discriminatedUnion("type", [
+    squaddiesDefeatedCriteriaSchema,
+    squaddiesInjuredCriteriaSchema,
+    specificSquaddiesDefeatedCriteriaSchema,
+])
+
 export type SerializedMissionObjectiveCriteria = z.infer<
     typeof missionObjectiveCriteriaSchema
 >
+
+export interface MissionObjectiveCriteriaContext {
+    actionResult?: ActionResult
+}
 
 export const MissionObjectiveCriteriaService = {
     newSquaddiesDefeatedCriteria: ({
@@ -78,28 +120,124 @@ export const MissionObjectiveCriteriaService = {
         }
     },
 
+    newSquaddiesInjuredCriteria: ({
+        battleSquaddieIds,
+        outOfBattleSquaddieIds,
+    }: {
+        battleSquaddieIds?: BattleSquaddieId[]
+        outOfBattleSquaddieIds?: string[]
+    }): SquaddiesInjuredCriteria => {
+        const validation =
+            MissionObjectiveCriteriaService.validateSquaddiesInjuredCriteriaInput(
+                { battleSquaddieIds, outOfBattleSquaddieIds }
+            )
+        if (!validation.isValid) {
+            throw new Error(
+                `[MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria]: ${validation.reason}`
+            )
+        }
+
+        const hasOutOfBattleIds =
+            outOfBattleSquaddieIds != undefined &&
+            outOfBattleSquaddieIds.length > 0
+        const hasBattleIds =
+            battleSquaddieIds != undefined && battleSquaddieIds.length > 0
+
+        return {
+            type: MissionObjectiveCriteriaType.SQUADDIES_INJURED,
+            outOfBattleSquaddieIds: hasOutOfBattleIds
+                ? new Set(outOfBattleSquaddieIds)
+                : undefined,
+            battleSquaddieIds: hasBattleIds
+                ? new Set(
+                      battleSquaddieIds.map((id) =>
+                          SquaddieIdConverterService.squaddieIdToKey(id)
+                      )
+                  )
+                : undefined,
+        }
+    },
+
+    validateSquaddiesInjuredCriteriaInput: ({
+        battleSquaddieIds,
+        outOfBattleSquaddieIds,
+    }: {
+        battleSquaddieIds?: BattleSquaddieId[]
+        outOfBattleSquaddieIds?: string[]
+    }): { isValid: boolean; reason?: string } => {
+        return validateSquaddieIdCriteriaInput({
+            battleSquaddieIds,
+            outOfBattleSquaddieIds,
+        })
+    },
+
+    newSpecificSquaddiesDefeatedCriteria: ({
+        battleSquaddieIds,
+        outOfBattleSquaddieIds,
+    }: {
+        battleSquaddieIds?: BattleSquaddieId[]
+        outOfBattleSquaddieIds?: string[]
+    }): SpecificSquaddiesDefeatedCriteria => {
+        const validation =
+            MissionObjectiveCriteriaService.validateSpecificSquaddiesDefeatedCriteriaInput(
+                { battleSquaddieIds, outOfBattleSquaddieIds }
+            )
+        if (!validation.isValid) {
+            throw new Error(
+                `[MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria]: ${validation.reason}`
+            )
+        }
+
+        const hasOutOfBattleIds =
+            outOfBattleSquaddieIds != undefined &&
+            outOfBattleSquaddieIds.length > 0
+        const hasBattleIds =
+            battleSquaddieIds != undefined && battleSquaddieIds.length > 0
+
+        return {
+            type: MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_DEFEATED,
+            outOfBattleSquaddieIds: hasOutOfBattleIds
+                ? new Set(outOfBattleSquaddieIds)
+                : undefined,
+            battleSquaddieIds: hasBattleIds
+                ? new Set(
+                      battleSquaddieIds.map((id) =>
+                          SquaddieIdConverterService.squaddieIdToKey(id)
+                      )
+                  )
+                : undefined,
+        }
+    },
+
+    validateSpecificSquaddiesDefeatedCriteriaInput: ({
+        battleSquaddieIds,
+        outOfBattleSquaddieIds,
+    }: {
+        battleSquaddieIds?: BattleSquaddieId[]
+        outOfBattleSquaddieIds?: string[]
+    }): { isValid: boolean; reason?: string } => {
+        return validateSquaddieIdCriteriaInput({
+            battleSquaddieIds,
+            outOfBattleSquaddieIds,
+        })
+    },
+
     serialize: (
         criteria: MissionObjectiveCriteria
     ): SerializedMissionObjectiveCriteria => {
-        if (criteria.type === MissionObjectiveCriteriaType.SQUADDIES_DEFEATED) {
-            return {
-                type: criteria.type,
-                affiliations: criteria.affiliations
-                    ? [...criteria.affiliations]
-                    : undefined,
-                outOfBattleSquaddieIds: criteria.outOfBattleSquaddieIds
-                    ? [...criteria.outOfBattleSquaddieIds]
-                    : undefined,
-                battleSquaddieIds: criteria.battleSquaddieIds
-                    ? [...criteria.battleSquaddieIds].map((key) =>
-                          SquaddieIdConverterService.keyToSquaddieId(key)
-                      )
-                    : undefined,
-            }
+        switch (criteria.type) {
+            case MissionObjectiveCriteriaType.SQUADDIES_DEFEATED:
+                return serializeMissionObjectiveCriteriaSquaddiesDefeated(
+                    criteria
+                )
+            case MissionObjectiveCriteriaType.SQUADDIES_INJURED:
+            case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_DEFEATED:
+                return serializeSquaddieIdFilterCriteria(criteria)
+            default:
+                throw new Error(
+                    `[MissionObjectiveCriteriaService.serialize]: unknown criteria type`
+                )
         }
-        throw new Error(
-            `[MissionObjectiveCriteriaService.serialize]: unknown criteria type`
-        )
     },
 
     createFromJSON: (data: {
@@ -111,34 +249,107 @@ export const MissionObjectiveCriteriaService = {
             outOfBattleSquaddieId: string
         }[]
     }): MissionObjectiveCriteria => {
-        if (data.type === MissionObjectiveCriteriaType.SQUADDIES_DEFEATED) {
-            return MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
-                {
-                    affiliations: data.affiliations as TSquaddieAffiliation[],
-                    outOfBattleSquaddieIds: data.outOfBattleSquaddieIds,
-                    battleSquaddieIds: data.battleSquaddieIds,
-                }
-            )
+        switch (data.type) {
+            case MissionObjectiveCriteriaType.SQUADDIES_DEFEATED:
+                return MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    {
+                        affiliations:
+                            data.affiliations as TSquaddieAffiliation[],
+                        outOfBattleSquaddieIds: data.outOfBattleSquaddieIds,
+                        battleSquaddieIds: data.battleSquaddieIds,
+                    }
+                )
+            case MissionObjectiveCriteriaType.SQUADDIES_INJURED:
+                return MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: data.outOfBattleSquaddieIds,
+                        battleSquaddieIds: data.battleSquaddieIds,
+                    }
+                )
+            case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_DEFEATED:
+                return MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(
+                    {
+                        outOfBattleSquaddieIds: data.outOfBattleSquaddieIds,
+                        battleSquaddieIds: data.battleSquaddieIds,
+                    }
+                )
+            default:
+                throw new Error(
+                    `[MissionObjectiveCriteriaService.createFromJSON]: invalid criteria type: ${data.type}`
+                )
         }
-
-        throw new Error(
-            `[MissionObjectiveCriteriaService.createFromJSON]: invalid criteria type: ${data.type}`
-        )
     },
 
     isSatisfied: (
         criteria: MissionObjectiveCriteria,
-        inBattleSquaddieManager: InBattleSquaddieManager
+        inBattleSquaddieManager: InBattleSquaddieManager,
+        context?: MissionObjectiveCriteriaContext
     ): boolean => {
-        if (criteria.type === MissionObjectiveCriteriaType.SQUADDIES_DEFEATED) {
-            return isSquaddiesDefeatedSatisfied(
-                criteria,
-                inBattleSquaddieManager
-            )
+        switch (criteria.type) {
+            case MissionObjectiveCriteriaType.SQUADDIES_DEFEATED:
+                return isSquaddiesDefeatedSatisfied(
+                    criteria,
+                    inBattleSquaddieManager
+                )
+            case MissionObjectiveCriteriaType.SQUADDIES_INJURED:
+                return isSquaddiesInjuredSatisfied(
+                    criteria,
+                    context?.actionResult
+                )
+            case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_DEFEATED:
+                return isSpecificSquaddiesDefeatedSatisfied(
+                    criteria,
+                    context?.actionResult
+                )
+            default:
+                return false
         }
-
-        return false
     },
+}
+
+const validateSquaddieIdCriteriaInput = ({
+    battleSquaddieIds,
+    outOfBattleSquaddieIds,
+}: {
+    battleSquaddieIds?: BattleSquaddieId[]
+    outOfBattleSquaddieIds?: string[]
+}): { isValid: boolean; reason?: string } => {
+    const hasOutOfBattleIds =
+        outOfBattleSquaddieIds != undefined && outOfBattleSquaddieIds.length > 0
+    const hasBattleIds =
+        battleSquaddieIds != undefined && battleSquaddieIds.length > 0
+
+    if (!hasOutOfBattleIds && !hasBattleIds) {
+        return {
+            isValid: false,
+            reason: "at least one of battleSquaddieIds or outOfBattleSquaddieIds must be provided with at least 1 member",
+        }
+    }
+
+    return { isValid: true }
+}
+
+const squaddieMatchesIdSelection = (
+    battleSquaddieId: string,
+    outOfBattleSquaddieId: string,
+    criteria: {
+        battleSquaddieIds?: Set<string>
+        outOfBattleSquaddieIds?: Set<string>
+    }
+): boolean => {
+    if (
+        criteria.outOfBattleSquaddieIds &&
+        criteria.outOfBattleSquaddieIds.size > 0
+    ) {
+        if (!criteria.outOfBattleSquaddieIds.has(outOfBattleSquaddieId))
+            return false
+    }
+
+    if (criteria.battleSquaddieIds && criteria.battleSquaddieIds.size > 0) {
+        if (!criteria.battleSquaddieIds.has(battleSquaddieId)) return false
+    }
+
+    return true
 }
 
 const isSquaddiesDefeatedSatisfied = (
@@ -156,35 +367,122 @@ const isSquaddiesDefeatedSatisfied = (
             }
         }
 
-        if (
-            criteria.outOfBattleSquaddieIds &&
-            criteria.outOfBattleSquaddieIds.size > 0
-        ) {
-            if (
-                !criteria.outOfBattleSquaddieIds.has(
-                    squaddie.outOfBattleSquaddieId
-                )
-            ) {
-                return false
-            }
-        }
-
-        if (criteria.battleSquaddieIds && criteria.battleSquaddieIds.size > 0) {
-            const squaddieKey =
-                SquaddieIdConverterService.squaddieIdToKey(squaddie)
-            if (!criteria.battleSquaddieIds.has(squaddieKey)) {
-                return false
-            }
-        }
-
-        return true
+        const battleSquaddieId =
+            SquaddieIdConverterService.squaddieIdToKey(squaddie)
+        return squaddieMatchesIdSelection(
+            battleSquaddieId,
+            squaddie.outOfBattleSquaddieId,
+            criteria
+        )
     })
 
     if (matchingSquaddies.length === 0) {
         return false
     }
 
-    return matchingSquaddies.every((battleSquaddieId) =>
-        inBattleSquaddieManager.isSquaddieDefeated(battleSquaddieId)
+    return matchingSquaddies.every((squaddie) =>
+        inBattleSquaddieManager.isSquaddieDefeated(squaddie)
     )
+}
+
+const squaddieWasInjuredByResult = (result: SquaddieActionResult): boolean => {
+    const tookHPDamage =
+        result.damage != undefined &&
+        result.damage.net > 0 &&
+        !result.damage.willKo
+
+    const receivedHurtfulCondition = result.conditionsAdded?.some((condition) =>
+        SquaddieConditionService.isHindering(condition)
+    )
+
+    return tookHPDamage || (receivedHurtfulCondition ?? false)
+}
+
+const anyTargetResultSatisfiesCriteria = (
+    criteria: {
+        battleSquaddieIds?: Set<string>
+        outOfBattleSquaddieIds?: Set<string>
+    },
+    actionResult: ActionResult | undefined,
+    predicate: (result: SquaddieActionResult) => boolean
+): boolean => {
+    if (actionResult == undefined) return false
+    const actorSquaddieKey = actionResult.actorSquaddieKey
+    for (const targetResult of Object.values(actionResult.targetResults)) {
+        for (const result of targetResult.squaddieActionResults) {
+            const squaddieKey = SquaddieIdConverterService.squaddieIdToKey({
+                inBattleSquaddieId: result.inBattleSquaddieId,
+                outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+            })
+            if (squaddieKey === actorSquaddieKey) continue
+            if (
+                !squaddieMatchesIdSelection(
+                    squaddieKey,
+                    result.outOfBattleSquaddieId,
+                    criteria
+                )
+            )
+                continue
+            if (predicate(result)) return true
+        }
+    }
+    return false
+}
+
+const squaddieWasKOedByResult = (result: SquaddieActionResult): boolean => {
+    return result.damage?.willKo === true
+}
+
+const isSquaddiesInjuredSatisfied = (
+    criteria: SquaddiesInjuredCriteria,
+    actionResult?: ActionResult
+): boolean =>
+    anyTargetResultSatisfiesCriteria(
+        criteria,
+        actionResult,
+        squaddieWasInjuredByResult
+    )
+
+const isSpecificSquaddiesDefeatedSatisfied = (
+    criteria: SpecificSquaddiesDefeatedCriteria,
+    actionResult?: ActionResult
+): boolean =>
+    anyTargetResultSatisfiesCriteria(
+        criteria,
+        actionResult,
+        squaddieWasKOedByResult
+    )
+
+const serializeMissionObjectiveCriteriaSquaddiesDefeated = (
+    criteria: SquaddiesDefeatedCriteria
+) => {
+    return {
+        type: criteria.type,
+        affiliations: criteria.affiliations
+            ? [...criteria.affiliations]
+            : undefined,
+        outOfBattleSquaddieIds: criteria.outOfBattleSquaddieIds
+            ? [...criteria.outOfBattleSquaddieIds]
+            : undefined,
+        battleSquaddieIds: criteria.battleSquaddieIds
+            ? [...criteria.battleSquaddieIds].map((key) =>
+                  SquaddieIdConverterService.keyToSquaddieId(key)
+              )
+            : undefined,
+    }
+}
+const serializeSquaddieIdFilterCriteria = (
+    criteria: SquaddiesInjuredCriteria | SpecificSquaddiesDefeatedCriteria
+) => {
+    return {
+        type: criteria.type,
+        outOfBattleSquaddieIds: criteria.outOfBattleSquaddieIds
+            ? [...criteria.outOfBattleSquaddieIds]
+            : undefined,
+        battleSquaddieIds: criteria.battleSquaddieIds
+            ? [...criteria.battleSquaddieIds].map((key) =>
+                  SquaddieIdConverterService.keyToSquaddieId(key)
+              )
+            : undefined,
+    }
 }

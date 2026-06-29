@@ -18,6 +18,7 @@ import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBa
 import { MissionObjectiveRewardType } from "./missionObjectiveReward"
 import type { MissionObjective } from "./missionObjective"
 import { MissionObjectiveService } from "./missionObjective"
+import type { MissionObjectiveCriteriaContext } from "./missionObjectiveCriteria"
 import {
     type ForecastedActionResult,
     type SquaddieActionDecisions,
@@ -127,7 +128,9 @@ export class MissionManager {
         return this.lastActingSquaddieCannotAct()
     }
 
-    calculateCompletedButNotRewardedMissionObjectives(): MissionObjective[] {
+    calculateCompletedButNotRewardedMissionObjectives(
+        context?: MissionObjectiveCriteriaContext
+    ): MissionObjective[] {
         this.throwIfStateIsUndefined(
             this.calculateCompletedButNotRewardedMissionObjectives.name
         )
@@ -137,7 +140,8 @@ export class MissionManager {
 
         return MissionObjectiveService.getCompletedObjectivesWithoutReward(
             this.missionState!.objectives,
-            this.inBattleSquaddieManager!
+            this.inBattleSquaddieManager!,
+            context
         )
     }
 

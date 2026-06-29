@@ -4,10 +4,8 @@ import type { ResourceManifestCollection } from "../../resource/resourceManifest
 import {
     MovieEngine,
     MovieEngineState,
-    MovieEngineCommand,
     type TMovieEngineCommand,
 } from "../../movie/movieEngine"
-import { MovieSceneType } from "../../movie/movieScene"
 import { MissionObjectiveRewardType } from "../missionObjectiveReward"
 import {
     type SquaddieTurnActionRecord,
@@ -92,6 +90,8 @@ import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManage
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
 import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
 import { MovieManager } from "../../movie/movieManager"
+
+export type { TMovieEngineCommand }
 
 export interface MapTileInfo {
     row: number
@@ -246,6 +246,10 @@ export class MissionEngine {
         this.throwIfMissionManagerIsUndefined(this.useActionAndGetResults.name)
         this.throwIfReadiedActionIsUndefined(this.useActionAndGetResults.name)
 
+        const actorSquaddieKey = SquaddieIdConverterService.squaddieIdToKey(
+            this.readiedAction!.actor
+        )
+
         const managerResults = this.missionManager!.useActionAndGetResults({
             ...this.readiedAction!,
             rollGenerator: this.rollGenerator,
@@ -256,6 +260,7 @@ export class MissionEngine {
 
         this.actionResults = {
             actorRoll: managerResults.actorRoll,
+            actorSquaddieKey: actorSquaddieKey,
             targetResults,
         }
 
@@ -317,7 +322,11 @@ export class MissionEngine {
             this.getCompletedButNotRewardedMissionObjectives.name
         )
 
-        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives()
+        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives(
+            this.actionResults
+                ? { actionResult: this.actionResults }
+                : undefined
+        )
     }
 
     getCompletedTerminalButNotRewardedObjectives(): MissionObjective[] {
@@ -325,15 +334,16 @@ export class MissionEngine {
             this.getCompletedTerminalButNotRewardedObjectives.name
         )
 
-        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives().filter(
-            (objective) =>
-                objective.rewards.some(
-                    (reward) =>
-                        reward.type ===
-                            MissionObjectiveRewardType.MISSION_ENDS ||
-                        reward.type ===
-                            MissionObjectiveRewardType.MISSION_FAILURE
-                )
+        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives(
+            this.actionResults
+                ? { actionResult: this.actionResults }
+                : undefined
+        ).filter((objective) =>
+            objective.rewards.some(
+                (reward) =>
+                    reward.type === MissionObjectiveRewardType.MISSION_ENDS ||
+                    reward.type === MissionObjectiveRewardType.MISSION_FAILURE
+            )
         )
     }
 
@@ -342,7 +352,11 @@ export class MissionEngine {
             this.getCompletedNonTerminalButNotRewardedObjectives.name
         )
 
-        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives().filter(
+        return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives(
+            this.actionResults
+                ? { actionResult: this.actionResults }
+                : undefined
+        ).filter(
             (objective) =>
                 !objective.rewards.some(
                     (reward) =>
@@ -453,7 +467,10 @@ export class MissionEngine {
 
         const isComplete = MissionObjectiveService.isComplete(
             objective,
-            this.missionManager!.inBattleSquaddieManager!
+            this.missionManager!.inBattleSquaddieManager!,
+            this.actionResults
+                ? { actionResult: this.actionResults }
+                : undefined
         )
 
         if (!isComplete) {
@@ -666,8 +683,13 @@ export class MissionEngine {
         const movieManager = this.missionManager.movieManager
         if (!movieManager) return
 
+        const context = this.actionResults
+            ? { actionResult: this.actionResults }
+            : undefined
         const objectivesWithoutReward =
-            this.missionManager.calculateCompletedButNotRewardedMissionObjectives()
+            this.missionManager.calculateCompletedButNotRewardedMissionObjectives(
+                context
+            )
 
         for (const objective of objectivesWithoutReward) {
             for (const reward of objective.rewards) {
@@ -1405,6 +1427,3 @@ export class MissionEngine {
         }
     }
 }
-
-export { MovieEngineCommand, MovieSceneType }
-export type { TMovieEngineCommand }
