@@ -166,7 +166,7 @@ function createMissionObjectives(): MissionObjective[] {
         id: ValeAndGloriaMissionIds.objectives.defeatAllEnemies,
         rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
         criteria: [
-            MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
+            MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria({
                 affiliations: [SquaddieAffiliation.ENEMY],
             }),
         ],
@@ -176,7 +176,7 @@ function createMissionObjectives(): MissionObjective[] {
         id: ValeAndGloriaMissionIds.objectives.defeatAllPlayers,
         rewards: [MissionObjectiveRewardService.newMissionFailureReward()],
         criteria: [
-            MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
+            MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria({
                 affiliations: [SquaddieAffiliation.PLAYER],
             }),
         ],

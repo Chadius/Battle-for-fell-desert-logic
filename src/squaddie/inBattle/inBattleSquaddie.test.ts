@@ -4,7 +4,6 @@ import {
     InBattleSquaddieService,
     type SerializedInBattleSquaddie,
 } from "./inBattleSquaddie"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,

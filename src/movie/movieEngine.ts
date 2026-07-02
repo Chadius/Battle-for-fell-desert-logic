@@ -30,7 +30,7 @@ interface ImageSceneStatus {
     type: "IMAGE"
     sceneId: string
     phase: TMovieSceneImagePhase
-    resourceManifestEntryId: string
+    resourceManifestEntryId: string | undefined
     description: string | undefined
     caption: string | undefined
     transitionProgress: number
@@ -599,13 +599,19 @@ const imageSceneStatus = (
     resourceCollections: ResourceManifestCollection[],
     languageCode: string
 ): ImageSceneStatus => {
-    const entry = resolveResourceManifestEntry(
-        resourceCollections,
-        movieSceneImage.resourceManifestEntryId
-    )
+    const resourceManifestEntry =
+        movieSceneImage.resourceManifestEntryId != undefined
+            ? resolveResourceManifestEntry(
+                  resourceCollections,
+                  movieSceneImage.resourceManifestEntryId
+              )
+            : undefined
     const description =
-        entry !== undefined
-            ? ResourceManifestEntryService.getDescription(entry, languageCode)
+        resourceManifestEntry !== undefined
+            ? ResourceManifestEntryService.getDescription(
+                  resourceManifestEntry,
+                  languageCode
+              )
             : undefined
 
     return {

@@ -188,7 +188,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                         MissionObjectiveRewardService.newMissionEndsReward(),
                     ],
                     criteria: [
-                        MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                             {
                                 affiliations: [SquaddieAffiliation.ENEMY],
                             }
@@ -203,7 +203,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                         MissionObjectiveRewardService.newMissionFailureReward(),
                     ],
                     criteria: [
-                        MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                             {
                                 affiliations: [SquaddieAffiliation.PLAYER],
                             }

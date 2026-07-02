@@ -34,21 +34,23 @@ const buildManager = () => {
     )
 }
 
-describe("SquaddiesInjuredCriteria", () => {
+describe("SpecificSquaddiesInjuredCriteria", () => {
     describe("creation", () => {
         it("creates criteria with only battleSquaddieIds", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 1,
-                            outOfBattleSquaddieId: "lini",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 1,
+                                outOfBattleSquaddieId: "lini",
+                            },
+                        ],
+                    }
+                )
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_INJURED
+                MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED
             )
             expect(criteria.battleSquaddieIds?.size).toBe(1)
             expect(criteria.outOfBattleSquaddieIds).toBeUndefined()
@@ -56,12 +58,14 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("creates criteria with only outOfBattleSquaddieIds", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini", "goblin"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini", "goblin"],
+                    }
+                )
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_INJURED
+                MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED
             )
             expect(criteria.outOfBattleSquaddieIds?.size).toBe(2)
             expect(criteria.battleSquaddieIds).toBeUndefined()
@@ -69,15 +73,17 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("creates criteria with both fields", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 0,
-                            outOfBattleSquaddieId: "lini",
-                        },
-                    ],
-                    outOfBattleSquaddieIds: ["goblin"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 0,
+                                outOfBattleSquaddieId: "lini",
+                            },
+                        ],
+                        outOfBattleSquaddieIds: ["goblin"],
+                    }
+                )
 
             expect(criteria.battleSquaddieIds?.size).toBe(1)
             expect(criteria.outOfBattleSquaddieIds?.size).toBe(1)
@@ -85,38 +91,46 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("throws when no filters provided", () => {
             expect(() => {
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({})
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {}
+                )
             }).toThrow(
-                "[MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria]"
+                "[MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria]"
             )
         })
 
         it("throws when battleSquaddieIds is empty", () => {
             expect(() => {
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    battleSquaddieIds: [],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        battleSquaddieIds: [],
+                    }
+                )
             }).toThrow()
         })
 
         it("throws when outOfBattleSquaddieIds is empty", () => {
             expect(() => {
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: [],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: [],
+                    }
+                )
             }).toThrow()
         })
 
         it("stores battleSquaddieIds as key strings", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 3,
-                            outOfBattleSquaddieId: "lini",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 3,
+                                outOfBattleSquaddieId: "lini",
+                            },
+                        ],
+                    }
+                )
 
             const expectedKey = SquaddieIdConverterService.squaddieIdToKey({
                 inBattleSquaddieId: 3,
@@ -129,7 +143,7 @@ describe("SquaddiesInjuredCriteria", () => {
     describe("validation for level editors", () => {
         it("returns valid when battleSquaddieIds is provided", () => {
             const result =
-                MissionObjectiveCriteriaService.validateSquaddiesInjuredCriteriaInput(
+                MissionObjectiveCriteriaService.validateSpecificSquaddiesInjuredCriteriaInput(
                     {
                         battleSquaddieIds: [
                             {
@@ -146,7 +160,7 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns valid when outOfBattleSquaddieIds is provided", () => {
             const result =
-                MissionObjectiveCriteriaService.validateSquaddiesInjuredCriteriaInput(
+                MissionObjectiveCriteriaService.validateSpecificSquaddiesInjuredCriteriaInput(
                     { outOfBattleSquaddieIds: ["lini"] }
                 )
 
@@ -155,7 +169,7 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns invalid with reason when no filters provided", () => {
             const result =
-                MissionObjectiveCriteriaService.validateSquaddiesInjuredCriteriaInput(
+                MissionObjectiveCriteriaService.validateSpecificSquaddiesInjuredCriteriaInput(
                     {}
                 )
 
@@ -165,7 +179,7 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns invalid when both arrays are empty", () => {
             const result =
-                MissionObjectiveCriteriaService.validateSquaddiesInjuredCriteriaInput(
+                MissionObjectiveCriteriaService.validateSpecificSquaddiesInjuredCriteriaInput(
                     {
                         battleSquaddieIds: [],
                         outOfBattleSquaddieIds: [],
@@ -180,23 +194,26 @@ describe("SquaddiesInjuredCriteria", () => {
     describe("serialization", () => {
         it("serializes and deserializes criteria with outOfBattleSquaddieIds", () => {
             const original =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini"],
+                    }
+                )
 
             const serialized =
                 MissionObjectiveCriteriaService.serialize(original)
             expect(serialized.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_INJURED
+                MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED
             )
 
             const restored =
                 MissionObjectiveCriteriaService.createFromJSON(serialized)
             expect(restored.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_INJURED
+                MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED
             )
             if (
-                restored.type === MissionObjectiveCriteriaType.SQUADDIES_INJURED
+                restored.type ===
+                MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED
             ) {
                 expect(restored.outOfBattleSquaddieIds?.has("lini")).toBe(true)
             }
@@ -204,14 +221,16 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("serializes and deserializes criteria with battleSquaddieIds", () => {
             const original =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 2,
-                            outOfBattleSquaddieId: "lini",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 2,
+                                outOfBattleSquaddieId: "lini",
+                            },
+                        ],
+                    }
+                )
 
             const serialized =
                 MissionObjectiveCriteriaService.serialize(original)
@@ -219,7 +238,8 @@ describe("SquaddiesInjuredCriteria", () => {
                 MissionObjectiveCriteriaService.createFromJSON(serialized)
 
             if (
-                restored.type === MissionObjectiveCriteriaType.SQUADDIES_INJURED
+                restored.type ===
+                MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED
             ) {
                 const expectedKey = SquaddieIdConverterService.squaddieIdToKey({
                     inBattleSquaddieId: 2,
@@ -256,9 +276,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns false when no actionResult provided", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini"],
+                    }
+                )
 
             expect(
                 MissionObjectiveCriteriaService.isSatisfied(criteria, manager)
@@ -267,9 +289,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns false when actionResult has no matching injury", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini"],
+                    }
+                )
 
             const actionResult = makeActionResult([
                 {
@@ -288,9 +312,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns true when matching squaddie takes HP damage but is not killed", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini"],
+                    }
+                )
 
             const actionResult = makeActionResult([
                 {
@@ -315,9 +341,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns false when matching squaddie is killed", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini"],
+                    }
+                )
 
             const actionResult = makeActionResult([
                 {
@@ -342,9 +370,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns true when matching squaddie receives a hurtful condition", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini"],
+                    }
+                )
 
             const actionResult = makeActionResult([
                 {
@@ -380,9 +410,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("does not count the actor as injured even if they appear in results", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["attacker"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["attacker"],
+                    }
+                )
 
             const actionResult: ActionResult = {
                 actorSquaddieKey: actorSquaddieKey,
@@ -415,14 +447,16 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("matches by specific battleSquaddieId key", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 1,
-                            outOfBattleSquaddieId: "lini",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 1,
+                                outOfBattleSquaddieId: "lini",
+                            },
+                        ],
+                    }
+                )
 
             const actionResult = makeActionResult([
                 {
@@ -447,14 +481,16 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("does not fire for a different battleSquaddieId even if same outOfBattleSquaddieId", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 99,
-                            outOfBattleSquaddieId: "lini",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 99,
+                                outOfBattleSquaddieId: "lini",
+                            },
+                        ],
+                    }
+                )
 
             const actionResult = makeActionResult([
                 {
@@ -479,9 +515,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("helpful conditions like ARMOR do not count as hurtful", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini"],
+                    }
+                )
 
             const actionResult = makeActionResult([
                 {
@@ -517,9 +555,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("returns false when outOfBattleSquaddieId does not match", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["goblin"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["goblin"],
+                    }
+                )
 
             const actionResult = makeActionResult([
                 {
@@ -544,9 +584,11 @@ describe("SquaddiesInjuredCriteria", () => {
 
         it("fires when any one of multiple targets is injured and matches", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria({
-                    outOfBattleSquaddieIds: ["lini"],
-                })
+                MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["lini"],
+                    }
+                )
 
             const goblinKey = SquaddieIdConverterService.squaddieIdToKey({
                 inBattleSquaddieId: 2,
@@ -592,7 +634,7 @@ describe("SquaddiesInjuredCriteria", () => {
         })
     })
 
-    describe("SquaddiesDefeated criteria still works unchanged", () => {
+    describe("AllSquaddiesDefeated criteria still works unchanged", () => {
         it("returns true when matching affiliations are defeated", () => {
             const { manager: outOfBattleManager } =
                 OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
@@ -630,9 +672,11 @@ describe("SquaddiesInjuredCriteria", () => {
             })
 
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                    }
+                )
 
             expect(
                 MissionObjectiveCriteriaService.isSatisfied(criteria, manager2)

@@ -40,7 +40,7 @@ describe("MissionEngine", () => {
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -67,7 +67,7 @@ describe("MissionEngine", () => {
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -633,7 +633,7 @@ describe("MissionEngine", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }

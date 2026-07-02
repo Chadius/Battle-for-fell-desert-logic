@@ -37,7 +37,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -64,7 +64,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newMissionFailureReward(),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -88,7 +88,7 @@ describe("MissionManager", () => {
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -117,7 +117,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newMissionFailureReward(),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -196,7 +196,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -228,7 +228,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -270,7 +270,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -341,7 +341,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -375,7 +375,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -389,7 +389,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d2"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ALLY],
                         }
@@ -422,7 +422,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -454,7 +454,7 @@ describe("MissionManager", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -622,7 +622,7 @@ describe("MissionManager", () => {
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }

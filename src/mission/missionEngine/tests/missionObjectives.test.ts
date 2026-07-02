@@ -114,7 +114,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -128,7 +128,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ALLY],
                         }
@@ -161,7 +161,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ALLY],
                         }
@@ -175,7 +175,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ALLY],
                         }
@@ -210,7 +210,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ALLY],
                         }
@@ -224,7 +224,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ALLY],
                         }
@@ -309,7 +309,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -372,7 +372,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -404,7 +404,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -448,7 +448,7 @@ describe("MissionObjectives", () => {
                     MissionObjectiveRewardService.newDialogueReward(["dialog"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }

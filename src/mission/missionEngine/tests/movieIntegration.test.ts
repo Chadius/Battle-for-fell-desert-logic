@@ -77,7 +77,7 @@ describe("MissionEngine movie integration", () => {
                             ),
                         ],
                         criteria: [
-                            MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                            MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                                 {
                                     affiliations: [SquaddieAffiliation.ENEMY],
                                 }

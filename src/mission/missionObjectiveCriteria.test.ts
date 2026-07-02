@@ -51,12 +51,14 @@ describe("Mission Objective Criteria", () => {
     describe("Creation Tests", () => {
         it("Can create criteria with only affiliations filter", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                    }
+                )
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             )
             expect(criteria.affiliations).toBeInstanceOf(Set)
             expect(criteria.affiliations?.has(SquaddieAffiliation.ENEMY)).toBe(
@@ -68,12 +70,14 @@ describe("Mission Objective Criteria", () => {
 
         it("Can create criteria with only outOfBattleSquaddieIds filter", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    outOfBattleSquaddieIds: ["soldier"],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["soldier"],
+                    }
+                )
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             )
             expect(criteria.outOfBattleSquaddieIds).toBeInstanceOf(Set)
             expect(criteria.outOfBattleSquaddieIds?.has("soldier")).toBe(true)
@@ -83,17 +87,19 @@ describe("Mission Objective Criteria", () => {
 
         it("Can create criteria with only battleSquaddieIds filter", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 0,
-                            outOfBattleSquaddieId: "King Betrayer",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 0,
+                                outOfBattleSquaddieId: "King Betrayer",
+                            },
+                        ],
+                    }
+                )
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             )
             expect(criteria.battleSquaddieIds).toBeInstanceOf(Set)
             expect(
@@ -110,10 +116,12 @@ describe("Mission Objective Criteria", () => {
 
         it("Can create criteria with multiple filters combined", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                    outOfBattleSquaddieIds: ["soldier"],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                        outOfBattleSquaddieIds: ["soldier"],
+                    }
+                )
 
             expect(criteria.affiliations?.has(SquaddieAffiliation.ENEMY)).toBe(
                 true
@@ -123,9 +131,11 @@ describe("Mission Objective Criteria", () => {
 
         it("Throws error when no filters provided", () => {
             expect(() => {
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({})
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {}
+                )
             }).toThrow(
-                "[MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria]: at least one filter must be provided"
+                "[MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria]: at least one filter must be provided"
             )
         })
 
@@ -135,10 +145,12 @@ describe("Mission Objective Criteria", () => {
             ]
             const outOfBattleIds = ["soldier"]
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations,
-                    outOfBattleSquaddieIds: outOfBattleIds,
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations,
+                        outOfBattleSquaddieIds: outOfBattleIds,
+                    }
+                )
 
             affiliations.push(SquaddieAffiliation.PLAYER)
             outOfBattleIds.push("knight")
@@ -151,16 +163,16 @@ describe("Mission Objective Criteria", () => {
     describe("JSON Creation Tests", () => {
         it("Can create criteria from JSON with affiliations", () => {
             const criteria = MissionObjectiveCriteriaService.createFromJSON({
-                type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                 affiliations: [SquaddieAffiliation.ENEMY],
             })
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             )
             if (
                 criteria.type ===
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             ) {
                 expect(
                     criteria.affiliations?.has(SquaddieAffiliation.ENEMY)
@@ -170,16 +182,16 @@ describe("Mission Objective Criteria", () => {
 
         it("Can create criteria from JSON with outOfBattleSquaddieIds", () => {
             const criteria = MissionObjectiveCriteriaService.createFromJSON({
-                type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                 outOfBattleSquaddieIds: ["soldier", "knight"],
             })
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             )
             if (
                 criteria.type ===
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             ) {
                 expect(criteria.outOfBattleSquaddieIds?.has("soldier")).toBe(
                     true
@@ -192,7 +204,7 @@ describe("Mission Objective Criteria", () => {
 
         it("Can create criteria from JSON with battleSquaddieIds", () => {
             const criteria = MissionObjectiveCriteriaService.createFromJSON({
-                type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                 battleSquaddieIds: [
                     {
                         inBattleSquaddieId: 0,
@@ -202,11 +214,11 @@ describe("Mission Objective Criteria", () => {
             })
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             )
             if (
                 criteria.type ===
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             ) {
                 expect(
                     criteria.battleSquaddieIds?.has(
@@ -221,17 +233,17 @@ describe("Mission Objective Criteria", () => {
 
         it("Can create criteria from JSON with multiple filters", () => {
             const criteria = MissionObjectiveCriteriaService.createFromJSON({
-                type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                 affiliations: [SquaddieAffiliation.ENEMY],
                 outOfBattleSquaddieIds: ["soldier"],
             })
 
             expect(criteria.type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             )
             if (
                 criteria.type ===
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             ) {
                 expect(
                     criteria.affiliations?.has(SquaddieAffiliation.ENEMY)
@@ -290,9 +302,11 @@ describe("Mission Objective Criteria", () => {
 
         it("Returns true when all enemies are defeated", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -320,9 +334,11 @@ describe("Mission Objective Criteria", () => {
 
         it("Returns false when some enemies are not defeated", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -347,9 +363,11 @@ describe("Mission Objective Criteria", () => {
             )
 
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                    }
+                )
 
             const satisfied = MissionObjectiveCriteriaService.isSatisfied(
                 criteria,
@@ -360,12 +378,14 @@ describe("Mission Objective Criteria", () => {
 
         it("Works with multiple affiliations in filter", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [
-                        SquaddieAffiliation.ENEMY,
-                        SquaddieAffiliation.PLAYER,
-                    ],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [
+                            SquaddieAffiliation.ENEMY,
+                            SquaddieAffiliation.PLAYER,
+                        ],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -433,9 +453,11 @@ describe("Mission Objective Criteria", () => {
 
         it("Returns true when all soldiers are defeated", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    outOfBattleSquaddieIds: ["soldier"],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["soldier"],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -463,9 +485,11 @@ describe("Mission Objective Criteria", () => {
 
         it("Returns false when some soldiers are not defeated", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    outOfBattleSquaddieIds: ["soldier"],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["soldier"],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -485,9 +509,11 @@ describe("Mission Objective Criteria", () => {
 
         it("Works with multiple outOfBattleSquaddieIds", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    outOfBattleSquaddieIds: ["soldier", "knight"],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["soldier", "knight"],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -549,14 +575,16 @@ describe("Mission Objective Criteria", () => {
 
         it("Returns true when specific squaddie is defeated", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 0,
-                            outOfBattleSquaddieId: "King Betrayer",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 0,
+                                outOfBattleSquaddieId: "King Betrayer",
+                            },
+                        ],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -576,14 +604,16 @@ describe("Mission Objective Criteria", () => {
 
         it("Returns false when specific squaddie is not defeated", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 0,
-                            outOfBattleSquaddieId: "King Betrayer",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 0,
+                                outOfBattleSquaddieId: "King Betrayer",
+                            },
+                        ],
+                    }
+                )
 
             const satisfied = MissionObjectiveCriteriaService.isSatisfied(
                 criteria,
@@ -594,14 +624,16 @@ describe("Mission Objective Criteria", () => {
 
         it("Matches exact combination of inBattleSquaddieId and outOfBattleSquaddieId", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 0,
-                            outOfBattleSquaddieId: "King Betrayer",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 0,
+                                outOfBattleSquaddieId: "King Betrayer",
+                            },
+                        ],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 1,
@@ -659,10 +691,12 @@ describe("Mission Objective Criteria", () => {
 
         it("Returns true when all enemy soldiers are defeated", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                    outOfBattleSquaddieIds: ["soldier"],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                        outOfBattleSquaddieIds: ["soldier"],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -682,10 +716,12 @@ describe("Mission Objective Criteria", () => {
 
         it("Only counts squaddies matching ALL filters", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                    outOfBattleSquaddieIds: ["soldier"],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                        outOfBattleSquaddieIds: ["soldier"],
+                    }
+                )
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,

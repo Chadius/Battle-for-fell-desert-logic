@@ -33,7 +33,7 @@ describe("MissionState", () => {
                     MissionObjectiveRewardService.newDialogueReward(["d1"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -350,7 +350,7 @@ describe("MissionState", () => {
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         { affiliations: [SquaddieAffiliation.ENEMY] }
                     ),
                 ],
@@ -391,20 +391,22 @@ describe("MissionState", () => {
                 "MISSION_ENDS"
             )
             expect(deserialized.objectives[0].criteria[0].type).toBe(
-                "SQUADDIES_DEFEATED"
+                "ALL_SQUADDIES_DEFEATED"
             )
         })
 
         it("round-trips objectives with battleSquaddieIds criteria", () => {
             const criteria =
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    battleSquaddieIds: [
-                        {
-                            inBattleSquaddieId: 1,
-                            outOfBattleSquaddieId: "lini",
-                        },
-                    ],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        battleSquaddieIds: [
+                            {
+                                inBattleSquaddieId: 1,
+                                outOfBattleSquaddieId: "lini",
+                            },
+                        ],
+                    }
+                )
             const state = MissionStateService.new({
                 id: "mission-1",
                 mapId: "map-1",

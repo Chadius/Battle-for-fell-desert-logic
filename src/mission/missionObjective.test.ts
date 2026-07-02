@@ -62,7 +62,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -89,12 +89,12 @@ describe("Mission Objective", () => {
                     MissionObjectiveRewardService.newMissionEndsReward(),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
                     ),
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             outOfBattleSquaddieIds: ["boss"],
                         }
@@ -115,7 +115,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -137,7 +137,7 @@ describe("Mission Objective", () => {
                         ]),
                     ],
                     criteria: [
-                        MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                             {
                                 affiliations: [SquaddieAffiliation.ENEMY],
                             }
@@ -159,7 +159,7 @@ describe("Mission Objective", () => {
                         ]),
                     ],
                     criteria: [
-                        MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                             {
                                 affiliations: [SquaddieAffiliation.ENEMY],
                             }
@@ -177,7 +177,7 @@ describe("Mission Objective", () => {
                     id: "test",
                     rewards: [],
                     criteria: [
-                        MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                        MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                             {
                                 affiliations: [SquaddieAffiliation.ENEMY],
                             }
@@ -210,9 +210,11 @@ describe("Mission Objective", () => {
                 MissionObjectiveRewardService.newDialogueReward(["dialogue1"]),
             ]
             const criteria = [
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    affiliations: [SquaddieAffiliation.ENEMY],
-                }),
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        affiliations: [SquaddieAffiliation.ENEMY],
+                    }
+                ),
             ]
 
             const objective = MissionObjectiveService.new({
@@ -225,9 +227,11 @@ describe("Mission Objective", () => {
                 MissionObjectiveRewardService.newDialogueReward(["dialogue2"])
             )
             criteria.push(
-                MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria({
-                    outOfBattleSquaddieIds: ["boss"],
-                })
+                MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                    {
+                        outOfBattleSquaddieIds: ["boss"],
+                    }
+                )
             )
 
             expect(objective.rewards).toHaveLength(1)
@@ -247,7 +251,7 @@ describe("Mission Objective", () => {
                 ],
                 criteria: [
                     {
-                        type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                        type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                         affiliations: [SquaddieAffiliation.ENEMY],
                     },
                 ],
@@ -274,11 +278,11 @@ describe("Mission Objective", () => {
                 ],
                 criteria: [
                     {
-                        type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                        type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                         affiliations: [SquaddieAffiliation.ENEMY],
                     },
                     {
-                        type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                        type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                         outOfBattleSquaddieIds: ["boss"],
                     },
                 ],
@@ -299,7 +303,7 @@ describe("Mission Objective", () => {
                 ],
                 criteria: [
                     {
-                        type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                        type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                         affiliations: [SquaddieAffiliation.ENEMY],
                     },
                 ],
@@ -327,18 +331,18 @@ describe("Mission Objective", () => {
                 ],
                 criteria: [
                     {
-                        type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+                        type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
                         affiliations: [SquaddieAffiliation.ENEMY],
                     },
                 ],
             })
 
             expect(objective.criteria[0].type).toBe(
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             )
             if (
                 objective.criteria[0].type ===
-                MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+                MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
             ) {
                 expect(
                     objective.criteria[0].affiliations?.has(
@@ -383,7 +387,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -422,7 +426,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -453,7 +457,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -475,12 +479,12 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
                     ),
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             outOfBattleSquaddieIds: ["boss"],
                         }
@@ -526,7 +530,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -551,7 +555,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -573,7 +577,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -624,7 +628,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -640,7 +644,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ALLY],
                         }
@@ -656,7 +660,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -730,7 +734,7 @@ describe("Mission Objective", () => {
                     ]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }

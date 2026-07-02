@@ -14,7 +14,7 @@
                 ],
                 "criteria": [
                     {
-                        "type": "SQUADDIES_DEFEATED",
+                        "type": "ALL_SQUADDIES_DEFEATED",
                         "affiliations": ["ENEMY"]
                     }
                 ],
@@ -29,7 +29,7 @@
                 ],
                 "criteria": [
                     {
-                        "type": "SQUADDIES_DEFEATED",
+                        "type": "ALL_SQUADDIES_DEFEATED",
                         "affiliations": ["PLAYER"]
                     }
                 ],

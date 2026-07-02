@@ -9,8 +9,8 @@ import type { SquaddieActionResult } from "../squaddieAction/calculate/result/sq
 import type { ActionResult } from "./actionResult"
 
 export const MissionObjectiveCriteriaType = {
-    SQUADDIES_DEFEATED: "SQUADDIES_DEFEATED",
-    SQUADDIES_INJURED: "SQUADDIES_INJURED",
+    ALL_SQUADDIES_DEFEATED: "ALL_SQUADDIES_DEFEATED",
+    SPECIFIC_SQUADDIES_INJURED: "SPECIFIC_SQUADDIES_INJURED",
     SPECIFIC_SQUADDIES_DEFEATED: "SPECIFIC_SQUADDIES_DEFEATED",
 } as const satisfies Record<string, string>
 
@@ -18,15 +18,15 @@ export type TMissionObjectiveCriteriaType = EnumLike<
     typeof MissionObjectiveCriteriaType
 >
 
-export interface SquaddiesDefeatedCriteria {
-    type: typeof MissionObjectiveCriteriaType.SQUADDIES_DEFEATED
+export interface AllSquaddiesDefeatedCriteria {
+    type: typeof MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED
     affiliations?: Set<TSquaddieAffiliation>
     outOfBattleSquaddieIds?: Set<string>
     battleSquaddieIds?: Set<string>
 }
 
-export interface SquaddiesInjuredCriteria {
-    type: typeof MissionObjectiveCriteriaType.SQUADDIES_INJURED
+export interface SpecificSquaddiesInjuredCriteria {
+    type: typeof MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED
     battleSquaddieIds?: Set<string>
     outOfBattleSquaddieIds?: Set<string>
 }
@@ -38,8 +38,8 @@ export interface SpecificSquaddiesDefeatedCriteria {
 }
 
 export type MissionObjectiveCriteria =
-    | SquaddiesDefeatedCriteria
-    | SquaddiesInjuredCriteria
+    | AllSquaddiesDefeatedCriteria
+    | SpecificSquaddiesInjuredCriteria
     | SpecificSquaddiesDefeatedCriteria
 
 const serializedBattleSquaddieIdSchema = z.object({
@@ -47,15 +47,15 @@ const serializedBattleSquaddieIdSchema = z.object({
     outOfBattleSquaddieId: z.string().min(1),
 })
 
-const squaddiesDefeatedCriteriaSchema = z.object({
-    type: z.literal(MissionObjectiveCriteriaType.SQUADDIES_DEFEATED),
+const allSquaddiesDefeatedCriteriaSchema = z.object({
+    type: z.literal(MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED),
     affiliations: z.array(z.string()).optional(),
     outOfBattleSquaddieIds: z.array(z.string()).optional(),
     battleSquaddieIds: z.array(serializedBattleSquaddieIdSchema).optional(),
 })
 
-const squaddiesInjuredCriteriaSchema = z.object({
-    type: z.literal(MissionObjectiveCriteriaType.SQUADDIES_INJURED),
+const specificSquaddiesInjuredCriteriaSchema = z.object({
+    type: z.literal(MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED),
     outOfBattleSquaddieIds: z.array(z.string()).optional(),
     battleSquaddieIds: z.array(serializedBattleSquaddieIdSchema).optional(),
 })
@@ -67,8 +67,8 @@ const specificSquaddiesDefeatedCriteriaSchema = z.object({
 })
 
 export const missionObjectiveCriteriaSchema = z.discriminatedUnion("type", [
-    squaddiesDefeatedCriteriaSchema,
-    squaddiesInjuredCriteriaSchema,
+    allSquaddiesDefeatedCriteriaSchema,
+    specificSquaddiesInjuredCriteriaSchema,
     specificSquaddiesDefeatedCriteriaSchema,
 ])
 
@@ -81,7 +81,7 @@ export interface MissionObjectiveCriteriaContext {
 }
 
 export const MissionObjectiveCriteriaService = {
-    newSquaddiesDefeatedCriteria: ({
+    newAllSquaddiesDefeatedCriteria: ({
         affiliations,
         outOfBattleSquaddieIds,
         battleSquaddieIds,
@@ -89,7 +89,7 @@ export const MissionObjectiveCriteriaService = {
         affiliations?: TSquaddieAffiliation[]
         outOfBattleSquaddieIds?: string[]
         battleSquaddieIds?: BattleSquaddieId[]
-    }): SquaddiesDefeatedCriteria => {
+    }): AllSquaddiesDefeatedCriteria => {
         const hasAffiliations =
             affiliations != undefined && affiliations.length > 0
         const hasOutOfBattleIds =
@@ -100,12 +100,12 @@ export const MissionObjectiveCriteriaService = {
 
         if (!hasAffiliations && !hasOutOfBattleIds && !hasBattleIds) {
             throw new Error(
-                "[MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria]: at least one filter must be provided"
+                "[MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria]: at least one filter must be provided"
             )
         }
 
         return {
-            type: MissionObjectiveCriteriaType.SQUADDIES_DEFEATED,
+            type: MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED,
             affiliations: hasAffiliations ? new Set(affiliations) : undefined,
             outOfBattleSquaddieIds: hasOutOfBattleIds
                 ? new Set(outOfBattleSquaddieIds)
@@ -120,20 +120,20 @@ export const MissionObjectiveCriteriaService = {
         }
     },
 
-    newSquaddiesInjuredCriteria: ({
+    newSpecificSquaddiesInjuredCriteria: ({
         battleSquaddieIds,
         outOfBattleSquaddieIds,
     }: {
         battleSquaddieIds?: BattleSquaddieId[]
         outOfBattleSquaddieIds?: string[]
-    }): SquaddiesInjuredCriteria => {
+    }): SpecificSquaddiesInjuredCriteria => {
         const validation =
-            MissionObjectiveCriteriaService.validateSquaddiesInjuredCriteriaInput(
+            MissionObjectiveCriteriaService.validateSpecificSquaddiesInjuredCriteriaInput(
                 { battleSquaddieIds, outOfBattleSquaddieIds }
             )
         if (!validation.isValid) {
             throw new Error(
-                `[MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria]: ${validation.reason}`
+                `[MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria]: ${validation.reason}`
             )
         }
 
@@ -144,7 +144,7 @@ export const MissionObjectiveCriteriaService = {
             battleSquaddieIds != undefined && battleSquaddieIds.length > 0
 
         return {
-            type: MissionObjectiveCriteriaType.SQUADDIES_INJURED,
+            type: MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED,
             outOfBattleSquaddieIds: hasOutOfBattleIds
                 ? new Set(outOfBattleSquaddieIds)
                 : undefined,
@@ -158,7 +158,7 @@ export const MissionObjectiveCriteriaService = {
         }
     },
 
-    validateSquaddiesInjuredCriteriaInput: ({
+    validateSpecificSquaddiesInjuredCriteriaInput: ({
         battleSquaddieIds,
         outOfBattleSquaddieIds,
     }: {
@@ -226,11 +226,11 @@ export const MissionObjectiveCriteriaService = {
         criteria: MissionObjectiveCriteria
     ): SerializedMissionObjectiveCriteria => {
         switch (criteria.type) {
-            case MissionObjectiveCriteriaType.SQUADDIES_DEFEATED:
-                return serializeMissionObjectiveCriteriaSquaddiesDefeated(
+            case MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED:
+                return serializeMissionObjectiveCriteriaAllSquaddiesDefeated(
                     criteria
                 )
-            case MissionObjectiveCriteriaType.SQUADDIES_INJURED:
+            case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED:
             case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_DEFEATED:
                 return serializeSquaddieIdFilterCriteria(criteria)
             default:
@@ -250,8 +250,8 @@ export const MissionObjectiveCriteriaService = {
         }[]
     }): MissionObjectiveCriteria => {
         switch (data.type) {
-            case MissionObjectiveCriteriaType.SQUADDIES_DEFEATED:
-                return MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+            case MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED:
+                return MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                     {
                         affiliations:
                             data.affiliations as TSquaddieAffiliation[],
@@ -259,8 +259,8 @@ export const MissionObjectiveCriteriaService = {
                         battleSquaddieIds: data.battleSquaddieIds,
                     }
                 )
-            case MissionObjectiveCriteriaType.SQUADDIES_INJURED:
-                return MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+            case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED:
+                return MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                     {
                         outOfBattleSquaddieIds: data.outOfBattleSquaddieIds,
                         battleSquaddieIds: data.battleSquaddieIds,
@@ -286,13 +286,13 @@ export const MissionObjectiveCriteriaService = {
         context?: MissionObjectiveCriteriaContext
     ): boolean => {
         switch (criteria.type) {
-            case MissionObjectiveCriteriaType.SQUADDIES_DEFEATED:
-                return isSquaddiesDefeatedSatisfied(
+            case MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED:
+                return isAllSquaddiesDefeatedSatisfied(
                     criteria,
                     inBattleSquaddieManager
                 )
-            case MissionObjectiveCriteriaType.SQUADDIES_INJURED:
-                return isSquaddiesInjuredSatisfied(
+            case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED:
+                return isSpecificSquaddiesInjuredSatisfied(
                     criteria,
                     context?.actionResult
                 )
@@ -352,8 +352,8 @@ const squaddieMatchesIdSelection = (
     return true
 }
 
-const isSquaddiesDefeatedSatisfied = (
-    criteria: SquaddiesDefeatedCriteria,
+const isAllSquaddiesDefeatedSatisfied = (
+    criteria: AllSquaddiesDefeatedCriteria,
     inBattleSquaddieManager: InBattleSquaddieManager
 ): boolean => {
     const allSquaddies = inBattleSquaddieManager.getAllSquaddies()
@@ -433,8 +433,8 @@ const squaddieWasKOedByResult = (result: SquaddieActionResult): boolean => {
     return result.damage?.willKo === true
 }
 
-const isSquaddiesInjuredSatisfied = (
-    criteria: SquaddiesInjuredCriteria,
+const isSpecificSquaddiesInjuredSatisfied = (
+    criteria: SpecificSquaddiesInjuredCriteria,
     actionResult?: ActionResult
 ): boolean =>
     anyTargetResultSatisfiesCriteria(
@@ -453,8 +453,8 @@ const isSpecificSquaddiesDefeatedSatisfied = (
         squaddieWasKOedByResult
     )
 
-const serializeMissionObjectiveCriteriaSquaddiesDefeated = (
-    criteria: SquaddiesDefeatedCriteria
+const serializeMissionObjectiveCriteriaAllSquaddiesDefeated = (
+    criteria: AllSquaddiesDefeatedCriteria
 ) => {
     return {
         type: criteria.type,
@@ -472,7 +472,9 @@ const serializeMissionObjectiveCriteriaSquaddiesDefeated = (
     }
 }
 const serializeSquaddieIdFilterCriteria = (
-    criteria: SquaddiesInjuredCriteria | SpecificSquaddiesDefeatedCriteria
+    criteria:
+        | SpecificSquaddiesInjuredCriteria
+        | SpecificSquaddiesDefeatedCriteria
 ) => {
     return {
         type: criteria.type,

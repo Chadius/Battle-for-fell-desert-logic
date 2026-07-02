@@ -61,7 +61,7 @@ describe("InMissionSummary", () => {
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -147,7 +147,7 @@ describe("InMissionSummary", () => {
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }
@@ -276,7 +276,7 @@ describe("InMissionSummary", () => {
                 id: "obj-1",
                 rewards: [MissionObjectiveRewardService.newMissionEndsReward()],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesDefeatedCriteria(
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                         {
                             affiliations: [SquaddieAffiliation.ENEMY],
                         }

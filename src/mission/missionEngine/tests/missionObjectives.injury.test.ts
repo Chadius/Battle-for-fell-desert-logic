@@ -34,7 +34,7 @@ function placeSlitherDemonAdjacentToLini(
     })
 }
 
-describe("MissionEngine — SQUADDIES_INJURED objective", () => {
+describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
     describe("when a matching squaddie is injured", () => {
         let harness: MissionEngineTestHarness
 
@@ -54,7 +54,7 @@ describe("MissionEngine — SQUADDIES_INJURED objective", () => {
                     MissionObjectiveRewardService.newDialogueReward(["ouch"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                         {
                             outOfBattleSquaddieIds: [
                                 MissionEngineTestHarnessIds.slitherDemon
@@ -87,7 +87,7 @@ describe("MissionEngine — SQUADDIES_INJURED objective", () => {
                     MissionObjectiveRewardService.newDialogueReward(["ouch"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                         {
                             outOfBattleSquaddieIds: [
                                 MissionEngineTestHarnessIds.slitherDemon
@@ -113,7 +113,7 @@ describe("MissionEngine — SQUADDIES_INJURED objective", () => {
                     MissionObjectiveRewardService.newDialogueReward(["ouch"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                         {
                             outOfBattleSquaddieIds: [
                                 MissionEngineTestHarnessIds.lini
@@ -155,7 +155,7 @@ describe("MissionEngine — SQUADDIES_INJURED objective", () => {
                     MissionObjectiveRewardService.newDialogueReward(["ouch"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                         {
                             outOfBattleSquaddieIds: [
                                 MissionEngineTestHarnessIds.slitherDemon
@@ -189,7 +189,7 @@ describe("MissionEngine — SQUADDIES_INJURED objective", () => {
                     MissionObjectiveRewardService.newDialogueReward(["ouch"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                         {
                             outOfBattleSquaddieIds: [
                                 MissionEngineTestHarnessIds.slitherDemon
@@ -238,7 +238,7 @@ describe("MissionEngine — SQUADDIES_INJURED objective", () => {
                     MissionObjectiveRewardService.newDialogueReward(["ouch"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                         {
                             outOfBattleSquaddieIds: [
                                 MissionEngineTestHarnessIds.slitherDemon
@@ -282,7 +282,7 @@ describe("MissionEngine — SQUADDIES_INJURED objective", () => {
                     MissionObjectiveRewardService.newDialogueReward(["ouch"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                         {
                             battleSquaddieIds: [demonId],
                         }
@@ -319,7 +319,7 @@ describe("MissionEngine — SQUADDIES_INJURED objective", () => {
                     MissionObjectiveRewardService.newDialogueReward(["ouch"]),
                 ],
                 criteria: [
-                    MissionObjectiveCriteriaService.newSquaddiesInjuredCriteria(
+                    MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
                         {
                             outOfBattleSquaddieIds: [
                                 MissionEngineTestHarnessIds.slitherDemon
