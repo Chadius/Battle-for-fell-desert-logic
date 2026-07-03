@@ -133,5 +133,22 @@ describe("Training Wheels challenge modifier — engine wiring", () => {
                 DegreeOfSuccess.CRITICAL
             )
         })
+
+        it("forces a critical hit when the trainingWheels debug flag is on, even without the modifier set", () => {
+            harness.setDebugFlag("trainingWheels", true)
+            harness.readyAction({
+                actor: liniId,
+                targets: [demonId],
+                action: {
+                    id: MissionEngineTestHarnessIds.lini.scimitarActionId,
+                },
+            })
+
+            const results = harness.useActionAndGetResults()
+
+            expect(getDemonTargetResult(results, demonId).degreeOfSuccess).toBe(
+                DegreeOfSuccess.CRITICAL
+            )
+        })
     })
 })

@@ -1,5 +1,6 @@
 export interface DebugFlags {
     enemyAlwaysEndsTheirTurn?: boolean
+    trainingWheels?: boolean
 }
 
 export const DebugFlagsService = {

@@ -57,6 +57,11 @@ import {
 } from "../proficiency/squaddieCondition"
 import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 import { MovieManager } from "../movie/movieManager"
+import {
+    type ChallengeModifierSetting,
+    ChallengeModifierSettingService,
+    ChallengeModifierType,
+} from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
 
 export class MissionManager {
     missionState?: MissionState
@@ -219,7 +224,7 @@ export class MissionManager {
                     mapId: this.missionState!.mapId,
                 },
                 challengeModifierSetting:
-                    this.missionState!.overrides?.challengeModifierSetting,
+                    this.effectiveChallengeModifierSetting(),
             })
 
         const fullAction = this.squaddieActionManager!.get(action.id)
@@ -248,6 +253,24 @@ export class MissionManager {
         this.applyMultipleAttackPenalty(fullAction, actor)
 
         return calculationResults
+    }
+
+    private effectiveChallengeModifierSetting():
+        | ChallengeModifierSetting
+        | undefined {
+        const challengeModifierSetting =
+            this.missionState!.overrides?.challengeModifierSetting
+
+        if (!this.missionState!.overrides?.debugFlags?.trainingWheels)
+            return challengeModifierSetting
+
+        return ChallengeModifierSettingService.setFlag({
+            challengeModifierSetting:
+                challengeModifierSetting ??
+                ChallengeModifierSettingService.new(),
+            type: ChallengeModifierType.TRAINING_WHEELS,
+            value: true,
+        })
     }
 
     private readonly applyMultipleAttackPenalty = (
