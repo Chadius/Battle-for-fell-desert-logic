@@ -54,6 +54,8 @@ import { SquaddieActionForecastCalculator } from "../forecast/squaddieActionFore
 import type { SquaddieActionEffect } from "../../squaddieActionEffect"
 import { FlankingService } from "../../../coordinateMap/flankingService"
 import { SneakAttackCalculator } from "../sneakAttackCalculator"
+import type { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
+import { TrainingWheelsService } from "../challengeModifier/trainingWheelsService"
 
 export type SquaddieActionDecisions = {
     targetDestination?: {
@@ -245,6 +247,7 @@ export const SquaddieActionResultCalculator = {
         managers,
         rollGenerator,
         map,
+        challengeModifierSetting,
     }: {
         managers: {
             inBattleSquaddieManager: InBattleSquaddieManager
@@ -267,6 +270,7 @@ export const SquaddieActionResultCalculator = {
         map?: {
             mapId: string
         }
+        challengeModifierSetting?: ChallengeModifierSetting
     }): {
         actorRoll?: [number, number]
         targetResults: Map<
@@ -304,6 +308,7 @@ export const SquaddieActionResultCalculator = {
                 action,
                 rollGenerator,
                 map,
+                challengeModifierSetting,
             })
         }
         return calculateWithActorRoll({
@@ -314,6 +319,7 @@ export const SquaddieActionResultCalculator = {
             targets: targets,
             action: action,
             map: map,
+            challengeModifierSetting,
         })
     },
 
@@ -1719,6 +1725,7 @@ const calculateWithTargetRolls = ({
     action,
     rollGenerator,
     map,
+    challengeModifierSetting,
 }: {
     targets: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }[]
     managers: {
@@ -1730,6 +1737,7 @@ const calculateWithTargetRolls = ({
     action: { id: string; decisions?: SquaddieActionDecisions }
     rollGenerator: RollGenerator
     map?: { mapId: string }
+    challengeModifierSetting?: ChallengeModifierSetting
 }) => {
     const squaddieAction = managers.squaddieActionManager.get(action.id)
 
@@ -1748,6 +1756,9 @@ const calculateWithTargetRolls = ({
             DegreeOfSuccess.BOTCH,
         ]
     )
+
+    const actorAffiliation =
+        managers.inBattleSquaddieManager.getSquaddieAffiliation(actor)
 
     const targetResults = new Map<
         string,
@@ -1782,6 +1793,17 @@ const calculateWithTargetRolls = ({
             degree = decreaseDegree(degree)
         }
         degree = redistributeUnsupportedDegree(degree, allowedDegrees)
+
+        degree =
+            TrainingWheelsService.getForcedDegreeOfSuccess({
+                challengeModifierSetting,
+                squaddieAction,
+                actorAffiliation,
+                targetAffiliation:
+                    managers.inBattleSquaddieManager.getSquaddieAffiliation(
+                        target
+                    ),
+            }) ?? degree
 
         const targetKey = SquaddieIdConverterService.squaddieIdToKey({
             inBattleSquaddieId: target.inBattleSquaddieId,
@@ -1860,6 +1882,7 @@ const calculateWithActorRoll = ({
     targets,
     action,
     map,
+    challengeModifierSetting,
 }: {
     actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
     squaddieAction: SquaddieAction
@@ -1872,6 +1895,7 @@ const calculateWithActorRoll = ({
     targets: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }[]
     action: { id: string; decisions?: SquaddieActionDecisions }
     map: { mapId: string } | undefined
+    challengeModifierSetting?: ChallengeModifierSetting
 }) => {
     const actorProficiencyBonus =
         ProficiencyCalculator.getActorProficiencyBonus({
@@ -1948,8 +1972,11 @@ const calculateWithActorRoll = ({
         }
     >()
 
+    const actorAffiliation =
+        managers.inBattleSquaddieManager.getSquaddieAffiliation(actor)
+
     let isFirstTarget = true
-    for (const [targetKey, degreeOfSuccess] of degreesByTarget) {
+    for (const [targetKey, naturalDegreeOfSuccess] of degreesByTarget) {
         const target = targets.find(
             (t) =>
                 SquaddieIdConverterService.squaddieIdToKey({
@@ -1957,6 +1984,17 @@ const calculateWithActorRoll = ({
                     outOfBattleSquaddieId: t.outOfBattleSquaddieId,
                 }) === targetKey
         )!
+
+        const degreeOfSuccess =
+            TrainingWheelsService.getForcedDegreeOfSuccess({
+                challengeModifierSetting,
+                squaddieAction,
+                actorAffiliation,
+                targetAffiliation:
+                    managers.inBattleSquaddieManager.getSquaddieAffiliation(
+                        target
+                    ),
+            }) ?? naturalDegreeOfSuccess
 
         const results = SquaddieActionResultCalculator.calculateResult({
             degreeOfSuccess,

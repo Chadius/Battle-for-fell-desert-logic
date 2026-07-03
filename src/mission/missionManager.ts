@@ -218,6 +218,8 @@ export class MissionManager {
                 map: {
                     mapId: this.missionState!.mapId,
                 },
+                challengeModifierSetting:
+                    this.missionState!.overrides?.challengeModifierSetting,
             })
 
         const fullAction = this.squaddieActionManager!.get(action.id)

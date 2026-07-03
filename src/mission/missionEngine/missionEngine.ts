@@ -73,6 +73,11 @@ import { StrategyControllerService } from "../strategyController"
 import { SimpleAggressorStrategy } from "../strategies/simpleAggressorStrategy"
 import type { AiStrategy } from "../aiStrategy"
 import { type DebugFlags, DebugFlagsService } from "../debugFlags"
+import {
+    type ChallengeModifierSetting,
+    ChallengeModifierSettingService,
+    type TChallengeModifierType,
+} from "../../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
 import { z } from "zod"
 import {
     type MissionState,
@@ -498,6 +503,29 @@ export class MissionEngine {
                     missionState.overrides?.debugFlags ??
                     DebugFlagsService.new(),
                 flag,
+                value,
+            }),
+        }
+    }
+
+    getChallengeModifierSetting(): ChallengeModifierSetting | undefined {
+        this.throwIfMissionManagerIsUndefined(
+            this.getChallengeModifierSetting.name
+        )
+        const missionState = this.missionManager!.missionState!
+        return missionState.overrides?.challengeModifierSetting
+    }
+
+    setChallengeModifier(type: TChallengeModifierType, value: boolean): void {
+        this.throwIfMissionManagerIsUndefined(this.setChallengeModifier.name)
+        const missionState = this.missionManager!.missionState!
+        missionState.overrides = {
+            ...missionState.overrides,
+            challengeModifierSetting: ChallengeModifierSettingService.setFlag({
+                challengeModifierSetting:
+                    missionState.overrides?.challengeModifierSetting ??
+                    ChallengeModifierSettingService.new(),
+                type,
                 value,
             }),
         }

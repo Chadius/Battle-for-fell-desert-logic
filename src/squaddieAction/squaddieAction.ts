@@ -16,6 +16,7 @@ import {
     ProficiencyType,
     type TProficiencyType,
 } from "../proficiency/proficiencyLevel"
+import { SquaddieConditionService } from "../proficiency/squaddieCondition"
 import type { EnumLike } from "../enum"
 import {
     type SquaddieActionEffect,
@@ -318,6 +319,17 @@ export const SquaddieActionService = {
             throw new Error(`[SquaddieActionService.deserialize]: ${details}`)
         }
         return result.data as SquaddieAction
+    },
+    isAttackAction: (action: SquaddieAction): boolean => {
+        if (!action.targeting.affiliationRelationship.foe) return false
+
+        return Object.values(action.effectOnTarget ?? {}).some(
+            (effect) =>
+                effect?.damage != undefined ||
+                (effect?.conditions?.add ?? []).some((condition) =>
+                    SquaddieConditionService.isHindering(condition)
+                )
+        )
     },
     getRequiredDecisions: (
         action: SquaddieAction
