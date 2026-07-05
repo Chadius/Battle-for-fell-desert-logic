@@ -21,6 +21,7 @@ import type { TTurnControllerType } from "./turnController"
 import type { TSquaddieAffiliation } from "../affiliation/affiliation"
 import type { StrategyControllerOverrides } from "./strategyController"
 import type { DebugFlags } from "./debugFlags"
+import type { ChallengeModifierSetting } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
 import {
     type MissionDeployment,
     missionDeploymentSchema,
@@ -74,6 +75,7 @@ export interface MissionStateOverrides {
     }
     strategy?: StrategyControllerOverrides
     debugFlags?: DebugFlags
+    challengeModifierSetting?: ChallengeModifierSetting
 }
 
 export const MissionStateService = {

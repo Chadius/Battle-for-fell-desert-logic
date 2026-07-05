@@ -3,6 +3,7 @@ import {
     MissionObjectiveRewardService,
     MissionObjectiveRewardType,
 } from "./missionObjectiveReward"
+import { ChallengeModifierType } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
 
 describe("Mission Objective Reward", () => {
     describe("DialogueReward", () => {
@@ -177,6 +178,82 @@ describe("Mission Objective Reward", () => {
 
             expect(reward.type).toBe(MissionObjectiveRewardType.PLAY_MOVIE)
             expect(reward.movieId).toBe("some-movie-id")
+        })
+    })
+
+    describe("SetChallengeModifierReward", () => {
+        it("creates a reward carrying the modifier type and value", () => {
+            const reward =
+                MissionObjectiveRewardService.newSetChallengeModifierReward(
+                    ChallengeModifierType.TRAINING_WHEELS,
+                    true
+                )
+
+            expect(reward.type).toBe(
+                MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER
+            )
+            expect(reward.challengeModifierType).toBe(
+                ChallengeModifierType.TRAINING_WHEELS
+            )
+            expect(reward.value).toBe(true)
+        })
+
+        it("can create the reward from JSON", () => {
+            const reward = MissionObjectiveRewardService.createFromJSON({
+                type: MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER,
+                challengeModifierType: ChallengeModifierType.TRAINING_WHEELS,
+                value: false,
+            })
+
+            expect(reward.type).toBe(
+                MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER
+            )
+            if (
+                reward.type ===
+                MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER
+            ) {
+                expect(reward.challengeModifierType).toBe(
+                    ChallengeModifierType.TRAINING_WHEELS
+                )
+                expect(reward.value).toBe(false)
+            }
+        })
+
+        it("throws when challengeModifierType is missing from JSON", () => {
+            expect(() => {
+                MissionObjectiveRewardService.createFromJSON({
+                    type: MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER,
+                    value: true,
+                })
+            }).toThrow(
+                "[MissionObjectiveRewardService.createFromJSON]: challengeModifierType is required for SET_CHALLENGE_MODIFIER reward"
+            )
+        })
+
+        it("throws when value is missing from JSON", () => {
+            expect(() => {
+                MissionObjectiveRewardService.createFromJSON({
+                    type: MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER,
+                    challengeModifierType:
+                        ChallengeModifierType.TRAINING_WHEELS,
+                })
+            }).toThrow(
+                "[MissionObjectiveRewardService.createFromJSON]: value is required for SET_CHALLENGE_MODIFIER reward"
+            )
+        })
+
+        it("round-trips through serialize and createFromJSON", () => {
+            const reward =
+                MissionObjectiveRewardService.newSetChallengeModifierReward(
+                    ChallengeModifierType.TRAINING_WHEELS,
+                    true
+                )
+
+            const restored = MissionObjectiveRewardService.createFromJSON(
+                MissionObjectiveRewardService.serialize(reward)
+            )
+
+            expect(restored).toEqual(reward)
         })
     })
 

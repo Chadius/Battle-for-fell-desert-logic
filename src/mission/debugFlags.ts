@@ -1,6 +1,7 @@
 export interface DebugFlags {
     enemyAlwaysEndsTheirTurn?: boolean
     revealHiddenMissionObjectives?: boolean
+    trainingWheels?: boolean
 }
 
 export const DebugFlagsService = {

@@ -6,7 +6,10 @@ import {
     MovieEngineState,
     type TMovieEngineCommand,
 } from "../../movie/movieEngine"
-import { MissionObjectiveRewardType } from "../missionObjectiveReward"
+import {
+    MissionObjectiveRewardType,
+    type MissionObjectiveReward,
+} from "../missionObjectiveReward"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
@@ -73,6 +76,11 @@ import { StrategyControllerService } from "../strategyController"
 import { SimpleAggressorStrategy } from "../strategies/simpleAggressorStrategy"
 import type { AiStrategy } from "../aiStrategy"
 import { type DebugFlags, DebugFlagsService } from "../debugFlags"
+import {
+    type ChallengeModifierSetting,
+    ChallengeModifierSettingService,
+    type TChallengeModifierType,
+} from "../../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
 import { z } from "zod"
 import {
     type MissionState,
@@ -266,7 +274,7 @@ export class MissionEngine {
 
         this.readiedAction = undefined
 
-        this.triggerPlayMovieRewards()
+        this.triggerImmediateObjectiveRewards()
         this.autoAdvanceThroughBookendAffiliationTurns()
 
         return this.actionResults
@@ -503,6 +511,29 @@ export class MissionEngine {
         }
     }
 
+    getChallengeModifierSetting(): ChallengeModifierSetting | undefined {
+        this.throwIfMissionManagerIsUndefined(
+            this.getChallengeModifierSetting.name
+        )
+        const missionState = this.missionManager!.missionState!
+        return missionState.overrides?.challengeModifierSetting
+    }
+
+    setChallengeModifier(type: TChallengeModifierType, value: boolean): void {
+        this.throwIfMissionManagerIsUndefined(this.setChallengeModifier.name)
+        const missionState = this.missionManager!.missionState!
+        missionState.overrides = {
+            ...missionState.overrides,
+            challengeModifierSetting: ChallengeModifierSettingService.setFlag({
+                challengeModifierSetting:
+                    missionState.overrides?.challengeModifierSetting ??
+                    ChallengeModifierSettingService.new(),
+                type,
+                value,
+            }),
+        }
+    }
+
     registerMovieManager(movieManager: MovieManager): void {
         this.throwIfMissionManagerIsUndefined(this.registerMovieManager.name)
         this.missionManager!.movieManager = movieManager
@@ -678,10 +709,27 @@ export class MissionEngine {
         ]
     }
 
-    private triggerPlayMovieRewards(): void {
+    private triggerPlayMovieReward(reward: MissionObjectiveReward): boolean {
+        if (reward.type !== MissionObjectiveRewardType.PLAY_MOVIE) return false
+        const movieManager = this.missionManager!.movieManager
+        if (!movieManager) return false
+
+        const movie = movieManager.get(reward.movieId)
+        this.playMovie(movie, [])
+        return true
+    }
+
+    private triggerSetChallengeModifierReward(
+        reward: MissionObjectiveReward
+    ): boolean {
+        if (reward.type !== MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER)
+            return false
+        this.setChallengeModifier(reward.challengeModifierType, reward.value)
+        return true
+    }
+
+    private triggerImmediateObjectiveRewards(): void {
         if (!this.missionManager) return
-        const movieManager = this.missionManager.movieManager
-        if (!movieManager) return
 
         const context = this.actionResults
             ? { actionResult: this.actionResults }
@@ -692,11 +740,18 @@ export class MissionEngine {
             )
 
         for (const objective of objectivesWithoutReward) {
-            for (const reward of objective.rewards) {
-                if (reward.type !== MissionObjectiveRewardType.PLAY_MOVIE)
-                    continue
-                const movie = movieManager.get(reward.movieId)
-                this.playMovie(movie, [])
+            const handledAnyReward = objective.rewards.reduce(
+                (handledSoFar, reward) => {
+                    const handledMovie = this.triggerPlayMovieReward(reward)
+                    const handledChallengeModifier =
+                        this.triggerSetChallengeModifierReward(reward)
+                    return (
+                        handledSoFar || handledMovie || handledChallengeModifier
+                    )
+                },
+                false
+            )
+            if (handledAnyReward) {
                 this.missionManager.setMissionObjectiveAsRewarded(objective.id)
             }
         }
