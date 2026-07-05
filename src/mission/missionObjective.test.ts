@@ -205,6 +205,47 @@ describe("Mission Objective", () => {
             )
         })
 
+        it("Defaults hidden to undefined when not provided", () => {
+            const objective = MissionObjectiveService.new({
+                id: "test",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward([
+                        "dialogue",
+                    ]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+            })
+
+            expect(objective.hidden).toBeUndefined()
+        })
+
+        it("Can create with hidden explicitly set to true", () => {
+            const objective = MissionObjectiveService.new({
+                id: "test",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward([
+                        "dialogue",
+                    ]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+                hidden: true,
+            })
+
+            expect(objective.hidden).toBe(true)
+        })
+
         it("Clones arrays to prevent external mutation", () => {
             const rewards = [
                 MissionObjectiveRewardService.newDialogueReward(["dialogue1"]),
@@ -318,6 +359,32 @@ describe("Mission Objective", () => {
             ) {
                 expect(objective.rewards[0].dialogueIds).toEqual(["victory"])
             }
+        })
+
+        it("Preserves hidden flag through serialize/createFromJSON round-trip", () => {
+            const original = MissionObjectiveService.new({
+                id: "hidden_objective",
+                rewards: [
+                    MissionObjectiveRewardService.newDialogueReward([
+                        "victory",
+                    ]),
+                ],
+                criteria: [
+                    MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                        {
+                            affiliations: [SquaddieAffiliation.ENEMY],
+                        }
+                    ),
+                ],
+                hidden: true,
+            })
+
+            const serialized = MissionObjectiveService.serialize(original)
+            const restored = MissionObjectiveService.createFromJSON(
+                JSON.parse(JSON.stringify(serialized))
+            )
+
+            expect(restored.hidden).toBe(true)
         })
 
         it("Correctly deserializes criteria using MissionObjectiveCriteriaService", () => {

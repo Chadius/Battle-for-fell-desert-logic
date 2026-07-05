@@ -60,22 +60,29 @@ export const InMissionSummaryService = {
         missionObjectives,
         inBattleSquaddieManager,
         recentPhaseTransitions,
+        revealHiddenObjectives = false,
     }: {
         mapId?: string
         mapName?: string
         missionObjectives: MissionObjective[]
         inBattleSquaddieManager: InBattleSquaddieManager
         recentPhaseTransitions?: TMissionAffiliationTurn[]
+        revealHiddenObjectives?: boolean
     }): InMissionSummary => {
         const missionObjectiveSummaries: MissionObjectiveSummary[] =
-            missionObjectives.map((missionObjective) => ({
-                id: missionObjective.id,
-                isCompleted: MissionObjectiveService.isComplete(
-                    missionObjective,
-                    inBattleSquaddieManager
-                ),
-                hasGivenReward: missionObjective.hasGivenReward,
-            }))
+            missionObjectives
+                .filter(
+                    (missionObjective) =>
+                        !missionObjective.hidden || revealHiddenObjectives
+                )
+                .map((missionObjective) => ({
+                    id: missionObjective.id,
+                    isCompleted: MissionObjectiveService.isComplete(
+                        missionObjective,
+                        inBattleSquaddieManager
+                    ),
+                    hasGivenReward: missionObjective.hasGivenReward,
+                }))
 
         const inBattleSquaddieCollection =
             inBattleSquaddieManager.cloneCollection()

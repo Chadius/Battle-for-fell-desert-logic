@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionObjectiveService } from "./missionObjective"
+import {
+    type MissionObjective,
+    MissionObjectiveService,
+} from "./missionObjective"
 import { MissionObjectiveRewardService } from "./missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../affiliation/affiliation"
@@ -188,6 +191,62 @@ describe("InMissionSummary", () => {
             })
 
             expect(summary.missionObjectives[0].hasGivenReward).toBe(true)
+        })
+
+        describe("when a mission objective is hidden", () => {
+            let hiddenObjective: MissionObjective
+
+            beforeEach(() => {
+                hiddenObjective = MissionObjectiveService.new({
+                    id: "obj-hidden",
+                    rewards: [
+                        MissionObjectiveRewardService.newMissionEndsReward(),
+                    ],
+                    criteria: [
+                        MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                            {
+                                affiliations: [SquaddieAffiliation.ENEMY],
+                            }
+                        ),
+                    ],
+                    hidden: true,
+                })
+            })
+
+            it("excludes it from the summary by default", () => {
+                const visibleObjective = MissionObjectiveService.new({
+                    id: "obj-visible",
+                    rewards: [
+                        MissionObjectiveRewardService.newMissionEndsReward(),
+                    ],
+                    criteria: [
+                        MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                            {
+                                affiliations: [SquaddieAffiliation.ENEMY],
+                            }
+                        ),
+                    ],
+                })
+
+                const summary = InMissionSummaryService.createFromMission({
+                    missionObjectives: [visibleObjective, hiddenObjective],
+                    inBattleSquaddieManager,
+                })
+
+                expect(summary.missionObjectives).toHaveLength(1)
+                expect(summary.missionObjectives[0].id).toBe("obj-visible")
+            })
+
+            it("includes it when revealHiddenObjectives is true", () => {
+                const summary = InMissionSummaryService.createFromMission({
+                    missionObjectives: [hiddenObjective],
+                    inBattleSquaddieManager,
+                    revealHiddenObjectives: true,
+                })
+
+                expect(summary.missionObjectives).toHaveLength(1)
+                expect(summary.missionObjectives[0].id).toBe("obj-hidden")
+            })
         })
     })
 

@@ -464,6 +464,9 @@ export class MissionManager {
             mapName,
             missionObjectives: this.missionState!.objectives,
             inBattleSquaddieManager: this.inBattleSquaddieManager!,
+            revealHiddenObjectives:
+                this.missionState!.overrides?.debugFlags
+                    ?.revealHiddenMissionObjectives,
         })
     }
 

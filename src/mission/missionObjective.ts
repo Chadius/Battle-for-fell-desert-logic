@@ -19,6 +19,7 @@ export interface MissionObjective {
     rewards: MissionObjectiveReward[]
     hasGivenReward: boolean
     criteria: MissionObjectiveCriteria[]
+    hidden?: boolean
 }
 
 export const missionObjectiveSchema = z.object({
@@ -26,6 +27,7 @@ export const missionObjectiveSchema = z.object({
     rewards: z.array(missionObjectiveRewardSchema),
     criteria: z.array(missionObjectiveCriteriaSchema),
     hasGivenReward: z.boolean(),
+    hidden: z.boolean().optional(),
 })
 
 export type SerializedMissionObjective = z.infer<typeof missionObjectiveSchema>
@@ -36,11 +38,13 @@ export const MissionObjectiveService = {
         rewards,
         criteria,
         hasGivenReward = false,
+        hidden,
     }: {
         id: string
         rewards: MissionObjectiveReward[]
         criteria: MissionObjectiveCriteria[]
         hasGivenReward?: boolean
+        hidden?: boolean
     }): MissionObjective => {
         if (id == undefined || id === "") {
             throw new Error(
@@ -65,6 +69,7 @@ export const MissionObjectiveService = {
             rewards: [...rewards],
             hasGivenReward,
             criteria: [...criteria],
+            hidden,
         }
     },
 
@@ -82,6 +87,7 @@ export const MissionObjectiveService = {
                     MissionObjectiveCriteriaService.serialize(c)
             ),
             hasGivenReward: objective.hasGivenReward,
+            hidden: objective.hidden,
         }
     },
 
@@ -90,6 +96,7 @@ export const MissionObjectiveService = {
         rewards: any[]
         criteria: any[]
         hasGivenReward?: boolean
+        hidden?: boolean
     }): MissionObjective => {
         const deserializedRewards = data.rewards.map((reward) =>
             MissionObjectiveRewardService.createFromJSON(reward)
@@ -104,6 +111,7 @@ export const MissionObjectiveService = {
             rewards: deserializedRewards,
             criteria: deserializedCriteria,
             hasGivenReward: data.hasGivenReward,
+            hidden: data.hidden,
         })
     },
 

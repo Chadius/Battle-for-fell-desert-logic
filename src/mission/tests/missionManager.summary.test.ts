@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { MissionManager } from "../missionManager"
 import { MissionStateService } from "../missionState"
-import { MissionObjectiveService } from "../missionObjective"
+import {
+    type MissionObjective,
+    MissionObjectiveService,
+} from "../missionObjective"
 import { MissionObjectiveRewardService } from "../missionObjectiveReward"
 import { MissionObjectiveCriteriaService } from "../missionObjectiveCriteria"
 import { SquaddieAffiliation } from "../../affiliation/affiliation"
@@ -200,6 +203,63 @@ describe("MissionManager", () => {
             expect(restoredActionPoints.current).toBe(
                 originalActionPoints.current
             )
+        })
+
+        describe("when a mission objective is hidden", () => {
+            let hiddenObjective: MissionObjective
+
+            beforeEach(() => {
+                hiddenObjective = MissionObjectiveService.new({
+                    id: "obj-hidden",
+                    rewards: [
+                        MissionObjectiveRewardService.newMissionEndsReward(),
+                    ],
+                    criteria: [
+                        MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                            {
+                                affiliations: [SquaddieAffiliation.ENEMY],
+                            }
+                        ),
+                    ],
+                    hidden: true,
+                })
+            })
+
+            it("excludes it from createInMissionSummary by default", () => {
+                const missionState = MissionStateService.new({
+                    id: "mission-1",
+                    mapId: "map-1",
+                    objectives: [hiddenObjective],
+                })
+                const manager = new MissionManager({
+                    missionState,
+                    inBattleSquaddieManager,
+                })
+
+                const summary = manager.createInMissionSummary()
+
+                expect(summary.missionObjectives).toHaveLength(0)
+            })
+
+            it("includes it when the revealHiddenMissionObjectives debug flag is set", () => {
+                const missionState = MissionStateService.new({
+                    id: "mission-1",
+                    mapId: "map-1",
+                    objectives: [hiddenObjective],
+                    overrides: {
+                        debugFlags: { revealHiddenMissionObjectives: true },
+                    },
+                })
+                const manager = new MissionManager({
+                    missionState,
+                    inBattleSquaddieManager,
+                })
+
+                const summary = manager.createInMissionSummary()
+
+                expect(summary.missionObjectives).toHaveLength(1)
+                expect(summary.missionObjectives[0].id).toBe("obj-hidden")
+            })
         })
 
         it("createInMissionSummary throws when state is undefined", () => {
