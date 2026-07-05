@@ -1,5 +1,9 @@
 import { z } from "zod"
 import type { EnumLike } from "../enum"
+import {
+    ChallengeModifierType,
+    type TChallengeModifierType,
+} from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
 
 export const MissionObjectiveRewardType = {
     DIALOGUE: "DIALOGUE",
@@ -7,6 +11,7 @@ export const MissionObjectiveRewardType = {
     MISSION_ENDS: "MISSION_ENDS",
     MISSION_FAILURE: "MISSION_FAILURE",
     PLAY_MOVIE: "PLAY_MOVIE",
+    SET_CHALLENGE_MODIFIER: "SET_CHALLENGE_MODIFIER",
 } as const satisfies Record<string, string>
 
 export type TMissionObjectiveRewardType = EnumLike<
@@ -36,12 +41,19 @@ export interface PlayMovieReward {
     movieId: string
 }
 
+export interface SetChallengeModifierReward {
+    type: typeof MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER
+    challengeModifierType: TChallengeModifierType
+    value: boolean
+}
+
 export type MissionObjectiveReward =
     | DialogueReward
     | NextMissionsReward
     | MissionEndsReward
     | MissionFailureReward
     | PlayMovieReward
+    | SetChallengeModifierReward
 
 export const missionObjectiveRewardSchema = z.discriminatedUnion("type", [
     z.object({
@@ -57,6 +69,11 @@ export const missionObjectiveRewardSchema = z.discriminatedUnion("type", [
     z.object({
         type: z.literal(MissionObjectiveRewardType.PLAY_MOVIE),
         movieId: z.string(),
+    }),
+    z.object({
+        type: z.literal(MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER),
+        challengeModifierType: z.enum(ChallengeModifierType),
+        value: z.boolean(),
     }),
 ])
 
@@ -102,6 +119,17 @@ export const MissionObjectiveRewardService = {
             movieId,
         }
     },
+
+    newSetChallengeModifierReward: (
+        challengeModifierType: TChallengeModifierType,
+        value: boolean
+    ): SetChallengeModifierReward => {
+        return {
+            type: MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER,
+            challengeModifierType,
+            value,
+        }
+    },
     serialize: (
         reward: MissionObjectiveReward
     ): SerializedMissionObjectiveReward => {
@@ -114,6 +142,13 @@ export const MissionObjectiveRewardService = {
         if (reward.type === MissionObjectiveRewardType.PLAY_MOVIE) {
             return { type: reward.type, movieId: reward.movieId }
         }
+        if (reward.type === MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER) {
+            return {
+                type: reward.type,
+                challengeModifierType: reward.challengeModifierType,
+                value: reward.value,
+            }
+        }
         return { type: reward.type }
     },
 
@@ -122,6 +157,8 @@ export const MissionObjectiveRewardService = {
         dialogueIds?: string[]
         missionIds?: string[]
         movieId?: string
+        challengeModifierType?: string
+        value?: boolean
     }): MissionObjectiveReward => {
         if (data.type === MissionObjectiveRewardType.DIALOGUE) {
             return MissionObjectiveRewardService.newDialogueReward(
@@ -150,6 +187,21 @@ export const MissionObjectiveRewardService = {
                 )
             return MissionObjectiveRewardService.newPlayMovieReward(
                 data.movieId
+            )
+        }
+
+        if (data.type === MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER) {
+            if (data.challengeModifierType === undefined)
+                throw new Error(
+                    `[MissionObjectiveRewardService.createFromJSON]: challengeModifierType is required for SET_CHALLENGE_MODIFIER reward`
+                )
+            if (data.value === undefined)
+                throw new Error(
+                    `[MissionObjectiveRewardService.createFromJSON]: value is required for SET_CHALLENGE_MODIFIER reward`
+                )
+            return MissionObjectiveRewardService.newSetChallengeModifierReward(
+                data.challengeModifierType as TChallengeModifierType,
+                data.value
             )
         }
 
