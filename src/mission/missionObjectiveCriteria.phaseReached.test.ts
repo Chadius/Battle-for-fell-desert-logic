@@ -90,7 +90,7 @@ describe("PhaseReachedCriteria", () => {
                     missionAffiliationTurn: MissionAffiliationTurn.TURN_START,
                 })
             }).toThrow(
-                "[MissionObjectiveCriteriaService.newPhaseReachedCriteria]: turnCount is required"
+                "[MissionObjectiveCriteriaService.createFromJSON]: turnCount is required for PHASE_REACHED criteria"
             )
         })
     })

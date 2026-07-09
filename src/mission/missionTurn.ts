@@ -43,6 +43,13 @@ const missionAffiliationTurnOrder: TMissionAffiliationTurn[] = [
     MissionAffiliationTurn.TURN_END,
 ]
 
+const activeTurnPhases = new Set<TMissionAffiliationTurn>([
+    MissionAffiliationTurn.PLAYER_TURN,
+    MissionAffiliationTurn.ALLY_TURN,
+    MissionAffiliationTurn.ENEMY_TURN,
+    MissionAffiliationTurn.NONE_AFFILIATION_TURN,
+])
+
 export interface MissionTurn {
     turnCount: number
     missionAffiliationTurn: TMissionAffiliationTurn
@@ -180,8 +187,15 @@ export const MissionTurnService = {
         return phaseToAffiliationMap[affiliationTurn]
     },
 
-    getAffiliationTurnOrder(affiliationTurn: TMissionAffiliationTurn): number {
-        return missionAffiliationTurnOrder.indexOf(affiliationTurn)
+    getAffiliationTurnOrder(
+        affiliationTurn: TMissionAffiliationTurn
+    ): number | undefined {
+        const order = missionAffiliationTurnOrder.indexOf(affiliationTurn)
+        return order === -1 ? undefined : order
+    },
+
+    isActiveTurnPhase(affiliationTurn: TMissionAffiliationTurn): boolean {
+        return activeTurnPhases.has(affiliationTurn)
     },
 
     getAffiliationsToResetForPhase(

@@ -325,8 +325,13 @@ export const MissionObjectiveCriteriaService = {
                     }
                 )
             case MissionObjectiveCriteriaType.PHASE_REACHED:
+                if (data.turnCount === undefined) {
+                    throw new Error(
+                        "[MissionObjectiveCriteriaService.createFromJSON]: turnCount is required for PHASE_REACHED criteria"
+                    )
+                }
                 return MissionObjectiveCriteriaService.newPhaseReachedCriteria({
-                    turnCount: data.turnCount!,
+                    turnCount: data.turnCount,
                     missionAffiliationTurn:
                         data.missionAffiliationTurn as TMissionAffiliationTurn,
                 })
@@ -528,7 +533,8 @@ const isPhaseReachedSatisfied = (
     const targetPhaseOrder = MissionTurnService.getAffiliationTurnOrder(
         criteria.missionAffiliationTurn
     )
-    if (currentPhaseOrder === -1 || targetPhaseOrder === -1) return false
+    if (currentPhaseOrder === undefined || targetPhaseOrder === undefined)
+        return false
 
     return currentPhaseOrder >= targetPhaseOrder
 }

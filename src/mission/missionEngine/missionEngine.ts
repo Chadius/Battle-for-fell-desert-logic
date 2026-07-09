@@ -36,7 +36,6 @@ import type { MissionObjectiveCriteriaContext } from "../missionObjectiveCriteri
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 import type { SquaddieInfo } from "../../squaddie/inBattle/squaddieInfo"
 import {
-    MissionAffiliationTurn,
     MissionTurnService,
     type TMissionAffiliationTurn,
 } from "../missionTurn"
@@ -771,16 +770,10 @@ export class MissionEngine {
     }
 
     private mustWaitForCurrentAffiliationTurn(): boolean {
-        const activeTurnPhases = new Set<TMissionAffiliationTurn>([
-            MissionAffiliationTurn.PLAYER_TURN,
-            MissionAffiliationTurn.ALLY_TURN,
-            MissionAffiliationTurn.ENEMY_TURN,
-            MissionAffiliationTurn.NONE_AFFILIATION_TURN,
-        ])
-
         return (
-            activeTurnPhases.has(this.getCurrentAffiliationTurn()) &&
-            !this.canSkipAffiliationTurn()
+            MissionTurnService.isActiveTurnPhase(
+                this.getCurrentAffiliationTurn()
+            ) && !this.canSkipAffiliationTurn()
         )
     }
 
