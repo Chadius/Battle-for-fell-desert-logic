@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import {
     MissionObjectiveCriteriaService,
     MissionObjectiveCriteriaType,
@@ -96,7 +96,11 @@ describe("PhaseReachedCriteria", () => {
     })
 
     describe("isSatisfied", () => {
-        const manager = buildManager()
+        let manager: InBattleSquaddieManager
+
+        beforeEach(() => {
+            manager = buildManager()
+        })
 
         it("is false when no missionTurn context is provided", () => {
             const criteria =
