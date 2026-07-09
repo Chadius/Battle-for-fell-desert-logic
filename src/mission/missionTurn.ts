@@ -26,6 +26,30 @@ export const MissionAffiliationTurn = {
 } as const satisfies Record<string, string>
 export type TMissionAffiliationTurn = EnumLike<typeof MissionAffiliationTurn>
 
+const missionAffiliationTurnOrder: TMissionAffiliationTurn[] = [
+    MissionAffiliationTurn.TURN_START,
+    MissionAffiliationTurn.PLAYER_TURN_START,
+    MissionAffiliationTurn.PLAYER_TURN,
+    MissionAffiliationTurn.PLAYER_TURN_END,
+    MissionAffiliationTurn.ALLY_TURN_START,
+    MissionAffiliationTurn.ALLY_TURN,
+    MissionAffiliationTurn.ALLY_TURN_END,
+    MissionAffiliationTurn.ENEMY_TURN_START,
+    MissionAffiliationTurn.ENEMY_TURN,
+    MissionAffiliationTurn.ENEMY_TURN_END,
+    MissionAffiliationTurn.NONE_AFFILIATION_TURN_START,
+    MissionAffiliationTurn.NONE_AFFILIATION_TURN,
+    MissionAffiliationTurn.NONE_AFFILIATION_TURN_END,
+    MissionAffiliationTurn.TURN_END,
+]
+
+const activeTurnPhases = new Set<TMissionAffiliationTurn>([
+    MissionAffiliationTurn.PLAYER_TURN,
+    MissionAffiliationTurn.ALLY_TURN,
+    MissionAffiliationTurn.ENEMY_TURN,
+    MissionAffiliationTurn.NONE_AFFILIATION_TURN,
+])
+
 export interface MissionTurn {
     turnCount: number
     missionAffiliationTurn: TMissionAffiliationTurn
@@ -161,6 +185,17 @@ export const MissionTurnService = {
         }
 
         return phaseToAffiliationMap[affiliationTurn]
+    },
+
+    getAffiliationTurnOrder(
+        affiliationTurn: TMissionAffiliationTurn
+    ): number | undefined {
+        const order = missionAffiliationTurnOrder.indexOf(affiliationTurn)
+        return order === -1 ? undefined : order
+    },
+
+    isActiveTurnPhase(affiliationTurn: TMissionAffiliationTurn): boolean {
+        return activeTurnPhases.has(affiliationTurn)
     },
 
     getAffiliationsToResetForPhase(

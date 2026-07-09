@@ -7,11 +7,17 @@ import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
 import { SquaddieConditionService } from "../proficiency/squaddieCondition"
 import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
 import type { ActionResult } from "./actionResult"
+import {
+    type MissionTurn,
+    MissionTurnService,
+    type TMissionAffiliationTurn,
+} from "./missionTurn"
 
 export const MissionObjectiveCriteriaType = {
     ALL_SQUADDIES_DEFEATED: "ALL_SQUADDIES_DEFEATED",
     SPECIFIC_SQUADDIES_INJURED: "SPECIFIC_SQUADDIES_INJURED",
     SPECIFIC_SQUADDIES_DEFEATED: "SPECIFIC_SQUADDIES_DEFEATED",
+    PHASE_REACHED: "PHASE_REACHED",
 } as const satisfies Record<string, string>
 
 export type TMissionObjectiveCriteriaType = EnumLike<
@@ -37,10 +43,17 @@ export interface SpecificSquaddiesDefeatedCriteria {
     outOfBattleSquaddieIds?: Set<string>
 }
 
+export interface PhaseReachedCriteria {
+    type: typeof MissionObjectiveCriteriaType.PHASE_REACHED
+    turnCount: number
+    missionAffiliationTurn: TMissionAffiliationTurn
+}
+
 export type MissionObjectiveCriteria =
     | AllSquaddiesDefeatedCriteria
     | SpecificSquaddiesInjuredCriteria
     | SpecificSquaddiesDefeatedCriteria
+    | PhaseReachedCriteria
 
 const serializedBattleSquaddieIdSchema = z.object({
     inBattleSquaddieId: z.number(),
@@ -66,10 +79,17 @@ const specificSquaddiesDefeatedCriteriaSchema = z.object({
     battleSquaddieIds: z.array(serializedBattleSquaddieIdSchema).optional(),
 })
 
+const phaseReachedCriteriaSchema = z.object({
+    type: z.literal(MissionObjectiveCriteriaType.PHASE_REACHED),
+    turnCount: z.number(),
+    missionAffiliationTurn: z.string(),
+})
+
 export const missionObjectiveCriteriaSchema = z.discriminatedUnion("type", [
     allSquaddiesDefeatedCriteriaSchema,
     specificSquaddiesInjuredCriteriaSchema,
     specificSquaddiesDefeatedCriteriaSchema,
+    phaseReachedCriteriaSchema,
 ])
 
 export type SerializedMissionObjectiveCriteria = z.infer<
@@ -78,6 +98,7 @@ export type SerializedMissionObjectiveCriteria = z.infer<
 
 export interface MissionObjectiveCriteriaContext {
     actionResult?: ActionResult
+    missionTurn?: MissionTurn
 }
 
 export const MissionObjectiveCriteriaService = {
@@ -222,6 +243,32 @@ export const MissionObjectiveCriteriaService = {
         })
     },
 
+    newPhaseReachedCriteria: ({
+        turnCount,
+        missionAffiliationTurn,
+    }: {
+        turnCount: number
+        missionAffiliationTurn: TMissionAffiliationTurn
+    }): PhaseReachedCriteria => {
+        if (turnCount == undefined) {
+            throw new Error(
+                "[MissionObjectiveCriteriaService.newPhaseReachedCriteria]: turnCount is required"
+            )
+        }
+
+        if (turnCount < 0) {
+            throw new Error(
+                "[MissionObjectiveCriteriaService.newPhaseReachedCriteria]: turnCount must be zero or greater"
+            )
+        }
+
+        return {
+            type: MissionObjectiveCriteriaType.PHASE_REACHED,
+            turnCount,
+            missionAffiliationTurn,
+        }
+    },
+
     serialize: (
         criteria: MissionObjectiveCriteria
     ): SerializedMissionObjectiveCriteria => {
@@ -233,6 +280,8 @@ export const MissionObjectiveCriteriaService = {
             case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_INJURED:
             case MissionObjectiveCriteriaType.SPECIFIC_SQUADDIES_DEFEATED:
                 return serializeSquaddieIdFilterCriteria(criteria)
+            case MissionObjectiveCriteriaType.PHASE_REACHED:
+                return serializeMissionObjectiveCriteriaPhaseReached(criteria)
             default:
                 throw new Error(
                     `[MissionObjectiveCriteriaService.serialize]: unknown criteria type`
@@ -248,6 +297,8 @@ export const MissionObjectiveCriteriaService = {
             inBattleSquaddieId: number
             outOfBattleSquaddieId: string
         }[]
+        turnCount?: number
+        missionAffiliationTurn?: string
     }): MissionObjectiveCriteria => {
         switch (data.type) {
             case MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED:
@@ -273,6 +324,17 @@ export const MissionObjectiveCriteriaService = {
                         battleSquaddieIds: data.battleSquaddieIds,
                     }
                 )
+            case MissionObjectiveCriteriaType.PHASE_REACHED:
+                if (data.turnCount === undefined) {
+                    throw new Error(
+                        "[MissionObjectiveCriteriaService.createFromJSON]: turnCount is required for PHASE_REACHED criteria"
+                    )
+                }
+                return MissionObjectiveCriteriaService.newPhaseReachedCriteria({
+                    turnCount: data.turnCount,
+                    missionAffiliationTurn:
+                        data.missionAffiliationTurn as TMissionAffiliationTurn,
+                })
             default:
                 throw new Error(
                     `[MissionObjectiveCriteriaService.createFromJSON]: invalid criteria type: ${data.type}`
@@ -301,6 +363,8 @@ export const MissionObjectiveCriteriaService = {
                     criteria,
                     context?.actionResult
                 )
+            case MissionObjectiveCriteriaType.PHASE_REACHED:
+                return isPhaseReachedSatisfied(criteria, context?.missionTurn)
             default:
                 return false
         }
@@ -453,6 +517,28 @@ const isSpecificSquaddiesDefeatedSatisfied = (
         squaddieWasKOedByResult
     )
 
+const isPhaseReachedSatisfied = (
+    criteria: PhaseReachedCriteria,
+    missionTurn?: MissionTurn
+): boolean => {
+    if (missionTurn == undefined) return false
+
+    if (missionTurn.turnCount !== criteria.turnCount) {
+        return missionTurn.turnCount > criteria.turnCount
+    }
+
+    const currentPhaseOrder = MissionTurnService.getAffiliationTurnOrder(
+        missionTurn.missionAffiliationTurn
+    )
+    const targetPhaseOrder = MissionTurnService.getAffiliationTurnOrder(
+        criteria.missionAffiliationTurn
+    )
+    if (currentPhaseOrder === undefined || targetPhaseOrder === undefined)
+        return false
+
+    return currentPhaseOrder >= targetPhaseOrder
+}
+
 const serializeMissionObjectiveCriteriaAllSquaddiesDefeated = (
     criteria: AllSquaddiesDefeatedCriteria
 ) => {
@@ -486,5 +572,15 @@ const serializeSquaddieIdFilterCriteria = (
                   SquaddieIdConverterService.keyToSquaddieId(key)
               )
             : undefined,
+    }
+}
+
+const serializeMissionObjectiveCriteriaPhaseReached = (
+    criteria: PhaseReachedCriteria
+) => {
+    return {
+        type: criteria.type,
+        turnCount: criteria.turnCount,
+        missionAffiliationTurn: criteria.missionAffiliationTurn,
     }
 }
