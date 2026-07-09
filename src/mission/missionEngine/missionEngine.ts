@@ -32,6 +32,7 @@ import {
 } from "../../squaddieAction/calculate/result/squaddieActionResult"
 import type { MissionObjective } from "../missionObjective"
 import { MissionObjectiveService } from "../missionObjective"
+import type { MissionObjectiveCriteriaContext } from "../missionObjectiveCriteria"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
 import type { SquaddieInfo } from "../../squaddie/inBattle/squaddieInfo"
 import {
@@ -310,6 +311,13 @@ export class MissionEngine {
         return ActionResultsService.serialize(this.actionResults)
     }
 
+    private missionObjectiveCriteriaContext(): MissionObjectiveCriteriaContext {
+        return {
+            actionResult: this.actionResults,
+            missionTurn: this.missionManager?.missionState?.turn,
+        }
+    }
+
     getInProgressMissionObjectives(): MissionObjective[] {
         this.throwIfMissionManagerIsUndefined(
             this.getInProgressMissionObjectives.name
@@ -319,7 +327,8 @@ export class MissionEngine {
         return objectives.filter((objective) => {
             const isComplete = MissionObjectiveService.isComplete(
                 objective,
-                this.missionManager!.inBattleSquaddieManager!
+                this.missionManager!.inBattleSquaddieManager!,
+                this.missionObjectiveCriteriaContext()
             )
             return !isComplete && !objective.hasGivenReward
         })
@@ -331,9 +340,7 @@ export class MissionEngine {
         )
 
         return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives(
-            this.actionResults
-                ? { actionResult: this.actionResults }
-                : undefined
+            this.missionObjectiveCriteriaContext()
         )
     }
 
@@ -343,9 +350,7 @@ export class MissionEngine {
         )
 
         return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives(
-            this.actionResults
-                ? { actionResult: this.actionResults }
-                : undefined
+            this.missionObjectiveCriteriaContext()
         ).filter((objective) =>
             objective.rewards.some(
                 (reward) =>
@@ -361,9 +366,7 @@ export class MissionEngine {
         )
 
         return this.missionManager!.calculateCompletedButNotRewardedMissionObjectives(
-            this.actionResults
-                ? { actionResult: this.actionResults }
-                : undefined
+            this.missionObjectiveCriteriaContext()
         ).filter(
             (objective) =>
                 !objective.rewards.some(
@@ -476,9 +479,7 @@ export class MissionEngine {
         const isComplete = MissionObjectiveService.isComplete(
             objective,
             this.missionManager!.inBattleSquaddieManager!,
-            this.actionResults
-                ? { actionResult: this.actionResults }
-                : undefined
+            this.missionObjectiveCriteriaContext()
         )
 
         if (!isComplete) {
@@ -731,12 +732,11 @@ export class MissionEngine {
     private triggerImmediateObjectiveRewards(): void {
         if (!this.missionManager) return
 
-        const context = this.actionResults
-            ? { actionResult: this.actionResults }
-            : undefined
+        const missionObjectiveCriteriaContext =
+            this.missionObjectiveCriteriaContext()
         const objectivesWithoutReward =
             this.missionManager.calculateCompletedButNotRewardedMissionObjectives(
-                context
+                missionObjectiveCriteriaContext
             )
 
         for (const objective of objectivesWithoutReward) {
@@ -761,6 +761,16 @@ export class MissionEngine {
         this.recentPhaseTransitions = []
         this.recentTransitionResults = []
 
+        for (let i = 0; i < MAX_PHASE_TRANSITIONS; i++) {
+            if (this.isDone()) return
+            if (this.isMoviePlaying()) return
+            if (this.mustWaitForCurrentAffiliationTurn()) return
+
+            this.advanceOnePhaseAndTriggerRewards()
+        }
+    }
+
+    private mustWaitForCurrentAffiliationTurn(): boolean {
         const activeTurnPhases = new Set<TMissionAffiliationTurn>([
             MissionAffiliationTurn.PLAYER_TURN,
             MissionAffiliationTurn.ALLY_TURN,
@@ -768,25 +778,20 @@ export class MissionEngine {
             MissionAffiliationTurn.NONE_AFFILIATION_TURN,
         ])
 
-        for (let i = 0; i < MAX_PHASE_TRANSITIONS; i++) {
-            if (this.isDone()) return
+        return (
+            activeTurnPhases.has(this.getCurrentAffiliationTurn()) &&
+            !this.canSkipAffiliationTurn()
+        )
+    }
 
-            const currentPhase = this.getCurrentAffiliationTurn()
+    private advanceOnePhaseAndTriggerRewards(): void {
+        const phaseResults = this.missionManager!.transitionToNextPhase()
+        this.recentTransitionResults.push(
+            ...phaseResults.map(SquaddieActionResultService.serialize)
+        )
+        this.recentPhaseTransitions.push(this.getCurrentAffiliationTurn())
 
-            if (
-                activeTurnPhases.has(currentPhase) &&
-                !this.canSkipAffiliationTurn()
-            ) {
-                return
-            }
-
-            const phaseResults = this.missionManager!.transitionToNextPhase()
-            this.recentTransitionResults.push(
-                ...phaseResults.map(SquaddieActionResultService.serialize)
-            )
-            const newPhase = this.getCurrentAffiliationTurn()
-            this.recentPhaseTransitions.push(newPhase)
-        }
+        this.triggerImmediateObjectiveRewards()
     }
 
     private canSkipAffiliationTurn(): boolean {
@@ -897,16 +902,9 @@ export class MissionEngine {
         this.recentPhaseTransitions = []
         this.recentTransitionResults = []
 
-        const phaseResults = this.missionManager!.transitionToNextPhase()
-        const serialized = phaseResults.map(
-            SquaddieActionResultService.serialize
-        )
-        this.recentTransitionResults.push(...serialized)
+        this.advanceOnePhaseAndTriggerRewards()
 
-        const newPhase = this.getCurrentAffiliationTurn()
-        this.recentPhaseTransitions.push(newPhase)
-
-        return serialized
+        return [...this.recentTransitionResults]
     }
 
     getSquaddieActionValidity(actor: BattleSquaddieId): SquaddieActionValidity {
