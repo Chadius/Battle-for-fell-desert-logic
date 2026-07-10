@@ -7,12 +7,12 @@
         "dev": "vite",
         "format-check": "prettier --config .prettierrc.yaml --check .",
         "format-fix": "prettier --config .prettierrc.yaml --write .",
-        "clean": "find src -type f \\( -name '*.js' -o -name '*.js.map' \\) -delete",
+        "clean": "rm -rf build",
         "build": "npm run clean && tsc && vite build",
         "preview": "vite preview",
         "tsc": "npx tsc --noEmit 2>&1 | head -10",
-        "test": "npm run clean && vitest run",
-        "test-watch": "npm run clean && vitest"
+        "test": "vitest run",
+        "test-watch": "vitest"
     },
     "devDependencies": {
         "@types/node": "^25.9.1",
