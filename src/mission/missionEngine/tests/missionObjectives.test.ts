@@ -111,7 +111,7 @@ describe("MissionObjectives", () => {
             const inProgressObjective = MissionObjectiveService.new({
                 id: "in-progress",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -125,7 +125,7 @@ describe("MissionObjectives", () => {
             const completedObjective = MissionObjectiveService.new({
                 id: "completed",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -158,7 +158,7 @@ describe("MissionObjectives", () => {
             const completedNotRewarded = MissionObjectiveService.new({
                 id: "completed-not-rewarded",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -172,7 +172,7 @@ describe("MissionObjectives", () => {
             const completedAndRewarded = MissionObjectiveService.new({
                 id: "completed-and-rewarded",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -207,7 +207,7 @@ describe("MissionObjectives", () => {
             const notRewarded = MissionObjectiveService.new({
                 id: "not-rewarded",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -221,7 +221,7 @@ describe("MissionObjectives", () => {
             const rewarded = MissionObjectiveService.new({
                 id: "rewarded",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -306,7 +306,7 @@ describe("MissionObjectives", () => {
             const missionObjective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -369,7 +369,7 @@ describe("MissionObjectives", () => {
             const incompleteObjective = MissionObjectiveService.new({
                 id: "incomplete-obj",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -401,7 +401,7 @@ describe("MissionObjectives", () => {
             const completedObjective = MissionObjectiveService.new({
                 id: "completed-obj",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -445,7 +445,7 @@ describe("MissionObjectives", () => {
             const alreadyRewardedObjective = MissionObjectiveService.new({
                 id: "already-rewarded",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["dialog"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("dialog"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(

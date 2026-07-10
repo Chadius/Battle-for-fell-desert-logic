@@ -6,63 +6,8 @@ import {
 import { ChallengeModifierType } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
 
 describe("Mission Objective Reward", () => {
-    describe("DialogueReward", () => {
-        it("Can create dialogue reward with single dialogue ID", () => {
-            const reward = MissionObjectiveRewardService.newDialogueReward([
-                "intro_dialogue",
-            ])
-
-            expect(reward.type).toBe(MissionObjectiveRewardType.DIALOGUE)
-            expect(reward.dialogueIds).toEqual(["intro_dialogue"])
-        })
-
-        it("Can create dialogue reward with multiple dialogue IDs", () => {
-            const reward = MissionObjectiveRewardService.newDialogueReward([
-                "dialogue_1",
-                "dialogue_2",
-                "dialogue_3",
-            ])
-
-            expect(reward.type).toBe(MissionObjectiveRewardType.DIALOGUE)
-            expect(reward.dialogueIds).toEqual([
-                "dialogue_1",
-                "dialogue_2",
-                "dialogue_3",
-            ])
-        })
-
-        it("Throws error when dialogueIds is empty array", () => {
-            expect(() => {
-                MissionObjectiveRewardService.newDialogueReward([])
-            }).toThrow(
-                "[MissionObjectiveRewardService.newDialogueReward]: dialogueIds must have at least 1 id"
-            )
-        })
-
-        it("Throws error when dialogueIds is undefined", () => {
-            expect(() => {
-                MissionObjectiveRewardService.newDialogueReward(
-                    undefined as any
-                )
-            }).toThrow(
-                "[MissionObjectiveRewardService.newDialogueReward]: dialogueIds must have at least 1 id"
-            )
-        })
-
-        it("Clones dialogueIds array to prevent external mutation", () => {
-            const originalIds = ["dialogue_1", "dialogue_2"]
-            const reward =
-                MissionObjectiveRewardService.newDialogueReward(originalIds)
-
-            originalIds.push("dialogue_3")
-
-            expect(reward.dialogueIds).toEqual(["dialogue_1", "dialogue_2"])
-            expect(reward.dialogueIds.length).toBe(2)
-        })
-    })
-
-    describe("NextMissionsReward", () => {
-        it("Can create next missions reward with single mission ID", () => {
+    describe("given a single next-mission ID", () => {
+        it("creates a reward that carries that mission ID", () => {
             const reward = MissionObjectiveRewardService.newNextMissionsReward([
                 "mission_2",
             ])
@@ -70,23 +15,26 @@ describe("Mission Objective Reward", () => {
             expect(reward.type).toBe(MissionObjectiveRewardType.NEXT_MISSIONS)
             expect(reward.missionIds).toEqual(["mission_2"])
         })
+    })
 
-        it("Can create next missions reward with multiple mission IDs", () => {
+    describe("given multiple next-mission IDs", () => {
+        it("creates a reward that carries all of them", () => {
             const reward = MissionObjectiveRewardService.newNextMissionsReward([
                 "mission_2",
                 "mission_3",
                 "mission_4",
             ])
 
-            expect(reward.type).toBe(MissionObjectiveRewardType.NEXT_MISSIONS)
             expect(reward.missionIds).toEqual([
                 "mission_2",
                 "mission_3",
                 "mission_4",
             ])
         })
+    })
 
-        it("Clones missionIds array to prevent external mutation", () => {
+    describe("when the mission ID array is mutated after the reward is created", () => {
+        it("leaves the reward's mission IDs unchanged", () => {
             const originalIds = ["mission_2", "mission_3"]
             const reward =
                 MissionObjectiveRewardService.newNextMissionsReward(originalIds)
@@ -94,20 +42,19 @@ describe("Mission Objective Reward", () => {
             originalIds.push("mission_4")
 
             expect(reward.missionIds).toEqual(["mission_2", "mission_3"])
-            expect(reward.missionIds.length).toBe(2)
         })
     })
 
-    describe("MissionEndsReward", () => {
-        it("Can create mission ends reward", () => {
+    describe("when creating a mission-ends reward", () => {
+        it("produces a reward of type MISSION_ENDS", () => {
             const reward = MissionObjectiveRewardService.newMissionEndsReward()
 
             expect(reward.type).toBe(MissionObjectiveRewardType.MISSION_ENDS)
         })
     })
 
-    describe("MissionFailureReward", () => {
-        it("Can create mission failure reward", () => {
+    describe("when creating a mission-failure reward", () => {
+        it("produces a reward of type MISSION_FAILURE", () => {
             const reward =
                 MissionObjectiveRewardService.newMissionFailureReward()
 
@@ -115,62 +62,8 @@ describe("Mission Objective Reward", () => {
         })
     })
 
-    describe("JSON Creation", () => {
-        it("Can create dialogue reward from JSON", () => {
-            const reward = MissionObjectiveRewardService.createFromJSON({
-                type: MissionObjectiveRewardType.DIALOGUE,
-                dialogueIds: ["dialogue_1", "dialogue_2"],
-            })
-
-            expect(reward.type).toBe(MissionObjectiveRewardType.DIALOGUE)
-            if (reward.type === MissionObjectiveRewardType.DIALOGUE) {
-                expect(reward.dialogueIds).toEqual(["dialogue_1", "dialogue_2"])
-            }
-        })
-
-        it("Can create next missions reward from JSON", () => {
-            const reward = MissionObjectiveRewardService.createFromJSON({
-                type: MissionObjectiveRewardType.NEXT_MISSIONS,
-                missionIds: ["mission_2", "mission_3"],
-            })
-
-            expect(reward.type).toBe(MissionObjectiveRewardType.NEXT_MISSIONS)
-            if (reward.type === MissionObjectiveRewardType.NEXT_MISSIONS) {
-                expect(reward.missionIds).toEqual(["mission_2", "mission_3"])
-            }
-        })
-
-        it("Can create mission ends reward from JSON", () => {
-            const reward = MissionObjectiveRewardService.createFromJSON({
-                type: MissionObjectiveRewardType.MISSION_ENDS,
-            })
-
-            expect(reward.type).toBe(MissionObjectiveRewardType.MISSION_ENDS)
-        })
-
-        it("Throws error for invalid reward type", () => {
-            expect(() => {
-                MissionObjectiveRewardService.createFromJSON({
-                    type: "INVALID_TYPE",
-                })
-            }).toThrow(
-                "[MissionObjectiveRewardService.createFromJSON]: invalid reward type: INVALID_TYPE"
-            )
-        })
-
-        it("Throws error when required dialogueIds missing for DIALOGUE type", () => {
-            expect(() => {
-                MissionObjectiveRewardService.createFromJSON({
-                    type: MissionObjectiveRewardType.DIALOGUE,
-                })
-            }).toThrow(
-                "[MissionObjectiveRewardService.newDialogueReward]: dialogueIds must have at least 1 id"
-            )
-        })
-    })
-
-    describe("PlayMovieReward", () => {
-        it("creates a reward carrying the movie id", () => {
+    describe("when creating a play-movie reward", () => {
+        it("carries the given movie ID", () => {
             const reward =
                 MissionObjectiveRewardService.newPlayMovieReward(
                     "some-movie-id"
@@ -181,8 +74,8 @@ describe("Mission Objective Reward", () => {
         })
     })
 
-    describe("SetChallengeModifierReward", () => {
-        it("creates a reward carrying the modifier type and value", () => {
+    describe("when creating a set-challenge-modifier reward", () => {
+        it("carries the modifier type and value", () => {
             const reward =
                 MissionObjectiveRewardService.newSetChallengeModifierReward(
                     ChallengeModifierType.TRAINING_WHEELS,
@@ -197,8 +90,34 @@ describe("Mission Objective Reward", () => {
             )
             expect(reward.value).toBe(true)
         })
+    })
 
-        it("can create the reward from JSON", () => {
+    describe("when deserializing JSON for a next-missions reward", () => {
+        it("creates a reward that carries the mission IDs", () => {
+            const reward = MissionObjectiveRewardService.createFromJSON({
+                type: MissionObjectiveRewardType.NEXT_MISSIONS,
+                missionIds: ["mission_2", "mission_3"],
+            })
+
+            expect(reward.type).toBe(MissionObjectiveRewardType.NEXT_MISSIONS)
+            if (reward.type === MissionObjectiveRewardType.NEXT_MISSIONS) {
+                expect(reward.missionIds).toEqual(["mission_2", "mission_3"])
+            }
+        })
+    })
+
+    describe("when deserializing JSON for a mission-ends reward", () => {
+        it("creates a reward of type MISSION_ENDS", () => {
+            const reward = MissionObjectiveRewardService.createFromJSON({
+                type: MissionObjectiveRewardType.MISSION_ENDS,
+            })
+
+            expect(reward.type).toBe(MissionObjectiveRewardType.MISSION_ENDS)
+        })
+    })
+
+    describe("when deserializing JSON for a set-challenge-modifier reward", () => {
+        it("creates a reward that carries the modifier type and value", () => {
             const reward = MissionObjectiveRewardService.createFromJSON({
                 type: MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER,
                 challengeModifierType: ChallengeModifierType.TRAINING_WHEELS,
@@ -218,8 +137,22 @@ describe("Mission Objective Reward", () => {
                 expect(reward.value).toBe(false)
             }
         })
+    })
 
-        it("throws when challengeModifierType is missing from JSON", () => {
+    describe("when the JSON reward type is unrecognized", () => {
+        it("throws an error naming the invalid type", () => {
+            expect(() => {
+                MissionObjectiveRewardService.createFromJSON({
+                    type: "INVALID_TYPE",
+                })
+            }).toThrow(
+                "[MissionObjectiveRewardService.createFromJSON]: invalid reward type: INVALID_TYPE"
+            )
+        })
+    })
+
+    describe("when challengeModifierType is missing from a set-challenge-modifier JSON payload", () => {
+        it("throws an error", () => {
             expect(() => {
                 MissionObjectiveRewardService.createFromJSON({
                     type: MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER,
@@ -229,8 +162,24 @@ describe("Mission Objective Reward", () => {
                 "[MissionObjectiveRewardService.createFromJSON]: challengeModifierType is required for SET_CHALLENGE_MODIFIER reward"
             )
         })
+    })
 
-        it("throws when value is missing from JSON", () => {
+    describe("when challengeModifierType is not a recognized value in a set-challenge-modifier JSON payload", () => {
+        it("throws an error naming the invalid value", () => {
+            expect(() => {
+                MissionObjectiveRewardService.createFromJSON({
+                    type: MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER,
+                    challengeModifierType: "NOT_A_REAL_MODIFIER",
+                    value: true,
+                })
+            }).toThrow(
+                "[MissionObjectiveRewardService.createFromJSON]: 'NOT_A_REAL_MODIFIER' is not a valid challengeModifierType"
+            )
+        })
+    })
+
+    describe("when value is missing from a set-challenge-modifier JSON payload", () => {
+        it("throws an error", () => {
             expect(() => {
                 MissionObjectiveRewardService.createFromJSON({
                     type: MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER,
@@ -241,8 +190,10 @@ describe("Mission Objective Reward", () => {
                 "[MissionObjectiveRewardService.createFromJSON]: value is required for SET_CHALLENGE_MODIFIER reward"
             )
         })
+    })
 
-        it("round-trips through serialize and createFromJSON", () => {
+    describe("when a set-challenge-modifier reward is serialized and recreated from JSON", () => {
+        it("round-trips to an equivalent reward", () => {
             const reward =
                 MissionObjectiveRewardService.newSetChallengeModifierReward(
                     ChallengeModifierType.TRAINING_WHEELS,
@@ -254,34 +205,6 @@ describe("Mission Objective Reward", () => {
             )
 
             expect(restored).toEqual(reward)
-        })
-    })
-
-    describe("Multiple Rewards Example", () => {
-        it("Can create array of multiple rewards for single objective", () => {
-            const rewards = [
-                MissionObjectiveRewardService.newDialogueReward([
-                    "victory_dialogue",
-                ]),
-                MissionObjectiveRewardService.newNextMissionsReward([
-                    "mission_2",
-                    "mission_3",
-                ]),
-                MissionObjectiveRewardService.newMissionEndsReward(),
-                MissionObjectiveRewardService.newMissionFailureReward(),
-            ]
-
-            expect(rewards.length).toBe(4)
-            expect(rewards[0].type).toBe(MissionObjectiveRewardType.DIALOGUE)
-            expect(rewards[1].type).toBe(
-                MissionObjectiveRewardType.NEXT_MISSIONS
-            )
-            expect(rewards[2].type).toBe(
-                MissionObjectiveRewardType.MISSION_ENDS
-            )
-            expect(rewards[3].type).toBe(
-                MissionObjectiveRewardType.MISSION_FAILURE
-            )
         })
     })
 })

@@ -58,7 +58,7 @@ describe("PHASE_REACHED objectives", () => {
             MissionObjectiveService.new({
                 id: "opening-dialogue",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["intro"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("intro"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newPhaseReachedCriteria({
@@ -83,9 +83,9 @@ describe("PHASE_REACHED objectives", () => {
             MissionObjectiveService.new({
                 id: "enemy-commander-orders-attack",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "impatient",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "impatient"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newPhaseReachedCriteria({

@@ -51,7 +51,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const defeatedObjective = MissionObjectiveService.new({
                 id: "demon-koed",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["down!"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(
@@ -84,7 +84,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const defeatedObjective = MissionObjectiveService.new({
                 id: "demon-koed-no-action",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["down!"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(
@@ -110,7 +110,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const defeatedObjective = MissionObjectiveService.new({
                 id: "lini-koed-only",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["down!"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(
@@ -144,7 +144,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const defeatedObjective = MissionObjectiveService.new({
                 id: "demon-koed-mark-reward",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["down!"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(
@@ -193,7 +193,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const defeatedObjective = MissionObjectiveService.new({
                 id: "demon-koed-miss",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["down!"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(
@@ -238,7 +238,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const defeatedObjective = MissionObjectiveService.new({
                 id: "demon-koed-but-only-hurt",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["down!"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(
@@ -282,7 +282,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const defeatedObjective = MissionObjectiveService.new({
                 id: "specific-demon-koed",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["down!"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(
@@ -315,7 +315,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const defeatedObjective = MissionObjectiveService.new({
                 id: "demon-koed-in-progress",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["down!"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesDefeatedCriteria(

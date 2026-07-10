@@ -114,16 +114,16 @@ describe("SET_CHALLENGE_MODIFIER reward", () => {
         })
     })
 
-    describe("when an objective only has a DIALOGUE reward", () => {
+    describe("when an objective's PLAY_MOVIE reward references a movie that was never registered", () => {
         it("is left unrewarded for the caller to resolve", () => {
             const harness = new MissionEngineTestHarness()
             harness.addObjective(
                 MissionObjectiveService.new({
-                    id: "dialogue-only",
+                    id: "unregistered-movie",
                     rewards: [
-                        MissionObjectiveRewardService.newDialogueReward([
-                            "victory-line",
-                        ]),
+                        MissionObjectiveRewardService.newPlayMovieReward(
+                            "movie-that-was-never-registered"
+                        ),
                     ],
                     criteria: [
                         MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -143,7 +143,7 @@ describe("SET_CHALLENGE_MODIFIER reward", () => {
                 harness.getCompletedButNotRewardedMissionObjectives()
             expect(
                 objectivesStillNeedingReward.some(
-                    (objective) => objective.id === "dialogue-only"
+                    (objective) => objective.id === "unregistered-movie"
                 )
             ).toBe(true)
         })

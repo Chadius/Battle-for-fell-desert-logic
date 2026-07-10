@@ -628,9 +628,7 @@ describe("MissionEngine", () => {
             const missionObjective = MissionObjectiveService.new({
                 id: "defeat-enemies",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "victory",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("victory"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(

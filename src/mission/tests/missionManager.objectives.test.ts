@@ -34,7 +34,7 @@ describe("MissionManager", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -193,7 +193,7 @@ describe("MissionManager", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -225,7 +225,7 @@ describe("MissionManager", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -267,7 +267,7 @@ describe("MissionManager", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -338,7 +338,7 @@ describe("MissionManager", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -372,7 +372,7 @@ describe("MissionManager", () => {
             const objective1 = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -386,7 +386,7 @@ describe("MissionManager", () => {
             const objective2 = MissionObjectiveService.new({
                 id: "obj-2",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d2"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d2"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -419,7 +419,7 @@ describe("MissionManager", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -451,7 +451,7 @@ describe("MissionManager", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(

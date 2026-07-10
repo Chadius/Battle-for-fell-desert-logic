@@ -30,7 +30,7 @@ describe("MissionState", () => {
             const objective = MissionObjectiveService.new({
                 id: "obj-1",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["d1"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("d1"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(

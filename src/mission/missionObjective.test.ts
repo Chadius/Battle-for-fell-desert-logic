@@ -57,9 +57,7 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "defeat_enemies",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "victory",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("victory"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -80,9 +78,9 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "complex_objective",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "dialogue1",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "dialogue1"
+                    ),
                     MissionObjectiveRewardService.newNextMissionsReward([
                         "mission2",
                     ]),
@@ -110,9 +108,9 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "test",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "dialogue",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "dialogue"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -132,9 +130,9 @@ describe("Mission Objective", () => {
                 MissionObjectiveService.new({
                     id: "",
                     rewards: [
-                        MissionObjectiveRewardService.newDialogueReward([
-                            "dialogue",
-                        ]),
+                        MissionObjectiveRewardService.newPlayMovieReward(
+                            "dialogue"
+                        ),
                     ],
                     criteria: [
                         MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -154,9 +152,9 @@ describe("Mission Objective", () => {
                 MissionObjectiveService.new({
                     id: undefined as any,
                     rewards: [
-                        MissionObjectiveRewardService.newDialogueReward([
-                            "dialogue",
-                        ]),
+                        MissionObjectiveRewardService.newPlayMovieReward(
+                            "dialogue"
+                        ),
                     ],
                     criteria: [
                         MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -194,9 +192,9 @@ describe("Mission Objective", () => {
                 MissionObjectiveService.new({
                     id: "test",
                     rewards: [
-                        MissionObjectiveRewardService.newDialogueReward([
-                            "dialogue",
-                        ]),
+                        MissionObjectiveRewardService.newPlayMovieReward(
+                            "dialogue"
+                        ),
                     ],
                     criteria: [],
                 })
@@ -209,9 +207,9 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "test",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "dialogue",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "dialogue"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -229,9 +227,9 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "test",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "dialogue",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "dialogue"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -248,7 +246,7 @@ describe("Mission Objective", () => {
 
         it("Clones arrays to prevent external mutation", () => {
             const rewards = [
-                MissionObjectiveRewardService.newDialogueReward(["dialogue1"]),
+                MissionObjectiveRewardService.newPlayMovieReward("dialogue1"),
             ]
             const criteria = [
                 MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -265,7 +263,7 @@ describe("Mission Objective", () => {
             })
 
             rewards.push(
-                MissionObjectiveRewardService.newDialogueReward(["dialogue2"])
+                MissionObjectiveRewardService.newPlayMovieReward("dialogue2")
             )
             criteria.push(
                 MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -286,8 +284,8 @@ describe("Mission Objective", () => {
                 id: "defeat_enemies",
                 rewards: [
                     {
-                        type: MissionObjectiveRewardType.DIALOGUE,
-                        dialogueIds: ["victory"],
+                        type: MissionObjectiveRewardType.PLAY_MOVIE,
+                        movieId: "victory",
                     },
                 ],
                 criteria: [
@@ -309,8 +307,8 @@ describe("Mission Objective", () => {
                 id: "complex",
                 rewards: [
                     {
-                        type: MissionObjectiveRewardType.DIALOGUE,
-                        dialogueIds: ["dialogue1"],
+                        type: MissionObjectiveRewardType.PLAY_MOVIE,
+                        movieId: "dialogue1",
                     },
                     {
                         type: MissionObjectiveRewardType.NEXT_MISSIONS,
@@ -338,8 +336,8 @@ describe("Mission Objective", () => {
                 id: "test",
                 rewards: [
                     {
-                        type: MissionObjectiveRewardType.DIALOGUE,
-                        dialogueIds: ["victory"],
+                        type: MissionObjectiveRewardType.PLAY_MOVIE,
+                        movieId: "victory",
                     },
                 ],
                 criteria: [
@@ -351,13 +349,13 @@ describe("Mission Objective", () => {
             })
 
             expect(objective.rewards[0].type).toBe(
-                MissionObjectiveRewardType.DIALOGUE
+                MissionObjectiveRewardType.PLAY_MOVIE
             )
             if (
                 objective.rewards[0].type ===
-                MissionObjectiveRewardType.DIALOGUE
+                MissionObjectiveRewardType.PLAY_MOVIE
             ) {
-                expect(objective.rewards[0].dialogueIds).toEqual(["victory"])
+                expect(objective.rewards[0].movieId).toBe("victory")
             }
         })
 
@@ -365,9 +363,7 @@ describe("Mission Objective", () => {
             const original = MissionObjectiveService.new({
                 id: "hidden_objective",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "victory",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("victory"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -392,8 +388,8 @@ describe("Mission Objective", () => {
                 id: "test",
                 rewards: [
                     {
-                        type: MissionObjectiveRewardType.DIALOGUE,
-                        dialogueIds: ["victory"],
+                        type: MissionObjectiveRewardType.PLAY_MOVIE,
+                        movieId: "victory",
                     },
                 ],
                 criteria: [
@@ -449,9 +445,7 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "defeat_enemies",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "victory",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("victory"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -488,9 +482,7 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "defeat_all",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "victory",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("victory"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -519,9 +511,7 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "defeat_enemies",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "victory",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("victory"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -541,9 +531,7 @@ describe("Mission Objective", () => {
             const objective = MissionObjectiveService.new({
                 id: "complex",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "victory",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("victory"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -592,9 +580,9 @@ describe("Mission Objective", () => {
             const original = MissionObjectiveService.new({
                 id: "test",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "dialogue",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "dialogue"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -617,9 +605,9 @@ describe("Mission Objective", () => {
             const original = MissionObjectiveService.new({
                 id: "test",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "dialogue",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "dialogue"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -639,9 +627,9 @@ describe("Mission Objective", () => {
             const original = MissionObjectiveService.new({
                 id: "test",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "dialogue",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "dialogue"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -690,9 +678,7 @@ describe("Mission Objective", () => {
             completedObjective = MissionObjectiveService.new({
                 id: "completed",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "victory",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("victory"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -706,9 +692,9 @@ describe("Mission Objective", () => {
             incompletedObjective = MissionObjectiveService.new({
                 id: "incompleted",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "defeat_ally",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "defeat_ally"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -722,9 +708,9 @@ describe("Mission Objective", () => {
             completedWithRewardObjective = MissionObjectiveService.new({
                 id: "completed_with_reward",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "already_given",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward(
+                        "already_given"
+                    ),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
@@ -796,9 +782,7 @@ describe("Mission Objective", () => {
             const anotherCompleted = MissionObjectiveService.new({
                 id: "another_completed",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward([
-                        "another",
-                    ]),
+                    MissionObjectiveRewardService.newPlayMovieReward("another"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(

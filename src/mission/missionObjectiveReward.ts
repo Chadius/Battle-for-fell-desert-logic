@@ -6,7 +6,6 @@ import {
 } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
 
 export const MissionObjectiveRewardType = {
-    DIALOGUE: "DIALOGUE",
     NEXT_MISSIONS: "NEXT_MISSIONS",
     MISSION_ENDS: "MISSION_ENDS",
     MISSION_FAILURE: "MISSION_FAILURE",
@@ -17,11 +16,6 @@ export const MissionObjectiveRewardType = {
 export type TMissionObjectiveRewardType = EnumLike<
     typeof MissionObjectiveRewardType
 >
-
-export interface DialogueReward {
-    type: typeof MissionObjectiveRewardType.DIALOGUE
-    dialogueIds: string[]
-}
 
 export interface NextMissionsReward {
     type: typeof MissionObjectiveRewardType.NEXT_MISSIONS
@@ -48,7 +42,6 @@ export interface SetChallengeModifierReward {
 }
 
 export type MissionObjectiveReward =
-    | DialogueReward
     | NextMissionsReward
     | MissionEndsReward
     | MissionFailureReward
@@ -56,10 +49,6 @@ export type MissionObjectiveReward =
     | SetChallengeModifierReward
 
 export const missionObjectiveRewardSchema = z.discriminatedUnion("type", [
-    z.object({
-        type: z.literal(MissionObjectiveRewardType.DIALOGUE),
-        dialogueIds: z.array(z.string()),
-    }),
     z.object({
         type: z.literal(MissionObjectiveRewardType.NEXT_MISSIONS),
         missionIds: z.array(z.string()),
@@ -81,20 +70,55 @@ export type SerializedMissionObjectiveReward = z.infer<
     typeof missionObjectiveRewardSchema
 >
 
+interface MissionObjectiveRewardJSON {
+    type: string
+    missionIds?: string[]
+    movieId?: string
+    challengeModifierType?: string
+    value?: boolean
+}
+
+const nextMissionsRewardFromJSON = (
+    data: MissionObjectiveRewardJSON
+): NextMissionsReward =>
+    MissionObjectiveRewardService.newNextMissionsReward(data.missionIds!)
+
+const playMovieRewardFromJSON = (
+    data: MissionObjectiveRewardJSON
+): PlayMovieReward => {
+    if (data.movieId === undefined)
+        throw new Error(
+            `[MissionObjectiveRewardService.createFromJSON]: movieId is required for PLAY_MOVIE reward`
+        )
+    return MissionObjectiveRewardService.newPlayMovieReward(data.movieId)
+}
+
+const setChallengeModifierRewardFromJSON = (
+    data: MissionObjectiveRewardJSON
+): SetChallengeModifierReward => {
+    if (data.challengeModifierType === undefined)
+        throw new Error(
+            `[MissionObjectiveRewardService.createFromJSON]: challengeModifierType is required for SET_CHALLENGE_MODIFIER reward`
+        )
+    if (data.value === undefined)
+        throw new Error(
+            `[MissionObjectiveRewardService.createFromJSON]: value is required for SET_CHALLENGE_MODIFIER reward`
+        )
+    if (
+        !Object.values(ChallengeModifierType).includes(
+            data.challengeModifierType as TChallengeModifierType
+        )
+    )
+        throw new Error(
+            `[MissionObjectiveRewardService.createFromJSON]: '${data.challengeModifierType}' is not a valid challengeModifierType`
+        )
+    return MissionObjectiveRewardService.newSetChallengeModifierReward(
+        data.challengeModifierType as TChallengeModifierType,
+        data.value
+    )
+}
+
 export const MissionObjectiveRewardService = {
-    newDialogueReward: (dialogueIds: string[]): DialogueReward => {
-        if (dialogueIds == undefined || dialogueIds.length === 0) {
-            throw new Error(
-                "[MissionObjectiveRewardService.newDialogueReward]: dialogueIds must have at least 1 id"
-            )
-        }
-
-        return {
-            type: MissionObjectiveRewardType.DIALOGUE,
-            dialogueIds: [...dialogueIds],
-        }
-    },
-
     newNextMissionsReward: (missionIds: string[]): NextMissionsReward => {
         return {
             type: MissionObjectiveRewardType.NEXT_MISSIONS,
@@ -133,9 +157,6 @@ export const MissionObjectiveRewardService = {
     serialize: (
         reward: MissionObjectiveReward
     ): SerializedMissionObjectiveReward => {
-        if (reward.type === MissionObjectiveRewardType.DIALOGUE) {
-            return { type: reward.type, dialogueIds: [...reward.dialogueIds] }
-        }
         if (reward.type === MissionObjectiveRewardType.NEXT_MISSIONS) {
             return { type: reward.type, missionIds: [...reward.missionIds] }
         }
@@ -152,24 +173,11 @@ export const MissionObjectiveRewardService = {
         return { type: reward.type }
     },
 
-    createFromJSON: (data: {
-        type: string
-        dialogueIds?: string[]
-        missionIds?: string[]
-        movieId?: string
-        challengeModifierType?: string
-        value?: boolean
-    }): MissionObjectiveReward => {
-        if (data.type === MissionObjectiveRewardType.DIALOGUE) {
-            return MissionObjectiveRewardService.newDialogueReward(
-                data.dialogueIds!
-            )
-        }
-
+    createFromJSON: (
+        data: MissionObjectiveRewardJSON
+    ): MissionObjectiveReward => {
         if (data.type === MissionObjectiveRewardType.NEXT_MISSIONS) {
-            return MissionObjectiveRewardService.newNextMissionsReward(
-                data.missionIds!
-            )
+            return nextMissionsRewardFromJSON(data)
         }
 
         if (data.type === MissionObjectiveRewardType.MISSION_ENDS) {
@@ -181,28 +189,11 @@ export const MissionObjectiveRewardService = {
         }
 
         if (data.type === MissionObjectiveRewardType.PLAY_MOVIE) {
-            if (data.movieId === undefined)
-                throw new Error(
-                    `[MissionObjectiveRewardService.createFromJSON]: movieId is required for PLAY_MOVIE reward`
-                )
-            return MissionObjectiveRewardService.newPlayMovieReward(
-                data.movieId
-            )
+            return playMovieRewardFromJSON(data)
         }
 
         if (data.type === MissionObjectiveRewardType.SET_CHALLENGE_MODIFIER) {
-            if (data.challengeModifierType === undefined)
-                throw new Error(
-                    `[MissionObjectiveRewardService.createFromJSON]: challengeModifierType is required for SET_CHALLENGE_MODIFIER reward`
-                )
-            if (data.value === undefined)
-                throw new Error(
-                    `[MissionObjectiveRewardService.createFromJSON]: value is required for SET_CHALLENGE_MODIFIER reward`
-                )
-            return MissionObjectiveRewardService.newSetChallengeModifierReward(
-                data.challengeModifierType as TChallengeModifierType,
-                data.value
-            )
+            return setChallengeModifierRewardFromJSON(data)
         }
 
         throw new Error(

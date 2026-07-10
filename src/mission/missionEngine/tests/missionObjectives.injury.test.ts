@@ -51,7 +51,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
             const injuryObjective = MissionObjectiveService.new({
                 id: "injured-demon",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["ouch"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("ouch"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
@@ -84,7 +84,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
             const injuryObjective = MissionObjectiveService.new({
                 id: "injured-demon-no-action",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["ouch"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("ouch"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
@@ -110,7 +110,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
             const injuryObjective = MissionObjectiveService.new({
                 id: "injured-lini-only",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["ouch"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("ouch"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
@@ -152,7 +152,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
             const injuryObjective = MissionObjectiveService.new({
                 id: "injured-but-dead",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["ouch"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("ouch"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
@@ -186,7 +186,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
             const injuryObjective = MissionObjectiveService.new({
                 id: "injured-mark-reward",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["ouch"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("ouch"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
@@ -235,7 +235,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
             const injuryObjective = MissionObjectiveService.new({
                 id: "injured-demon-miss",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["ouch"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("ouch"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
@@ -279,7 +279,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
             const injuryObjective = MissionObjectiveService.new({
                 id: "injured-specific-demon",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["ouch"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("ouch"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
@@ -316,7 +316,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_INJURED objective", () => {
             const injuryObjective = MissionObjectiveService.new({
                 id: "injured-in-progress",
                 rewards: [
-                    MissionObjectiveRewardService.newDialogueReward(["ouch"]),
+                    MissionObjectiveRewardService.newPlayMovieReward("ouch"),
                 ],
                 criteria: [
                     MissionObjectiveCriteriaService.newSpecificSquaddiesInjuredCriteria(
