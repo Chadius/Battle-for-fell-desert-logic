@@ -3,6 +3,14 @@
     "private": true,
     "version": "0.0.0",
     "type": "module",
+    "main": "./build/battle-of-fell-desert-logic.js",
+    "types": "./build/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./build/index.d.ts",
+            "import": "./build/battle-of-fell-desert-logic.js"
+        }
+    },
     "scripts": {
         "dev": "vite",
         "format-check": "prettier --config .prettierrc.yaml --check .",
