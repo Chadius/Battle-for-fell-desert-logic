@@ -1,4 +1,4 @@
-import type { CampaignMission } from "./campaignMission"
+import type { CampaignMission } from "./campaignMission.js"
 
 export interface CampaignCollection {
     missionsById: Map<string, CampaignMission>

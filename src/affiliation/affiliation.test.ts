@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { SquaddieAffiliation, SquaddieAffiliationService } from "./affiliation"
+import {
+    SquaddieAffiliation,
+    SquaddieAffiliationService,
+} from "./affiliation.js"
 
 describe("Squaddie Affiliation", () => {
     const friendTests = [

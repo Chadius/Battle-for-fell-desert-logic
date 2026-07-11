@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { SquaddieActionService } from "./squaddieAction"
-import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
-import { ProficiencyType } from "../proficiency/proficiencyLevel"
+import { SquaddieActionService } from "./squaddieAction.js"
+import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
+import { ProficiencyType } from "../proficiency/proficiencyLevel.js"
 import {
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../proficiency/squaddieCondition"
+} from "../proficiency/squaddieCondition.js"
 
 const noOpEffectOnActor = {
     [DegreeOfSuccess.SUCCESS]: {},

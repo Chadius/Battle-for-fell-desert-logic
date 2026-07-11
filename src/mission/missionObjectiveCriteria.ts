@@ -1,17 +1,17 @@
 import { z } from "zod"
-import type { EnumLike } from "../enum"
-import type { TSquaddieAffiliation } from "../affiliation/affiliation"
-import { SquaddieIdConverterService } from "../squaddie/idConverterService"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
-import { SquaddieConditionService } from "../proficiency/squaddieCondition"
-import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
-import type { ActionResult } from "./actionResult"
+import type { EnumLike } from "../enum.js"
+import type { TSquaddieAffiliation } from "../affiliation/affiliation.js"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieConditionService } from "../proficiency/squaddieCondition.js"
+import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult.js"
+import type { ActionResult } from "./actionResult.js"
 import {
     type MissionTurn,
     MissionTurnService,
     type TMissionAffiliationTurn,
-} from "./missionTurn"
+} from "./missionTurn.js"
 
 export const MissionObjectiveCriteriaType = {
     ALL_SQUADDIES_DEFEATED: "ALL_SQUADDIES_DEFEATED",

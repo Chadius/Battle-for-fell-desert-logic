@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import { SquaddieActionService } from "../../../squaddieAction/squaddieAction"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { SquaddieActionService } from "../../../squaddieAction/squaddieAction.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 describe("cooldownDecay", () => {
     let harness: MissionEngineTestHarness

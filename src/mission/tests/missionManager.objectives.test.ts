@@ -1,32 +1,32 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionManager } from "../missionManager"
-import { MissionStateService } from "../missionState"
-import { MissionObjectiveService } from "../missionObjective"
-import { MissionObjectiveRewardService } from "../missionObjectiveReward"
-import { MissionObjectiveCriteriaService } from "../missionObjectiveCriteria"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
-import { AttributeScore } from "../../proficiency/attributeScore"
-import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
-import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
-import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
-import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
+import { MissionManager } from "../missionManager.js"
+import { MissionStateService } from "../missionState.js"
+import { MissionObjectiveService } from "../missionObjective.js"
+import { MissionObjectiveRewardService } from "../missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "../missionObjectiveCriteria.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection.js"
+import { CoordinateMapService } from "../../coordinateMap/coordinateMap.js"
+import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection.js"
 import {
     MovementEffectType,
     SquaddieActionService,
-} from "../../squaddieAction/squaddieAction"
-import { ActionRange } from "../../squaddieAction/actionRange"
-import { CoordinateGeneratorShape } from "../../coordinateMap/shape"
+} from "../../squaddieAction/squaddieAction.js"
+import { ActionRange } from "../../squaddieAction/actionRange.js"
+import { CoordinateGeneratorShape } from "../../coordinateMap/shape.js"
 import {
     MissionAffiliationTurn,
     MissionTurnService,
     type TMissionAffiliationTurn,
-} from "../missionTurn"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
+} from "../missionTurn.js"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
 
 describe("MissionManager", () => {
     describe("hasMissionEnded", () => {

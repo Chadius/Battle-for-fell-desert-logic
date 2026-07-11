@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest"
 import {
     CoordinateMapService,
     type SerializedCoordinateMap,
-} from "./coordinateMap"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { CoordinateMovePathService } from "./path/path"
-import { SquaddieIdConverterService } from "../squaddie/idConverterService"
+} from "./coordinateMap.js"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { CoordinateMovePathService } from "./path/path.js"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
 
 describe("Coordinate Map", () => {
     it("creates a new map instead of modifying the original", () => {

@@ -2,21 +2,21 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     MissionObjectiveCriteriaService,
     MissionObjectiveCriteriaType,
-} from "./missionObjectiveCriteria"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
+} from "./missionObjectiveCriteria.js"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection.js"
 import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
-} from "../affiliation/affiliation"
-import { AttributeScore } from "../proficiency/attributeScore"
+} from "../affiliation/affiliation.js"
+import { AttributeScore } from "../proficiency/attributeScore.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../proficiency/proficiencyLevel"
-import { SquaddieIdConverterService } from "../squaddie/idConverterService"
-import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
+} from "../proficiency/proficiencyLevel.js"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup.js"
 
 describe("Mission Objective Criteria", () => {
     let manager: InBattleSquaddieManager

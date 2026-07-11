@@ -1,10 +1,10 @@
-import { MovieSceneCommand } from "./movieSceneCommand"
-import type { ResourceManifestCollection } from "../resource/resourceManifestCollection"
-import { ResourceManifestCollectionService } from "../resource/resourceManifestCollection"
+import { MovieSceneCommand } from "./movieSceneCommand.js"
+import type { ResourceManifestCollection } from "../resource/resourceManifestCollection.js"
+import { ResourceManifestCollectionService } from "../resource/resourceManifestCollection.js"
 import {
     type ResourceManifestEntry,
     ResourceManifestEntryService,
-} from "../resource/resourceManifest"
+} from "../resource/resourceManifest.js"
 
 export const MovieSceneImageCommand = {
     ...MovieSceneCommand,

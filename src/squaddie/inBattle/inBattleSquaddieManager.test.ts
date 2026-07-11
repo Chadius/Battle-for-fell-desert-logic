@@ -2,40 +2,40 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
+} from "../outOfBattle/outOfBattleSquaddieAttributeSheet.js"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../outOfBattle/outOfBattleSquaddie"
+} from "../outOfBattle/outOfBattleSquaddie.js"
 import {
     ProficiencyLevel,
     ProficiencyLevelConst,
     ProficiencyType,
     type TProficiencyType,
-} from "../../proficiency/proficiencyLevel"
+} from "../../proficiency/proficiencyLevel.js"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
     type SerializedInBattleSquaddieCollection,
-} from "./inBattleSquaddieCollection"
-import { InBattleSquaddieManager } from "./inBattleSquaddieManager"
-import { AttributeScore } from "../../proficiency/attributeScore"
+} from "./inBattleSquaddieCollection.js"
+import { InBattleSquaddieManager } from "./inBattleSquaddieManager.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
 import {
     type SquaddieCondition,
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
-import { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
-import { SquaddieItemCollectionService } from "../../squaddieItem/squaddieItemCollection"
-import { SquaddieItemService } from "../../squaddieItem/squaddieItem"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
+} from "../../proficiency/squaddieCondition.js"
+import { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager.js"
+import { SquaddieItemCollectionService } from "../../squaddieItem/squaddieItemCollection.js"
+import { SquaddieItemService } from "../../squaddieItem/squaddieItem.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
 import {
     InBattleSquaddieService,
     type SerializedInBattleSquaddie,
-} from "./inBattleSquaddie"
+} from "./inBattleSquaddie.js"
 
 describe("In Battle Squaddie Manager", () => {
     let attributeSheet: OutOfBattleSquaddieAttributeSheet

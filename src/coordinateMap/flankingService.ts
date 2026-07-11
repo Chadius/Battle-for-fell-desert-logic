@@ -1,12 +1,12 @@
-import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
-import type { CoordinateMapCollectionManager } from "./coordinateMapManager"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
+import type { CoordinateMapCollectionManager } from "./coordinateMapManager.js"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
 import {
     CoordinateCalculator,
     CoordinateDirection,
-} from "./coordinateCalculator"
-import { SquaddieAffiliationService } from "../affiliation/affiliation"
-import { CoordinateMapService } from "./coordinateMap"
+} from "./coordinateCalculator.js"
+import { SquaddieAffiliationService } from "../affiliation/affiliation.js"
+import { CoordinateMapService } from "./coordinateMap.js"
 
 export const FlankingService = {
     isActorFlankingTarget({

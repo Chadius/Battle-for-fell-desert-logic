@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type CoordinateMapCollection,
     CoordinateMapCollectionService,
-} from "./coordinateMapCollection"
-import { CoordinateMapCollectionManager } from "./coordinateMapManager"
+} from "./coordinateMapCollection.js"
+import { CoordinateMapCollectionManager } from "./coordinateMapManager.js"
 import {
     type CoordinateMap,
     CoordinateMapService,
     type SerializedCoordinateMap,
-} from "./coordinateMap"
+} from "./coordinateMap.js"
 
 describe("Coordinate Map Manager", () => {
     let coordinateMapCollection: CoordinateMapCollection

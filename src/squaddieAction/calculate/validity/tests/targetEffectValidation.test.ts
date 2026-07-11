@@ -1,32 +1,32 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieActionValidationService } from "../squaddieActionValidationService"
-import { SquaddieActionManager } from "../../../squaddieActionManager"
-import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
+import { SquaddieActionValidationService } from "../squaddieActionValidationService.js"
+import { SquaddieActionManager } from "../../../squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../../../squaddieActionCollection.js"
 import {
     HowToDetermineDegreeOfSuccess,
     MovementEffectType,
     type SquaddieAction,
     SquaddieActionService,
-} from "../../../squaddieAction"
-import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape"
-import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
-import { SquaddieAffiliation } from "../../../../affiliation/affiliation"
-import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess"
-import type { OutOfBattleSquaddieManager } from "../../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
-import { ActionRange } from "../../../actionRange"
+} from "../../../squaddieAction.js"
+import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape.js"
+import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { SquaddieAffiliation } from "../../../../affiliation/affiliation.js"
+import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess.js"
+import type { OutOfBattleSquaddieManager } from "../../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection.js"
+import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap.js"
+import { ActionRange } from "../../../actionRange.js"
 import {
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../../../proficiency/squaddieCondition"
-import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
-import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
+} from "../../../../proficiency/squaddieCondition.js"
+import { ProficiencyType } from "../../../../proficiency/proficiencyLevel.js"
+import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId.js"
 
 describe("target effect validation", () => {
     let effectSquaddieActionManager: SquaddieActionManager

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { type MissionHistory, MissionHistoryService } from "./missionHistory"
-import { MissionTurnHistoryEntryService } from "./missionTurnHistoryEntry"
-import { SquaddieTurnRecordService } from "./squaddieTurnRecord"
-import { SquaddieTurnActionRecordService } from "./squaddieTurnActionRecord"
-import { MissionAffiliationTurn } from "../missionTurn"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
-import type { SquaddieActionResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
+import { type MissionHistory, MissionHistoryService } from "./missionHistory.js"
+import { MissionTurnHistoryEntryService } from "./missionTurnHistoryEntry.js"
+import { SquaddieTurnRecordService } from "./squaddieTurnRecord.js"
+import { SquaddieTurnActionRecordService } from "./squaddieTurnActionRecord.js"
+import { MissionAffiliationTurn } from "../missionTurn.js"
+import type { SquaddieAction } from "../../squaddieAction/squaddieAction.js"
+import type { SquaddieActionResult } from "../../squaddieAction/calculate/result/squaddieActionResult.js"
 
 describe("MissionHistoryService", () => {
     describe("new", () => {

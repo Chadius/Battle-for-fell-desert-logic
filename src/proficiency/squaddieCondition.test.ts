@@ -5,7 +5,7 @@ import {
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "./squaddieCondition"
+} from "./squaddieCondition.js"
 
 describe("Squaddie Condition", () => {
     describe("decaysAt", () => {

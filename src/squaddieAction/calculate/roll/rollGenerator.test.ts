@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { RollGenerator } from "./rollGenerator"
+import { RollGenerator } from "./rollGenerator.js"
 
 describe("RollGenerator", () => {
     describe("constructor", () => {

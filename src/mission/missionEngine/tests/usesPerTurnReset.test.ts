@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 describe("usesPerTurnReset", () => {
     let harness: MissionEngineTestHarness

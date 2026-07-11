@@ -1,24 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { MissionManager } from "../missionManager"
-import { MissionStateService } from "../missionState"
+import { MissionManager } from "../missionManager.js"
+import { MissionStateService } from "../missionState.js"
 import {
     type MissionObjective,
     MissionObjectiveService,
-} from "../missionObjective"
-import { MissionObjectiveRewardService } from "../missionObjectiveReward"
-import { MissionObjectiveCriteriaService } from "../missionObjectiveCriteria"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
-import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
+} from "../missionObjective.js"
+import { MissionObjectiveRewardService } from "../missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "../missionObjectiveCriteria.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection.js"
 import {
     CoordinateMapService,
     type SerializedCoordinateMap,
-} from "../../coordinateMap/coordinateMap"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
+} from "../../coordinateMap/coordinateMap.js"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
 
 describe("MissionManager", () => {
     describe("createInMissionSummary and loadInMissionSummary", () => {

@@ -1,5 +1,8 @@
-import type { Movie } from "./movie"
-import { type MovieCollection, MovieCollectionService } from "./movieCollection"
+import type { Movie } from "./movie.js"
+import {
+    type MovieCollection,
+    MovieCollectionService,
+} from "./movieCollection.js"
 
 export class MovieManager {
     private movieCollection: MovieCollection = MovieCollectionService.new()

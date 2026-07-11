@@ -1,12 +1,12 @@
 import { z } from "zod"
-import type { EnumLike } from "../enum"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { CoordinateMap } from "../coordinateMap/coordinateMap"
-import { CoordinateMapService } from "../coordinateMap/coordinateMap"
+import type { EnumLike } from "../enum.js"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { CoordinateMap } from "../coordinateMap/coordinateMap.js"
+import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
 import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
-} from "../affiliation/affiliation"
+} from "../affiliation/affiliation.js"
 
 export const MissionAffiliationTurn = {
     TURN_START: "TURN_START",

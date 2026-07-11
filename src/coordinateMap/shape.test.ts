@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { CoordinateGeneratorShape, CoordinateShapeService } from "./shape"
+import { CoordinateGeneratorShape, CoordinateShapeService } from "./shape.js"
 import {
     CoordinateCalculator,
     CoordinateDirection,
-} from "./coordinateCalculator"
-import type { OffsetCoordinate } from "./offsetCoordinate"
+} from "./coordinateCalculator.js"
+import type { OffsetCoordinate } from "./offsetCoordinate.js"
 
 describe("Coordinate Shapes", () => {
     describe("Generate Bloom type Shapes", () => {

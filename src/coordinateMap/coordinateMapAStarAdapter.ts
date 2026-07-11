@@ -1,26 +1,26 @@
-import { CoordinateCalculator } from "./coordinateCalculator"
-import { type CoordinateMap, CoordinateMapService } from "./coordinateMap"
-import type { AStarGraph } from "../aStarSearch/aStarGraph"
+import { CoordinateCalculator } from "./coordinateCalculator.js"
+import { type CoordinateMap, CoordinateMapService } from "./coordinateMap.js"
+import type { AStarGraph } from "../aStarSearch/aStarGraph.js"
 import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
-} from "./path/path"
+} from "./path/path.js"
 import {
     type CoordinatePathMap,
     CoordinatePathMapService,
-} from "./mapTransposition/coordinatePathMap"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { SquaddieConditionType } from "../proficiency/squaddieCondition"
+} from "./mapTransposition/coordinatePathMap.js"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { SquaddieConditionType } from "../proficiency/squaddieCondition.js"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
-} from "./offsetCoordinate"
+} from "./offsetCoordinate.js"
 import {
     SquaddieAffiliationService,
     type TSquaddieAffiliation,
-} from "../affiliation/affiliation"
-import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
+} from "../affiliation/affiliation.js"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
 
 export interface CoordinateMapSearchLimits {
     maximumMoveCost?: number

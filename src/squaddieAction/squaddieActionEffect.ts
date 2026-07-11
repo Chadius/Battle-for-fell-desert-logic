@@ -1,20 +1,20 @@
 import { z } from "zod"
-import type { TProficiencyType } from "../proficiency/proficiencyLevel"
-import { ProficiencyType } from "../proficiency/proficiencyLevel"
-import type { AttributeScoreType } from "../proficiency/attributeScore"
-import { AttributeScore } from "../proficiency/attributeScore"
+import type { TProficiencyType } from "../proficiency/proficiencyLevel.js"
+import { ProficiencyType } from "../proficiency/proficiencyLevel.js"
+import type { AttributeScoreType } from "../proficiency/attributeScore.js"
+import { AttributeScore } from "../proficiency/attributeScore.js"
 import {
     squaddieConditionSchema,
     SquaddieConditionService,
     SquaddieConditionType,
     type SquaddieCondition,
     type TSquaddieConditionType,
-} from "../proficiency/squaddieCondition"
-import type { ActionPointCost } from "./squaddieAction"
+} from "../proficiency/squaddieCondition.js"
+import type { ActionPointCost } from "./squaddieAction.js"
 import {
     movementEffectSchema,
     type SquaddieActionMovementEffect,
-} from "./squaddieActionMovementEffect"
+} from "./squaddieActionMovementEffect.js"
 
 export interface SquaddieActionEffect {
     actionPoints?: {

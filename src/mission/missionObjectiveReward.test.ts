@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 import {
     MissionObjectiveRewardService,
     MissionObjectiveRewardType,
-} from "./missionObjectiveReward"
-import { ChallengeModifierType } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
+} from "./missionObjectiveReward.js"
+import { ChallengeModifierType } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting.js"
 
 describe("Mission Objective Reward", () => {
     describe("given a single next-mission ID", () => {

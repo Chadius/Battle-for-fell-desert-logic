@@ -1,61 +1,61 @@
-import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
-import type { TDegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import type { SquaddieActionManager } from "../../squaddieActionManager"
+import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
+import type { TDegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { SquaddieActionManager } from "../../squaddieActionManager.js"
 import {
     type SerializedSquaddieActionResult,
     type SquaddieActionResult,
     SquaddieActionResultService,
-} from "./squaddieActionResult"
-import type { SquaddieAction } from "../../squaddieAction"
+} from "./squaddieActionResult.js"
+import type { SquaddieAction } from "../../squaddieAction.js"
 import {
     HowToDetermineDegreeOfSuccess,
     MovementEffectType,
-} from "../../squaddieAction"
+} from "../../squaddieAction.js"
 import {
     ActionRange,
     ActionRangeService,
     type TActionRange,
-} from "../../actionRange"
+} from "../../actionRange.js"
 import type {
     BattleSquaddieId,
     InBattleSquaddie,
-} from "../../../squaddie/inBattle/inBattleSquaddie"
-import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import type { OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { ProficiencyLevelConst } from "../../../proficiency/proficiencyLevel"
+} from "../../../squaddie/inBattle/inBattleSquaddie.js"
+import type { OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import type { OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
+import { ProficiencyLevelConst } from "../../../proficiency/proficiencyLevel.js"
 import {
     type SquaddieCondition,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
     type TSquaddieConditionType,
-} from "../../../proficiency/squaddieCondition"
+} from "../../../proficiency/squaddieCondition.js"
 import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
-} from "../../../coordinateMap/path/path"
+} from "../../../coordinateMap/path/path.js"
 import {
     type CoordinateMap,
     CoordinateMapService,
-} from "../../../coordinateMap/coordinateMap"
-import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
+} from "../../../coordinateMap/coordinateMap.js"
+import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator.js"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
-} from "../../../coordinateMap/offsetCoordinate"
-import type { RollGenerator } from "../roll/rollGenerator"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import type { SquaddieMovementInfo } from "../../../squaddie/squaddieMovementInfo"
-import { ProficiencyCalculator } from "../proficiencyCalculator"
-import { SquaddieActionForecastCalculator } from "../forecast/squaddieActionForecastCalculator"
-import type { SquaddieActionEffect } from "../../squaddieActionEffect"
-import { FlankingService } from "../../../coordinateMap/flankingService"
-import { SneakAttackCalculator } from "../sneakAttackCalculator"
-import type { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting"
-import { TrainingWheelsService } from "../challengeModifier/trainingWheelsService"
+} from "../../../coordinateMap/offsetCoordinate.js"
+import type { RollGenerator } from "../roll/rollGenerator.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
+import type { SquaddieMovementInfo } from "../../../squaddie/squaddieMovementInfo.js"
+import { ProficiencyCalculator } from "../proficiencyCalculator.js"
+import { SquaddieActionForecastCalculator } from "../forecast/squaddieActionForecastCalculator.js"
+import type { SquaddieActionEffect } from "../../squaddieActionEffect.js"
+import { FlankingService } from "../../../coordinateMap/flankingService.js"
+import { SneakAttackCalculator } from "../sneakAttackCalculator.js"
+import type { ChallengeModifierSetting } from "../challengeModifier/challengeModifierSetting.js"
+import { TrainingWheelsService } from "../challengeModifier/trainingWheelsService.js"
 
 export type SquaddieActionDecisions = {
     targetDestination?: {

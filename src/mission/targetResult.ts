@@ -1,9 +1,9 @@
-import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
+import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
 import {
     type SerializedSquaddieActionResult,
     type SquaddieActionResult,
     SquaddieActionResultService,
-} from "../squaddieAction/calculate/result/squaddieActionResult"
+} from "../squaddieAction/calculate/result/squaddieActionResult.js"
 
 export interface TargetResult {
     degreeOfSuccess: TDegreeOfSuccess

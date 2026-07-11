@@ -1,20 +1,20 @@
 import { z } from "zod"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
+import type { SquaddieAction } from "../../squaddieAction/squaddieAction.js"
 import {
     type SerializedSquaddieActionResult,
     type SquaddieActionResult,
     SquaddieActionResultService,
     squaddieActionResultSchema,
-} from "../../squaddieAction/calculate/result/squaddieActionResult"
+} from "../../squaddieAction/calculate/result/squaddieActionResult.js"
 import {
     SquaddieAffiliationService,
     type TSquaddieAffiliation,
-} from "../../affiliation/affiliation"
+} from "../../affiliation/affiliation.js"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
-} from "../../degreesOfSuccess/degreeOfSuccess"
-import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
+} from "../../degreesOfSuccess/degreeOfSuccess.js"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService.js"
 
 export interface SquaddieTurnActionRecord {
     action: {

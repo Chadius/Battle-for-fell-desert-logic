@@ -1,17 +1,17 @@
-import type { AiStrategy, AiStrategyInput } from "../aiStrategy"
-import type { ReadiedAction } from "../readiedAction"
-import { CoordinateCalculator } from "../../coordinateMap/coordinateCalculator"
-import { CoordinateMapAStarAdapter } from "../../coordinateMap/coordinateMapAStarAdapter"
-import { AStarSearchService } from "../../aStarSearch/aStarSearch"
+import type { AiStrategy, AiStrategyInput } from "../aiStrategy.js"
+import type { ReadiedAction } from "../readiedAction.js"
+import { CoordinateCalculator } from "../../coordinateMap/coordinateCalculator.js"
+import { CoordinateMapAStarAdapter } from "../../coordinateMap/coordinateMapAStarAdapter.js"
+import { AStarSearchService } from "../../aStarSearch/aStarSearch.js"
 import {
     type CoordinateMovePath,
     CoordinateMovePathService,
-} from "../../coordinateMap/path/path"
-import { SquaddieAffiliationService } from "../../affiliation/affiliation"
-import { SquaddieActionValidationService } from "../../squaddieAction/calculate/validity/squaddieActionValidationService"
-import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
-import type { AStarGraph } from "../../aStarSearch/aStarGraph"
+} from "../../coordinateMap/path/path.js"
+import { SquaddieAffiliationService } from "../../affiliation/affiliation.js"
+import { SquaddieActionValidationService } from "../../squaddieAction/calculate/validity/squaddieActionValidationService.js"
+import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate.js"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
+import type { AStarGraph } from "../../aStarSearch/aStarGraph.js"
 
 export class SimpleAggressorStrategy implements AiStrategy {
     decideAction(input: AiStrategyInput): ReadiedAction | undefined {

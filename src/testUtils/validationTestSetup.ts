@@ -1,19 +1,19 @@
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
 import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
-} from "../affiliation/affiliation"
-import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../coordinateMap/coordinateMap"
-import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
-import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
-import { OutOfBattleSquaddieTestSetup } from "./outOfBattleSquaddieTestSetup"
-import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
-import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
+} from "../affiliation/affiliation.js"
+import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection.js"
+import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
+import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection.js"
+import { OutOfBattleSquaddieTestSetup } from "./outOfBattleSquaddieTestSetup.js"
+import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate.js"
+import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
 
 export interface ValidationTestTarget {
     id: string

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
+import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult.js"
 import {
     type SerializedTargetResult,
     type TargetResult,
     TargetResultService,
-} from "./targetResult"
-import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
+} from "./targetResult.js"
+import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
 
 describe("TargetResultService", () => {
     describe("serialize", () => {

@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
-import { MissionObjectiveService } from "../../missionObjective"
-import { MissionObjectiveRewardService } from "../../missionObjectiveReward"
-import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria"
-import { MissionAffiliationTurn } from "../../missionTurn"
-import { MovieSceneImageService } from "../../../movie/movieSceneImage"
-import { MovieSceneType } from "../../../movie/movieScene"
-import type { Movie } from "../../../movie/movie"
-import { MovieEngineCommand } from "../../../movie/movieEngine"
+import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { MissionObjectiveService } from "../../missionObjective.js"
+import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
+import { MissionAffiliationTurn } from "../../missionTurn.js"
+import { MovieSceneImageService } from "../../../movie/movieSceneImage.js"
+import { MovieSceneType } from "../../../movie/movieScene.js"
+import type { Movie } from "../../../movie/movie.js"
+import { MovieEngineCommand } from "../../../movie/movieEngine.js"
 
 const makeMovie = (sceneId: string): Movie => ({
     id: "movie-1",

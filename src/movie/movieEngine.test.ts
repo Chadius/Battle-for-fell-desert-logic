@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { MovieSceneImageService } from "./movieSceneImage"
-import { MovieSceneConversationService } from "./movieSceneConversation"
-import type { Movie } from "./movie"
-import { MovieEngine, MovieEngineCommand } from "./movieEngine"
-import { MovieSceneType } from "./movieScene"
+import { MovieSceneImageService } from "./movieSceneImage.js"
+import { MovieSceneConversationService } from "./movieSceneConversation.js"
+import type { Movie } from "./movie.js"
+import { MovieEngine, MovieEngineCommand } from "./movieEngine.js"
+import { MovieSceneType } from "./movieScene.js"
 
 const makeScene = (id: string) =>
     MovieSceneImageService.new({ id, resourceManifestEntryId: "someImage" })

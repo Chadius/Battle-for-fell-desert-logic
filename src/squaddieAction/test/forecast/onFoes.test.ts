@@ -1,35 +1,35 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator"
-import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { SquaddieActionManager } from "../../squaddieActionManager"
-import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
+import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator.js"
+import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { SquaddieActionManager } from "../../squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.js"
 import {
     type SquaddieAction,
     SquaddieActionService,
-} from "../../squaddieAction"
+} from "../../squaddieAction.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
     type TProficiencyLevel,
     type TProficiencyType,
-} from "../../../proficiency/proficiencyLevel"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { AttributeScore } from "../../../proficiency/attributeScore"
+} from "../../../proficiency/proficiencyLevel.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../../proficiency/squaddieCondition"
+} from "../../../proficiency/squaddieCondition.js"
 import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
-} from "../../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
+} from "../../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
 
 describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
     let outOfBattleSquaddieManager: OutOfBattleSquaddieManager

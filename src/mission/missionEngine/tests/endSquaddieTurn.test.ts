@@ -2,30 +2,33 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     HowToDetermineDegreeOfSuccess,
     SquaddieActionService,
-} from "../../../squaddieAction/squaddieAction"
-import { ActionRange } from "../../../squaddieAction/actionRange"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { MissionAffiliationTurn, MissionTurnService } from "../../missionTurn"
-import { MissionEngine } from "../missionEngine"
-import { MissionManager } from "../../missionManager"
-import { MissionStateService } from "../../missionState"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
-import { SquaddieActionManager } from "../../../squaddieAction/squaddieActionManager"
-import { SquaddieActionCollectionService } from "../../../squaddieAction/squaddieActionCollection"
+} from "../../../squaddieAction/squaddieAction.js"
+import { ActionRange } from "../../../squaddieAction/actionRange.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import {
+    MissionAffiliationTurn,
+    MissionTurnService,
+} from "../../missionTurn.js"
+import { MissionEngine } from "../missionEngine.js"
+import { MissionManager } from "../../missionManager.js"
+import { MissionStateService } from "../../missionState.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection.js"
+import { CoordinateMapService } from "../../../coordinateMap/coordinateMap.js"
+import { SquaddieActionManager } from "../../../squaddieAction/squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../../../squaddieAction/squaddieActionCollection.js"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import { TurnControllerType } from "../../turnController"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { TurnControllerType } from "../../turnController.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 function advanceHarnessToPlayerTurn(missionEngine: MissionEngine): void {
     missionEngine.transitionToNextPhase()

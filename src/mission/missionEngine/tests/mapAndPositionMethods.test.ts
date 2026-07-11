@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionEngine } from "../missionEngine"
-import { MissionManager } from "../../missionManager"
-import { MissionStateService } from "../../missionState"
+import { MissionEngine } from "../missionEngine.js"
+import { MissionManager } from "../../missionManager.js"
+import { MissionStateService } from "../../missionState.js"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
 
 describe("MissionEngine map and position methods", () => {
     describe("getMapDimensions", () => {

@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { type CoordinateMap, CoordinateMapService } from "../coordinateMap"
+import { type CoordinateMap, CoordinateMapService } from "../coordinateMap.js"
 import {
     type CoordinatePathMap,
     CoordinatePathMapService,
-} from "./coordinatePathMap"
+} from "./coordinatePathMap.js"
 import {
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
-} from "../path/path"
+} from "../path/path.js"
 
 describe("Map Transposition", () => {
     let coordinateMap: CoordinateMap

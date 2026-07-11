@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { resolveResourceManifestEntry } from "./resourceManifestResolver"
+import { resolveResourceManifestEntry } from "./resourceManifestResolver.js"
 import {
     ResourceManifestCollectionService,
     type ResourceManifestCollection,
-} from "./resourceManifestCollection"
-import { ResourceManifestEntryService } from "./resourceManifest"
+} from "./resourceManifestCollection.js"
+import { ResourceManifestEntryService } from "./resourceManifest.js"
 
 describe("resolveResourceManifestEntry", () => {
     const makeCollection = (

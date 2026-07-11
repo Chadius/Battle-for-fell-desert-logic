@@ -1,22 +1,22 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { SquaddieActionManager } from "../../squaddieActionManager"
-import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
-import { AttributeScore } from "../../../proficiency/attributeScore"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { SquaddieActionManager } from "../../squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.js"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
     type TProficiencyLevel,
     type TProficiencyType,
-} from "../../../proficiency/proficiencyLevel"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { SquaddieActionService } from "../../squaddieAction"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { ActionRange } from "../../actionRange"
-import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
+} from "../../../proficiency/proficiencyLevel.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { SquaddieActionService } from "../../squaddieAction.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { ActionRange } from "../../actionRange.js"
+import { SquaddieActionForecastCalculator } from "../../calculate/forecast/squaddieActionForecastCalculator.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
 
 describe("forecasts on effects on yourself", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

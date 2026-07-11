@@ -1,23 +1,23 @@
 import { z } from "zod"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo.js"
 import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
-} from "./path/path"
+} from "./path/path.js"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
-} from "./offsetCoordinate"
+} from "./offsetCoordinate.js"
 import {
     CoordinateMapAStarAdapter,
     type CoordinateMapSearchLimits,
-} from "./coordinateMapAStarAdapter"
-import { AStarSearchService } from "../aStarSearch/aStarSearch"
-import type { AStarGraph } from "../aStarSearch/aStarGraph"
-import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
-import { SquaddieIdConverterService } from "../squaddie/idConverterService"
+} from "./coordinateMapAStarAdapter.js"
+import { AStarSearchService } from "../aStarSearch/aStarSearch.js"
+import type { AStarGraph } from "../aStarSearch/aStarGraph.js"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
 
 export type OffsetMaybeOffmapCoordinate = {
     row: number | undefined

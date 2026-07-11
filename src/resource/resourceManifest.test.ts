@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
     type ResourceManifestEntry,
     ResourceManifestEntryService,
-} from "./resourceManifest"
+} from "./resourceManifest.js"
 
 describe("ResourceManifestEntry", () => {
     const makeEntry = (

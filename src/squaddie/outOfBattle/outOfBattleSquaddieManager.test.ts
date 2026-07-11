@@ -2,27 +2,27 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type OutOfBattleSquaddieCollection,
     OutOfBattleSquaddieCollectionService,
-} from "./outOfBattleSquaddieCollection"
+} from "./outOfBattleSquaddieCollection.js"
 import {
     type OutOfBattleSquaddieAttributeSheetCollection,
     OutOfBattleSquaddieAttributeSheetCollectionService,
-} from "./outOfBattleSquaddieAttributeSheetCollection"
+} from "./outOfBattleSquaddieAttributeSheetCollection.js"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "./outOfBattleSquaddieAttributeSheet"
+} from "./outOfBattleSquaddieAttributeSheet.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../proficiency/proficiencyLevel"
-import { OutOfBattleSquaddieManager } from "./outOfBattleSquaddieManager"
+} from "../../proficiency/proficiencyLevel.js"
+import { OutOfBattleSquaddieManager } from "./outOfBattleSquaddieManager.js"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "./outOfBattleSquaddie"
-import { AttributeScore } from "../../proficiency/attributeScore"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
+} from "./outOfBattleSquaddie.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
 
 describe("Out of Battle Squaddie Manager", () => {
     let squaddieCollection: OutOfBattleSquaddieCollection

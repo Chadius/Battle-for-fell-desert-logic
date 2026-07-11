@@ -1,12 +1,12 @@
 import type {
     DialogLine,
     MovieSceneConversation,
-} from "./movieSceneConversation"
+} from "./movieSceneConversation.js"
 import {
     type MovieScene,
     MovieSceneService,
     MovieSceneType,
-} from "./movieScene"
+} from "./movieScene.js"
 
 export interface Movie {
     id: string

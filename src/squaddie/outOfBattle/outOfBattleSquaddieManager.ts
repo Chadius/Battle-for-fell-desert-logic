@@ -1,21 +1,21 @@
 import {
     type OutOfBattleSquaddieCollection,
     OutOfBattleSquaddieCollectionService,
-} from "./outOfBattleSquaddieCollection"
+} from "./outOfBattleSquaddieCollection.js"
 import {
     type OutOfBattleSquaddieAttributeSheetCollection,
     OutOfBattleSquaddieAttributeSheetCollectionService,
-} from "./outOfBattleSquaddieAttributeSheetCollection"
+} from "./outOfBattleSquaddieAttributeSheetCollection.js"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     type SerializedOutOfBattleSquaddieAttributeSheet,
-} from "./outOfBattleSquaddieAttributeSheet"
+} from "./outOfBattleSquaddieAttributeSheet.js"
 import {
     type OutOfBattleSquaddie,
     type SerializedOutOfBattleSquaddie,
-} from "./outOfBattleSquaddie"
-import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
-import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
+} from "./outOfBattleSquaddie.js"
+import { type SquaddieMovementInfo } from "../squaddieMovementInfo.js"
+import type { TSquaddieAffiliation } from "../../affiliation/affiliation.js"
 
 export class OutOfBattleSquaddieManager {
     squaddieCollection?: OutOfBattleSquaddieCollection

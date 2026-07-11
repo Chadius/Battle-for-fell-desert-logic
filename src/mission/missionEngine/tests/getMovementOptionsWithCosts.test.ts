@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { MissionEngine } from "../missionEngine"
-import { MissionManager } from "../../missionManager"
-import { MissionStateService } from "../../missionState"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
-import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
-import { DEFAULT_ACTION_POINTS } from "../../../squaddie/inBattle/inBattleSquaddie"
+import { MissionEngine } from "../missionEngine.js"
+import { MissionManager } from "../../missionManager.js"
+import { MissionStateService } from "../../missionState.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
+import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { DEFAULT_ACTION_POINTS } from "../../../squaddie/inBattle/inBattleSquaddie.js"
 
 describe("MissionEngine.getMovementOptionsWithCosts", () => {
     it("throws error if missionManager is undefined", () => {

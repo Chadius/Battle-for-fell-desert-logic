@@ -1,16 +1,16 @@
 import { z } from "zod"
-import { AttributeScore } from "../../../proficiency/attributeScore"
-import type { AttributeScoreType } from "../../../proficiency/attributeScore"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
+import type { AttributeScoreType } from "../../../proficiency/attributeScore.js"
 import {
     squaddieConditionSchema,
     SquaddieConditionType,
-} from "../../../proficiency/squaddieCondition"
+} from "../../../proficiency/squaddieCondition.js"
 import type {
     SquaddieCondition,
     TSquaddieConditionType,
-} from "../../../proficiency/squaddieCondition"
-import { coordinateMovePathSchema } from "../../../coordinateMap/path/path"
-import type { CoordinateMovePath } from "../../../coordinateMap/path/path"
+} from "../../../proficiency/squaddieCondition.js"
+import { coordinateMovePathSchema } from "../../../coordinateMap/path/path.js"
+import type { CoordinateMovePath } from "../../../coordinateMap/path/path.js"
 
 export type DamageResult = {
     net: number

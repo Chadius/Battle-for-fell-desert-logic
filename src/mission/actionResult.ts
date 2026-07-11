@@ -2,7 +2,7 @@ import {
     type SerializedTargetResult,
     type TargetResult,
     TargetResultService,
-} from "./targetResult"
+} from "./targetResult.js"
 
 export interface ActionResult {
     actorRoll?: [number, number]

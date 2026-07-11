@@ -2,23 +2,23 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     InBattleSquaddieCollectionService,
     type SerializedInBattleSquaddieCollection,
-} from "./inBattleSquaddieCollection"
+} from "./inBattleSquaddieCollection.js"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../outOfBattle/outOfBattleSquaddie"
-import { type OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { AttributeScore } from "../../proficiency/attributeScore"
+} from "../outOfBattle/outOfBattleSquaddie.js"
+import { type OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
-import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
-import { InBattleSquaddieService } from "./inBattleSquaddie"
-import { SquaddieItemService } from "../../squaddieItem/squaddieItem"
+} from "../../proficiency/squaddieCondition.js"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { InBattleSquaddieService } from "./inBattleSquaddie.js"
+import { SquaddieItemService } from "../../squaddieItem/squaddieItem.js"
 
 describe("InBattleSquaddieCollection", () => {
     describe("serialization", () => {

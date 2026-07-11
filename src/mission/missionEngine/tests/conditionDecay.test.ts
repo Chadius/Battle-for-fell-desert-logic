@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionAffiliationTurn } from "../../missionTurn"
-import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
+import { MissionAffiliationTurn } from "../../missionTurn.js"
+import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
     type TSquaddieConditionDecaysAt,
-} from "../../../proficiency/squaddieCondition"
-import type { SerializedSquaddieActionResult } from "../../../squaddieAction/calculate/result/squaddieActionResult"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+} from "../../../proficiency/squaddieCondition.js"
+import type { SerializedSquaddieActionResult } from "../../../squaddieAction/calculate/result/squaddieActionResult.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 function advanceHarnessToPlayerTurn(harness: MissionEngineTestHarness): void {
     harness.transitionToNextPhase()

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { MissionManager } from "./missionManager"
-import { MissionStateService } from "./missionState"
-import { MovieManager } from "../movie/movieManager"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
-import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
+import { MissionManager } from "./missionManager.js"
+import { MissionStateService } from "./missionState.js"
+import { MovieManager } from "../movie/movieManager.js"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
+import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
 
 describe("MissionManager", () => {
     describe("constructor", () => {

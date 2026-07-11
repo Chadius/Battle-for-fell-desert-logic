@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest"
 import {
     MissionObjectiveCriteriaService,
     MissionObjectiveCriteriaType,
-} from "./missionObjectiveCriteria"
-import { SquaddieIdConverterService } from "../squaddie/idConverterService"
-import type { ActionResult } from "./actionResult"
-import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult"
-import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
+} from "./missionObjectiveCriteria.js"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
+import type { ActionResult } from "./actionResult.js"
+import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult.js"
+import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup.js"
 
 const buildManager = () => {
     const { manager: outOfBattleManager } =

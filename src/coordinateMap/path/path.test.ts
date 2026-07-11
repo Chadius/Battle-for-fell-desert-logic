@@ -3,7 +3,7 @@ import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
-} from "./path"
+} from "./path.js"
 
 describe("Creating Paths", () => {
     let path: CoordinateMovePath

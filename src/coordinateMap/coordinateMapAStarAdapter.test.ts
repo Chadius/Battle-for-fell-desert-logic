@@ -1,35 +1,38 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { OutOfBattleSquaddieAttributeSheet } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { OutOfBattleSquaddieAttributeSheet } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../squaddie/outOfBattle/outOfBattleSquaddie"
+} from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "../squaddie/inBattle/inBattleSquaddieCollection"
-import { AttributeScore } from "../proficiency/attributeScore"
+} from "../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { AttributeScore } from "../proficiency/attributeScore.js"
 import {
     CoordinateMapAStarAdapter,
     type CoordinateMapSearchLimits,
-} from "./coordinateMapAStarAdapter"
+} from "./coordinateMapAStarAdapter.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../proficiency/squaddieCondition"
-import { type CoordinateMap, CoordinateMapService } from "./coordinateMap"
-import { AStarSearchService } from "../aStarSearch/aStarSearch"
-import { type CoordinateMovePath, CoordinateMovePathService } from "./path/path"
-import type { AStarGraph } from "../aStarSearch/aStarGraph"
-import { CoordinatePathMapService } from "./mapTransposition/coordinatePathMap"
-import type { OffsetCoordinate } from "./offsetCoordinate"
-import { SquaddieAffiliation } from "../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
-import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddie"
+} from "../proficiency/squaddieCondition.js"
+import { type CoordinateMap, CoordinateMapService } from "./coordinateMap.js"
+import { AStarSearchService } from "../aStarSearch/aStarSearch.js"
+import {
+    type CoordinateMovePath,
+    CoordinateMovePathService,
+} from "./path/path.js"
+import type { AStarGraph } from "../aStarSearch/aStarGraph.js"
+import { CoordinatePathMapService } from "./mapTransposition/coordinatePathMap.js"
+import type { OffsetCoordinate } from "./offsetCoordinate.js"
+import { SquaddieAffiliation } from "../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup.js"
+import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import type { BattleSquaddieId } from "../squaddie/inBattle/inBattleSquaddie.js"
 
 describe("coordinateMapAStarAdapter", () => {
     let manager: InBattleSquaddieManager

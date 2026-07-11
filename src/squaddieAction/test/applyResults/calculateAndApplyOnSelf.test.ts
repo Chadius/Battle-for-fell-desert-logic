@@ -3,42 +3,42 @@ import {
     type SquaddieAction,
     MovementEffectType,
     SquaddieActionService,
-} from "../../squaddieAction"
-import { SquaddieActionManager } from "../../squaddieActionManager"
+} from "../../squaddieAction.js"
+import { SquaddieActionManager } from "../../squaddieActionManager.js"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { AttributeScore } from "../../../proficiency/attributeScore"
+} from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../../proficiency/proficiencyLevel"
-import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
-import { ActionRange } from "../../actionRange"
-import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
+} from "../../../proficiency/proficiencyLevel.js"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.js"
+import { ActionRange } from "../../actionRange.js"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../../proficiency/squaddieCondition"
-import { ApplyResultService } from "../../apply/applyResultService"
-import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
-import { CoordinateMovePathService } from "../../../coordinateMap/path/path"
-import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
-import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
+} from "../../../proficiency/squaddieCondition.js"
+import { ApplyResultService } from "../../apply/applyResultService.js"
+import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection.js"
+import { CoordinateMapService } from "../../../coordinateMap/coordinateMap.js"
+import { CoordinateMovePathService } from "../../../coordinateMap/path/path.js"
+import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator.js"
+import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 
 describe("Squaddie resolves actions on themself", () => {
     let endTurnAction: SquaddieAction

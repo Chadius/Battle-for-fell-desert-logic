@@ -1,10 +1,10 @@
-import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
-import type { SquaddieAction } from "../squaddieAction"
+import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { SquaddieAction } from "../squaddieAction.js"
 import {
     ProficiencyLevelConst,
     ProficiencyType,
-} from "../../proficiency/proficiencyLevel"
-import { SquaddieConditionType } from "../../proficiency/squaddieCondition"
+} from "../../proficiency/proficiencyLevel.js"
+import { SquaddieConditionType } from "../../proficiency/squaddieCondition.js"
 
 export const ProficiencyCalculator = {
     getActorProficiencyBonus: ({

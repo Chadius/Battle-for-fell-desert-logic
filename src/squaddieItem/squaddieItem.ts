@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { type TProficiencyType } from "../proficiency/proficiencyLevel"
+import { type TProficiencyType } from "../proficiency/proficiencyLevel.js"
 
 export interface SquaddieItem {
     id: string

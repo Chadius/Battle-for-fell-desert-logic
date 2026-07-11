@@ -1,9 +1,9 @@
-import type { MissionManager } from "../mission/missionManager"
+import type { MissionManager } from "../mission/missionManager.js"
 import {
     type CampaignCollection,
     CampaignCollectionService,
-} from "./campaignCollection"
-import type { CampaignMission } from "./campaignMission"
+} from "./campaignCollection.js"
+import type { CampaignMission } from "./campaignMission.js"
 
 export class CampaignManager {
     campaignCollection?: CampaignCollection

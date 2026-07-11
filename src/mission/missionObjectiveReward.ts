@@ -1,9 +1,9 @@
 import { z } from "zod"
-import type { EnumLike } from "../enum"
+import type { EnumLike } from "../enum.js"
 import {
     ChallengeModifierType,
     type TChallengeModifierType,
-} from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
+} from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting.js"
 
 export const MissionObjectiveRewardType = {
     NEXT_MISSIONS: "NEXT_MISSIONS",

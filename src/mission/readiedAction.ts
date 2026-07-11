@@ -1,4 +1,4 @@
-import type { SquaddieActionDecisions } from "../squaddieAction/calculate/result/squaddieActionResultCalculator"
+import type { SquaddieActionDecisions } from "../squaddieAction/calculate/result/squaddieActionResultCalculator.js"
 
 export interface ReadiedAction {
     actor: {

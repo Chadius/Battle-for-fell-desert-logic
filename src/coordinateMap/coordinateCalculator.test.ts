@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import type { TCoordinateDirection } from "./coordinateCalculator"
+import type { TCoordinateDirection } from "./coordinateCalculator.js"
 import {
     CoordinateCalculator,
     CoordinateDirection,
-} from "./coordinateCalculator"
+} from "./coordinateCalculator.js"
 
 describe("coordinateCalculator", () => {
     describe("get neighboring coordinates", () => {

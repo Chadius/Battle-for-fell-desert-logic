@@ -2,13 +2,13 @@ import { z } from "zod"
 import type {
     SquaddieTurnActionRecord,
     SerializedSquaddieTurnActionRecord,
-} from "./squaddieTurnActionRecord"
+} from "./squaddieTurnActionRecord.js"
 import {
     SquaddieTurnActionRecordService,
     squaddieTurnActionRecordSchema,
-} from "./squaddieTurnActionRecord"
-import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
+} from "./squaddieTurnActionRecord.js"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService.js"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
 
 export interface SquaddieTurnRecord {
     actingBattleSquaddieId: string

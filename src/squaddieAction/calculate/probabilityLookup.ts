@@ -1,7 +1,7 @@
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
-} from "../../degreesOfSuccess/degreeOfSuccess"
+} from "../../degreesOfSuccess/degreeOfSuccess.js"
 
 export const ProbabilityLookup = {
     calculateChanceOfDegreeOfSuccessBasedOnSuccessBonus: (

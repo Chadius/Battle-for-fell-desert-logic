@@ -1,6 +1,9 @@
-import type { Squad } from "./squad"
-import { type SquadCollection, SquadCollectionService } from "./squadCollection"
-import type { TSquaddieRole } from "./roles"
+import type { Squad } from "./squad.js"
+import {
+    type SquadCollection,
+    SquadCollectionService,
+} from "./squadCollection.js"
+import type { TSquaddieRole } from "./roles.js"
 
 export class SquadManager {
     squadCollection?: SquadCollection

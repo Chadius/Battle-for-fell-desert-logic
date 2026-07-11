@@ -2,8 +2,8 @@ import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
     type SerializedOutOfBattleSquaddieAttributeSheet,
-} from "./outOfBattleSquaddieAttributeSheet"
-import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
+} from "./outOfBattleSquaddieAttributeSheet.js"
+import { type SquaddieMovementInfo } from "../squaddieMovementInfo.js"
 
 export interface OutOfBattleSquaddieAttributeSheetCollection {
     sheetById: Map<string, OutOfBattleSquaddieAttributeSheet>

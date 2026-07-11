@@ -1,14 +1,14 @@
 import {
     type CoordinateMapCollection,
     CoordinateMapCollectionService,
-} from "./coordinateMapCollection"
+} from "./coordinateMapCollection.js"
 import {
     type CoordinateMap,
     CoordinateMapService,
     type OffsetMaybeOffmapCoordinate,
     type SerializedCoordinateMap,
-} from "./coordinateMap"
-import type { OffsetCoordinate } from "./offsetCoordinate"
+} from "./coordinateMap.js"
+import type { OffsetCoordinate } from "./offsetCoordinate.js"
 
 export class CoordinateMapCollectionManager {
     coordinateMapCollection?: CoordinateMapCollection

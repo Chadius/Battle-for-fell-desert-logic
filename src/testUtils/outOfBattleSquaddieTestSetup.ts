@@ -1,18 +1,18 @@
 import {
     AttributeScore,
     type AttributeScoreType,
-} from "../proficiency/attributeScore"
+} from "../proficiency/attributeScore.js"
 import type {
     TProficiencyLevel,
     TProficiencyType,
-} from "../proficiency/proficiencyLevel"
+} from "../proficiency/proficiencyLevel.js"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
+} from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.js"
+import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 
 export interface TestAttributeSheetOptions {
     id?: string

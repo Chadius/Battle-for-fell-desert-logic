@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest"
 import {
     createDefaultCampaignManager,
     DefaultCampaignIds,
-} from "./defaultCampaign"
-import { MissionEngineTestHarnessIds } from "./missionEngineTestHarness"
-import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
+} from "./defaultCampaign.js"
+import { MissionEngineTestHarnessIds } from "./missionEngineTestHarness.js"
+import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection.js"
 
 describe("DefaultCampaign", () => {
     it("createDefaultCampaignManager returns a manager with missions", () => {

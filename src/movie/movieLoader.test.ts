@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { MovieLoader } from "./movieLoader"
-import { MovieSceneType } from "./movieScene"
+import { MovieLoader } from "./movieLoader.js"
+import { MovieSceneType } from "./movieScene.js"
 
 describe("MovieLoader.loadFromJSON", () => {
     describe("when given valid JSON with an IMAGE scene", () => {

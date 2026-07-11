@@ -3,15 +3,15 @@ import {
     MissionAffiliationTurn,
     type MissionTurn,
     MissionTurnService,
-} from "./missionTurn"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
-import { SquaddieAffiliation } from "../affiliation/affiliation"
-import { AttributeScore } from "../proficiency/attributeScore"
-import type { CoordinateMap } from "../coordinateMap/coordinateMap"
-import { CoordinateMapService } from "../coordinateMap/coordinateMap"
-import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
+} from "./missionTurn.js"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { SquaddieAffiliation } from "../affiliation/affiliation.js"
+import { AttributeScore } from "../proficiency/attributeScore.js"
+import type { CoordinateMap } from "../coordinateMap/coordinateMap.js"
+import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup.js"
 
 describe("MissionTurn", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

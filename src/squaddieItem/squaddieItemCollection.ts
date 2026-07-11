@@ -2,7 +2,7 @@ import {
     type SerializedSquaddieItem,
     type SquaddieItem,
     SquaddieItemService,
-} from "./squaddieItem"
+} from "./squaddieItem.js"
 
 export interface SquaddieItemCollection {
     itemById: Map<string, SquaddieItem>

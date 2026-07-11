@@ -2,26 +2,26 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
-} from "./squaddieTurnActionRecord"
+} from "./squaddieTurnActionRecord.js"
 import {
     type SquaddieAction,
     SquaddieActionService,
-} from "../../squaddieAction/squaddieAction"
+} from "../../squaddieAction/squaddieAction.js"
 import {
     type SerializedSquaddieActionResult,
     type SquaddieActionResult,
-} from "../../squaddieAction/calculate/result/squaddieActionResult"
-import { AttributeScore } from "../../proficiency/attributeScore"
+} from "../../squaddieAction/calculate/result/squaddieActionResult.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
-import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
-import { CoordinateMovePathService } from "../../coordinateMap/path/path"
+} from "../../proficiency/squaddieCondition.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.js"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService.js"
+import { CoordinateMovePathService } from "../../coordinateMap/path/path.js"
 
 describe("SquaddieTurnActionRecordService", () => {
     describe("new", () => {

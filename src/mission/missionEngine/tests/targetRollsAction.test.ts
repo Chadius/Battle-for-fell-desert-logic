@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator"
+import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator.js"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import type { ActionResult } from "../../actionResult"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import type { ActionResult } from "../../actionResult.js"
 
 function advanceHarnessToPlayerTurn(harness: MissionEngineTestHarness): void {
     harness.transitionToNextPhase()

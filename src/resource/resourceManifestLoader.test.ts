@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 import {
     loadResourceManifestFromJSON,
     type ResourceManifestRawJSON,
-} from "./resourceManifestLoader"
-import { ResourceManifestCollectionService } from "./resourceManifestCollection"
+} from "./resourceManifestLoader.js"
+import { ResourceManifestCollectionService } from "./resourceManifestCollection.js"
 
 describe("loadResourceManifestFromJSON", () => {
     const validJSON: ResourceManifestRawJSON = {

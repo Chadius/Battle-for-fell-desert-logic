@@ -1,11 +1,11 @@
 import {
     ResourceManifestEntryService,
     type ResourceManifestType,
-} from "./resourceManifest"
+} from "./resourceManifest.js"
 import {
     ResourceManifestCollectionService,
     type ResourceManifestCollection,
-} from "./resourceManifestCollection"
+} from "./resourceManifestCollection.js"
 
 const VALID_TYPES: ResourceManifestType[] = ["IMAGE", "LEVEL", "DATA", "TEXT"]
 

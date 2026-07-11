@@ -1,35 +1,35 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieActionValidationService } from "../squaddieActionValidationService"
-import { SquaddieActionManager } from "../../../squaddieActionManager"
+import { SquaddieActionValidationService } from "../squaddieActionValidationService.js"
+import { SquaddieActionManager } from "../../../squaddieActionManager.js"
 import {
     MovementEffectType,
     type SquaddieAction,
     SquaddieActionService,
-} from "../../../squaddieAction"
-import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { SquaddieAffiliation } from "../../../../affiliation/affiliation"
-import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess"
-import type { OutOfBattleSquaddieManager } from "../../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager"
-import type { SquaddieActionDecisions } from "../../result/squaddieActionResultCalculator"
-import type { OffsetCoordinate } from "../../../../coordinateMap/offsetCoordinate"
-import { ActionRange } from "../../../actionRange"
-import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape"
-import { ProficiencyType } from "../../../../proficiency/proficiencyLevel"
-import { ValidationTestSetup } from "../../../../testUtils/validationTestSetup"
-import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup"
-import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { SquaddieActionCollectionService } from "../../../squaddieActionCollection"
-import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap"
-import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId"
+} from "../../../squaddieAction.js"
+import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieAffiliation } from "../../../../affiliation/affiliation.js"
+import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess.js"
+import type { OutOfBattleSquaddieManager } from "../../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager.js"
+import type { SquaddieActionDecisions } from "../../result/squaddieActionResultCalculator.js"
+import type { OffsetCoordinate } from "../../../../coordinateMap/offsetCoordinate.js"
+import { ActionRange } from "../../../actionRange.js"
+import { CoordinateGeneratorShape } from "../../../../coordinateMap/shape.js"
+import { ProficiencyType } from "../../../../proficiency/proficiencyLevel.js"
+import { ValidationTestSetup } from "../../../../testUtils/validationTestSetup.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { SquaddieActionCollectionService } from "../../../squaddieActionCollection.js"
+import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection.js"
+import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap.js"
+import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../../../proficiency/squaddieCondition"
+} from "../../../../proficiency/squaddieCondition.js"
 
 describe("SquaddieActionValidationService", () => {
     let squaddieActionManager: SquaddieActionManager

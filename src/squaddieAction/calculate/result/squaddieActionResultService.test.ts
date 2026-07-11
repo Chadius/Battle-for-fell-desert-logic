@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest"
 import {
     type SquaddieActionResult,
     SquaddieActionResultService,
-} from "./squaddieActionResult"
+} from "./squaddieActionResult.js"
 import {
     type SquaddieCondition,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
     type TSquaddieConditionType,
-} from "../../../proficiency/squaddieCondition"
+} from "../../../proficiency/squaddieCondition.js"
 
 describe("SquaddieActionResultService", () => {
     describe("clone", () => {

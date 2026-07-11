@@ -4,30 +4,30 @@ import {
     missionObjectiveSchema,
     MissionObjectiveService,
     type SerializedMissionObjective,
-} from "./missionObjective"
+} from "./missionObjective.js"
 import {
     type MissionTurn,
     missionTurnSchema,
     MissionTurnService,
     type SerializedMissionTurn,
-} from "./missionTurn"
+} from "./missionTurn.js"
 import {
     type MissionHistory,
     MissionHistoryService,
     type SerializedMissionHistory,
     missionHistorySchema,
-} from "./history/missionHistory"
-import type { TTurnControllerType } from "./turnController"
-import type { TSquaddieAffiliation } from "../affiliation/affiliation"
-import type { StrategyControllerOverrides } from "./strategyController"
-import type { DebugFlags } from "./debugFlags"
-import type { ChallengeModifierSetting } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
+} from "./history/missionHistory.js"
+import type { TTurnControllerType } from "./turnController.js"
+import type { TSquaddieAffiliation } from "../affiliation/affiliation.js"
+import type { StrategyControllerOverrides } from "./strategyController.js"
+import type { DebugFlags } from "./debugFlags.js"
+import type { ChallengeModifierSetting } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting.js"
 import {
     type MissionDeployment,
     missionDeploymentSchema,
     MissionDeploymentService,
     type SerializedMissionDeployment,
-} from "./missionDeployment"
+} from "./missionDeployment.js"
 
 export interface MissionState {
     id: string

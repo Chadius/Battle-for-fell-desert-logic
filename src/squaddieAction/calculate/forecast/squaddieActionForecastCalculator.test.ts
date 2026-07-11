@@ -1,22 +1,22 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieActionForecastCalculator } from "./squaddieActionForecastCalculator"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
+import { SquaddieActionForecastCalculator } from "./squaddieActionForecastCalculator.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../../proficiency/proficiencyLevel"
+} from "../../../proficiency/proficiencyLevel.js"
 import {
     HowToDetermineDegreeOfSuccess,
     SquaddieActionService,
-} from "../../squaddieAction"
-import { SquaddieActionManager } from "../../squaddieActionManager"
-import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
-import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
+} from "../../squaddieAction.js"
+import { SquaddieActionManager } from "../../squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.js"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 
 describe("SquaddieActionForecastCalculator", () => {
     describe("Multiple Attack Penalty in forecast", () => {

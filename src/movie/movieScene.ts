@@ -1,5 +1,5 @@
-import type { MovieSceneImage } from "./movieSceneImage"
-import type { MovieSceneConversation } from "./movieSceneConversation"
+import type { MovieSceneImage } from "./movieSceneImage.js"
+import type { MovieSceneConversation } from "./movieSceneConversation.js"
 
 export const MovieSceneType = {
     IMAGE: "IMAGE",

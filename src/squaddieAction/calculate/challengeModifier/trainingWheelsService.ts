@@ -1,21 +1,21 @@
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
-} from "../../../degreesOfSuccess/degreeOfSuccess"
+} from "../../../degreesOfSuccess/degreeOfSuccess.js"
 import {
     SquaddieAffiliation,
     SquaddieAffiliationService,
     type TSquaddieAffiliation,
-} from "../../../affiliation/affiliation"
+} from "../../../affiliation/affiliation.js"
 import {
     type SquaddieAction,
     SquaddieActionService,
-} from "../../squaddieAction"
+} from "../../squaddieAction.js"
 import {
     ChallengeModifierSettingService,
     ChallengeModifierType,
     type ChallengeModifierSetting,
-} from "./challengeModifierSetting"
+} from "./challengeModifierSetting.js"
 
 interface ForcedDegreeInput {
     actorAffiliation: TSquaddieAffiliation

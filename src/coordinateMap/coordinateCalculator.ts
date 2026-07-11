@@ -1,6 +1,6 @@
-import type { EnumLike } from "../enum"
+import type { EnumLike } from "../enum.js"
 
-import type { OffsetCoordinate } from "./offsetCoordinate"
+import type { OffsetCoordinate } from "./offsetCoordinate.js"
 
 export const CoordinateDirection = {
     RIGHT: 0,

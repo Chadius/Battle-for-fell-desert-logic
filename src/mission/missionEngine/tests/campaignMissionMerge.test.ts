@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { MissionEngine } from "../missionEngine"
+import { MissionEngine } from "../missionEngine.js"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
 import {
     SquaddieActionService,
     type SerializedSquaddieAction,
-} from "../../../squaddieAction/squaddieAction"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { ActionRange } from "../../../squaddieAction/actionRange"
-import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
-import { AttributeScore } from "../../../proficiency/attributeScore"
+} from "../../../squaddieAction/squaddieAction.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { ActionRange } from "../../../squaddieAction/actionRange.js"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
 
 const serializeMinimalAction = (
     id: string,

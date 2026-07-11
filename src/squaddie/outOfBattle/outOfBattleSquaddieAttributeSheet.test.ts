@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest"
 import {
     type OutOfBattleSquaddieAttributeSheet,
     OutOfBattleSquaddieAttributeSheetService,
-} from "./outOfBattleSquaddieAttributeSheet"
-import { AttributeScore } from "../../proficiency/attributeScore"
+} from "./outOfBattleSquaddieAttributeSheet.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../proficiency/proficiencyLevel"
+} from "../../proficiency/proficiencyLevel.js"
 
 describe("OutOfBattleSquaddieAttributeSheet", () => {
     const createLini = () =>

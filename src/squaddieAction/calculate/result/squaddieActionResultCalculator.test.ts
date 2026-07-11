@@ -1,29 +1,29 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieActionResultCalculator } from "./squaddieActionResultCalculator"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { RollGenerator } from "../roll/rollGenerator"
+import { SquaddieActionResultCalculator } from "./squaddieActionResultCalculator.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { RollGenerator } from "../roll/rollGenerator.js"
 import {
     HowToDetermineDegreeOfSuccess,
     type SquaddieAction,
     SquaddieActionService,
-} from "../../squaddieAction"
-import { SquaddieActionManager } from "../../squaddieActionManager"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { AttributeScore } from "../../../proficiency/attributeScore"
+} from "../../squaddieAction.js"
+import { SquaddieActionManager } from "../../squaddieActionManager.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../../proficiency/proficiencyLevel"
-import { ActionRange } from "../../actionRange"
-import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
-import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { ApplyResultService } from "../../apply/applyResultService"
+} from "../../../proficiency/proficiencyLevel.js"
+import { ActionRange } from "../../actionRange.js"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { ApplyResultService } from "../../apply/applyResultService.js"
 
 describe("SquaddieActionResultCalculator", () => {
     describe("calculateDegreeOfSuccessForTargets", () => {

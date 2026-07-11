@@ -1,4 +1,4 @@
-import type { BattleSquaddieId } from "./inBattle/battleSquaddieId"
+import type { BattleSquaddieId } from "./inBattle/battleSquaddieId.js"
 
 const separator = "+++"
 

@@ -1,49 +1,49 @@
-import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import type { SquaddieActionManager } from "../../squaddieActionManager"
-import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
-import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { SquaddieActionManager } from "../../squaddieActionManager.js"
+import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
+import { SquaddieAffiliationService } from "../../../affiliation/affiliation.js"
 import {
     ActionRange,
     ActionRangeService,
     type TActionRange,
-} from "../../actionRange"
-import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator"
+} from "../../actionRange.js"
+import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator.js"
 import {
     type ActionPointCost,
     MovementEffectType,
     type SquaddieAction,
     SquaddieActionService,
-} from "../../squaddieAction"
-import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
-import type { SquaddieMovementInfo } from "../../../squaddie/squaddieMovementInfo"
+} from "../../squaddieAction.js"
+import { CoordinateMapService } from "../../../coordinateMap/coordinateMap.js"
+import type { SquaddieMovementInfo } from "../../../squaddie/squaddieMovementInfo.js"
 import {
     CoordinateMapAStarAdapter,
     type CoordinateMapSearchLimits,
-} from "../../../coordinateMap/coordinateMapAStarAdapter"
-import { AStarSearchService } from "../../../aStarSearch/aStarSearch"
+} from "../../../coordinateMap/coordinateMapAStarAdapter.js"
+import { AStarSearchService } from "../../../aStarSearch/aStarSearch.js"
 import {
     type CoordinateMovePath,
     CoordinateMovePathService,
-} from "../../../coordinateMap/path/path"
+} from "../../../coordinateMap/path/path.js"
 import {
     type SquaddieActionDecisions,
     SquaddieActionResultCalculator,
-} from "../result/squaddieActionResultCalculator"
+} from "../result/squaddieActionResultCalculator.js"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
-} from "../../../coordinateMap/offsetCoordinate"
-import type { AStarGraph } from "../../../aStarSearch/aStarGraph"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import type { SquaddieActionResult } from "../result/squaddieActionResult"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
+} from "../../../coordinateMap/offsetCoordinate.js"
+import type { AStarGraph } from "../../../aStarSearch/aStarGraph.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import type { SquaddieActionResult } from "../result/squaddieActionResult.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
 import type {
     BattleSquaddieId,
     InBattleSquaddie,
-} from "../../../squaddie/inBattle/inBattleSquaddie"
-import { AoeTargetResolutionService } from "../aoe/aoeTargetResolutionService"
-import { LineOfSightService } from "../../../coordinateMap/lineOfSightService"
-import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
+} from "../../../squaddie/inBattle/inBattleSquaddie.js"
+import { AoeTargetResolutionService } from "../aoe/aoeTargetResolutionService.js"
+import { LineOfSightService } from "../../../coordinateMap/lineOfSightService.js"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
 
 export interface InvalidSquaddieAction {
     actionId: string

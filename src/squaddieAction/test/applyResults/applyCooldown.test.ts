@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { ApplyResultService } from "../../apply/applyResultService"
-import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { ApplyResultService } from "../../apply/applyResultService.js"
+import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 describe("ApplyResultService cooldown", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

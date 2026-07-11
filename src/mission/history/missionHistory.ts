@@ -2,16 +2,16 @@ import { z } from "zod"
 import type {
     MissionTurnHistoryEntry,
     SerializedMissionTurnHistoryEntry,
-} from "./missionTurnHistoryEntry"
+} from "./missionTurnHistoryEntry.js"
 import {
     MissionTurnHistoryEntryService,
     missionTurnHistoryEntrySchema,
-} from "./missionTurnHistoryEntry"
+} from "./missionTurnHistoryEntry.js"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
-} from "./squaddieTurnActionRecord"
-import type { SquaddieTurnRecord } from "./squaddieTurnRecord"
+} from "./squaddieTurnActionRecord.js"
+import type { SquaddieTurnRecord } from "./squaddieTurnRecord.js"
 
 export interface MissionHistory {
     turns: MissionTurnHistoryEntry[]

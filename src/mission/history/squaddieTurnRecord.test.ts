@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieTurnRecord,
     SquaddieTurnRecordService,
-} from "./squaddieTurnRecord"
+} from "./squaddieTurnRecord.js"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
-} from "./squaddieTurnActionRecord"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
-import type { SquaddieActionResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
+} from "./squaddieTurnActionRecord.js"
+import type { SquaddieAction } from "../../squaddieAction/squaddieAction.js"
+import type { SquaddieActionResult } from "../../squaddieAction/calculate/result/squaddieActionResult.js"
 
 describe("SquaddieTurnRecordService", () => {
     describe("new", () => {

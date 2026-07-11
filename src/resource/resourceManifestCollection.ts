@@ -1,4 +1,4 @@
-import type { ResourceManifestEntry } from "./resourceManifest"
+import type { ResourceManifestEntry } from "./resourceManifest.js"
 
 export interface ResourceManifestCollection {
     entriesByKey: Map<string, ResourceManifestEntry>

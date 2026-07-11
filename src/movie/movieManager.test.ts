@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { Movie } from "./movie"
-import { MovieManager } from "./movieManager"
+import type { Movie } from "./movie.js"
+import { MovieManager } from "./movieManager.js"
 
 describe("MovieManager", () => {
     describe("constructor", () => {

@@ -1,20 +1,20 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { ProficiencyCalculator } from "./proficiencyCalculator"
-import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
-import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
-import { AttributeScore } from "../../proficiency/attributeScore"
+import { ProficiencyCalculator } from "./proficiencyCalculator.js"
+import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
 import {
     ProficiencyLevel,
     ProficiencyLevelConst,
     ProficiencyType,
-} from "../../proficiency/proficiencyLevel"
-import type { SquaddieAction } from "../squaddieAction"
-import { SquaddieActionService } from "../squaddieAction"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
+} from "../../proficiency/proficiencyLevel.js"
+import type { SquaddieAction } from "../squaddieAction.js"
+import { SquaddieActionService } from "../squaddieAction.js"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
 
 describe("ProficiencyCalculator", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { type MissionState, MissionStateService } from "../../missionState"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { MissionEngine } from "../missionEngine"
-import { MissionManager } from "../../missionManager"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { type MissionState, MissionStateService } from "../../missionState.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { MissionEngine } from "../missionEngine.js"
+import { MissionManager } from "../../missionManager.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 describe("getSquaddieInfo", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

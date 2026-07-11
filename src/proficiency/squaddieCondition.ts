@@ -1,5 +1,5 @@
 import { z } from "zod"
-import type { EnumLike } from "../enum"
+import type { EnumLike } from "../enum.js"
 
 export const SquaddieConditionSource = {
     UNKNOWN: "UNKNOWN",

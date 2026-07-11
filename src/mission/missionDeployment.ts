@@ -1,5 +1,5 @@
 import { z } from "zod"
-import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate"
+import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate.js"
 
 export interface MissionDeployment {
     id: string

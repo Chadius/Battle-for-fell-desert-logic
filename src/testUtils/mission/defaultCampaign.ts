@@ -1,10 +1,10 @@
-import { CampaignManager } from "../../campaign/campaignManager"
-import { CampaignCollectionService } from "../../campaign/campaignCollection"
-import { CampaignMissionService } from "../../campaign/campaignMission"
-import { MissionEngineTestHarness } from "./missionEngineTestHarness"
-import { createTargetPracticeMission } from "./targetPracticeMission"
-import { createMovementTestMission } from "./movementTestMission"
-import { createSneakAttackMission } from "./sneakAttackMission"
+import { CampaignManager } from "../../campaign/campaignManager.js"
+import { CampaignCollectionService } from "../../campaign/campaignCollection.js"
+import { CampaignMissionService } from "../../campaign/campaignMission.js"
+import { MissionEngineTestHarness } from "./missionEngineTestHarness.js"
+import { createTargetPracticeMission } from "./targetPracticeMission.js"
+import { createMovementTestMission } from "./movementTestMission.js"
+import { createSneakAttackMission } from "./sneakAttackMission.js"
 
 export const DefaultCampaignIds = {
     mission1Id: "test-harness-mission-1",

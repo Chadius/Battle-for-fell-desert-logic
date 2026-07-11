@@ -1,13 +1,13 @@
-import { type MissionState, MissionStateService } from "./missionState"
-import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import { SquaddieItemManager } from "../squaddieItem/squaddieItemManager"
-import { SquaddieItemCollectionService } from "../squaddieItem/squaddieItemCollection"
-import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection"
-import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
-import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection"
+import { type MissionState, MissionStateService } from "./missionState.js"
+import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.js"
+import { SquaddieItemManager } from "../squaddieItem/squaddieItemManager.js"
+import { SquaddieItemCollectionService } from "../squaddieItem/squaddieItemCollection.js"
+import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection.js"
+import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection.js"
 
 export class MissionResourceLoader {
     outOfBattleSquaddieManager?: OutOfBattleSquaddieManager

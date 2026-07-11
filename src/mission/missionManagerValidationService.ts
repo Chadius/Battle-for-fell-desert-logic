@@ -1,10 +1,10 @@
-import type { MissionState } from "./missionState"
-import { MissionStateService } from "./missionState"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
-import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
-import type { OutOfBattleSquaddie } from "../squaddie/outOfBattle/outOfBattleSquaddie"
-import { CoordinateMapService } from "../coordinateMap/coordinateMap"
+import type { MissionState } from "./missionState.js"
+import { MissionStateService } from "./missionState.js"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
+import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
+import type { OutOfBattleSquaddie } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
 
 export interface MissionManagerValidationInput {
     missionState?: MissionState

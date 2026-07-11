@@ -1,8 +1,11 @@
 import {
     type SquaddieActionCollection,
     SquaddieActionCollectionService,
-} from "./squaddieActionCollection"
-import type { SerializedSquaddieAction, SquaddieAction } from "./squaddieAction"
+} from "./squaddieActionCollection.js"
+import type {
+    SerializedSquaddieAction,
+    SquaddieAction,
+} from "./squaddieAction.js"
 
 export class SquaddieActionManager {
     collection?: SquaddieActionCollection

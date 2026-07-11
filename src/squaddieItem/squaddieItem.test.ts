@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 import {
     ProficiencyType,
     type TProficiencyType,
-} from "../proficiency/proficiencyLevel"
-import { SquaddieItemService } from "./squaddieItem"
+} from "../proficiency/proficiencyLevel.js"
+import { SquaddieItemService } from "./squaddieItem.js"
 
 describe("Squaddie Item", () => {
     it("Can create a passive item and get bonuses", () => {

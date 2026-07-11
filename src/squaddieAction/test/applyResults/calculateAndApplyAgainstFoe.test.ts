@@ -2,38 +2,38 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieAction,
     SquaddieActionService,
-} from "../../squaddieAction"
-import { SquaddieActionManager } from "../../squaddieActionManager"
-import { type OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+} from "../../squaddieAction.js"
+import { SquaddieActionManager } from "../../squaddieActionManager.js"
+import { type OutOfBattleSquaddieAttributeSheet } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+} from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { AttributeScore } from "../../../proficiency/attributeScore"
+} from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
-} from "../../../proficiency/proficiencyLevel"
-import { ActionRange } from "../../actionRange"
-import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
-import { ApplyResultService } from "../../apply/applyResultService"
+} from "../../../proficiency/proficiencyLevel.js"
+import { ActionRange } from "../../actionRange.js"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.js"
+import { ApplyResultService } from "../../apply/applyResultService.js"
 import {
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../../proficiency/squaddieCondition"
-import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
-import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
+} from "../../../proficiency/squaddieCondition.js"
+import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator.js"
+import type { SquaddieActionResult } from "../../calculate/result/squaddieActionResult.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 
 describe("Squaddie Actions against foes", () => {
     let longswordAction: SquaddieAction

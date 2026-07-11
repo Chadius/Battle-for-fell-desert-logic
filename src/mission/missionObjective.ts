@@ -1,18 +1,18 @@
 import { z } from "zod"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
 import {
     type MissionObjectiveCriteria,
     type MissionObjectiveCriteriaContext,
     missionObjectiveCriteriaSchema,
     MissionObjectiveCriteriaService,
     type SerializedMissionObjectiveCriteria,
-} from "./missionObjectiveCriteria"
+} from "./missionObjectiveCriteria.js"
 import {
     type MissionObjectiveReward,
     missionObjectiveRewardSchema,
     MissionObjectiveRewardService,
     type SerializedMissionObjectiveReward,
-} from "./missionObjectiveReward"
+} from "./missionObjectiveReward.js"
 
 export interface MissionObjective {
     id: string

@@ -1,5 +1,5 @@
-import type { AStarGraph } from "./aStarGraph"
-import { PriorityQueue } from "../priorityQueue/priorityQueue"
+import type { AStarGraph } from "./aStarGraph.js"
+import { PriorityQueue } from "../priorityQueue/priorityQueue.js"
 
 export const AStarSearchService = {
     search: <T, U, Graph extends AStarGraph<T, U>>({

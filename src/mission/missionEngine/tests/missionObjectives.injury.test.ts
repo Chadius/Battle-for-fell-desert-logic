@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator"
+import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator.js"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria"
-import { MissionObjectiveService } from "../../missionObjective"
-import { MissionObjectiveRewardService } from "../../missionObjectiveReward"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
+import { MissionObjectiveService } from "../../missionObjective.js"
+import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
 
 // [4,3]: roll sum 7, modifier -5 (rank 1 - defense 0 - 6), value = 2 → SUCCESS (2 dmg, demon survives)
 const SUCCESS_HIT = [4, 3]

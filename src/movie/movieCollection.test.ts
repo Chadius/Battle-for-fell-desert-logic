@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { Movie } from "./movie"
-import { MovieCollectionService } from "./movieCollection"
+import type { Movie } from "./movie.js"
+import { MovieCollectionService } from "./movieCollection.js"
 
 describe("MovieCollectionService", () => {
     describe("when a movie id that was never added is requested", () => {

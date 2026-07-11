@@ -5,9 +5,9 @@ import {
     MovieSceneImagePhase,
     MovieSceneImageService,
     type MovieSceneImageState,
-} from "./movieSceneImage"
-import { ResourceManifestCollectionService } from "../resource/resourceManifestCollection"
-import { ResourceManifestEntryService } from "../resource/resourceManifest"
+} from "./movieSceneImage.js"
+import { ResourceManifestCollectionService } from "../resource/resourceManifestCollection.js"
+import { ResourceManifestEntryService } from "../resource/resourceManifest.js"
 
 const makeImageEntry = () =>
     ResourceManifestEntryService.new({

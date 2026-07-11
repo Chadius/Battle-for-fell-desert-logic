@@ -1,19 +1,19 @@
 import { z } from "zod"
-import type { TMissionAffiliationTurn } from "../missionTurn"
+import type { TMissionAffiliationTurn } from "../missionTurn.js"
 import type {
     SquaddieTurnRecord,
     SerializedSquaddieTurnRecord,
-} from "./squaddieTurnRecord"
+} from "./squaddieTurnRecord.js"
 import {
     SquaddieTurnRecordService,
     squaddieTurnRecordSchema,
-} from "./squaddieTurnRecord"
+} from "./squaddieTurnRecord.js"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
-} from "./squaddieTurnActionRecord"
-import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
+} from "./squaddieTurnActionRecord.js"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService.js"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
 
 export interface MissionTurnHistoryEntry {
     turnNumber: number

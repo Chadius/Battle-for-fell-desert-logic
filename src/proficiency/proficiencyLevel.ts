@@ -1,5 +1,5 @@
-import type { EnumLike } from "../enum"
-import { AttributeScore, type AttributeScoreType } from "./attributeScore"
+import type { EnumLike } from "../enum.js"
+import { AttributeScore, type AttributeScoreType } from "./attributeScore.js"
 
 export const ProficiencyLevel = {
     UNTRAINED: "UNTRAINED",

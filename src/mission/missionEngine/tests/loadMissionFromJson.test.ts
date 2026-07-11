@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionEngine } from "../missionEngine"
+import { MissionEngine } from "../missionEngine.js"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import { MissionStateService } from "../../missionState"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { MissionStateService } from "../../missionState.js"
 
 const loadValidMission = (engine: MissionEngine) =>
     engine.loadMissionFromJson({

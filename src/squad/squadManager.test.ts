@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieRole } from "./roles"
-import { type SquadCollection, SquadCollectionService } from "./squadCollection"
-import { SquadManager } from "./squadManager"
-import { SquadService } from "./squad"
-import { SquaddieAffiliation } from "../affiliation/affiliation"
+import { SquaddieRole } from "./roles.js"
+import {
+    type SquadCollection,
+    SquadCollectionService,
+} from "./squadCollection.js"
+import { SquadManager } from "./squadManager.js"
+import { SquadService } from "./squad.js"
+import { SquaddieAffiliation } from "../affiliation/affiliation.js"
 
 describe("Squad Manager", () => {
     let manager: SquadManager

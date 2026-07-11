@@ -2,8 +2,8 @@ import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
     type SerializedOutOfBattleSquaddie,
-} from "./outOfBattleSquaddie"
-import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
+} from "./outOfBattleSquaddie.js"
+import type { TSquaddieAffiliation } from "../../affiliation/affiliation.js"
 
 export interface OutOfBattleSquaddieCollection {
     outOfBattleSquaddieById: Map<string, OutOfBattleSquaddie>

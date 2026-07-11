@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import type { ActionResult } from "../../actionResult"
-import { ChallengeModifierType } from "../../../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
+import type { ActionResult } from "../../actionResult.js"
+import { ChallengeModifierType } from "../../../squaddieAction/calculate/challengeModifier/challengeModifierSetting.js"
 
 const GUARANTEED_MISS: [number, number] = [1, 1]
 

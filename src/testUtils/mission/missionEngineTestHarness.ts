@@ -1,55 +1,55 @@
-import { MissionEngine } from "../../mission/missionEngine/missionEngine"
-import { MissionManager } from "../../mission/missionManager"
+import { MissionEngine } from "../../mission/missionEngine/missionEngine.js"
+import { MissionManager } from "../../mission/missionManager.js"
 import {
     MissionStateService,
     type SerializedMissionState,
-} from "../../mission/missionState"
-import type { SerializedCoordinateMap } from "../../coordinateMap/coordinateMap"
-import { CoordinateMapService } from "../../coordinateMap/coordinateMap"
-import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection"
-import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId"
-import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection"
-import type { SerializedOutOfBattleSquaddieAttributeSheet } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet"
+} from "../../mission/missionState.js"
+import type { SerializedCoordinateMap } from "../../coordinateMap/coordinateMap.js"
+import { CoordinateMapService } from "../../coordinateMap/coordinateMap.js"
+import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection.js"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
+import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { OutOfBattleSquaddieCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.js"
+import type { SerializedOutOfBattleSquaddieAttributeSheet } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
+import { OutOfBattleSquaddieAttributeSheetService } from "../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
 import {
     OutOfBattleSquaddieService,
     type SerializedOutOfBattleSquaddie,
-} from "../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager"
-import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection"
+} from "../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection.js"
 import {
     HowToDetermineDegreeOfSuccess,
     type SerializedSquaddieAction,
     type SquaddieAction,
     SquaddieActionService,
-} from "../../squaddieAction/squaddieAction"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { AttributeScore } from "../../proficiency/attributeScore"
-import { ProficiencyType } from "../../proficiency/proficiencyLevel"
-import { ActionRange } from "../../squaddieAction/actionRange"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
-import { CoordinateGeneratorShape } from "../../coordinateMap/shape"
-import type { RollGenerator } from "../../squaddieAction/calculate/roll/rollGenerator"
+} from "../../squaddieAction/squaddieAction.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
+import { ProficiencyType } from "../../proficiency/proficiencyLevel.js"
+import { ActionRange } from "../../squaddieAction/actionRange.js"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.js"
+import { CoordinateGeneratorShape } from "../../coordinateMap/shape.js"
+import type { RollGenerator } from "../../squaddieAction/calculate/roll/rollGenerator.js"
 import {
     type MissionObjective,
     MissionObjectiveService,
-} from "../../mission/missionObjective"
-import { MissionObjectiveRewardService } from "../../mission/missionObjectiveReward"
-import { MissionObjectiveCriteriaService } from "../../mission/missionObjectiveCriteria"
+} from "../../mission/missionObjective.js"
+import { MissionObjectiveRewardService } from "../../mission/missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "../../mission/missionObjectiveCriteria.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
-import { MissionDeploymentService } from "../../mission/missionDeployment"
-import type { Movie } from "../../movie/movie"
-import { MovieManager } from "../../movie/movieManager"
+} from "../../proficiency/squaddieCondition.js"
+import { MissionDeploymentService } from "../../mission/missionDeployment.js"
+import type { Movie } from "../../movie/movie.js"
+import { MovieManager } from "../../movie/movieManager.js"
 
 export const MissionEngineTestHarnessIds = {
     mapId: "test-harness-map",

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
 import {
     OutOfBattleSquaddieService,
     type SerializedOutOfBattleSquaddie,
-} from "./outOfBattleSquaddie"
+} from "./outOfBattleSquaddie.js"
 
 describe("OutOfBattleSquaddie", () => {
     const createLini = () =>

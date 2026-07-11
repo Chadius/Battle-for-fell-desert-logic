@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { SquaddieInfoService } from "./squaddieInfo"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
+import { SquaddieInfoService } from "./squaddieInfo.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
+} from "../../proficiency/squaddieCondition.js"
 
 describe("SquaddieInfo", () => {
     describe("SquaddieInfoService", () => {

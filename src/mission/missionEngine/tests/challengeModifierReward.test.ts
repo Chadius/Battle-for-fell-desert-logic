@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
-import { MissionObjectiveService } from "../../missionObjective"
-import { MissionObjectiveRewardService } from "../../missionObjectiveReward"
-import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { ChallengeModifierType } from "../../../squaddieAction/calculate/challengeModifier/challengeModifierSetting"
-import { MovieSceneImageService } from "../../../movie/movieSceneImage"
-import { MovieSceneType } from "../../../movie/movieScene"
-import type { Movie } from "../../../movie/movie"
+import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { MissionObjectiveService } from "../../missionObjective.js"
+import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { ChallengeModifierType } from "../../../squaddieAction/calculate/challengeModifier/challengeModifierSetting.js"
+import { MovieSceneImageService } from "../../../movie/movieSceneImage.js"
+import { MovieSceneType } from "../../../movie/movieScene.js"
+import type { Movie } from "../../../movie/movie.js"
 
 const makeMovie = (id: string, sceneId: string): Movie => ({
     id,

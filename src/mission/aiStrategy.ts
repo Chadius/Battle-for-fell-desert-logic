@@ -1,8 +1,8 @@
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager"
-import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager"
-import type { ReadiedAction } from "./readiedAction"
-import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
+import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
+import type { ReadiedAction } from "./readiedAction.js"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
 
 export interface AiStrategyInput {
     actorIds: BattleSquaddieId

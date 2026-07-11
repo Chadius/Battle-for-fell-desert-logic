@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionEngine } from "../missionEngine"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { MissionObjectiveService } from "../../missionObjective"
-import { MissionObjectiveRewardService } from "../../missionObjectiveReward"
-import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria"
-import { MissionStateService } from "../../missionState"
-import { MissionManager } from "../../missionManager"
-import type { SerializedInMissionSummary } from "../../inMissionSummary"
+import { MissionEngine } from "../missionEngine.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { MissionObjectiveService } from "../../missionObjective.js"
+import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
+import { MissionStateService } from "../../missionState.js"
+import { MissionManager } from "../../missionManager.js"
+import type { SerializedInMissionSummary } from "../../inMissionSummary.js"
 import {
     type BattleSquaddieId,
     InBattleSquaddieService,
-} from "../../../squaddie/inBattle/inBattleSquaddie"
-import { AttributeScore } from "../../../proficiency/attributeScore"
+} from "../../../squaddie/inBattle/inBattleSquaddie.js"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
 
 describe("InMissionSummary", () => {
     describe("getInMissionSummary", () => {

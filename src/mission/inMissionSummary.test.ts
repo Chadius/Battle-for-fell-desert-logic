@@ -2,20 +2,20 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type MissionObjective,
     MissionObjectiveService,
-} from "./missionObjective"
-import { MissionObjectiveRewardService } from "./missionObjectiveReward"
-import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
-import { SquaddieAffiliation } from "../affiliation/affiliation"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
+} from "./missionObjective.js"
+import { MissionObjectiveRewardService } from "./missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria.js"
+import { SquaddieAffiliation } from "../affiliation/affiliation.js"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection.js"
 import {
     type InMissionSummary,
     InMissionSummaryService,
     type MissionObjectiveSummary,
-} from "./inMissionSummary"
-import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
-import { MissionAffiliationTurn } from "./missionTurn"
+} from "./inMissionSummary.js"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup.js"
+import { MissionAffiliationTurn } from "./missionTurn.js"
 
 describe("InMissionSummary", () => {
     describe("new", () => {

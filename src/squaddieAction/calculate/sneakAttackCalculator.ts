@@ -1,15 +1,15 @@
-import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager"
-import type { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager"
-import type { SquaddieAction } from "../squaddieAction"
-import type { SquaddieActionEffect } from "../squaddieActionEffect"
-import type { TDegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
-import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess"
+import type { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.js"
+import type { SquaddieAction } from "../squaddieAction.js"
+import type { SquaddieActionEffect } from "../squaddieActionEffect.js"
+import type { TDegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.js"
+import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.js"
 import {
     ProficiencyType,
     type TProficiencyType,
-} from "../../proficiency/proficiencyLevel"
-import { SquaddieConditionType } from "../../proficiency/squaddieCondition"
-import { FlankingService } from "../../coordinateMap/flankingService"
+} from "../../proficiency/proficiencyLevel.js"
+import { SquaddieConditionType } from "../../proficiency/squaddieCondition.js"
+import { FlankingService } from "../../coordinateMap/flankingService.js"
 
 const weaponProficiencyTypes = new Set<TProficiencyType>([
     ProficiencyType.WEAPON_NATURAL,

@@ -1,4 +1,4 @@
-import { PriorityQueue } from "./priorityQueue"
+import { PriorityQueue } from "./priorityQueue.js"
 import { describe, expect, it } from "vitest"
 
 class PathWithCost {

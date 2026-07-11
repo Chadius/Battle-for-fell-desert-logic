@@ -1,21 +1,21 @@
-import type { Movie } from "./movie"
-import type { ResourceManifestCollection } from "../resource/resourceManifestCollection"
+import type { Movie } from "./movie.js"
+import type { ResourceManifestCollection } from "../resource/resourceManifestCollection.js"
 import {
     type MovieSceneImage,
     MovieSceneImageCommand,
     MovieSceneImageService,
     type MovieSceneImageState,
     type TMovieSceneImagePhase,
-} from "./movieSceneImage"
+} from "./movieSceneImage.js"
 import {
     type ConversationSceneStatus,
     type DecisionRecord,
     MovieSceneConversationService,
     type MovieSceneConversationState,
-} from "./movieSceneConversation"
-import { resolveResourceManifestEntry } from "../resource/resourceManifestResolver"
-import { ResourceManifestEntryService } from "../resource/resourceManifest"
-import { type MovieScene, MovieSceneType } from "./movieScene"
+} from "./movieSceneConversation.js"
+import { resolveResourceManifestEntry } from "../resource/resourceManifestResolver.js"
+import { ResourceManifestEntryService } from "../resource/resourceManifest.js"
+import { type MovieScene, MovieSceneType } from "./movieScene.js"
 
 export const MovieEngineState = {
     PLAYING: "PLAYING",

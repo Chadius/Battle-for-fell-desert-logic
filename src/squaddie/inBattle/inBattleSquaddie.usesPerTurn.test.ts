@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { InBattleSquaddieService } from "./inBattleSquaddie"
-import { OutOfBattleSquaddieService } from "../outOfBattle/outOfBattleSquaddie"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
+import { InBattleSquaddieService } from "./inBattleSquaddie.js"
+import { OutOfBattleSquaddieService } from "../outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
 
 const createSquaddie = () => {
     const sheet = OutOfBattleSquaddieTestSetup.createTestAttributeSheet()

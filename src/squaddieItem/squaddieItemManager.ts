@@ -1,8 +1,11 @@
 import {
     type SquaddieItemCollection,
     SquaddieItemCollectionService,
-} from "./squaddieItemCollection"
-import { type SerializedSquaddieItem, type SquaddieItem } from "./squaddieItem"
+} from "./squaddieItemCollection.js"
+import {
+    type SerializedSquaddieItem,
+    type SquaddieItem,
+} from "./squaddieItem.js"
 
 export class SquaddieItemManager {
     collection?: SquaddieItemCollection

@@ -2,16 +2,16 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type MissionTurnHistoryEntry,
     MissionTurnHistoryEntryService,
-} from "./missionTurnHistoryEntry"
-import { SquaddieTurnRecordService } from "./squaddieTurnRecord"
+} from "./missionTurnHistoryEntry.js"
+import { SquaddieTurnRecordService } from "./squaddieTurnRecord.js"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
-} from "./squaddieTurnActionRecord"
-import { MissionAffiliationTurn } from "../missionTurn"
-import type { SquaddieAction } from "../../squaddieAction/squaddieAction"
-import type { SquaddieActionResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
-import { SquaddieIdConverterService } from "../../squaddie/idConverterService"
+} from "./squaddieTurnActionRecord.js"
+import { MissionAffiliationTurn } from "../missionTurn.js"
+import type { SquaddieAction } from "../../squaddieAction/squaddieAction.js"
+import type { SquaddieActionResult } from "../../squaddieAction/calculate/result/squaddieActionResult.js"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService.js"
 
 describe("MissionTurnHistoryEntryService", () => {
     describe("new", () => {

@@ -2,39 +2,39 @@ import { z } from "zod"
 import {
     AttributeScore,
     type AttributeScoreType,
-} from "../proficiency/attributeScore"
-import { ActionRange, type TActionRange } from "./actionRange"
+} from "../proficiency/attributeScore.js"
+import { ActionRange, type TActionRange } from "./actionRange.js"
 import {
     CoordinateGeneratorShape,
     type TCoordinateGeneratorShape,
-} from "../coordinateMap/shape"
+} from "../coordinateMap/shape.js"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
-} from "../degreesOfSuccess/degreeOfSuccess"
+} from "../degreesOfSuccess/degreeOfSuccess.js"
 import {
     ProficiencyType,
     type TProficiencyType,
-} from "../proficiency/proficiencyLevel"
-import { SquaddieConditionService } from "../proficiency/squaddieCondition"
-import type { EnumLike } from "../enum"
+} from "../proficiency/proficiencyLevel.js"
+import { SquaddieConditionService } from "../proficiency/squaddieCondition.js"
+import type { EnumLike } from "../enum.js"
 import {
     type SquaddieActionEffect,
     squaddieActionEffectSchema,
     SquaddieActionEffectService,
-} from "./squaddieActionEffect"
-import { MovementEffectType } from "./squaddieActionMovementEffect"
+} from "./squaddieActionEffect.js"
+import { MovementEffectType } from "./squaddieActionMovementEffect.js"
 
 export {
     type TMovementEffectType,
     type SquaddieActionMovementEffect,
     type TeleportToActorChosenMovement,
     MovementEffectType,
-} from "./squaddieActionMovementEffect"
+} from "./squaddieActionMovementEffect.js"
 export {
     type SerializedSquaddieActionEffect,
     SquaddieActionEffectService,
-} from "./squaddieActionEffect"
+} from "./squaddieActionEffect.js"
 
 export const HowToDetermineDegreeOfSuccess = {
     ACTOR_ROLLS_TO_HIT: "ACTOR_ROLLS_TO_HIT",

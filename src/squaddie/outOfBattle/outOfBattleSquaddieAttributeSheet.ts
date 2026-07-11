@@ -2,9 +2,9 @@ import { z } from "zod"
 import type {
     TProficiencyLevel,
     TProficiencyType,
-} from "../../proficiency/proficiencyLevel"
-import { type AttributeScoreType } from "../../proficiency/attributeScore"
-import type { SquaddieMovementInfo } from "../squaddieMovementInfo"
+} from "../../proficiency/proficiencyLevel.js"
+import { type AttributeScoreType } from "../../proficiency/attributeScore.js"
+import type { SquaddieMovementInfo } from "../squaddieMovementInfo.js"
 
 export interface OutOfBattleSquaddieAttributeSheet {
     id: string

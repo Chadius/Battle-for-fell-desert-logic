@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { DebugFlagsService } from "../../debugFlags"
+import { DebugFlagsService } from "../../debugFlags.js"
 
 describe("debugFlags", () => {
     describe("setFlag", () => {

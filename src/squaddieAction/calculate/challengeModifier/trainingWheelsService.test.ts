@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { TrainingWheelsService } from "./trainingWheelsService"
+import { TrainingWheelsService } from "./trainingWheelsService.js"
 import {
     ChallengeModifierSettingService,
     ChallengeModifierType,
-} from "./challengeModifierSetting"
-import { SquaddieActionService } from "../../squaddieAction"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { ProficiencyType } from "../../../proficiency/proficiencyLevel"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
+} from "./challengeModifierSetting.js"
+import { SquaddieActionService } from "../../squaddieAction.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { ProficiencyType } from "../../../proficiency/proficiencyLevel.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 
 const noOpEffectOnActor = {
     [DegreeOfSuccess.SUCCESS]: {},

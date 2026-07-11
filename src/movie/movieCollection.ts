@@ -1,4 +1,4 @@
-import type { Movie } from "./movie"
+import type { Movie } from "./movie.js"
 
 export interface MovieCollection {
     movies: Map<string, Movie>

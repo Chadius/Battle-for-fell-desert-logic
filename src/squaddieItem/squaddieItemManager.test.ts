@@ -1,11 +1,11 @@
-import { type SquaddieItem, SquaddieItemService } from "./squaddieItem"
+import { type SquaddieItem, SquaddieItemService } from "./squaddieItem.js"
 import {
     type SquaddieItemCollection,
     SquaddieItemCollectionService,
-} from "./squaddieItemCollection"
+} from "./squaddieItemCollection.js"
 import { beforeEach, describe, expect, it } from "vitest"
-import { ProficiencyType } from "../proficiency/proficiencyLevel"
-import { SquaddieItemManager } from "./squaddieItemManager"
+import { ProficiencyType } from "../proficiency/proficiencyLevel.js"
+import { SquaddieItemManager } from "./squaddieItemManager.js"
 
 describe("Squaddie Item Manager", () => {
     let manager: SquaddieItemManager

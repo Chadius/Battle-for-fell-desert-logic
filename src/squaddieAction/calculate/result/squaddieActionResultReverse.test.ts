@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { SquaddieActionResultCalculator } from "./squaddieActionResultCalculator"
-import type { SquaddieActionResult } from "./squaddieActionResult"
+import { SquaddieActionResultCalculator } from "./squaddieActionResultCalculator.js"
+import type { SquaddieActionResult } from "./squaddieActionResult.js"
 import {
     type SquaddieCondition,
     SquaddieConditionDecaysAt,
@@ -8,22 +8,22 @@ import {
     SquaddieConditionSource,
     SquaddieConditionType,
     type TSquaddieConditionType,
-} from "../../../proficiency/squaddieCondition"
+} from "../../../proficiency/squaddieCondition.js"
 import {
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
-} from "../../../coordinateMap/path/path"
-import { ApplyResultService } from "../../apply/applyResultService"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { AttributeScore } from "../../../proficiency/attributeScore"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
-import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection"
-import { CoordinateMapService } from "../../../coordinateMap/coordinateMap"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
+} from "../../../coordinateMap/path/path.js"
+import { ApplyResultService } from "../../apply/applyResultService.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { AttributeScore } from "../../../proficiency/attributeScore.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
+import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection.js"
+import { CoordinateMapService } from "../../../coordinateMap/coordinateMap.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
 
 describe("Reversing SquaddieActionResults", () => {
     describe("validation", () => {

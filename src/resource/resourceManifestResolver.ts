@@ -1,8 +1,8 @@
-import type { ResourceManifestEntry } from "./resourceManifest"
+import type { ResourceManifestEntry } from "./resourceManifest.js"
 import {
     ResourceManifestCollectionService,
     type ResourceManifestCollection,
-} from "./resourceManifestCollection"
+} from "./resourceManifestCollection.js"
 
 export function resolveResourceManifestEntry(
     collections: ResourceManifestCollection[],

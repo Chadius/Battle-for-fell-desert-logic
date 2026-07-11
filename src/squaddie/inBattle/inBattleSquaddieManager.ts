@@ -2,31 +2,31 @@ import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
     type SerializedInBattleSquaddieCollection,
-} from "./inBattleSquaddieCollection"
-import type { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager"
-import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
-import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
-import type { BattleSquaddieId, InBattleSquaddie } from "./inBattleSquaddie"
-import type { AttributeScoreType } from "../../proficiency/attributeScore"
+} from "./inBattleSquaddieCollection.js"
+import type { OutOfBattleSquaddieManager } from "../outOfBattle/outOfBattleSquaddieManager.js"
+import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie.js"
+import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet.js"
+import type { BattleSquaddieId, InBattleSquaddie } from "./inBattleSquaddie.js"
+import type { AttributeScoreType } from "../../proficiency/attributeScore.js"
 import {
     type SquaddieCondition,
     type TSquaddieConditionDecaysAt,
     type TSquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
+} from "../../proficiency/squaddieCondition.js"
 import {
     type TProficiencyLevel,
     type TProficiencyType,
-} from "../../proficiency/proficiencyLevel"
-import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager"
-import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
-import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
+} from "../../proficiency/proficiencyLevel.js"
+import type { SquaddieItemManager } from "../../squaddieItem/squaddieItemManager.js"
+import type { SquaddieItem } from "../../squaddieItem/squaddieItem.js"
+import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult.js"
 import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
-} from "../../affiliation/affiliation"
-import { type SquaddieInfo, SquaddieInfoService } from "./squaddieInfo"
-import { type SquaddieMovementInfo } from "../squaddieMovementInfo"
-import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect"
+} from "../../affiliation/affiliation.js"
+import { type SquaddieInfo, SquaddieInfoService } from "./squaddieInfo.js"
+import { type SquaddieMovementInfo } from "../squaddieMovementInfo.js"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect.js"
 
 export class InBattleSquaddieManager {
     inBattleSquaddieCollection?: InBattleSquaddieCollection

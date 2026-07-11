@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
     MovieSceneConversationCommand,
     MovieSceneConversationService,
-} from "./movieSceneConversation"
+} from "./movieSceneConversation.js"
 
 describe("MovieSceneConversationService", () => {
     describe("isComplete", () => {

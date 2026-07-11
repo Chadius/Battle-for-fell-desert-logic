@@ -2,32 +2,32 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieAction,
     SquaddieActionService,
-} from "../../squaddieAction"
-import { SquaddieActionManager } from "../../squaddieActionManager"
-import { type OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
+} from "../../squaddieAction.js"
+import { SquaddieActionManager } from "../../squaddieActionManager.js"
+import { type OutOfBattleSquaddie } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
 import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
-} from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { ProficiencyType } from "../../../proficiency/proficiencyLevel"
-import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess"
-import { SquaddieActionCollectionService } from "../../squaddieActionCollection"
-import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator"
-import { RollGenerator } from "../../calculate/roll/rollGenerator"
+} from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { ProficiencyType } from "../../../proficiency/proficiencyLevel.js"
+import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { SquaddieActionCollectionService } from "../../squaddieActionCollection.js"
+import { SquaddieActionResultCalculator } from "../../calculate/result/squaddieActionResultCalculator.js"
+import { RollGenerator } from "../../calculate/roll/rollGenerator.js"
 import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
-} from "../../../affiliation/affiliation"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
+} from "../../../affiliation/affiliation.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
 import {
     type ChallengeModifierSetting,
     ChallengeModifierSettingService,
     ChallengeModifierType,
-} from "../../calculate/challengeModifier/challengeModifierSetting"
+} from "../../calculate/challengeModifier/challengeModifierSetting.js"
 
 const GUARANTEED_MISS: [number, number] = [1, 1]
 const GUARANTEED_HIT: [number, number] = [6, 6]

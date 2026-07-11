@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     MissionObjectiveCriteriaService,
     MissionObjectiveCriteriaType,
-} from "./missionObjectiveCriteria"
-import { MissionAffiliationTurn, MissionTurnService } from "./missionTurn"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
-import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
+} from "./missionObjectiveCriteria.js"
+import { MissionAffiliationTurn, MissionTurnService } from "./missionTurn.js"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup.js"
 
 const buildManager = () => {
     const { manager: outOfBattleManager } =

@@ -1,15 +1,15 @@
-import { CoordinateGeneratorShape } from "../../../coordinateMap/shape"
-import { SquaddieAffiliationService } from "../../../affiliation/affiliation"
-import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
-import type { SquaddieAction } from "../../squaddieAction"
-import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate"
-import { ActionRangeService } from "../../actionRange"
+import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
+import { SquaddieAffiliationService } from "../../../affiliation/affiliation.js"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
+import type { SquaddieAction } from "../../squaddieAction.js"
+import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate.js"
+import { ActionRangeService } from "../../actionRange.js"
 import {
     CoordinateCalculator,
     CoordinateDirection,
-} from "../../../coordinateMap/coordinateCalculator"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+} from "../../../coordinateMap/coordinateCalculator.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 export const AoeTargetResolutionService = {
     resolveAoeTargets({

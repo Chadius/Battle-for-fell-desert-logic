@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { MovieService } from "./movie"
-import { MovieSceneImageService } from "./movieSceneImage"
-import { MovieSceneConversationService } from "./movieSceneConversation"
-import { MovieSceneType } from "./movieScene"
+import { MovieService } from "./movie.js"
+import { MovieSceneImageService } from "./movieSceneImage.js"
+import { MovieSceneConversationService } from "./movieSceneConversation.js"
+import { MovieSceneType } from "./movieScene.js"
 
 describe("MovieService.validate", () => {
     describe("when an IMAGE scene has an empty resourceManifestEntryId and no caption", () => {

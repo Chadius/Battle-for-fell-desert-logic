@@ -1,5 +1,5 @@
-import type { TSquaddieRole } from "./roles"
-import type { TSquaddieAffiliation } from "../affiliation/affiliation"
+import type { TSquaddieRole } from "./roles.js"
+import type { TSquaddieAffiliation } from "../affiliation/affiliation.js"
 
 export interface Squad {
     id: string

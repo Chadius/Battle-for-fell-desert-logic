@@ -3,21 +3,21 @@ import {
     type InBattleSquaddie,
     InBattleSquaddieService,
     type SerializedInBattleSquaddie,
-} from "./inBattleSquaddie"
+} from "./inBattleSquaddie.js"
 import {
     SquaddieConditionDecaysAt,
     SquaddieConditionService,
     SquaddieConditionSource,
     SquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
+} from "../../proficiency/squaddieCondition.js"
 import {
     type OutOfBattleSquaddie,
     OutOfBattleSquaddieService,
-} from "../outOfBattle/outOfBattleSquaddie"
-import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { SquaddieAffiliation } from "../../affiliation/affiliation"
-import { AttributeScore } from "../../proficiency/attributeScore"
-import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup"
+} from "../outOfBattle/outOfBattleSquaddie.js"
+import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet.js"
+import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
+import { AttributeScore } from "../../proficiency/attributeScore.js"
+import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
 
 describe("InBattleSquaddie", () => {
     describe("ABSORB with duration — base amount restoration", () => {

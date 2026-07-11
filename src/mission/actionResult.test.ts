@@ -3,8 +3,8 @@ import {
     type ActionResult,
     ActionResultsService,
     type SerializedActionResults,
-} from "./actionResult"
-import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
+} from "./actionResult.js"
+import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
 
 describe("ActionResultService", () => {
     describe("serialize", () => {

@@ -2,7 +2,7 @@ import {
     type CoordinateMap,
     CoordinateMapService,
     type SerializedCoordinateMap,
-} from "./coordinateMap"
+} from "./coordinateMap.js"
 
 export interface CoordinateMapCollection {
     mapById: Map<string, CoordinateMap>

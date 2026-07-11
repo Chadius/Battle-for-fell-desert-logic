@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { MissionStateService } from "./missionState"
-import { MissionObjectiveService } from "./missionObjective"
-import { MissionObjectiveRewardService } from "./missionObjectiveReward"
-import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria"
-import { SquaddieAffiliation } from "../affiliation/affiliation"
-import { MissionTurnService, MissionAffiliationTurn } from "./missionTurn"
-import { MissionHistoryService } from "./history/missionHistory"
-import { MissionDeploymentService } from "./missionDeployment"
+import { MissionStateService } from "./missionState.js"
+import { MissionObjectiveService } from "./missionObjective.js"
+import { MissionObjectiveRewardService } from "./missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "./missionObjectiveCriteria.js"
+import { SquaddieAffiliation } from "../affiliation/affiliation.js"
+import { MissionTurnService, MissionAffiliationTurn } from "./missionTurn.js"
+import { MissionHistoryService } from "./history/missionHistory.js"
+import { MissionDeploymentService } from "./missionDeployment.js"
 
 describe("MissionState", () => {
     describe("new", () => {

@@ -1,5 +1,5 @@
-import { type Squad, SquadService } from "./squad"
-import type { TSquaddieRole } from "./roles"
+import { type Squad, SquadService } from "./squad.js"
+import type { TSquaddieRole } from "./roles.js"
 
 export interface SquadCollection {
     squadsById: Map<string, Squad>

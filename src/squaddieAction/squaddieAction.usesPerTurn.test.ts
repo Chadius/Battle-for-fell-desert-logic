@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { SquaddieActionService } from "./squaddieAction"
-import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess"
+import { SquaddieActionService } from "./squaddieAction.js"
+import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
 
 const baseAction = () =>
     SquaddieActionService.new({

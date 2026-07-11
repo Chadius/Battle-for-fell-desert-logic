@@ -1,8 +1,8 @@
-import type { TSquaddieAffiliation } from "../../affiliation/affiliation"
+import type { TSquaddieAffiliation } from "../../affiliation/affiliation.js"
 import type {
     SquaddieCondition,
     TSquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
+} from "../../proficiency/squaddieCondition.js"
 
 export interface SquaddieInfo {
     name: string

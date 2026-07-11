@@ -1,17 +1,20 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection"
-import { MissionEngine } from "../missionEngine"
-import { MissionStateService } from "../../missionState"
-import { MissionAffiliationTurn, MissionTurnService } from "../../missionTurn"
-import { MissionManager } from "../../missionManager"
-import { TurnControllerType } from "../../turnController"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
+import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { MissionEngine } from "../missionEngine.js"
+import { MissionStateService } from "../../missionState.js"
+import {
+    MissionAffiliationTurn,
+    MissionTurnService,
+} from "../../missionTurn.js"
+import { MissionManager } from "../../missionManager.js"
+import { TurnControllerType } from "../../turnController.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
+import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 describe("getSquaddiesWhoCanActThisPhase", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager

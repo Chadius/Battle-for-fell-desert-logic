@@ -1,6 +1,6 @@
 import { z } from "zod"
-import type { EnumLike } from "../../enum"
-import type { OffsetCoordinate } from "../offsetCoordinate"
+import type { EnumLike } from "../../enum.js"
+import type { OffsetCoordinate } from "../offsetCoordinate.js"
 
 export const CoordinateMovePathMoveType = {
     START: "START",

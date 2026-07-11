@@ -1,6 +1,6 @@
-import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie"
-import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet"
-import { type AttributeScoreType } from "../../proficiency/attributeScore"
+import type { OutOfBattleSquaddie } from "../outOfBattle/outOfBattleSquaddie.js"
+import type { OutOfBattleSquaddieAttributeSheet } from "../outOfBattle/outOfBattleSquaddieAttributeSheet.js"
+import { type AttributeScoreType } from "../../proficiency/attributeScore.js"
 import {
     type SquaddieCondition,
     squaddieConditionSchema,
@@ -9,7 +9,7 @@ import {
     type TSquaddieConditionDecaysAt,
     type TSquaddieConditionSource,
     type TSquaddieConditionType,
-} from "../../proficiency/squaddieCondition"
+} from "../../proficiency/squaddieCondition.js"
 import { z } from "zod"
 import {
     ProficiencyLevel,
@@ -17,14 +17,14 @@ import {
     ProficiencyType,
     type TProficiencyLevel,
     type TProficiencyType,
-} from "../../proficiency/proficiencyLevel"
-import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult"
-import type { SquaddieItem } from "../../squaddieItem/squaddieItem"
-import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect"
+} from "../../proficiency/proficiencyLevel.js"
+import type { DamageResult } from "../../squaddieAction/calculate/result/squaddieActionResult.js"
+import type { SquaddieItem } from "../../squaddieItem/squaddieItem.js"
+import type { SquaddieActionEffect } from "../../squaddieAction/squaddieActionEffect.js"
 
 export const DEFAULT_ACTION_POINTS = 3
 
-export type { BattleSquaddieId } from "./battleSquaddieId"
+export type { BattleSquaddieId } from "./battleSquaddieId.js"
 
 export interface InBattleSquaddie {
     id: number

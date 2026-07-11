@@ -1,6 +1,6 @@
-import { CoordinateCalculator } from "./coordinateCalculator"
-import type { CoordinateMapCollectionManager } from "./coordinateMapManager"
-import type { OffsetCoordinate } from "./offsetCoordinate"
+import { CoordinateCalculator } from "./coordinateCalculator.js"
+import type { CoordinateMapCollectionManager } from "./coordinateMapManager.js"
+import type { OffsetCoordinate } from "./offsetCoordinate.js"
 
 export const LineOfSightService = {
     hasLineOfSight({

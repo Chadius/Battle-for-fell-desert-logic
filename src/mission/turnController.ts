@@ -1,7 +1,7 @@
-import type { TSquaddieAffiliation } from "../affiliation/affiliation"
-import { SquaddieAffiliation } from "../affiliation/affiliation"
-import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId"
-import { SquaddieIdConverterService } from "../squaddie/idConverterService"
+import type { TSquaddieAffiliation } from "../affiliation/affiliation.js"
+import { SquaddieAffiliation } from "../affiliation/affiliation.js"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
 
 export const TurnControllerType = {
     HUMAN: "HUMAN",

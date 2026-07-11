@@ -1,20 +1,20 @@
-import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager"
-import type { SquaddieActionManager } from "../../squaddieActionManager"
-import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager"
-import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator"
-import { FlankingService } from "../../../coordinateMap/flankingService"
+import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { SquaddieActionManager } from "../../squaddieActionManager.js"
+import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
+import type { SquaddieActionDecisions } from "../result/squaddieActionResultCalculator.js"
+import { FlankingService } from "../../../coordinateMap/flankingService.js"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
-} from "../../../degreesOfSuccess/degreeOfSuccess"
-import { SquaddieIdConverterService } from "../../../squaddie/idConverterService"
-import { ProbabilityLookup } from "../probabilityLookup"
-import { ProficiencyCalculator } from "../proficiencyCalculator"
+} from "../../../degreesOfSuccess/degreeOfSuccess.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
+import { ProbabilityLookup } from "../probabilityLookup.js"
+import { ProficiencyCalculator } from "../proficiencyCalculator.js"
 import {
     HowToDetermineDegreeOfSuccess,
     type SquaddieAction,
-} from "../../squaddieAction"
-import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId"
+} from "../../squaddieAction.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
 export const SquaddieActionForecastCalculator = {
     forecastChanceToHit: ({

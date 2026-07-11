@@ -2,11 +2,11 @@ import {
     type InBattleSquaddieCollection,
     InBattleSquaddieCollectionService,
     type SerializedInBattleSquaddieCollection,
-} from "../squaddie/inBattle/inBattleSquaddieCollection"
-import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import type { MissionObjective } from "./missionObjective"
-import { MissionObjectiveService } from "./missionObjective"
-import type { TMissionAffiliationTurn } from "./missionTurn"
+} from "../squaddie/inBattle/inBattleSquaddieCollection.js"
+import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import type { MissionObjective } from "./missionObjective.js"
+import { MissionObjectiveService } from "./missionObjective.js"
+import type { TMissionAffiliationTurn } from "./missionTurn.js"
 
 export interface MissionObjectiveSummary {
     id: string

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess"
+import { DegreeOfSuccess, DegreeOfSuccessService } from "./degreeOfSuccess.js"
 
 describe("Degree of Success", () => {
     const degreeTests = [

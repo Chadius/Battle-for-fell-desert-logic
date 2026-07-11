@@ -1,7 +1,7 @@
 import { z } from "zod"
-import { ActionRange, type TActionRange } from "./actionRange"
-import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo"
-import type { EnumLike } from "../enum"
+import { ActionRange, type TActionRange } from "./actionRange.js"
+import type { SquaddieMovementInfo } from "../squaddie/squaddieMovementInfo.js"
+import type { EnumLike } from "../enum.js"
 
 export const MovementEffectType = {
     ACTOR_CHOSEN: "ACTOR_CHOSEN",

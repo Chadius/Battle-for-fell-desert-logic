@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionEngine } from "../missionEngine"
+import { MissionEngine } from "../missionEngine.js"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator"
-import { MissionAffiliationTurn } from "../../missionTurn"
-import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator.js"
+import { MissionAffiliationTurn } from "../../missionTurn.js"
+import type { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 
 describe("MissionEngine serialize and deserialize", () => {
     let harness: MissionEngineTestHarness

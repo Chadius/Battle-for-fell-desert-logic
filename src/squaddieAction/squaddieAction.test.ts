@@ -3,34 +3,34 @@ import {
     HowToDetermineDegreeOfSuccess,
     MovementEffectType,
     SquaddieActionService,
-} from "./squaddieAction"
-import { ActionRange } from "./actionRange"
+} from "./squaddieAction.js"
+import { ActionRange } from "./actionRange.js"
 import {
     DegreeOfSuccess,
     type TDegreeOfSuccess,
-} from "../degreesOfSuccess/degreeOfSuccess"
+} from "../degreesOfSuccess/degreeOfSuccess.js"
 import {
     ProficiencyLevel,
     ProficiencyType,
     type TProficiencyLevel,
     type TProficiencyType,
-} from "../proficiency/proficiencyLevel"
-import { SquaddieActionForecastCalculator } from "./calculate/forecast/squaddieActionForecastCalculator"
-import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager"
-import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection"
-import { SquaddieActionManager } from "./squaddieActionManager"
-import { SquaddieActionCollectionService } from "./squaddieActionCollection"
-import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup"
+} from "../proficiency/proficiencyLevel.js"
+import { SquaddieActionForecastCalculator } from "./calculate/forecast/squaddieActionForecastCalculator.js"
+import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
+import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection.js"
+import { SquaddieActionManager } from "./squaddieActionManager.js"
+import { SquaddieActionCollectionService } from "./squaddieActionCollection.js"
+import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup.js"
 import {
     AttributeScore,
     type AttributeScoreType,
-} from "../proficiency/attributeScore"
+} from "../proficiency/attributeScore.js"
 import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
-} from "../affiliation/affiliation"
-import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager"
-import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie"
+} from "../affiliation/affiliation.js"
+import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
 
 describe("SquaddieActionService", () => {
     describe("degreesOfSuccess derivation from effectOnTarget", () => {

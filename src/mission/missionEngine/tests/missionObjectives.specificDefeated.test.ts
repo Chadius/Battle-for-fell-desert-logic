@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator"
+import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator.js"
 import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
-} from "../../../testUtils/mission/missionEngineTestHarness"
-import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria"
-import { MissionObjectiveService } from "../../missionObjective"
-import { MissionObjectiveRewardService } from "../../missionObjectiveReward"
+} from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
+import { MissionObjectiveService } from "../../missionObjective.js"
+import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
 
 // [6,6]: max-roll bump → CRITICAL → 4 damage → kills 3 HP demon (willKo=true)
 const KILL_HIT = [6, 6]

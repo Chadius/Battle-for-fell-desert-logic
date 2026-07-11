@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { MissionDeploymentService } from "./missionDeployment"
+import { MissionDeploymentService } from "./missionDeployment.js"
 
 describe("MissionDeployment", () => {
     describe("new", () => {

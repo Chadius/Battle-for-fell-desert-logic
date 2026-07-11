@@ -1,16 +1,16 @@
-import { type CoordinateMap, CoordinateMapService } from "../coordinateMap"
+import { type CoordinateMap, CoordinateMapService } from "../coordinateMap.js"
 import {
     type CoordinateMovePath,
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
     type CoordinateMovePathStep,
     type TCoordinateMovePathMoveType,
-} from "../path/path"
+} from "../path/path.js"
 import {
     type OffsetCoordinate,
     OffsetCoordinateService,
-} from "../offsetCoordinate"
-import { CoordinateCalculator } from "../coordinateCalculator"
+} from "../offsetCoordinate.js"
+import { CoordinateCalculator } from "../coordinateCalculator.js"
 
 interface VisitedCoordinate {
     row: number

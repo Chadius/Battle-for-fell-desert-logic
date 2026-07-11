@@ -2,7 +2,7 @@ import { z } from "zod"
 import {
     SquaddieAffiliation,
     type TSquaddieAffiliation,
-} from "../../affiliation/affiliation"
+} from "../../affiliation/affiliation.js"
 
 export interface OutOfBattleSquaddie {
     id: string

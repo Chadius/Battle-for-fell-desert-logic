@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { SquaddieIdConverterService } from "./idConverterService"
+import { SquaddieIdConverterService } from "./idConverterService.js"
 
 describe("Squaddie Id Converter Service", () => {
     it("can convert a squaddie id into a key", () => {

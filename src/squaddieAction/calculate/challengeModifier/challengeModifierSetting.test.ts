@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
     ChallengeModifierSettingService,
     ChallengeModifierType,
-} from "./challengeModifierSetting"
+} from "./challengeModifierSetting.js"
 
 describe("ChallengeModifierSettingService", () => {
     it("defaults to disabled for a new setting", () => {

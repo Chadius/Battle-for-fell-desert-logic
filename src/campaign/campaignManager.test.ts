@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { CampaignManager } from "./campaignManager"
-import { CampaignCollectionService } from "./campaignCollection"
-import { CampaignMissionService } from "./campaignMission"
-import type { MissionManager } from "../mission/missionManager"
+import { CampaignManager } from "./campaignManager.js"
+import { CampaignCollectionService } from "./campaignCollection.js"
+import { CampaignMissionService } from "./campaignMission.js"
+import type { MissionManager } from "../mission/missionManager.js"
 
 describe("CampaignManager", () => {
     let manager: CampaignManager
