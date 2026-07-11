@@ -15,7 +15,7 @@
         "dev": "vite",
         "format-check": "prettier --config .prettierrc.yaml --check .",
         "format-fix": "prettier --config .prettierrc.yaml --write .",
-        "clean": "rm -rf build",
+        "clean": "rm -rf build tsconfig.tsbuildinfo",
         "build": "npm run clean && tsc && vite build",
         "preview": "vite preview",
         "tsc": "npx tsc --noEmit 2>&1 | head -10",
