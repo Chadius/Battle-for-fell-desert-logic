@@ -100,6 +100,7 @@ import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outO
 import { MovieManager } from "../../movie/movieManager.js"
 import { TextSubstitutionService } from "../../movie/textSubstitution.js"
 import { MissionStatisticsService } from "../missionStatistics.js"
+import { MissionTextSubstitutionToken } from "./textSubstitutionTokens.js"
 
 export type { TMovieEngineCommand }
 
@@ -629,13 +630,13 @@ export class MissionEngine {
             missionState?.missionStatistics ?? MissionStatisticsService.new()
 
         return {
-            $$TURN_COUNT: `${missionState?.turn.turnCount ?? 0}`,
-            $$DAMAGE_DEALT_BY_PLAYER_TEAM: `${missionStatistics.damageDealtByPlayerTeam}`,
-            $$DAMAGE_TAKEN_BY_PLAYER_TEAM: `${missionStatistics.damageTakenByPlayerTeam}`,
-            $$DAMAGE_ABSORBED_BY_PLAYER_TEAM: `${missionStatistics.damageAbsorbedByPlayerTeam}`,
-            $$HEALING_RECEIVED_BY_PLAYER_TEAM: `${missionStatistics.healingReceivedByPlayerTeam}`,
-            $$CRITICAL_HITS_DEALT_BY_PLAYER_TEAM: `${missionStatistics.criticalHitsDealtByPlayerTeam}`,
-            $$CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM: `${missionStatistics.criticalHitsTakenByPlayerTeam}`,
+            [MissionTextSubstitutionToken.TURN_COUNT]: `${missionState?.turn.turnCount ?? 0}`,
+            [MissionTextSubstitutionToken.DAMAGE_DEALT_BY_PLAYER_TEAM]: `${missionStatistics.damageDealtByPlayerTeam}`,
+            [MissionTextSubstitutionToken.DAMAGE_TAKEN_BY_PLAYER_TEAM]: `${missionStatistics.damageTakenByPlayerTeam}`,
+            [MissionTextSubstitutionToken.DAMAGE_ABSORBED_BY_PLAYER_TEAM]: `${missionStatistics.damageAbsorbedByPlayerTeam}`,
+            [MissionTextSubstitutionToken.HEALING_RECEIVED_BY_PLAYER_TEAM]: `${missionStatistics.healingReceivedByPlayerTeam}`,
+            [MissionTextSubstitutionToken.CRITICAL_HITS_DEALT_BY_PLAYER_TEAM]: `${missionStatistics.criticalHitsDealtByPlayerTeam}`,
+            [MissionTextSubstitutionToken.CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM]: `${missionStatistics.criticalHitsTakenByPlayerTeam}`,
             ...extraTokens,
         }
     }
