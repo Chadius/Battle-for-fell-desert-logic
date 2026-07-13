@@ -7,6 +7,7 @@ import { SquaddieAffiliation } from "../affiliation/affiliation.js"
 import { MissionTurnService, MissionAffiliationTurn } from "./missionTurn.js"
 import { MissionHistoryService } from "./history/missionHistory.js"
 import { MissionDeploymentService } from "./missionDeployment.js"
+import { MissionStatisticsService } from "./missionStatistics.js"
 
 describe("MissionState", () => {
     describe("new", () => {
@@ -23,6 +24,7 @@ describe("MissionState", () => {
                 objectives: [],
                 turn: MissionTurnService.new(),
                 history: MissionHistoryService.new(),
+                missionStatistics: MissionStatisticsService.new(),
             })
         })
 
@@ -529,6 +531,26 @@ describe("MissionState", () => {
             )
 
             expect(deserialized.history).toEqual(state.history)
+        })
+
+        it("round-trips a MissionState with missionStatistics", () => {
+            const missionStatistics = MissionStatisticsService.new({
+                damageDealtByPlayerTeam: 4,
+                damageTakenByPlayerTeam: 2,
+                healingReceivedByPlayerTeam: 1,
+                criticalHitsDealtByPlayerTeam: 1,
+            })
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                missionStatistics,
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.missionStatistics).toEqual(missionStatistics)
         })
 
         it("deserialize throws a descriptive error for missing id", () => {

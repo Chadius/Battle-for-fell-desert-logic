@@ -28,6 +28,12 @@ import {
     MissionDeploymentService,
     type SerializedMissionDeployment,
 } from "./missionDeployment.js"
+import {
+    type MissionStatistics,
+    missionStatisticsSchema,
+    MissionStatisticsService,
+    type SerializedMissionStatistics,
+} from "./missionStatistics.js"
 
 export interface MissionState {
     id: string
@@ -35,6 +41,7 @@ export interface MissionState {
     objectives: MissionObjective[]
     turn: MissionTurn
     history?: MissionHistory
+    missionStatistics?: MissionStatistics
     overrides?: MissionStateOverrides
     deployments?: {
         required: MissionDeployment[]
@@ -48,6 +55,7 @@ export const missionStateSchema = z.object({
     objectives: z.array(missionObjectiveSchema),
     turn: missionTurnSchema,
     history: missionHistorySchema.optional(),
+    missionStatistics: missionStatisticsSchema.optional(),
     deployments: z
         .object({
             required: z.array(missionDeploymentSchema),
@@ -62,6 +70,7 @@ export type SerializedMissionState = {
     objectives: SerializedMissionObjective[]
     turn: SerializedMissionTurn
     history?: SerializedMissionHistory
+    missionStatistics?: SerializedMissionStatistics
     deployments?: {
         required: SerializedMissionDeployment[]
         completedDeploymentIds: string[]
@@ -85,6 +94,7 @@ export const MissionStateService = {
         objectives,
         turn,
         history,
+        missionStatistics,
         overrides,
         deployments,
     }: {
@@ -93,6 +103,7 @@ export const MissionStateService = {
         objectives?: MissionObjective[]
         turn?: MissionTurn
         history?: MissionHistory
+        missionStatistics?: MissionStatistics
         overrides?: MissionStateOverrides
         deployments?: { required: MissionDeployment[] }
     }): MissionState => {
@@ -114,6 +125,8 @@ export const MissionStateService = {
             objectives: objectives ?? [],
             turn: turn ?? MissionTurnService.new(),
             history: history ?? MissionHistoryService.new(),
+            missionStatistics:
+                missionStatistics ?? MissionStatisticsService.new(),
             overrides,
             deployments: deployments
                 ? {
@@ -165,6 +178,7 @@ export const MissionStateService = {
         objectives?: any[]
         turn?: any
         history?: any
+        missionStatistics?: any
     }): MissionState => {
         const parsedObjectives = data.objectives?.map((obj) =>
             MissionObjectiveService.createFromJSON(obj)
@@ -175,6 +189,9 @@ export const MissionStateService = {
         const parsedHistory = data.history
             ? MissionHistoryService.createFromJSON(data.history)
             : undefined
+        const parsedMissionStatistics = data.missionStatistics
+            ? MissionStatisticsService.createFromJSON(data.missionStatistics)
+            : undefined
 
         return MissionStateService.new({
             id: data.id,
@@ -182,6 +199,7 @@ export const MissionStateService = {
             objectives: parsedObjectives,
             turn: parsedTurn,
             history: parsedHistory,
+            missionStatistics: parsedMissionStatistics,
         })
     },
 
@@ -193,6 +211,9 @@ export const MissionStateService = {
             turn: MissionTurnService.serialize(state.turn),
             history: state.history
                 ? MissionHistoryService.serialize(state.history)
+                : undefined,
+            missionStatistics: state.missionStatistics
+                ? MissionStatisticsService.serialize(state.missionStatistics)
                 : undefined,
             deployments: state.deployments
                 ? {
@@ -232,6 +253,9 @@ export const MissionStateService = {
                   >[0]
               )
             : undefined
+        const missionStatistics = parsed.missionStatistics
+            ? MissionStatisticsService.createFromJSON(parsed.missionStatistics)
+            : undefined
 
         return {
             id: parsed.id,
@@ -239,6 +263,7 @@ export const MissionStateService = {
             objectives,
             turn,
             history,
+            missionStatistics,
             deployments: parsed.deployments
                 ? {
                       required: parsed.deployments.required.map((d) =>

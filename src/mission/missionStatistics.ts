@@ -1,4 +1,12 @@
 import { z } from "zod"
+import {
+    DegreeOfSuccess,
+    type TDegreeOfSuccess,
+} from "../degreesOfSuccess/degreeOfSuccess.js"
+import {
+    SquaddieAffiliation,
+    type TSquaddieAffiliation,
+} from "../affiliation/affiliation.js"
 
 export interface MissionStatistics {
     damageDealtByPlayerTeam: number
@@ -45,6 +53,68 @@ export const MissionStatisticsService = {
         criticalHitsDealtByPlayerTeam: criticalHitsDealtByPlayerTeam ?? 0,
         criticalHitsTakenByPlayerTeam: criticalHitsTakenByPlayerTeam ?? 0,
     }),
+
+    recordActionResult: ({
+        missionStatistics,
+        actorAffiliation,
+        targetAffiliation,
+        damageNet,
+        damageAbsorbed,
+        healingNet,
+        degreeOfSuccess,
+    }: {
+        missionStatistics: MissionStatistics
+        actorAffiliation: TSquaddieAffiliation
+        targetAffiliation: TSquaddieAffiliation
+        damageNet: number
+        damageAbsorbed: number
+        healingNet: number
+        degreeOfSuccess: TDegreeOfSuccess
+    }): MissionStatistics => {
+        let updatedMissionStatistics = missionStatistics
+
+        if (actorAffiliation === SquaddieAffiliation.PLAYER) {
+            updatedMissionStatistics =
+                MissionStatisticsService.addDamageDealtByPlayerTeam(
+                    updatedMissionStatistics,
+                    damageNet
+                )
+            if (degreeOfSuccess === DegreeOfSuccess.CRITICAL) {
+                updatedMissionStatistics =
+                    MissionStatisticsService.addCriticalHitsDealtByPlayerTeam(
+                        updatedMissionStatistics,
+                        1
+                    )
+            }
+        }
+
+        if (targetAffiliation === SquaddieAffiliation.PLAYER) {
+            updatedMissionStatistics =
+                MissionStatisticsService.addDamageTakenByPlayerTeam(
+                    updatedMissionStatistics,
+                    damageNet
+                )
+            updatedMissionStatistics =
+                MissionStatisticsService.addDamageAbsorbedByPlayerTeam(
+                    updatedMissionStatistics,
+                    damageAbsorbed
+                )
+            updatedMissionStatistics =
+                MissionStatisticsService.addHealingReceivedByPlayerTeam(
+                    updatedMissionStatistics,
+                    healingNet
+                )
+            if (degreeOfSuccess === DegreeOfSuccess.CRITICAL) {
+                updatedMissionStatistics =
+                    MissionStatisticsService.addCriticalHitsTakenByPlayerTeam(
+                        updatedMissionStatistics,
+                        1
+                    )
+            }
+        }
+
+        return updatedMissionStatistics
+    },
 
     addDamageDealtByPlayerTeam: (
         missionStatistics: MissionStatistics,

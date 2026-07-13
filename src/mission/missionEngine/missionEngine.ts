@@ -98,6 +98,8 @@ import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManage
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection.js"
 import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 import { MovieManager } from "../../movie/movieManager.js"
+import { TextSubstitutionService } from "../../movie/textSubstitution.js"
+import { MissionStatisticsService } from "../missionStatistics.js"
 
 export type { TMovieEngineCommand }
 
@@ -591,8 +593,51 @@ export class MissionEngine {
         this.recordMovieCompleteIfTerminated()
     }
 
-    getMovieStatus(): ReturnType<MovieEngine["status"]> | undefined {
-        return this.activeMovieEngine?.status()
+    getMovieStatus(
+        extraTokens?: Record<string, string>
+    ): ReturnType<MovieEngine["status"]> | undefined {
+        const status = this.activeMovieEngine?.status()
+        if (status?.currentScene?.type !== "CONVERSATION") {
+            return status
+        }
+
+        const tokens = this.textSubstitutionTokens(extraTokens)
+        return {
+            ...status,
+            currentScene: {
+                ...status.currentScene,
+                text: TextSubstitutionService.substitute(
+                    status.currentScene.text,
+                    tokens
+                ),
+                decisions: status.currentScene.decisions.map((decision) => ({
+                    ...decision,
+                    text: TextSubstitutionService.substitute(
+                        decision.text,
+                        tokens
+                    ),
+                })),
+            },
+        }
+    }
+
+    private textSubstitutionTokens(
+        extraTokens?: Record<string, string>
+    ): Record<string, string> {
+        const missionState = this.missionManager?.missionState
+        const missionStatistics =
+            missionState?.missionStatistics ?? MissionStatisticsService.new()
+
+        return {
+            $$TURN_COUNT: `${missionState?.turn.turnCount ?? 0}`,
+            $$DAMAGE_DEALT_BY_PLAYER_TEAM: `${missionStatistics.damageDealtByPlayerTeam}`,
+            $$DAMAGE_TAKEN_BY_PLAYER_TEAM: `${missionStatistics.damageTakenByPlayerTeam}`,
+            $$DAMAGE_ABSORBED_BY_PLAYER_TEAM: `${missionStatistics.damageAbsorbedByPlayerTeam}`,
+            $$HEALING_RECEIVED_BY_PLAYER_TEAM: `${missionStatistics.healingReceivedByPlayerTeam}`,
+            $$CRITICAL_HITS_DEALT_BY_PLAYER_TEAM: `${missionStatistics.criticalHitsDealtByPlayerTeam}`,
+            $$CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM: `${missionStatistics.criticalHitsTakenByPlayerTeam}`,
+            ...extraTokens,
+        }
     }
 
     previewReadiedActionAndForecastResults(): SerializedForecastedActionResult[] {
