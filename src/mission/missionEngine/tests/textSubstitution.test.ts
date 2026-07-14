@@ -21,7 +21,7 @@ const makeConversationMovie = (): Movie => ({
                         type: "DECISION",
                         prompt: {
                             "en-us": {
-                                text: "Turn $$TURN_COUNT: dealt $$DAMAGE_DEALT_BY_PLAYER_TEAM",
+                                text: "Turn {TURN_COUNT}: dealt {DAMAGE_DEALT_BY_PLAYER_TEAM}",
                             },
                         },
                         options: [
@@ -29,7 +29,7 @@ const makeConversationMovie = (): Movie => ({
                                 decisionId: "choice-a",
                                 text: {
                                     "en-us": {
-                                        text: "Healed $$HEALING_RECEIVED_BY_PLAYER_TEAM, unknown $$MYSTERY",
+                                        text: "Healed {HEALING_RECEIVED_BY_PLAYER_TEAM}, unknown {MYSTERY}",
                                     },
                                 },
                             },
@@ -53,7 +53,7 @@ const makeConversationMovieWithExtraToken = (): Movie => ({
                     {
                         type: "DECISION",
                         prompt: {
-                            "en-us": { text: "Elapsed: $$TIME_ELAPSED" },
+                            "en-us": { text: "Elapsed: {TIME_ELAPSED}" },
                         },
                         options: [
                             {
@@ -107,7 +107,7 @@ describe("MissionEngine.getMovieStatus", () => {
             }
 
             expect(currentScene.decisions[0].text).toBe(
-                "Healed 2, unknown $$MYSTERY"
+                "Healed 2, unknown {MYSTERY}"
             )
         })
     })
@@ -119,7 +119,7 @@ describe("MissionEngine.getMovieStatus", () => {
             )
 
             const status = engine.getMovieStatus({
-                $$TIME_ELAPSED: "00:01:23.000",
+                "{TIME_ELAPSED}": "00:01:23.000",
             })
 
             expect(status!.currentScene).toMatchObject({

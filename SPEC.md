@@ -328,10 +328,10 @@ Required:
   damage absorbed, healing received, critical hits dealt, critical hits taken.
 - Statistics update immutably as each action result is applied (per the architecture's "Data
   Objects are immutable" principle), not via in-place mutation.
-- A generic `$$TOKEN` text-substitution mechanism that resolves tokens like `$$TURN_COUNT` and
-  `$$DAMAGE_DEALT_BY_PLAYER_TEAM` against `MissionState`/`MissionStatistics` before dialogue text
+- A generic `{TOKEN}` text-substitution mechanism that resolves tokens like `{TURN_COUNT}` and
+  `{DAMAGE_DEALT_BY_PLAYER_TEAM}` against `MissionState`/`MissionStatistics` before dialogue text
   reaches the host application.
-- Elapsed wall-clock time (`$$TIME_ELAPSED`) is a presentation-layer concern — this engine has no
+- Elapsed wall-clock time (`{TIME_ELAPSED}`) is a presentation-layer concern — this engine has no
   frame loop — so the substitution mechanism must accept host-supplied extra tokens rather than
   the engine owning a clock.
 
@@ -470,7 +470,7 @@ Tasks:
 ### Phase 8 — Mission Statistics and Text Substitution (Gap 9)
 
 **Goal**: Dialogue text can report mission outcomes (damage, healing, critical hits, turn count) via
-`$$TOKEN` substitution, without the engine needing to own real-time clock state.
+`{TOKEN}` substitution, without the engine needing to own real-time clock state.
 
 Tasks:
 
@@ -496,13 +496,13 @@ targetAffiliation, damageNet, damageAbsorbed, healingNet, degreeOfSuccess }) →
 Record<string, string>) → string`. Do a single pass per token rather than the old prototype's
    `while (any token remains)` loop — a substituted value can never reintroduce a token, so looping
    is unneeded complexity and a latent infinite-loop risk.
-6. In `MissionEngine`, add a private token-builder mapping `$$TURN_COUNT` →
+6. In `MissionEngine`, add a private token-builder mapping `{TURN_COUNT}` →
    `missionManager.missionState.turn` and the six stat tokens → the matching `missionStatistics`
    fields (formatted as strings), reusing the old prototype's token names for continuity:
-   `$$DAMAGE_DEALT_BY_PLAYER_TEAM`, `$$DAMAGE_TAKEN_BY_PLAYER_TEAM`,
-   `$$DAMAGE_ABSORBED_BY_PLAYER_TEAM`, `$$HEALING_RECEIVED_BY_PLAYER_TEAM`,
-   `$$CRITICAL_HITS_DEALT_BY_PLAYER_TEAM`, `$$CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM`. Accept an
-   optional `extraTokens: Record<string, string>` so a host application can inject `$$TIME_ELAPSED`
+   `{DAMAGE_DEALT_BY_PLAYER_TEAM}`, `{DAMAGE_TAKEN_BY_PLAYER_TEAM}`,
+   `{DAMAGE_ABSORBED_BY_PLAYER_TEAM}`, `{HEALING_RECEIVED_BY_PLAYER_TEAM}`,
+   `{CRITICAL_HITS_DEALT_BY_PLAYER_TEAM}`, `{CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM}`. Accept an
+   optional `extraTokens: Record<string, string>` so a host application can inject `{TIME_ELAPSED}`
    or other presentation-layer values without the engine tracking a clock.
 7. Run substitution over `ConversationSceneStatus.text` and `DecisionLine` prompt/option text at
    the `MissionEngine.getMovieStatus()` boundary (not inside `MovieSceneConversationService`) so
