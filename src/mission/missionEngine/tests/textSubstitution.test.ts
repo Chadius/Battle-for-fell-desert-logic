@@ -53,7 +53,9 @@ const makeConversationMovieWithExtraToken = (): Movie => ({
                     {
                         type: "DECISION",
                         prompt: {
-                            "en-us": { text: "Elapsed: {TIME_ELAPSED}" },
+                            "en-us": {
+                                text: "Elapsed: {timeFormat(TIME_ELAPSED, mm:ss)}",
+                            },
                         },
                         options: [
                             {
@@ -119,11 +121,11 @@ describe("MissionEngine.getMovieStatus", () => {
             )
 
             const status = engine.getMovieStatus({
-                "{TIME_ELAPSED}": "00:01:23.000",
+                TIME_ELAPSED: "83000",
             })
 
             expect(status!.currentScene).toMatchObject({
-                text: "Elapsed: 00:01:23.000",
+                text: "Elapsed: 01:23",
             })
         })
     })

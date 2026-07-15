@@ -1,5 +1,7 @@
 import type {
+    ConversationLine,
     DialogLine,
+    LocalizedText,
     MovieSceneConversation,
 } from "./movieSceneConversation.js"
 import {
@@ -7,6 +9,7 @@ import {
     MovieSceneService,
     MovieSceneType,
 } from "./movieScene.js"
+import { TextSubstitutionService } from "./textSubstitution.js"
 
 export interface Movie {
     id: string
@@ -26,6 +29,7 @@ export const MovieService = {
             ...conflictErrors(movie),
             ...cycleErrors(movie),
             ...imagePlaceholderErrors(movie),
+            ...textSubstitutionErrors(movie),
         ]
         const warnings = [...conversationDialogWarnings(movie)]
         return { isValid: errors.length === 0, errors, warnings }
@@ -212,6 +216,63 @@ const conflictErrors = (movie: Movie): string[] => {
     }
     return errors
 }
+
+const textSubstitutionErrors = (movie: Movie): string[] => {
+    const errors: string[] = []
+    for (const movieScene of movie.scenes) {
+        if (movieScene.type !== MovieSceneType.CONVERSATION) continue
+        for (let index = 0; index < movieScene.data.lines.length; index++) {
+            errors.push(
+                ...conversationLineTextSubstitutionErrors(
+                    movieScene.data.id,
+                    index,
+                    movieScene.data.lines[index]
+                )
+            )
+        }
+    }
+    return errors
+}
+
+const conversationLineTextSubstitutionErrors = (
+    sceneId: string,
+    lineIndex: number,
+    conversationLine: ConversationLine
+): string[] => {
+    if (conversationLine.type === "DIALOG") {
+        return localizedTextSubstitutionErrors(
+            sceneId,
+            lineIndex,
+            conversationLine.text
+        )
+    }
+    return [
+        ...localizedTextSubstitutionErrors(
+            sceneId,
+            lineIndex,
+            conversationLine.prompt
+        ),
+        ...conversationLine.options.flatMap((decisionOption) =>
+            localizedTextSubstitutionErrors(
+                sceneId,
+                lineIndex,
+                decisionOption.text
+            )
+        ),
+    ]
+}
+
+const localizedTextSubstitutionErrors = (
+    sceneId: string,
+    lineIndex: number,
+    localizedText: LocalizedText
+): string[] =>
+    Object.entries(localizedText).flatMap(([languageCode, entry]) =>
+        TextSubstitutionService.validate(entry.text).map(
+            (message) =>
+                `scene '${sceneId}' line ${lineIndex} (${languageCode}): ${message}`
+        )
+    )
 
 const imagePlaceholderErrors = (movie: Movie): string[] =>
     movie.scenes.flatMap((movieScene) => {
