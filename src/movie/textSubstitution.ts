@@ -1,30 +1,31 @@
 import { ExpressionParserService } from "./textSubstitution/expressionParser.js"
 import { ExpressionValueService } from "./textSubstitution/expressionValue.js"
 
-interface BraceExpressionHandlers {
-    onLiteral: (literal: string) => void
-    onExpression: (expressionText: string) => void
-}
+type BraceSegment =
+    | { kind: "literal"; text: string }
+    | { kind: "expression"; text: string }
+    | { kind: "unmatchedBrace"; text: string }
 
 const IDENTIFIER_ONLY_REGEX = /^[A-Za-z_][A-Za-z0-9_]*$/
 const PERMISSIVE_TOKEN_VALUE = "0"
 
 export const TextSubstitutionService = {
-    substitute: (text: string, tokens: Record<string, string>): string => {
-        let substitutedText = ""
-        forEachBraceExpression(text, {
-            onLiteral: (literal) => {
-                substitutedText += literal
-            },
-            onExpression: (expressionText) => {
-                substitutedText += TextSubstitutionService.resolveExpression(
-                    expressionText,
-                    tokens
-                )
-            },
-        })
-        return substitutedText
-    },
+    substitute: (text: string, tokens: Record<string, string>): string =>
+        braceSegments(text)
+            .map((segment) => {
+                switch (segment.kind) {
+                    case "literal":
+                        return segment.text
+                    case "unmatchedBrace":
+                        return segment.text
+                    case "expression":
+                        return TextSubstitutionService.resolveExpression(
+                            segment.text,
+                            tokens
+                        )
+                }
+            })
+            .join(""),
 
     resolveExpression: (
         expressionText: string,
@@ -47,39 +48,56 @@ export const TextSubstitutionService = {
     // mission ever supplies the actual tokens. Unresolved bare identifiers are
     // not errors here — see resolveExpression's pass-through behavior — since
     // token existence can't be checked without mission-specific context.
-    validate: (text: string): string[] => {
-        const errors: string[] = []
-        forEachBraceExpression(text, {
-            onLiteral: () => {},
-            onExpression: (expressionText) => {
-                const error = expressionSyntaxError(expressionText)
-                if (error !== undefined) errors.push(error)
-            },
-        })
-        return errors
-    },
+    validate: (text: string): string[] =>
+        braceSegments(text).flatMap((segment) => {
+            if (segment.kind === "unmatchedBrace") {
+                return [
+                    `[TextSubstitutionService.validate]: unclosed expression, missing '}' for "${segment.text}"`,
+                ]
+            }
+            if (segment.kind === "expression") {
+                const error = expressionSyntaxError(segment.text)
+                return error === undefined ? [] : [error]
+            }
+            return []
+        }),
 }
 
-const forEachBraceExpression = (
-    text: string,
-    handlers: BraceExpressionHandlers
-): void => {
+const braceSegments = (text: string): BraceSegment[] => {
+    const segments: BraceSegment[] = []
     let cursor = 0
 
     while (cursor < text.length) {
         const openBraceIndex = text.indexOf("{", cursor)
-        const closeBraceIndex =
-            openBraceIndex === -1 ? -1 : text.indexOf("}", openBraceIndex)
-
-        if (openBraceIndex === -1 || closeBraceIndex === -1) {
-            handlers.onLiteral(text.slice(cursor))
-            return
+        if (openBraceIndex === -1) {
+            segments.push({ kind: "literal", text: text.slice(cursor) })
+            return segments
         }
 
-        handlers.onLiteral(text.slice(cursor, openBraceIndex))
-        handlers.onExpression(text.slice(openBraceIndex + 1, closeBraceIndex))
+        const closeBraceIndex = text.indexOf("}", openBraceIndex)
+        if (closeBraceIndex === -1) {
+            segments.push({
+                kind: "literal",
+                text: text.slice(cursor, openBraceIndex),
+            })
+            segments.push({
+                kind: "unmatchedBrace",
+                text: text.slice(openBraceIndex),
+            })
+            return segments
+        }
+
+        segments.push({
+            kind: "literal",
+            text: text.slice(cursor, openBraceIndex),
+        })
+        segments.push({
+            kind: "expression",
+            text: text.slice(openBraceIndex + 1, closeBraceIndex),
+        })
         cursor = closeBraceIndex + 1
     }
+    return segments
 }
 
 const expressionSyntaxError = (expressionText: string): string | undefined => {

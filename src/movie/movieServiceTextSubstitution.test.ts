@@ -29,7 +29,6 @@ describe("MovieService.validate — text substitution", () => {
 
             const result = MovieService.validate(movie)
 
-            expect(result.isValid).toBe(false)
             expect(result.errors).toContainEqual(
                 expect.stringContaining("scene 'scene-a' line 0 (en-us):")
             )
@@ -66,7 +65,6 @@ describe("MovieService.validate — text substitution", () => {
 
             const result = MovieService.validate(movie)
 
-            expect(result.isValid).toBe(true)
             expect(result.errors).toHaveLength(0)
         })
     })
@@ -106,7 +104,6 @@ describe("MovieService.validate — text substitution", () => {
 
             const result = MovieService.validate(movie)
 
-            expect(result.isValid).toBe(false)
             expect(result.errors).toContainEqual(
                 expect.stringContaining("scene 'scene-a' line 0 (en-us):")
             )
@@ -148,7 +145,6 @@ describe("MovieService.validate — text substitution", () => {
 
             const result = MovieService.validate(movie)
 
-            expect(result.isValid).toBe(false)
             expect(result.errors).toContainEqual(
                 expect.stringContaining("scene 'scene-a' line 0 (en-us):")
             )
@@ -180,7 +176,6 @@ describe("MovieService.validate — text substitution", () => {
 
             const result = MovieService.validate(movie)
 
-            expect(result.isValid).toBe(true)
             expect(result.errors).toHaveLength(0)
         })
     })

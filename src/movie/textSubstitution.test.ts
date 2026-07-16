@@ -157,6 +157,15 @@ describe("TextSubstitutionService.validate", () => {
                 "{TOKEN ? Many : A few}"
             )
             expect(errors).toHaveLength(1)
+            expect(errors[0]).toContain("[TextSubstitutionService.substitute]")
+        })
+    })
+
+    describe("when an expression is missing its closing brace", () => {
+        it("reports an error instead of silently treating it as literal text", () => {
+            const errors = TextSubstitutionService.validate("{round(1)")
+            expect(errors).toHaveLength(1)
+            expect(errors[0]).toContain("[TextSubstitutionService.validate]")
         })
     })
 })
