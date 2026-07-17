@@ -316,6 +316,62 @@ Required:
 - Each Manager exposes `serialize()` / `deserialize()` methods producing plain JSON-compatible objects.
 - `MissionEngine` serializes its complete state so the host application can pause and resume.
 
+### Gap 9 — Mission Statistics and Dialogue Text Substitution
+
+Mission dialogue (via the Movie engine) has no way to report what happened during the mission —
+damage dealt, healing received, turn count, and similar per-mission totals cannot be shown to the
+player in a post-mission report or mid-mission cutscene.
+
+Required:
+
+- A `MissionStatistics` data object tracking PLAYER-affiliation totals: damage dealt, damage taken,
+  damage absorbed, healing received, critical hits dealt, critical hits taken.
+- Statistics update immutably as each action result is applied (per the architecture's "Data
+  Objects are immutable" principle), not via in-place mutation.
+- A generic `{TOKEN}` text-substitution mechanism that resolves tokens like `{TURN_COUNT}` and
+  `{DAMAGE_DEALT_BY_PLAYER_TEAM}` against `MissionState`/`MissionStatistics` before dialogue text
+  reaches the host application.
+- Elapsed wall-clock time (`{TIME_ELAPSED}`) is a presentation-layer concern — this engine has no
+  frame loop — so the substitution mechanism must accept host-supplied extra tokens rather than
+  the engine owning a clock.
+
+#### Token Expression Syntax
+
+`{...}` is not limited to a bare token name — it accepts a small expression language so dialogue
+authors can do simple arithmetic and branching without host-application preprocessing:
+
+| Form                                  | Meaning                                                                                                                                                                                                                                                                                       |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `{TOKEN}`                             | Plain substitution. If `TOKEN` is unresolved, the literal text is left untouched (unchanged from the original behavior).                                                                                                                                                                      |
+| `{TOKEN + 1}`                         | Arithmetic: `+`, `-`, `/`, `*`, `%`. Requires numeric token values.                                                                                                                                                                                                                           |
+| `{(TOKEN * 2) + 1}`                   | Parentheses nest to control evaluation order.                                                                                                                                                                                                                                                 |
+| `{TOKEN > 2 ? Many : A few}`          | Ternary comparison. Operators: `>`, `<`, `=`, `==`, `<=`, `>=`, `!=`. The two branches are literal text, output verbatim (not re-evaluated).                                                                                                                                                  |
+| `{plural(TOKEN) ? cat : cats}`        | `plural(x)` is true when `x === 1`, so the ternary's first branch is the singular form.                                                                                                                                                                                                       |
+| `{ordinal(TOKEN)}`                    | Converts an integer to its ordinal string: `1st`, `2nd`, `3rd`, `4th`, `11th`, `21st`, etc.                                                                                                                                                                                                   |
+| `{round(TOKEN)}`, `{round(TOKEN, 2)}` | `round()`, `floor()`, `ceil()` take a number and an optional decimal-place count (default `0`, so `round(TOKEN)` and `round(TOKEN, 0)` are equivalent).                                                                                                                                       |
+| `{timeFormat(TOKEN, hh:mm:ss.SSS)}`   | Formats a millisecond count using `h`/`m`/`s`/`S` run-length placeholders (e.g. `SSS` = zero-padded milliseconds, `mm` = zero-padded minutes including any hour overflow if `h` is absent from the pattern). The pattern's second argument is a raw literal string, not itself an expression. |
+
+Unlike a bare `{TOKEN}`, any expression that fails to parse or resolve (unknown identifier used in
+an operation, non-numeric value used where a number is required, unbalanced parentheses, a missing
+ternary `:`, etc.) throws rather than silently passing the text through — this is meant to surface
+dialogue-authoring mistakes early rather than let them ship silently.
+
+Numeric results that aren't the direct output of `round`/`floor`/`ceil` (e.g. a bare `{TOKEN / 3}`)
+are displayed rounded to 2 decimal places, with trailing zeros trimmed (`6.5`, not `6.50`).
+
+`TextSubstitutionService.validate(text)` lets a host UI check dialogue text for malformed
+expressions (e.g. `{TOKEN+}`) ahead of time, without needing real token values and without
+throwing — it returns a list of error messages (empty if the text is well-formed) so a dialogue
+editor can flag the mistake at authoring time instead of at substitution time. `MovieService.validate`
+calls it on every DIALOG line and DECISION prompt/option in a movie's conversation scenes, prefixing
+each message with the scene id, line index, and language code. A bare unresolved token (e.g.
+`{MYSTERY}`) is never reported as an error here, matching `substitute`'s pass-through behavior —
+token existence can't be checked without mission-specific context that the movie layer doesn't have.
+
+Token identifiers referenced inside an expression (e.g. the `TOKEN` in `{TOKEN + 1}`) are written
+without braces — the outer `{...}` pair is the only structural delimiter, so token catalog values
+(see `MissionTextSubstitutionToken`) are bare names like `TURN_COUNT`, not `{TURN_COUNT}`.
+
 ---
 
 ## Test Harness Mission
@@ -447,6 +503,57 @@ Tasks:
 1. Each Manager implements `serialize() → SerializedT` and a static `deserialize(data) → Manager`.
 2. `MissionEngine` exposes `serialize()` and static `MissionEngine.deserialize(data)`.
 3. Tests: serialize then deserialize yields identical state; actions can continue after reload.
+
+### Phase 8 — Mission Statistics and Text Substitution (Gap 9)
+
+**Goal**: Dialogue text can report mission outcomes (damage, healing, critical hits, turn count) via
+`{TOKEN}` substitution, without the engine needing to own real-time clock state.
+
+Tasks:
+
+1. Add a `MissionStatistics` data object (`src/mission/missionStatistics.ts`) with fields
+   `damageDealtByPlayerTeam`, `damageTakenByPlayerTeam`, `damageAbsorbedByPlayerTeam`,
+   `healingReceivedByPlayerTeam`, `criticalHitsDealtByPlayerTeam`, `criticalHitsTakenByPlayerTeam`.
+   `MissionStatisticsService.new()` defaults all fields to 0; every update function returns a new
+   `MissionStatistics` — immutable, unlike the mutable class-based version in the old prototype
+   (`2022-10-14 Torrin Demo/src/battle/missionStatistics/missionStatistics.ts`).
+2. Add `MissionState.missionStatistics?: MissionStatistics`, initialized when the mission starts.
+   Add the field to `missionStateSchema` and to `MissionStateService.serialize()` / `deserialize()`.
+3. Add `MissionStatisticsService.recordActionResult({ missionStatistics, actorAffiliation,
+targetAffiliation, damageNet, damageAbsorbed, healingNet, degreeOfSuccess }) → MissionStatistics`.
+   Only PLAYER-affiliation actors/targets update the stats (matches the old prototype's scope;
+   tracking ALLY/ENEMY/NONE stats is a future extension, not required for parity).
+4. Call `recordActionResult` once per target from wherever `MissionManager.useActionAndGetResults`
+   resolves its `targetResults` map (it already carries `degreeOfSuccess` and
+   `squaddieActionResults` per target; look up each squaddie's affiliation via
+   `InBattleSquaddieManager.getSquaddieAffiliation`). Sum `damage.net` / `damage.absorbed` and
+   `healing.net` across a target's `squaddieActionResults` before recording. Increment the
+   critical-hit counters when `degreeOfSuccess === DegreeOfSuccess.CRITICAL`.
+5. Add `src/movie/textSubstitution.ts`: `TextSubstitutionService.substitute(text, tokens:
+Record<string, string>) → string`. Do a single pass per token rather than the old prototype's
+   `while (any token remains)` loop — a substituted value can never reintroduce a token, so looping
+   is unneeded complexity and a latent infinite-loop risk.
+6. In `MissionEngine`, add a private token-builder mapping `{TURN_COUNT}` →
+   `missionManager.missionState.turn` and the six stat tokens → the matching `missionStatistics`
+   fields (formatted as strings), reusing the old prototype's token names for continuity:
+   `{DAMAGE_DEALT_BY_PLAYER_TEAM}`, `{DAMAGE_TAKEN_BY_PLAYER_TEAM}`,
+   `{DAMAGE_ABSORBED_BY_PLAYER_TEAM}`, `{HEALING_RECEIVED_BY_PLAYER_TEAM}`,
+   `{CRITICAL_HITS_DEALT_BY_PLAYER_TEAM}`, `{CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM}`. Accept an
+   optional `extraTokens: Record<string, string>` so a host application can inject `{TIME_ELAPSED}`
+   or other presentation-layer values without the engine tracking a clock.
+7. Run substitution over `ConversationSceneStatus.text` and `DecisionLine` prompt/option text at
+   the `MissionEngine.getMovieStatus()` boundary (not inside `MovieSceneConversationService`) so
+   the `movie` layer doesn't need to import from `mission`.
+8. Tests: stats accumulate correctly across multiple actions and turns; only PLAYER-affiliation
+   damage/healing/critical-hits are counted; substitution resolves multiple and duplicate tokens in
+   one string; unresolved tokens are left as-is; `missionStatistics` round-trips through
+   serialize/deserialize.
+
+> **Superseded**: step 5's single-pass split/join implementation was later replaced by a small
+> expression parser (`src/movie/textSubstitution/expressionParser.ts`) so `{...}` can hold
+> arithmetic, comparisons, ternaries, and helper functions — see "Token Expression Syntax" above.
+> Token identifiers are now bare names (`TURN_COUNT`, not `{TURN_COUNT}`); the braces are structural
+> syntax owned by the substitution engine rather than part of each token's identity.
 
 ---
 

@@ -57,6 +57,9 @@ import {
 } from "../proficiency/squaddieCondition.js"
 import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
 import { MovieManager } from "../movie/movieManager.js"
+import { MissionStatisticsService } from "./missionStatistics.js"
+import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
+import type { TargetResult } from "./targetResult.js"
 import {
     type ChallengeModifierSetting,
     ChallengeModifierSettingService,
@@ -228,9 +231,17 @@ export class MissionManager {
             })
 
         const fullAction = this.squaddieActionManager!.get(action.id)
+        const actorAffiliation =
+            this.inBattleSquaddieManager!.getSquaddieAffiliation(actor)
+        const targetsByKey = new Map(
+            targets.map((target) => [
+                SquaddieIdConverterService.squaddieIdToKey(target),
+                target,
+            ])
+        )
 
         for (const [
-            _targetKey,
+            targetKey,
             targetResult,
         ] of calculationResults.targetResults) {
             ApplyResultService.applyResultsToSquaddies({
@@ -248,6 +259,12 @@ export class MissionManager {
                     results: targetResult.squaddieActionResults,
                 })
             }
+
+            this.recordMissionStatisticsForTarget({
+                actorAffiliation,
+                target: targetsByKey.get(targetKey)!,
+                targetResult,
+            })
         }
         this.removeDefeatedSquaddiesFromMap(actor, targets)
         this.applyMultipleAttackPenalty(fullAction, actor)
@@ -385,6 +402,54 @@ export class MissionManager {
             ...this.missionState!,
             history: updatedHistory,
         }
+    }
+
+    private recordMissionStatisticsForTarget({
+        actorAffiliation,
+        target,
+        targetResult,
+    }: {
+        actorAffiliation: TSquaddieAffiliation
+        target: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
+        targetResult: TargetResult
+    }): void {
+        const targetAffiliation =
+            this.inBattleSquaddieManager!.getSquaddieAffiliation(target)
+        const { damageNet, damageAbsorbed, healingNet } =
+            MissionManager.damageAndHealingTotals(
+                targetResult.squaddieActionResults
+            )
+
+        this.missionState = {
+            ...this.missionState!,
+            missionStatistics: MissionStatisticsService.recordActionResult({
+                missionStatistics:
+                    this.missionState!.missionStatistics ??
+                    MissionStatisticsService.new(),
+                actorAffiliation,
+                targetAffiliation,
+                damageNet,
+                damageAbsorbed,
+                healingNet,
+                degreeOfSuccess: targetResult.degreeOfSuccess,
+            }),
+        }
+    }
+
+    private static damageAndHealingTotals(results: SquaddieActionResult[]): {
+        damageNet: number
+        damageAbsorbed: number
+        healingNet: number
+    } {
+        return results.reduce(
+            (totals, result) => ({
+                damageNet: totals.damageNet + (result.damage?.net ?? 0),
+                damageAbsorbed:
+                    totals.damageAbsorbed + (result.damage?.absorbed ?? 0),
+                healingNet: totals.healingNet + (result.healing?.net ?? 0),
+            }),
+            { damageNet: 0, damageAbsorbed: 0, healingNet: 0 }
+        )
     }
 
     getTotalActionCount(): number {
