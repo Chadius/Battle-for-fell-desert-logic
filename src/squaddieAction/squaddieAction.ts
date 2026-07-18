@@ -85,6 +85,7 @@ export interface SquaddieAction {
     effectOnTarget?: DegreeOfSuccessEffects
     cooldownTurns?: number
     usesPerTurn?: number
+    usesPerMission?: number
 }
 
 const WEAPON_PROFICIENCY_TYPES: ReadonlySet<TProficiencyType> = new Set([
@@ -132,6 +133,7 @@ export const squaddieActionSchema = z.object({
     effectOnTarget: degreeOfSuccessEffectsSchema.optional(),
     cooldownTurns: z.number().int().min(1).optional(),
     usesPerTurn: z.number().int().min(1).optional(),
+    usesPerMission: z.number().int().min(1).optional(),
 })
 
 export type SerializedSquaddieAction = z.infer<typeof squaddieActionSchema>
@@ -176,6 +178,7 @@ const serializeSquaddieAction = (
             : serializeDegreeOfSuccessEffects(action.effectOnTarget),
     cooldownTurns: action.cooldownTurns,
     usesPerTurn: action.usesPerTurn,
+    usesPerMission: action.usesPerMission,
 })
 
 export const SquaddieActionService = {
@@ -199,6 +202,7 @@ export const SquaddieActionService = {
         multipleAttackPenalty,
         cooldownTurns,
         usesPerTurn,
+        usesPerMission,
     }: Omit<Partial<SquaddieAction>, "multipleAttackPenalty"> &
         Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
         Partial<SquaddieActionTargeting> & {
@@ -218,6 +222,14 @@ export const SquaddieActionService = {
         ) {
             throw new Error(
                 `[SquaddieActionService.new]: usesPerTurn must be a positive integer, got ${usesPerTurn}`
+            )
+        }
+        if (
+            usesPerMission != undefined &&
+            (!Number.isInteger(usesPerMission) || usesPerMission < 1)
+        ) {
+            throw new Error(
+                `[SquaddieActionService.new]: usesPerMission must be a positive integer, got ${usesPerMission}`
             )
         }
         const resolvedProficiency = proficiency ?? ProficiencyType.UNKNOWN
@@ -259,6 +271,7 @@ export const SquaddieActionService = {
             effectOnTarget,
             cooldownTurns,
             usesPerTurn,
+            usesPerMission,
         }
     },
     defaultEndTurn: (): SquaddieAction => {

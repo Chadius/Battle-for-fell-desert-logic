@@ -63,6 +63,7 @@ export const MissionEngineTestHarnessIds = {
         healActionId: "lini-heal",
         solarSphereActionId: "lini-solar-sphere",
         limitedBlastActionId: "lini-limited-blast",
+        limitedMissionActionId: "lini-limited-mission-blast",
     },
     slitherDemon: {
         outOfBattleSquaddieId: "slither-demon",
@@ -247,6 +248,9 @@ export class MissionEngineTestHarness extends MissionEngine {
         manager.addOrUpdate(MissionEngineTestHarness.createHealAction())
         manager.addOrUpdate(MissionEngineTestHarness.createSolarSphereAction())
         manager.addOrUpdate(MissionEngineTestHarness.createLimitedBlastAction())
+        manager.addOrUpdate(
+            MissionEngineTestHarness.createLimitedMissionAction()
+        )
         manager.addOrUpdate(MissionEngineTestHarness.createClawAction())
         manager.addOrUpdate(SquaddieActionService.defaultMove())
         manager.addOrUpdate(SquaddieActionService.defaultEndTurn())
@@ -473,6 +477,26 @@ export class MissionEngineTestHarness extends MissionEngine {
         })
     }
 
+    private static createLimitedMissionAction(): SquaddieAction {
+        return SquaddieActionService.new({
+            id: MissionEngineTestHarnessIds.lini.limitedMissionActionId,
+            name: "Limited Mission Blast",
+            usesPerMission: 2,
+            range: ActionRange.MELEE,
+            shape: CoordinateGeneratorShape.BLOOM,
+            affiliationRelationship: {
+                self: true,
+                foe: false,
+                friend: false,
+            },
+            effectOnActor: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 1 },
+                },
+            },
+        })
+    }
+
     private static createClawAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.slitherDemon.clawActionId,
@@ -543,6 +567,7 @@ export class MissionEngineTestHarness extends MissionEngine {
                 MissionEngineTestHarnessIds.lini.healActionId,
                 MissionEngineTestHarnessIds.lini.solarSphereActionId,
                 MissionEngineTestHarnessIds.lini.limitedBlastActionId,
+                MissionEngineTestHarnessIds.lini.limitedMissionActionId,
             ],
             affiliation: SquaddieAffiliation.PLAYER,
         })
