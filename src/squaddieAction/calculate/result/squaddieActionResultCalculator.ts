@@ -157,6 +157,7 @@ export const SquaddieActionResultCalculator = {
                       battleSquaddieId: actor,
                       actionId: action.id,
                       usesPerTurn: squaddieAction.usesPerTurn,
+                      usesPerMission: squaddieAction.usesPerMission,
                   }),
               ]
             : []
@@ -518,12 +519,14 @@ const calculateActionUseResult = ({
     battleSquaddieId,
     actionId,
     usesPerTurn,
+    usesPerMission,
 }: {
     battleSquaddieId: BattleSquaddieId
     actionId: string
     usesPerTurn: number | undefined
+    usesPerMission: number | undefined
 }): SquaddieActionResult[] => {
-    if (usesPerTurn == undefined) return []
+    if (usesPerTurn == undefined && usesPerMission == undefined) return []
     return [
         {
             inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,

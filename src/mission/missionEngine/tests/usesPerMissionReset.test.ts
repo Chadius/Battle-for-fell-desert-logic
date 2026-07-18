@@ -17,11 +17,19 @@ describe("usesPerMissionReset", () => {
         harness.advanceToPlayerTurn()
     })
 
-    describe("when Lini exhausts a mission-limited action across two separate turns", () => {
+    const useLimitedMissionAction = () => {
+        harness.readyAction({
+            actor: liniId,
+            targets: [liniId],
+            action: { id: actionId },
+        })
+        harness.useActionAndGetResults()
+    }
+
+    describe("when Lini uses a mission-limited action through the real action pipeline until she reaches the mission-wide cap", () => {
         beforeEach(() => {
-            harness.recordActionUse(liniId, actionId)
-            harness.endSquaddieTurn(liniId)
-            harness.recordActionUse(liniId, actionId)
+            useLimitedMissionAction()
+            useLimitedMissionAction()
         })
 
         it("the action is invalid for the rest of the turn", () => {
