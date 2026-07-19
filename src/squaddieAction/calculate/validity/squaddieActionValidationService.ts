@@ -52,6 +52,7 @@ export interface InvalidSquaddieAction {
     apCost?: ActionPointCost
     cooldownTurns?: number
     usesPerTurn?: number
+    usesPerMission?: number
 }
 
 export interface ValidSquaddieAction {
@@ -62,6 +63,7 @@ export interface ValidSquaddieAction {
     apCost?: ActionPointCost
     cooldownTurns?: number
     usesPerTurn?: number
+    usesPerMission?: number
 }
 
 export interface SquaddieActionValidity {
@@ -124,13 +126,22 @@ export const SquaddieActionValidationService = {
             return cooldownValidation
         }
 
-        const usesValidation = validateActionUsesPerTurn({
+        const usesPerTurnValidation = validateActionUsesPerTurn({
             actor,
             squaddieAction,
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
         })
-        if (!usesValidation.isValid) {
-            return usesValidation
+        if (!usesPerTurnValidation.isValid) {
+            return usesPerTurnValidation
+        }
+
+        const usesPerMissionValidation = validateActionUsesPerMission({
+            actor,
+            squaddieAction,
+            inBattleSquaddieManager: managers.inBattleSquaddieManager,
+        })
+        if (!usesPerMissionValidation.isValid) {
+            return usesPerMissionValidation
         }
 
         if (
@@ -399,39 +410,53 @@ export const SquaddieActionValidationService = {
             if (!managers.squaddieActionManager.has(actionId)) continue
             const squaddieAction = managers.squaddieActionManager.get(actionId)
 
+            const apCost =
+                squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
+
+            const commonActionFields = {
+                actionId,
+                actionName: squaddieAction.name,
+                apCost,
+                cooldownTurns: squaddieAction.cooldownTurns,
+                usesPerTurn: squaddieAction.usesPerTurn,
+                usesPerMission: squaddieAction.usesPerMission,
+            }
+
             const cooldownValidation = validateActionCooldown({
                 actor,
                 squaddieAction,
                 inBattleSquaddieManager: managers.inBattleSquaddieManager,
             })
-            const apCost =
-                squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
-
             if (!cooldownValidation.isValid) {
                 invalidActions.push({
-                    actionId,
-                    actionName: squaddieAction.name,
+                    ...commonActionFields,
                     reason: cooldownValidation.reason!,
-                    apCost,
-                    cooldownTurns: squaddieAction.cooldownTurns,
-                    usesPerTurn: squaddieAction.usesPerTurn,
                 })
                 continue
             }
 
-            const usesValidation = validateActionUsesPerTurn({
+            const usesPerTurnValidation = validateActionUsesPerTurn({
                 actor,
                 squaddieAction,
                 inBattleSquaddieManager: managers.inBattleSquaddieManager,
             })
-            if (!usesValidation.isValid) {
+            if (!usesPerTurnValidation.isValid) {
                 invalidActions.push({
-                    actionId,
-                    actionName: squaddieAction.name,
-                    reason: usesValidation.reason!,
-                    apCost,
-                    cooldownTurns: squaddieAction.cooldownTurns,
-                    usesPerTurn: squaddieAction.usesPerTurn,
+                    ...commonActionFields,
+                    reason: usesPerTurnValidation.reason!,
+                })
+                continue
+            }
+
+            const usesPerMissionValidation = validateActionUsesPerMission({
+                actor,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+            })
+            if (!usesPerMissionValidation.isValid) {
+                invalidActions.push({
+                    ...commonActionFields,
+                    reason: usesPerMissionValidation.reason!,
                 })
                 continue
             }
@@ -442,12 +467,8 @@ export const SquaddieActionValidationService = {
             })
             if (apReason != undefined) {
                 invalidActions.push({
-                    actionId,
-                    actionName: squaddieAction.name,
+                    ...commonActionFields,
                     reason: apReason,
-                    apCost,
-                    cooldownTurns: squaddieAction.cooldownTurns,
-                    usesPerTurn: squaddieAction.usesPerTurn,
                 })
                 continue
             }
@@ -472,12 +493,8 @@ export const SquaddieActionValidationService = {
 
             if (aimCoordinateResults.length === 0) {
                 invalidActions.push({
-                    actionId,
-                    actionName: squaddieAction.name,
+                    ...commonActionFields,
                     reason: "No applicable targets in range",
-                    apCost,
-                    cooldownTurns: squaddieAction.cooldownTurns,
-                    usesPerTurn: squaddieAction.usesPerTurn,
                 })
                 continue
             }
@@ -496,24 +513,16 @@ export const SquaddieActionValidationService = {
 
             if (effectiveAimCoordinateResults.length === 0) {
                 invalidActions.push({
-                    actionId,
-                    actionName: squaddieAction.name,
+                    ...commonActionFields,
                     reason: "No targets can be affected",
-                    apCost,
-                    cooldownTurns: squaddieAction.cooldownTurns,
-                    usesPerTurn: squaddieAction.usesPerTurn,
                 })
                 continue
             }
 
             validActions.push({
-                actionId,
-                actionName: squaddieAction.name,
+                ...commonActionFields,
                 reachableCoordinates,
                 aimCoordinateResults: effectiveAimCoordinateResults,
-                apCost,
-                cooldownTurns: squaddieAction.cooldownTurns,
-                usesPerTurn: squaddieAction.usesPerTurn,
             })
         }
 
@@ -1060,6 +1069,29 @@ const validateActionUsesPerTurn = ({
         return {
             isValid: false,
             reason: `Already used ${usesThisTurn} of ${squaddieAction.usesPerTurn} time${squaddieAction.usesPerTurn === 1 ? "" : "s"} this turn`,
+        }
+    }
+    return { isValid: true }
+}
+
+const validateActionUsesPerMission = ({
+    actor,
+    squaddieAction,
+    inBattleSquaddieManager,
+}: {
+    actor: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    inBattleSquaddieManager: InBattleSquaddieManager
+}): ActionValidationResult => {
+    if (squaddieAction.usesPerMission == undefined) return { isValid: true }
+    const usesThisMission = inBattleSquaddieManager.getActionUsesThisMission({
+        battleSquaddieId: actor,
+        actionId: squaddieAction.id,
+    })
+    if (usesThisMission >= squaddieAction.usesPerMission) {
+        return {
+            isValid: false,
+            reason: `Already used ${usesThisMission} of ${squaddieAction.usesPerMission} time${squaddieAction.usesPerMission === 1 ? "" : "s"} this mission`,
         }
     }
     return { isValid: true }

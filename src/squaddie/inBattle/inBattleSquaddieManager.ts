@@ -911,6 +911,23 @@ export class InBattleSquaddieManager {
         )
     }
 
+    getActionUsesThisMission({
+        battleSquaddieId,
+        actionId,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): number {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.getActionUsesThisMission.name
+        )
+        return (
+            this.getSquaddie(
+                battleSquaddieId
+            ).inBattleSquaddie.actionUsesThisMission.get(actionId) ?? 0
+        )
+    }
+
     getPassiveItemIds(
         battleSquaddieId: BattleSquaddieId
     ): Map<
