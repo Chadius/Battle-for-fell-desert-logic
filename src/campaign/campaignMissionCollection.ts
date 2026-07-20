@@ -1,22 +1,22 @@
 import type { CampaignMission } from "./campaignMission.js"
 
-export interface CampaignCollection {
+export interface CampaignMissionCollection {
     missionsById: Map<string, CampaignMission>
 }
 
-export const CampaignCollectionService = {
-    new: (): CampaignCollection => ({ missionsById: new Map() }),
+export const CampaignMissionCollectionService = {
+    new: (): CampaignMissionCollection => ({ missionsById: new Map() }),
 
     add: ({
         collection,
-        mission,
+        campaignMission,
     }: {
-        collection: CampaignCollection
-        mission: CampaignMission
-    }): CampaignCollection => {
+        collection: CampaignMissionCollection
+        campaignMission: CampaignMission
+    }): CampaignMissionCollection => {
         throwIfCollectionIsUndefined(collection, "add")
         const newMissionsById = new Map(collection.missionsById)
-        newMissionsById.set(mission.id, mission)
+        newMissionsById.set(campaignMission.id, campaignMission)
         return { missionsById: newMissionsById }
     },
 
@@ -24,25 +24,27 @@ export const CampaignCollectionService = {
         collection,
         id,
     }: {
-        collection: CampaignCollection
+        collection: CampaignMissionCollection
         id: string
     }): CampaignMission | undefined => {
         throwIfCollectionIsUndefined(collection, "getById")
         return collection.missionsById.get(id)
     },
 
-    getAllMissions: (collection: CampaignCollection): CampaignMission[] => {
+    getAllMissions: (
+        collection: CampaignMissionCollection
+    ): CampaignMission[] => {
         throwIfCollectionIsUndefined(collection, "getAllMissions")
         return [...collection.missionsById.values()]
     },
 }
 
 const throwIfCollectionIsUndefined = (
-    collection: CampaignCollection,
+    collection: CampaignMissionCollection,
     callName: string
 ) => {
     if (collection == undefined)
         throw new Error(
-            `[CampaignCollection.${callName}]: collection must be defined`
+            `[CampaignMissionCollection.${callName}]: collection must be defined`
         )
 }

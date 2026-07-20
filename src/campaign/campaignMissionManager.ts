@@ -1,25 +1,25 @@
 import type { MissionManager } from "../mission/missionManager.js"
 import {
-    type CampaignCollection,
-    CampaignCollectionService,
-} from "./campaignCollection.js"
+    type CampaignMissionCollection,
+    CampaignMissionCollectionService,
+} from "./campaignMissionCollection.js"
 import type { CampaignMission } from "./campaignMission.js"
 
-export class CampaignManager {
-    campaignCollection?: CampaignCollection
+export class CampaignMissionManager {
+    campaignMissionCollection?: CampaignMissionCollection
     missionManagersById: Map<string, MissionManager>
     private currentMission?: MissionManager
 
-    constructor(campaignCollection?: CampaignCollection) {
-        this.campaignCollection = campaignCollection
+    constructor(campaignMissionCollection?: CampaignMissionCollection) {
+        this.campaignMissionCollection = campaignMissionCollection
         this.missionManagersById = new Map()
     }
 
-    addMission(mission: CampaignMission): void {
+    addMission(campaignMission: CampaignMission): void {
         this.throwIfCollectionIsUndefined(this.addMission.name)
-        this.campaignCollection = CampaignCollectionService.add({
-            collection: this.campaignCollection!,
-            mission,
+        this.campaignMissionCollection = CampaignMissionCollectionService.add({
+            collection: this.campaignMissionCollection!,
+            campaignMission,
         })
     }
 
@@ -44,15 +44,15 @@ export class CampaignManager {
 
     getSerializedMissions(): CampaignMission[] {
         this.throwIfCollectionIsUndefined(this.getSerializedMissions.name)
-        return CampaignCollectionService.getAllMissions(
-            this.campaignCollection!
+        return CampaignMissionCollectionService.getAllMissions(
+            this.campaignMissionCollection!
         )
     }
 
     private throwIfCollectionIsUndefined(callName: string): void {
-        if (this.campaignCollection == undefined) {
+        if (this.campaignMissionCollection == undefined) {
             throw new Error(
-                `[CampaignManager.${callName}]: campaignCollection must be defined`
+                `[CampaignMissionManager.${callName}]: campaignMissionCollection must be defined`
             )
         }
     }
@@ -60,7 +60,7 @@ export class CampaignManager {
     private throwIfMissionManagerNotFound(callName: string, id: string): void {
         if (!this.missionManagersById.has(id)) {
             throw new Error(
-                `[CampaignManager.${callName}]: mission ${id} not found`
+                `[CampaignMissionManager.${callName}]: mission ${id} not found`
             )
         }
     }

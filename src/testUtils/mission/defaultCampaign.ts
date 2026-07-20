@@ -1,5 +1,5 @@
-import { CampaignManager } from "../../campaign/campaignManager.js"
-import { CampaignCollectionService } from "../../campaign/campaignCollection.js"
+import { CampaignMissionManager } from "../../campaign/campaignMissionManager.js"
+import { CampaignMissionCollectionService } from "../../campaign/campaignMissionCollection.js"
 import { CampaignMissionService } from "../../campaign/campaignMission.js"
 import { MissionEngineTestHarness } from "./missionEngineTestHarness.js"
 import { createTargetPracticeMission } from "./targetPracticeMission.js"
@@ -17,52 +17,54 @@ export const DefaultCampaignIds = {
     mission4Name: "Sneak Attack Mission",
 } as const
 
-export function createDefaultCampaignManager(): CampaignManager {
-    const manager = new CampaignManager(CampaignCollectionService.new())
+export function createDefaultCampaignMissionManager(): CampaignMissionManager {
+    const campaignMissionManager = new CampaignMissionManager(
+        CampaignMissionCollectionService.new()
+    )
 
-    manager.addMission(
+    campaignMissionManager.addMission(
         CampaignMissionService.new({
             id: DefaultCampaignIds.mission1Id,
             name: DefaultCampaignIds.mission1Name,
         })
     )
-    manager.addMissionManager({
+    campaignMissionManager.addMissionManager({
         id: DefaultCampaignIds.mission1Id,
         missionManager: new MissionEngineTestHarness().missionManager!,
     })
 
-    manager.addMission(
+    campaignMissionManager.addMission(
         CampaignMissionService.new({
             id: DefaultCampaignIds.mission2Id,
             name: DefaultCampaignIds.mission2Name,
         })
     )
-    manager.addMissionManager({
+    campaignMissionManager.addMissionManager({
         id: DefaultCampaignIds.mission2Id,
         missionManager: createTargetPracticeMission(),
     })
 
-    manager.addMission(
+    campaignMissionManager.addMission(
         CampaignMissionService.new({
             id: DefaultCampaignIds.mission3Id,
             name: DefaultCampaignIds.mission3Name,
         })
     )
-    manager.addMissionManager({
+    campaignMissionManager.addMissionManager({
         id: DefaultCampaignIds.mission3Id,
         missionManager: createMovementTestMission().missionManager,
     })
 
-    manager.addMission(
+    campaignMissionManager.addMission(
         CampaignMissionService.new({
             id: DefaultCampaignIds.mission4Id,
             name: DefaultCampaignIds.mission4Name,
         })
     )
-    manager.addMissionManager({
+    campaignMissionManager.addMissionManager({
         id: DefaultCampaignIds.mission4Id,
         missionManager: createSneakAttackMission().missionManager,
     })
 
-    return manager
+    return campaignMissionManager
 }
