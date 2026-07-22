@@ -4,7 +4,10 @@ import type {
     TProficiencyType,
 } from "../../proficiency/proficiencyLevel.js"
 import { type AttributeScoreType } from "../../proficiency/attributeScore.js"
-import type { SquaddieMovementInfo } from "../squaddieMovementInfo.js"
+import {
+    squaddieMovementInfoSchema,
+    type SquaddieMovementInfo,
+} from "../squaddieMovementInfo.js"
 
 export interface OutOfBattleSquaddieAttributeSheet {
     id: string
@@ -20,34 +23,30 @@ export interface OutOfBattleSquaddieAttributeSheet {
     sneakAttackDamage?: number
 }
 
-const squaddieMovementSpecialTraversalInfoSchema = z.object({
-    minimumRange: z.number().optional(),
-    maximumRange: z.number().optional(),
-    actionPointsOfMovement: z.number().optional(),
-})
-
-const squaddieMovementInfoSchema = z.object({
-    movementPointsPerAction: z.number(),
-    skipOverPits: z.boolean(),
-    moveThroughWalls: z.boolean(),
-    stopOnSquaddies: z.boolean(),
-    reduceMoveCosts: z.boolean(),
-    squaddieMovementSpecialTraversalInfo:
-        squaddieMovementSpecialTraversalInfoSchema.optional(),
-})
-
 export const outOfBattleSquaddieAttributeSheetSchema = z.object({
     id: z.string().min(1),
-    maxHitPoints: z.number(),
+    maxHitPoints: z
+        .number()
+        .int("Max HP must be a positive integer")
+        .positive("Max HP must be a positive integer"),
     movement: squaddieMovementInfoSchema,
     proficiencyLevels: z.record(z.string(), z.string()),
     attributeScores: z.record(z.string(), z.number()),
     rank: z.number(),
     items: z.object({
-        maxCapacity: z.number(),
+        maxCapacity: z
+            .number()
+            .int("items.maxCapacity must be a nonnegative integer")
+            .nonnegative("items.maxCapacity must be a nonnegative integer"),
         itemIds: z.array(z.string()),
     }),
-    sneakAttackDamage: z.number().optional(),
+    sneakAttackDamage: z
+        .number()
+        .int("sneakAttackDamage is either undefined or a nonnegative integer")
+        .nonnegative(
+            "sneakAttackDamage is either undefined or a nonnegative integer"
+        )
+        .optional(),
 })
 
 export type SerializedOutOfBattleSquaddieAttributeSheet = z.infer<

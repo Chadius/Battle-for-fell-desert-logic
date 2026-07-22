@@ -145,13 +145,83 @@ describe("OutOfBattleSquaddieAttributeSheet", () => {
             ).toBe(3)
         })
 
-        it("throws on invalid data", () => {
+        it("throws when the id is empty", () => {
             expect(() =>
                 OutOfBattleSquaddieAttributeSheetService.deserialize({
                     id: "",
                     maxHitPoints: 5,
                 })
             ).toThrow("[OutOfBattleSquaddieAttributeSheetService.deserialize]")
+        })
+    })
+
+    describe("when numeric fields violate the schema's constraints", () => {
+        const validSerialized = () =>
+            OutOfBattleSquaddieAttributeSheetService.serialize(createLini())
+
+        it("rejects a non-positive maxHitPoints", () => {
+            const data = { ...validSerialized(), maxHitPoints: 0 }
+            expect(() =>
+                OutOfBattleSquaddieAttributeSheetService.deserialize(data)
+            ).toThrow("Max HP must be a positive integer")
+        })
+
+        it("rejects a non-integer maxHitPoints", () => {
+            const data = { ...validSerialized(), maxHitPoints: 1.5 }
+            expect(() =>
+                OutOfBattleSquaddieAttributeSheetService.deserialize(data)
+            ).toThrow("Max HP must be a positive integer")
+        })
+
+        it("rejects a sheet whose movement info fails validation", () => {
+            const data = validSerialized()
+            data.movement = { ...data.movement, movementPointsPerAction: -1 }
+            expect(() =>
+                OutOfBattleSquaddieAttributeSheetService.deserialize(data)
+            ).toThrow(
+                "Movement Points per action must be a nonnegative integer"
+            )
+        })
+
+        it("rejects a negative items.maxCapacity", () => {
+            const data = validSerialized()
+            data.items = { ...data.items, maxCapacity: -1 }
+            expect(() =>
+                OutOfBattleSquaddieAttributeSheetService.deserialize(data)
+            ).toThrow("items.maxCapacity must be a nonnegative integer")
+        })
+
+        it("rejects a non-integer items.maxCapacity", () => {
+            const data = validSerialized()
+            data.items = { ...data.items, maxCapacity: 2.5 }
+            expect(() =>
+                OutOfBattleSquaddieAttributeSheetService.deserialize(data)
+            ).toThrow("items.maxCapacity must be a nonnegative integer")
+        })
+
+        it("rejects a negative sneakAttackDamage", () => {
+            const data = { ...validSerialized(), sneakAttackDamage: -1 }
+            expect(() =>
+                OutOfBattleSquaddieAttributeSheetService.deserialize(data)
+            ).toThrow(
+                "sneakAttackDamage is either undefined or a nonnegative integer"
+            )
+        })
+
+        it("rejects a non-integer sneakAttackDamage", () => {
+            const data = { ...validSerialized(), sneakAttackDamage: 1.5 }
+            expect(() =>
+                OutOfBattleSquaddieAttributeSheetService.deserialize(data)
+            ).toThrow(
+                "sneakAttackDamage is either undefined or a nonnegative integer"
+            )
+        })
+
+        it("allows sneakAttackDamage to be undefined", () => {
+            const data = { ...validSerialized(), sneakAttackDamage: undefined }
+            expect(() =>
+                OutOfBattleSquaddieAttributeSheetService.deserialize(data)
+            ).not.toThrow()
         })
     })
 })
