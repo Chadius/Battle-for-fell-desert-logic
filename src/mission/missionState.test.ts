@@ -8,6 +8,11 @@ import { MissionTurnService, MissionAffiliationTurn } from "./missionTurn.js"
 import { MissionHistoryService } from "./history/missionHistory.js"
 import { MissionDeploymentService } from "./missionDeployment.js"
 import { MissionStatisticsService } from "./missionStatistics.js"
+import {
+    CampaignSquaddieDeploymentCoordinateCollectionService,
+    type CampaignSquaddieDeploymentCoordinateCollection,
+} from "./campaignSquaddieDeploymentCoordinateCollection.js"
+import { CampaignSquaddieDeploymentCoordinateService } from "./campaignSquaddieDeploymentCoordinate.js"
 
 describe("MissionState", () => {
     describe("new", () => {
@@ -129,6 +134,33 @@ describe("MissionState", () => {
             expect(state.deployments!.required).toHaveLength(1)
             expect(state.deployments!.required[0]).toBe(deployment)
             expect(state.deployments!.completedDeploymentIds).toEqual([])
+        })
+
+        it("creates a MissionState with campaignSquaddieDeploymentCoordinates", () => {
+            const campaignSquaddieDeploymentCoordinate =
+                CampaignSquaddieDeploymentCoordinateService.new({
+                    id: "slot-1",
+                    coordinate: { row: 0, col: 0 },
+                    request: { type: "NONE" },
+                })
+            const campaignSquaddieDeploymentCoordinates =
+                CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate(
+                    {
+                        collection:
+                            CampaignSquaddieDeploymentCoordinateCollectionService.new(),
+                        campaignSquaddieDeploymentCoordinate,
+                    }
+                )
+
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                campaignSquaddieDeploymentCoordinates,
+            })
+
+            expect(state.campaignSquaddieDeploymentCoordinates).toBe(
+                campaignSquaddieDeploymentCoordinates
+            )
         })
     })
 
@@ -489,6 +521,55 @@ describe("MissionState", () => {
             )
 
             expect(deserialized.deployments).toBeUndefined()
+        })
+
+        it("round-trips campaignSquaddieDeploymentCoordinates", () => {
+            let campaignSquaddieDeploymentCoordinates: CampaignSquaddieDeploymentCoordinateCollection =
+                CampaignSquaddieDeploymentCoordinateCollectionService.new()
+            campaignSquaddieDeploymentCoordinates =
+                CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate(
+                    {
+                        collection: campaignSquaddieDeploymentCoordinates,
+                        campaignSquaddieDeploymentCoordinate:
+                            CampaignSquaddieDeploymentCoordinateService.new({
+                                id: "slot-1",
+                                coordinate: { row: 0, col: 0 },
+                                request: {
+                                    type: "SPECIFIC_SQUADDIE",
+                                    campaignSquaddieId: "lini",
+                                },
+                                locked: true,
+                            }),
+                    }
+                )
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+                campaignSquaddieDeploymentCoordinates,
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.campaignSquaddieDeploymentCoordinates).toEqual(
+                campaignSquaddieDeploymentCoordinates
+            )
+        })
+
+        it("round-trips without campaignSquaddieDeploymentCoordinates", () => {
+            const state = MissionStateService.new({
+                id: "mission-1",
+                mapId: "map-1",
+            })
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(
+                deserialized.campaignSquaddieDeploymentCoordinates
+            ).toBeUndefined()
         })
 
         it("round-trips a MissionState with history", () => {

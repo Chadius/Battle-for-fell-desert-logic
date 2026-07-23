@@ -20,3 +20,5 @@ export * from "./squaddieAction/calculate/challengeModifier/challengeModifierSet
 export * from "./campaign/army/campaignSquaddie.js"
 export * from "./campaign/army/army.js"
 export * from "./campaign/army/armyManager.js"
+export * from "./mission/campaignSquaddieDeploymentCoordinate.js"
+export * from "./mission/campaignSquaddieDeploymentCoordinateCollection.js"
