@@ -64,6 +64,17 @@ describe("Campaign Squaddie", () => {
             ).toThrow("CampaignSquaddieService.new")
         })
 
+        it("rejects a blank outOfBattleSquaddieId", () => {
+            expect(() =>
+                CampaignSquaddieService.new({
+                    id: "lini",
+                    outOfBattleAttributeSheetId: "sheet-lini",
+                    outOfBattleSquaddieId: "",
+                    name: "Lini",
+                })
+            ).toThrow("CampaignSquaddieService.new")
+        })
+
         it("rejects a non-positive injury duration", () => {
             expect(() =>
                 CampaignSquaddieService.new({
