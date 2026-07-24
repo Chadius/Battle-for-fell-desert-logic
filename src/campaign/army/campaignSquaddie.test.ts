@@ -7,11 +7,13 @@ describe("Campaign Squaddie", () => {
             const campaignSquaddie = CampaignSquaddieService.new({
                 id: "lini",
                 outOfBattleAttributeSheetId: "sheet-lini",
+                outOfBattleSquaddieId: "battle-lini",
                 name: "Lini",
             })
             expect(campaignSquaddie).toEqual({
                 id: "lini",
                 outOfBattleAttributeSheetId: "sheet-lini",
+                outOfBattleSquaddieId: "battle-lini",
                 name: "Lini",
                 isLeader: false,
                 injury: undefined,
@@ -20,10 +22,23 @@ describe("Campaign Squaddie", () => {
         })
     })
 
+    describe("when outOfBattleSquaddieId is provided", () => {
+        it("carries that id on the resulting campaign squaddie", () => {
+            const campaignSquaddie = CampaignSquaddieService.new({
+                id: "lini",
+                outOfBattleAttributeSheetId: "sheet-lini",
+                outOfBattleSquaddieId: "battle-lini",
+                name: "Lini",
+            })
+            expect(campaignSquaddie.outOfBattleSquaddieId).toBe("battle-lini")
+        })
+    })
+
     it("can be constructed as a leader with a current injury and injury history", () => {
         const campaignSquaddie = CampaignSquaddieService.new({
             id: "lini",
             outOfBattleAttributeSheetId: "sheet-lini",
+            outOfBattleSquaddieId: "battle-lini",
             name: "Lini",
             isLeader: true,
             injury: { duration: 3, permanent: false },
@@ -43,6 +58,7 @@ describe("Campaign Squaddie", () => {
                 CampaignSquaddieService.new({
                     id: "",
                     outOfBattleAttributeSheetId: "sheet-lini",
+                    outOfBattleSquaddieId: "battle-lini",
                     name: "Lini",
                 })
             ).toThrow("CampaignSquaddieService.new")
@@ -53,6 +69,7 @@ describe("Campaign Squaddie", () => {
                 CampaignSquaddieService.new({
                     id: "lini",
                     outOfBattleAttributeSheetId: "sheet-lini",
+                    outOfBattleSquaddieId: "battle-lini",
                     name: "Lini",
                     injury: { duration: 0, permanent: false },
                 })
@@ -64,6 +81,7 @@ describe("Campaign Squaddie", () => {
                 CampaignSquaddieService.new({
                     id: "lini",
                     outOfBattleAttributeSheetId: "sheet-lini",
+                    outOfBattleSquaddieId: "battle-lini",
                     name: "Lini",
                     injuryHistory: [""],
                 })
@@ -76,6 +94,7 @@ describe("Campaign Squaddie", () => {
             const original = CampaignSquaddieService.new({
                 id: "lini",
                 outOfBattleAttributeSheetId: "sheet-lini",
+                outOfBattleSquaddieId: "battle-lini",
                 name: "Lini",
                 injury: { duration: 2, permanent: false },
                 injuryHistory: ["mission-1"],
@@ -92,6 +111,7 @@ describe("Campaign Squaddie", () => {
             const original = CampaignSquaddieService.new({
                 id: "lini",
                 outOfBattleAttributeSheetId: "sheet-lini",
+                outOfBattleSquaddieId: "battle-lini",
                 name: "Lini",
                 isLeader: true,
             })
@@ -104,6 +124,7 @@ describe("Campaign Squaddie", () => {
             const original = CampaignSquaddieService.new({
                 id: "lini",
                 outOfBattleAttributeSheetId: "sheet-lini",
+                outOfBattleSquaddieId: "battle-lini",
                 name: "Lini",
                 injury: { duration: 5, permanent: true },
                 injuryHistory: ["mission-1", "mission-2"],
@@ -118,6 +139,7 @@ describe("Campaign Squaddie", () => {
                 CampaignSquaddieService.deserialize({
                     id: "lini",
                     outOfBattleAttributeSheetId: "sheet-lini",
+                    outOfBattleSquaddieId: "battle-lini",
                     name: "Lini",
                     isLeader: "not-a-boolean",
                     injuryHistory: [],

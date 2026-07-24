@@ -22,6 +22,7 @@ const campaignSquaddie = (
     CampaignSquaddieService.new({
         id,
         outOfBattleAttributeSheetId: `sheet-${id}`,
+        outOfBattleSquaddieId: `battle-${id}`,
         name: id,
         ...overrides,
     })

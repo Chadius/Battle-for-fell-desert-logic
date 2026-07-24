@@ -15,6 +15,7 @@ describe("Army Manager", () => {
         lini = CampaignSquaddieService.new({
             id: "lini",
             outOfBattleAttributeSheetId: "sheet-lini",
+            outOfBattleSquaddieId: "battle-lini",
             name: "Lini",
         })
         army = ArmyService.new()
@@ -68,6 +69,7 @@ describe("Army Manager", () => {
             const rem = CampaignSquaddieService.new({
                 id: "rem",
                 outOfBattleAttributeSheetId: "sheet-rem",
+                outOfBattleSquaddieId: "battle-rem",
                 name: "Rem",
                 isLeader: true,
             })

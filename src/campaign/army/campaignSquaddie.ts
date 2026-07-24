@@ -8,6 +8,7 @@ export interface CampaignSquaddieInjury {
 export interface CampaignSquaddie {
     id: string
     outOfBattleAttributeSheetId: string
+    outOfBattleSquaddieId: string
     name: string
     isLeader: boolean
     injury?: CampaignSquaddieInjury
@@ -22,6 +23,7 @@ const campaignSquaddieInjurySchema = z.object({
 export const campaignSquaddieSchema = z.object({
     id: z.string().min(1),
     outOfBattleAttributeSheetId: z.string().min(1),
+    outOfBattleSquaddieId: z.string().min(1),
     name: z.string().min(1),
     isLeader: z.boolean(),
     injury: campaignSquaddieInjurySchema.optional(),
@@ -34,6 +36,7 @@ export const CampaignSquaddieService = {
     new: ({
         id,
         outOfBattleAttributeSheetId,
+        outOfBattleSquaddieId,
         name,
         isLeader,
         injury,
@@ -41,6 +44,7 @@ export const CampaignSquaddieService = {
     }: {
         id: string
         outOfBattleAttributeSheetId: string
+        outOfBattleSquaddieId: string
         name: string
         isLeader?: boolean
         injury?: CampaignSquaddieInjury
@@ -49,6 +53,7 @@ export const CampaignSquaddieService = {
         const campaignSquaddie: CampaignSquaddie = {
             id,
             outOfBattleAttributeSheetId,
+            outOfBattleSquaddieId,
             name,
             isLeader: isLeader ?? false,
             injury: cloneInjury(injury),
@@ -66,6 +71,7 @@ export const CampaignSquaddieService = {
             id: campaignSquaddie.id,
             outOfBattleAttributeSheetId:
                 campaignSquaddie.outOfBattleAttributeSheetId,
+            outOfBattleSquaddieId: campaignSquaddie.outOfBattleSquaddieId,
             name: campaignSquaddie.name,
             isLeader: campaignSquaddie.isLeader,
             injury: cloneInjury(campaignSquaddie.injury),
@@ -84,6 +90,7 @@ export const CampaignSquaddieService = {
         return {
             id: serialized.id,
             outOfBattleAttributeSheetId: serialized.outOfBattleAttributeSheetId,
+            outOfBattleSquaddieId: serialized.outOfBattleSquaddieId,
             name: serialized.name,
             isLeader: serialized.isLeader,
             injury: cloneInjury(serialized.injury),
