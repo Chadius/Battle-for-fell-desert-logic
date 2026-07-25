@@ -12,6 +12,7 @@ import {
     type CampaignSquaddie,
     CampaignSquaddieService,
 } from "../campaign/army/campaignSquaddie.js"
+import { MissionDeploymentService } from "./missionDeployment.js"
 
 const campaignSquaddie = (
     id: string,
@@ -378,6 +379,64 @@ describe("CampaignSquaddieDeploymentValidationService", () => {
                     )
 
                 expect(result.errors).toHaveLength(1)
+            })
+        })
+    })
+
+    describe("validateNoOverlapWithMissionDeployments", () => {
+        describe("when a mission deployment coordinate and a campaign squaddie deployment coordinate occupy the same position", () => {
+            it("is invalid", () => {
+                let collection =
+                    CampaignSquaddieDeploymentCoordinateCollectionService.new()
+                collection = addCoordinate(
+                    collection,
+                    deploymentCoordinate({
+                        id: "slot-1",
+                        coordinate: { row: 0, col: 0 },
+                    })
+                )
+                const missionDeployments = [
+                    MissionDeploymentService.new({
+                        id: "deploy-1",
+                        outOfBattleSquaddieId: "battle-lini",
+                        coordinates: [{ row: 0, col: 0 }],
+                    }),
+                ]
+
+                const result =
+                    CampaignSquaddieDeploymentValidationService.validateNoOverlapWithMissionDeployments(
+                        { collection, missionDeployments }
+                    )
+
+                expect(result.errors).toHaveLength(1)
+            })
+        })
+
+        describe("when mission deployment coordinates and campaign squaddie deployment coordinates occupy different positions", () => {
+            it("is valid", () => {
+                let collection =
+                    CampaignSquaddieDeploymentCoordinateCollectionService.new()
+                collection = addCoordinate(
+                    collection,
+                    deploymentCoordinate({
+                        id: "slot-1",
+                        coordinate: { row: 0, col: 1 },
+                    })
+                )
+                const missionDeployments = [
+                    MissionDeploymentService.new({
+                        id: "deploy-1",
+                        outOfBattleSquaddieId: "battle-lini",
+                        coordinates: [{ row: 0, col: 0 }],
+                    }),
+                ]
+
+                const result =
+                    CampaignSquaddieDeploymentValidationService.validateNoOverlapWithMissionDeployments(
+                        { collection, missionDeployments }
+                    )
+
+                expect(result.isValid).toBe(true)
             })
         })
     })

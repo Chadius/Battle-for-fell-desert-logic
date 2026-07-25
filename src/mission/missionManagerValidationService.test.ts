@@ -713,7 +713,7 @@ describe("MissionManagerValidationService", () => {
                 const result = MissionManagerValidationService.validate(input)
 
                 expect(result.errors).toContain(
-                    `[MissionManagerValidationService.validate]: deployment "deploy-1" coordinate (row 0, col 0) overlaps with campaign squaddie deployment coordinate "slot-1"`
+                    `[CampaignSquaddieDeploymentValidationService.validateNoOverlapWithMissionDeployments]: deployment "deploy-1" coordinate (row 0, col 0) overlaps with campaign squaddie deployment coordinate "slot-1"`
                 )
             })
 
