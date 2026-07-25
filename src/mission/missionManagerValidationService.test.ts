@@ -32,6 +32,7 @@ import { ArmyManager } from "../campaign/army/armyManager.js"
 import { ArmyService } from "../campaign/army/army.js"
 import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
 import { CampaignSquaddieDeploymentCoordinateService } from "./campaignSquaddieDeploymentCoordinate.js"
+import { CampaignSquaddieService } from "../campaign/army/campaignSquaddie.js"
 
 const TEST_IDS = {
     mapId: "test-map",
@@ -530,19 +531,33 @@ describe("MissionManagerValidationService", () => {
         })
 
         describe("campaign squaddie deployment validation", () => {
-            const buildCoordinateCollectionWithOneSlot = () =>
-                CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate(
-                    {
-                        collection:
-                            CampaignSquaddieDeploymentCoordinateCollectionService.new(),
-                        campaignSquaddieDeploymentCoordinate:
-                            CampaignSquaddieDeploymentCoordinateService.new({
-                                id: "slot-1",
-                                coordinate: { row: 0, col: 0 },
-                                request: { type: "NONE" },
-                            }),
-                    }
+            const buildCoordinateCollection = (
+                coordinates: Parameters<
+                    typeof CampaignSquaddieDeploymentCoordinateService.new
+                >[0][]
+            ) =>
+                coordinates.reduce(
+                    (collection, coordinateInput) =>
+                        CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate(
+                            {
+                                collection,
+                                campaignSquaddieDeploymentCoordinate:
+                                    CampaignSquaddieDeploymentCoordinateService.new(
+                                        coordinateInput
+                                    ),
+                            }
+                        ),
+                    CampaignSquaddieDeploymentCoordinateCollectionService.new()
                 )
+
+            const buildCoordinateCollectionWithOneSlot = () =>
+                buildCoordinateCollection([
+                    {
+                        id: "slot-1",
+                        coordinate: { row: 0, col: 0 },
+                        request: { type: "NONE" },
+                    },
+                ])
 
             it("returns an error when campaign squaddie deployment coordinates are present but no armyManager is provided", () => {
                 const input = buildValidInput()
@@ -573,6 +588,103 @@ describe("MissionManagerValidationService", () => {
                 const result = MissionManagerValidationService.validate(input)
 
                 expect(result.errors).toHaveLength(0)
+            })
+
+            it("returns an error when two deployment coordinates occupy the same position", () => {
+                const collection = buildCoordinateCollection([
+                    {
+                        id: "slot-1",
+                        coordinate: { row: 0, col: 0 },
+                        request: { type: "NONE" },
+                    },
+                    {
+                        id: "slot-2",
+                        coordinate: { row: 0, col: 0 },
+                        request: { type: "NONE" },
+                    },
+                ])
+                const input = buildValidInput()
+                input.missionState = MissionStateService.new({
+                    id: "test-mission",
+                    mapId: TEST_IDS.mapId,
+                    campaignSquaddieDeploymentCoordinates: collection,
+                })
+                input.armyManager = new ArmyManager(ArmyService.new())
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toContain(
+                    `[CampaignSquaddieDeploymentValidationService.validateCoordinateCollection]: coordinates "slot-1" and "slot-2" both occupy position (0,0)`
+                )
+            })
+
+            it("returns an error when more than one coordinate requests the LEADER role", () => {
+                const collection = buildCoordinateCollection([
+                    {
+                        id: "slot-1",
+                        coordinate: { row: 0, col: 0 },
+                        request: { type: "LEADER" },
+                    },
+                    {
+                        id: "slot-2",
+                        coordinate: { row: 0, col: 1 },
+                        request: { type: "LEADER" },
+                    },
+                ])
+                const input = buildValidInput()
+                input.missionState = MissionStateService.new({
+                    id: "test-mission",
+                    mapId: TEST_IDS.mapId,
+                    campaignSquaddieDeploymentCoordinates: collection,
+                })
+                input.armyManager = new ArmyManager(ArmyService.new())
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toContain(
+                    `[CampaignSquaddieDeploymentValidationService.validateCoordinateCollection]: at most one LEADER-type coordinate is allowed, found 2`
+                )
+            })
+
+            it("returns an error when a coordinate requests the leader by name while another requests the LEADER role", () => {
+                const armyManager = new ArmyManager(ArmyService.new())
+                armyManager.addOrUpdate(
+                    CampaignSquaddieService.new({
+                        id: "leader-squaddie",
+                        outOfBattleAttributeSheetId: TEST_IDS.attributeSheetId,
+                        outOfBattleSquaddieId: TEST_IDS.squaddieId,
+                        name: "Leader",
+                        isLeader: true,
+                    })
+                )
+                const collection = buildCoordinateCollection([
+                    {
+                        id: "slot-1",
+                        coordinate: { row: 0, col: 0 },
+                        request: { type: "LEADER" },
+                    },
+                    {
+                        id: "slot-2",
+                        coordinate: { row: 0, col: 1 },
+                        request: {
+                            type: "SPECIFIC_SQUADDIE",
+                            campaignSquaddieId: "leader-squaddie",
+                        },
+                    },
+                ])
+                const input = buildValidInput()
+                input.missionState = MissionStateService.new({
+                    id: "test-mission",
+                    mapId: TEST_IDS.mapId,
+                    campaignSquaddieDeploymentCoordinates: collection,
+                })
+                input.armyManager = armyManager
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toContain(
+                    `[CampaignSquaddieDeploymentValidationService.validateNoLeaderRequestConflict]: coordinate "slot-2" requests the leader "leader-squaddie" by name while another coordinate requests the LEADER role, creating an ambiguous assignment`
+                )
             })
         })
     })

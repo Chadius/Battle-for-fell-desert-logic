@@ -7,6 +7,7 @@ import type { OutOfBattleSquaddie } from "../squaddie/outOfBattle/outOfBattleSqu
 import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
 import type { ArmyManager } from "../campaign/army/armyManager.js"
 import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
+import { CampaignSquaddieDeploymentValidationService } from "./campaignSquaddieDeploymentValidationService.js"
 
 export interface MissionManagerValidationInput {
     missionState?: MissionState
@@ -28,6 +29,7 @@ export const MissionManagerValidationService = {
             ...validateDeploymentSquaddieCounts(input),
             ...validateDeploymentCoordinates(input),
             ...validateCampaignSquaddieDeploymentRequiresArmyManager(input),
+            ...validateCampaignSquaddieDeploymentCoordinates(input),
         ]
         return { isValid: errors.length === 0, errors }
     },
@@ -299,4 +301,36 @@ const validateCampaignSquaddieDeploymentRequiresArmyManager = (
         ]
     }
     return []
+}
+
+const validateCampaignSquaddieDeploymentCoordinates = (
+    input: MissionManagerValidationInput
+): string[] => {
+    if (input.missionState?.campaignSquaddieDeploymentCoordinates == undefined)
+        return []
+    if (input.armyManager == undefined) return []
+
+    const campaignSquaddieDeploymentCoordinateCollection =
+        input.missionState.campaignSquaddieDeploymentCoordinates
+
+    const coordinateCollectionResult =
+        CampaignSquaddieDeploymentValidationService.validateCoordinateCollection(
+            campaignSquaddieDeploymentCoordinateCollection
+        )
+
+    const leaderCampaignSquaddieId = input.armyManager
+        .getAll()
+        .find((campaignSquaddie) => campaignSquaddie.isLeader)?.id
+    const leaderRequestConflictResult =
+        CampaignSquaddieDeploymentValidationService.validateNoLeaderRequestConflict(
+            {
+                collection: campaignSquaddieDeploymentCoordinateCollection,
+                leaderCampaignSquaddieId,
+            }
+        )
+
+    return [
+        ...coordinateCollectionResult.errors,
+        ...leaderRequestConflictResult.errors,
+    ]
 }
