@@ -28,6 +28,10 @@ import { ActionRange } from "../squaddieAction/actionRange.js"
 import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
 import { CoordinateGeneratorShape } from "../coordinateMap/shape.js"
 import { ProficiencyType } from "../proficiency/proficiencyLevel.js"
+import { ArmyManager } from "../campaign/army/armyManager.js"
+import { ArmyService } from "../campaign/army/army.js"
+import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
+import { CampaignSquaddieDeploymentCoordinateService } from "./campaignSquaddieDeploymentCoordinate.js"
 
 const TEST_IDS = {
     mapId: "test-map",
@@ -522,6 +526,53 @@ describe("MissionManagerValidationService", () => {
                 expect(result.errors).toContain(
                     `[MissionManagerValidationService.validate]: deployment "deploy-b" coordinate (row 0, col 3) is not a valid stopping point`
                 )
+            })
+        })
+
+        describe("campaign squaddie deployment validation", () => {
+            const buildCoordinateCollectionWithOneSlot = () =>
+                CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate(
+                    {
+                        collection:
+                            CampaignSquaddieDeploymentCoordinateCollectionService.new(),
+                        campaignSquaddieDeploymentCoordinate:
+                            CampaignSquaddieDeploymentCoordinateService.new({
+                                id: "slot-1",
+                                coordinate: { row: 0, col: 0 },
+                                request: { type: "NONE" },
+                            }),
+                    }
+                )
+
+            it("returns an error when campaign squaddie deployment coordinates are present but no armyManager is provided", () => {
+                const input = buildValidInput()
+                input.missionState = MissionStateService.new({
+                    id: "test-mission",
+                    mapId: TEST_IDS.mapId,
+                    campaignSquaddieDeploymentCoordinates:
+                        buildCoordinateCollectionWithOneSlot(),
+                })
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toContain(
+                    "[MissionManagerValidationService.validate]: armyManager must be defined when campaignSquaddieDeploymentCoordinates is present"
+                )
+            })
+
+            it("returns no error when campaign squaddie deployment coordinates are present and an armyManager is provided", () => {
+                const input = buildValidInput()
+                input.missionState = MissionStateService.new({
+                    id: "test-mission",
+                    mapId: TEST_IDS.mapId,
+                    campaignSquaddieDeploymentCoordinates:
+                        buildCoordinateCollectionWithOneSlot(),
+                })
+                input.armyManager = new ArmyManager(ArmyService.new())
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toHaveLength(0)
             })
         })
     })
