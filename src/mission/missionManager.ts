@@ -995,6 +995,10 @@ export class MissionManager {
         this.campaignSquaddieDeploymentManager.defaultAssign()
     }
 
+    isCampaignSquaddieDeploymentInProgress(): boolean {
+        return this.campaignSquaddieDeploymentManager != undefined
+    }
+
     getCampaignDeploymentStatus(): {
         openCoordinates: CampaignSquaddieDeploymentCoordinate[]
         unplacedEligibleCampaignSquaddies: CampaignSquaddie[]
@@ -1095,6 +1099,7 @@ export class MissionManager {
         })
 
         this.deployRequiredSquaddies()
+        this.campaignSquaddieDeploymentManager = undefined
     }
 
     loadMissionStateFromJson(data: unknown): void {

@@ -179,6 +179,14 @@ export class MissionEngine {
             }
         }
 
+        if (this.isCampaignSquaddieDeploymentInProgress()) {
+            return {
+                isValid: false,
+                message:
+                    "[MissionEngine.readyAction]: campaign squaddie deployment is in progress",
+            }
+        }
+
         let validityCheck = this.canReadyActionBecauseOfAffiliationTurn({
             actor,
             targets,
@@ -565,6 +573,13 @@ export class MissionEngine {
     isMoviePlaying(): boolean {
         return (
             this.activeMovieEngine?.status().state === MovieEngineState.PLAYING
+        )
+    }
+
+    isCampaignSquaddieDeploymentInProgress(): boolean {
+        return (
+            this.missionManager?.isCampaignSquaddieDeploymentInProgress() ??
+            false
         )
     }
 

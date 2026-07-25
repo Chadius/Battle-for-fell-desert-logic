@@ -259,4 +259,70 @@ describe("MissionEngine campaign squaddie deployment", () => {
             expect(remPosition?.coordinate).toEqual({ row: 0, col: 1 })
         })
     })
+
+    describe("isCampaignSquaddieDeploymentInProgress", () => {
+        describe("before finalizeLoadingMission has begun deployment", () => {
+            it("reports deployment as not in progress", () => {
+                const { engine } = buildEngineWithCampaignDeployment()
+
+                expect(engine.isCampaignSquaddieDeploymentInProgress()).toBe(
+                    false
+                )
+            })
+        })
+
+        describe("once deployment has begun", () => {
+            it("reports deployment as in progress", () => {
+                const { engine } = buildEngineWithCampaignDeployment()
+                engine.finalizeLoadingMission()
+
+                expect(engine.isCampaignSquaddieDeploymentInProgress()).toBe(
+                    true
+                )
+            })
+        })
+
+        describe("once deployment is finalized and the mission starts", () => {
+            it("reports deployment as no longer in progress", () => {
+                const { engine } = buildEngineWithCampaignDeployment()
+                engine.finalizeLoadingMission()
+                engine.deployCampaignSquaddie({
+                    coordinateId: OPEN_COORDINATE_ID,
+                    campaignSquaddieId: REM_ID,
+                })
+
+                engine.finalizeCampaignSquaddieDeploymentAndStartMission()
+
+                expect(engine.isCampaignSquaddieDeploymentInProgress()).toBe(
+                    false
+                )
+            })
+        })
+    })
+
+    describe("readyAction", () => {
+        describe("when campaign squaddie deployment is in progress", () => {
+            it("blocks the action", () => {
+                const { engine } = buildEngineWithCampaignDeployment()
+                engine.finalizeLoadingMission()
+
+                const result = engine.readyAction({
+                    actor: {
+                        inBattleSquaddieId: 0,
+                        outOfBattleSquaddieId: LINI_OUT_OF_BATTLE_ID,
+                    },
+                    targets: [
+                        {
+                            inBattleSquaddieId: 0,
+                            outOfBattleSquaddieId: LINI_OUT_OF_BATTLE_ID,
+                        },
+                    ],
+                    action: { id: "default-end-turn" },
+                })
+
+                expect(result.isValid).toBe(false)
+                expect(result.message).toContain("deployment")
+            })
+        })
+    })
 })
