@@ -5,6 +5,7 @@ import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinate
 import type { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
 import type { OutOfBattleSquaddie } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
 import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
+import { OffsetCoordinateService } from "../coordinateMap/offsetCoordinate.js"
 import type { ArmyManager } from "../campaign/army/armyManager.js"
 import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
 import { CampaignSquaddieDeploymentValidationService } from "./campaignSquaddieDeploymentValidationService.js"
@@ -336,19 +337,14 @@ const validateCampaignSquaddieDeploymentCoordinates = (
     ]
 }
 
-const coordinatePositionKey = (coordinate: {
-    row: number
-    col: number
-}): string => `${coordinate.row},${coordinate.col}`
-
 const validateNoCoordinateOverlapBetweenDeploymentTypes = (
     input: MissionManagerValidationInput
 ): string[] => {
-    if (input.missionState == undefined) return []
+    if (input.missionState?.campaignSquaddieDeploymentCoordinates == undefined)
+        return []
 
     const campaignSquaddieDeploymentCoordinateCollection =
         input.missionState.campaignSquaddieDeploymentCoordinates
-    if (campaignSquaddieDeploymentCoordinateCollection == undefined) return []
 
     const pendingDeployments = MissionStateService.getPendingDeployments(
         input.missionState
@@ -358,7 +354,7 @@ const validateNoCoordinateOverlapBetweenDeploymentTypes = (
         CampaignSquaddieDeploymentCoordinateCollectionService.getAll(
             campaignSquaddieDeploymentCoordinateCollection
         ).map((campaignSquaddieDeploymentCoordinate) => [
-            coordinatePositionKey(
+            OffsetCoordinateService.coordinateToKey(
                 campaignSquaddieDeploymentCoordinate.coordinate
             ),
             campaignSquaddieDeploymentCoordinate.id,
@@ -370,7 +366,7 @@ const validateNoCoordinateOverlapBetweenDeploymentTypes = (
         for (const coordinate of deployment.coordinates) {
             const campaignSquaddieDeploymentCoordinateId =
                 campaignSquaddieDeploymentCoordinateIdByPosition.get(
-                    coordinatePositionKey(coordinate)
+                    OffsetCoordinateService.coordinateToKey(coordinate)
                 )
             if (campaignSquaddieDeploymentCoordinateId == undefined) continue
             errors.push(
