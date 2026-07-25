@@ -142,6 +142,23 @@ const buildValidInput = (): MissionManagerValidationInput => {
     }
 }
 
+const buildCoordinateCollection = (
+    coordinates: Parameters<
+        typeof CampaignSquaddieDeploymentCoordinateService.new
+    >[0][]
+) =>
+    coordinates.reduce(
+        (collection, coordinateInput) =>
+            CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate({
+                collection,
+                campaignSquaddieDeploymentCoordinate:
+                    CampaignSquaddieDeploymentCoordinateService.new(
+                        coordinateInput
+                    ),
+            }),
+        CampaignSquaddieDeploymentCoordinateCollectionService.new()
+    )
+
 const injectOrphanedInBattleSquaddie = (
     inBattleSquaddieManager: InBattleSquaddieManager,
     outOfBattleSquaddieId: string,
@@ -531,25 +548,6 @@ describe("MissionManagerValidationService", () => {
         })
 
         describe("campaign squaddie deployment validation", () => {
-            const buildCoordinateCollection = (
-                coordinates: Parameters<
-                    typeof CampaignSquaddieDeploymentCoordinateService.new
-                >[0][]
-            ) =>
-                coordinates.reduce(
-                    (collection, coordinateInput) =>
-                        CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate(
-                            {
-                                collection,
-                                campaignSquaddieDeploymentCoordinate:
-                                    CampaignSquaddieDeploymentCoordinateService.new(
-                                        coordinateInput
-                                    ),
-                            }
-                        ),
-                    CampaignSquaddieDeploymentCoordinateCollectionService.new()
-                )
-
             const buildCoordinateCollectionWithOneSlot = () =>
                 buildCoordinateCollection([
                     {
@@ -685,6 +683,66 @@ describe("MissionManagerValidationService", () => {
                 expect(result.errors).toContain(
                     `[CampaignSquaddieDeploymentValidationService.validateNoLeaderRequestConflict]: coordinate "slot-2" requests the leader "leader-squaddie" by name while another coordinate requests the LEADER role, creating an ambiguous assignment`
                 )
+            })
+        })
+
+        describe("coordinate overlap between deployment types", () => {
+            it("returns an error when a mission deployment coordinate and a campaign squaddie deployment coordinate occupy the same position", () => {
+                const deployment = MissionDeploymentService.new({
+                    id: "deploy-1",
+                    outOfBattleSquaddieId: TEST_IDS.squaddieId,
+                    coordinates: [{ row: 0, col: 0 }],
+                })
+                const campaignSquaddieDeploymentCoordinates =
+                    buildCoordinateCollection([
+                        {
+                            id: "slot-1",
+                            coordinate: { row: 0, col: 0 },
+                            request: { type: "NONE" },
+                        },
+                    ])
+                const input = buildValidInput()
+                input.missionState = MissionStateService.new({
+                    id: "test-mission",
+                    mapId: TEST_IDS.mapId,
+                    deployments: { required: [deployment] },
+                    campaignSquaddieDeploymentCoordinates,
+                })
+                input.armyManager = new ArmyManager(ArmyService.new())
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toContain(
+                    `[MissionManagerValidationService.validate]: deployment "deploy-1" coordinate (row 0, col 0) overlaps with campaign squaddie deployment coordinate "slot-1"`
+                )
+            })
+
+            it("returns no error when mission deployment coordinates and campaign squaddie deployment coordinates occupy different positions", () => {
+                const deployment = MissionDeploymentService.new({
+                    id: "deploy-1",
+                    outOfBattleSquaddieId: TEST_IDS.squaddieId,
+                    coordinates: [{ row: 0, col: 0 }],
+                })
+                const campaignSquaddieDeploymentCoordinates =
+                    buildCoordinateCollection([
+                        {
+                            id: "slot-1",
+                            coordinate: { row: 0, col: 1 },
+                            request: { type: "NONE" },
+                        },
+                    ])
+                const input = buildValidInput()
+                input.missionState = MissionStateService.new({
+                    id: "test-mission",
+                    mapId: TEST_IDS.mapId,
+                    deployments: { required: [deployment] },
+                    campaignSquaddieDeploymentCoordinates,
+                })
+                input.armyManager = new ArmyManager(ArmyService.new())
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toHaveLength(0)
             })
         })
     })

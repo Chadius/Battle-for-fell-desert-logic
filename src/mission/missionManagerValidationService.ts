@@ -30,6 +30,7 @@ export const MissionManagerValidationService = {
             ...validateDeploymentCoordinates(input),
             ...validateCampaignSquaddieDeploymentRequiresArmyManager(input),
             ...validateCampaignSquaddieDeploymentCoordinates(input),
+            ...validateNoCoordinateOverlapBetweenDeploymentTypes(input),
         ]
         return { isValid: errors.length === 0, errors }
     },
@@ -333,4 +334,49 @@ const validateCampaignSquaddieDeploymentCoordinates = (
         ...coordinateCollectionResult.errors,
         ...leaderRequestConflictResult.errors,
     ]
+}
+
+const coordinatePositionKey = (coordinate: {
+    row: number
+    col: number
+}): string => `${coordinate.row},${coordinate.col}`
+
+const validateNoCoordinateOverlapBetweenDeploymentTypes = (
+    input: MissionManagerValidationInput
+): string[] => {
+    if (input.missionState == undefined) return []
+
+    const campaignSquaddieDeploymentCoordinateCollection =
+        input.missionState.campaignSquaddieDeploymentCoordinates
+    if (campaignSquaddieDeploymentCoordinateCollection == undefined) return []
+
+    const pendingDeployments = MissionStateService.getPendingDeployments(
+        input.missionState
+    )
+
+    const campaignSquaddieDeploymentCoordinateIdByPosition = new Map(
+        CampaignSquaddieDeploymentCoordinateCollectionService.getAll(
+            campaignSquaddieDeploymentCoordinateCollection
+        ).map((campaignSquaddieDeploymentCoordinate) => [
+            coordinatePositionKey(
+                campaignSquaddieDeploymentCoordinate.coordinate
+            ),
+            campaignSquaddieDeploymentCoordinate.id,
+        ])
+    )
+
+    const errors: string[] = []
+    for (const deployment of pendingDeployments) {
+        for (const coordinate of deployment.coordinates) {
+            const campaignSquaddieDeploymentCoordinateId =
+                campaignSquaddieDeploymentCoordinateIdByPosition.get(
+                    coordinatePositionKey(coordinate)
+                )
+            if (campaignSquaddieDeploymentCoordinateId == undefined) continue
+            errors.push(
+                `[MissionManagerValidationService.validate]: deployment "${deployment.id}" coordinate (row ${coordinate.row}, col ${coordinate.col}) overlaps with campaign squaddie deployment coordinate "${campaignSquaddieDeploymentCoordinateId}"`
+            )
+        }
+    }
+    return errors
 }
