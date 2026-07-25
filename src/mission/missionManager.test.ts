@@ -160,9 +160,7 @@ describe("MissionManager", () => {
 
                 const result = missionManager.validate()
 
-                expect(result.errors).not.toContain(
-                    "[MissionManagerValidationService.validate]: armyManager must be defined when campaignSquaddieDeploymentCoordinates is present"
-                )
+                expect(result.errors).toHaveLength(0)
             })
         })
     })

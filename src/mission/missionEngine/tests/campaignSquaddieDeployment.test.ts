@@ -157,7 +157,7 @@ describe("MissionEngine campaign squaddie deployment", () => {
 
     describe("getCampaignDeploymentStatus", () => {
         describe("when finalizeLoadingMission has not run yet", () => {
-            it("throws", () => {
+            it("throws because no campaign deployment has been started yet", () => {
                 const { engine } = buildEngineWithCampaignDeployment()
 
                 expect(() => engine.getCampaignDeploymentStatus()).toThrow()
@@ -234,7 +234,7 @@ describe("MissionEngine campaign squaddie deployment", () => {
     })
 
     describe("finalizeCampaignSquaddieDeploymentAndStartMission", () => {
-        it("places an InBattleSquaddie on the map for every current assignment", () => {
+        it("places each campaign squaddie on the map at its assigned coordinate", () => {
             const { engine } = buildEngineWithCampaignDeployment()
             engine.finalizeLoadingMission()
             engine.deployCampaignSquaddie({
@@ -244,7 +244,19 @@ describe("MissionEngine campaign squaddie deployment", () => {
 
             engine.finalizeCampaignSquaddieDeploymentAndStartMission()
 
-            expect(engine.getAllSquaddiePositions()).toHaveLength(2)
+            const positions = engine.getAllSquaddiePositions()
+            const liniPosition = positions.find(
+                (position) =>
+                    position.squaddieId.outOfBattleSquaddieId ===
+                    LINI_OUT_OF_BATTLE_ID
+            )
+            expect(liniPosition?.coordinate).toEqual({ row: 0, col: 0 })
+            const remPosition = positions.find(
+                (position) =>
+                    position.squaddieId.outOfBattleSquaddieId ===
+                    REM_OUT_OF_BATTLE_ID
+            )
+            expect(remPosition?.coordinate).toEqual({ row: 0, col: 1 })
         })
     })
 })
