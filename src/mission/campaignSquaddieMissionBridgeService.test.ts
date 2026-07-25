@@ -112,6 +112,44 @@ const buildAssignedLiniDeployment = (
     }
 }
 
+const buildOpenCoordinateDeployment = (coordinate: OffsetCoordinate) => {
+    const armyManager = new ArmyManager(ArmyService.new())
+
+    let coordinateCollection =
+        CampaignSquaddieDeploymentCoordinateCollectionService.new()
+    coordinateCollection =
+        CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate({
+            collection: coordinateCollection,
+            campaignSquaddieDeploymentCoordinate:
+                CampaignSquaddieDeploymentCoordinateService.new({
+                    id: "slot-open",
+                    coordinate,
+                    request: { type: "NONE" },
+                }),
+        })
+
+    const deploymentManager = new CampaignSquaddieDeploymentManager({
+        armyManager,
+        coordinateCollection,
+    })
+    deploymentManager.defaultAssign()
+
+    const {
+        outOfBattleSquaddieManager,
+        inBattleSquaddieManager,
+        coordinateMapCollectionManager,
+    } = buildEmptyMissionManagers()
+
+    return {
+        armyManager,
+        coordinateCollection,
+        deploymentManager,
+        outOfBattleSquaddieManager,
+        inBattleSquaddieManager,
+        coordinateMapCollectionManager,
+    }
+}
+
 describe("CampaignSquaddieMissionBridgeService", () => {
     describe("deployAssignedCampaignSquaddies", () => {
         describe("when a deployment coordinate has an assigned campaign squaddie and no matching OutOfBattleSquaddie exists yet", () => {
@@ -227,38 +265,14 @@ describe("CampaignSquaddieMissionBridgeService", () => {
 
         describe("when a deployment coordinate has no assignment", () => {
             it("does not create or place anything for that coordinate", () => {
-                const armyManager = new ArmyManager(ArmyService.new())
-
-                let coordinateCollection =
-                    CampaignSquaddieDeploymentCoordinateCollectionService.new()
-                coordinateCollection =
-                    CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate(
-                        {
-                            collection: coordinateCollection,
-                            campaignSquaddieDeploymentCoordinate:
-                                CampaignSquaddieDeploymentCoordinateService.new(
-                                    {
-                                        id: "slot-open",
-                                        coordinate: { row: 1, col: 2 },
-                                        request: { type: "NONE" },
-                                    }
-                                ),
-                        }
-                    )
-
-                const deploymentManager = new CampaignSquaddieDeploymentManager(
-                    {
-                        armyManager,
-                        coordinateCollection,
-                    }
-                )
-                deploymentManager.defaultAssign()
-
                 const {
+                    armyManager,
+                    coordinateCollection,
+                    deploymentManager,
                     outOfBattleSquaddieManager,
                     inBattleSquaddieManager,
                     coordinateMapCollectionManager,
-                } = buildEmptyMissionManagers()
+                } = buildOpenCoordinateDeployment({ row: 1, col: 2 })
 
                 CampaignSquaddieMissionBridgeService.deployAssignedCampaignSquaddies(
                     {
