@@ -5,6 +5,7 @@ import {
 } from "./campaignSquaddieDeploymentCoordinateCollection.js"
 import type { CampaignSquaddieDeploymentManager } from "./campaignSquaddieDeploymentManager.js"
 import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
+import type { CampaignSquaddie } from "../campaign/army/campaignSquaddie.js"
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
 import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
@@ -28,32 +29,21 @@ export const CampaignSquaddieMissionBridgeService = {
         coordinateMapCollectionManager: CoordinateMapCollectionManager
         mapId: string
     }): void => {
-        for (const deploymentCoordinate of CampaignSquaddieDeploymentCoordinateCollectionService.getAll(
+        for (const campaignSquaddieDeploymentCoordinate of CampaignSquaddieDeploymentCoordinateCollectionService.getAll(
             coordinateCollection
         )) {
             const campaignSquaddieId =
                 deploymentManager.getAssignedCampaignSquaddieId(
-                    deploymentCoordinate.id
+                    campaignSquaddieDeploymentCoordinate.id
                 )
             if (campaignSquaddieId == undefined) continue
 
             const campaignSquaddie = armyManager.get(campaignSquaddieId)
 
-            if (
-                outOfBattleSquaddieManager.getRawOutOfBattleSquaddie(
-                    campaignSquaddie.outOfBattleSquaddieId
-                ) == undefined
-            ) {
-                outOfBattleSquaddieManager.addOrUpdateSquaddie(
-                    OutOfBattleSquaddieService.new({
-                        id: campaignSquaddie.outOfBattleSquaddieId,
-                        name: campaignSquaddie.name,
-                        attributeSheetId:
-                            campaignSquaddie.outOfBattleAttributeSheetId,
-                        affiliation: SquaddieAffiliation.PLAYER,
-                    })
-                )
-            }
+            ensureOutOfBattleSquaddieExists(
+                outOfBattleSquaddieManager,
+                campaignSquaddie
+            )
 
             const battleSquaddieId = inBattleSquaddieManager.createNewSquaddie({
                 outOfBattleSquaddieId: campaignSquaddie.outOfBattleSquaddieId,
@@ -62,8 +52,29 @@ export const CampaignSquaddieMissionBridgeService = {
             coordinateMapCollectionManager.addSquaddie({
                 mapId,
                 squaddieId: battleSquaddieId,
-                coordinate: deploymentCoordinate.coordinate,
+                coordinate: campaignSquaddieDeploymentCoordinate.coordinate,
             })
         }
     },
+}
+
+const ensureOutOfBattleSquaddieExists = (
+    outOfBattleSquaddieManager: OutOfBattleSquaddieManager,
+    campaignSquaddie: CampaignSquaddie
+): void => {
+    if (
+        outOfBattleSquaddieManager.getRawOutOfBattleSquaddie(
+            campaignSquaddie.outOfBattleSquaddieId
+        ) != undefined
+    )
+        return
+
+    outOfBattleSquaddieManager.addOrUpdateSquaddie(
+        OutOfBattleSquaddieService.new({
+            id: campaignSquaddie.outOfBattleSquaddieId,
+            name: campaignSquaddie.name,
+            attributeSheetId: campaignSquaddie.outOfBattleAttributeSheetId,
+            affiliation: SquaddieAffiliation.PLAYER,
+        })
+    )
 }

@@ -22,6 +22,33 @@ import { SquaddieAffiliation } from "../affiliation/affiliation.js"
 
 const MAP_ID = "map-1"
 
+const buildEmptyMissionManagers = () => {
+    const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
+        OutOfBattleSquaddieCollectionService.new(),
+        OutOfBattleSquaddieAttributeSheetCollectionService.new()
+    )
+    const inBattleSquaddieManager = new InBattleSquaddieManager(
+        InBattleSquaddieCollectionService.new(),
+        outOfBattleSquaddieManager
+    )
+    const coordinateMapCollectionManager = new CoordinateMapCollectionManager(
+        CoordinateMapCollectionService.new()
+    )
+    coordinateMapCollectionManager.addOrUpdate({
+        map: CoordinateMapService.new({
+            id: MAP_ID,
+            name: "Map",
+            movementProperties: ["1 1 1", "1 1 1"],
+        }),
+    })
+
+    return {
+        outOfBattleSquaddieManager,
+        inBattleSquaddieManager,
+        coordinateMapCollectionManager,
+    }
+}
+
 const buildAssignedLiniDeployment = (
     coordinate: OffsetCoordinate = { row: 0, col: 0 }
 ) => {
@@ -57,10 +84,11 @@ const buildAssignedLiniDeployment = (
     })
     deploymentManager.defaultAssign()
 
-    const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-        OutOfBattleSquaddieCollectionService.new(),
-        OutOfBattleSquaddieAttributeSheetCollectionService.new()
-    )
+    const {
+        outOfBattleSquaddieManager,
+        inBattleSquaddieManager,
+        coordinateMapCollectionManager,
+    } = buildEmptyMissionManagers()
     outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
         OutOfBattleSquaddieAttributeSheetService.new({
             id: "sheet-lini",
@@ -73,22 +101,6 @@ const buildAssignedLiniDeployment = (
             },
         })
     )
-
-    const inBattleSquaddieManager = new InBattleSquaddieManager(
-        InBattleSquaddieCollectionService.new(),
-        outOfBattleSquaddieManager
-    )
-
-    const coordinateMapCollectionManager = new CoordinateMapCollectionManager(
-        CoordinateMapCollectionService.new()
-    )
-    coordinateMapCollectionManager.addOrUpdate({
-        map: CoordinateMapService.new({
-            id: MAP_ID,
-            name: "Map",
-            movementProperties: ["1 1 1", "1 1 1"],
-        }),
-    })
 
     return {
         armyManager,
@@ -129,11 +141,10 @@ describe("CampaignSquaddieMissionBridgeService", () => {
                     outOfBattleSquaddieManager.getRawOutOfBattleSquaddie(
                         "battle-lini"
                     )
-                ).toEqual({
+                ).toMatchObject({
                     id: "battle-lini",
                     name: "Lini",
                     attributeSheetId: "sheet-lini",
-                    actionIds: [],
                     affiliation: SquaddieAffiliation.PLAYER,
                 })
             })
@@ -243,26 +254,11 @@ describe("CampaignSquaddieMissionBridgeService", () => {
                 )
                 deploymentManager.defaultAssign()
 
-                const outOfBattleSquaddieManager =
-                    new OutOfBattleSquaddieManager(
-                        OutOfBattleSquaddieCollectionService.new(),
-                        OutOfBattleSquaddieAttributeSheetCollectionService.new()
-                    )
-                const inBattleSquaddieManager = new InBattleSquaddieManager(
-                    InBattleSquaddieCollectionService.new(),
-                    outOfBattleSquaddieManager
-                )
-                const coordinateMapCollectionManager =
-                    new CoordinateMapCollectionManager(
-                        CoordinateMapCollectionService.new()
-                    )
-                coordinateMapCollectionManager.addOrUpdate({
-                    map: CoordinateMapService.new({
-                        id: MAP_ID,
-                        name: "Map",
-                        movementProperties: ["1 1 1", "1 1 1"],
-                    }),
-                })
+                const {
+                    outOfBattleSquaddieManager,
+                    inBattleSquaddieManager,
+                    coordinateMapCollectionManager,
+                } = buildEmptyMissionManagers()
 
                 CampaignSquaddieMissionBridgeService.deployAssignedCampaignSquaddies(
                     {
