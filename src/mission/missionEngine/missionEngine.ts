@@ -1347,6 +1347,20 @@ export class MissionEngine {
         this.missionManager!.finalizeCampaignSquaddieDeploymentAndStartMission()
     }
 
+    getOutOfBattleSquaddieDetails(
+        outOfBattleSquaddieId: string
+    ): ReturnType<OutOfBattleSquaddieManager["getSquaddie"]> {
+        this.throwIfMissionManagerIsUndefined(
+            this.getOutOfBattleSquaddieDetails.name
+        )
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(
+            this.getOutOfBattleSquaddieDetails.name
+        )
+        return this.missionManager!.outOfBattleSquaddieManager!.getSquaddie(
+            outOfBattleSquaddieId
+        )
+    }
+
     serialize(): SerializedMissionEngine {
         return {
             missionState: this.missionManager?.missionState
@@ -1510,6 +1524,16 @@ export class MissionEngine {
         if (this.missionManager?.coordinateMapCollectionManager == undefined) {
             throw new Error(
                 `[MissionEngine.${callingFunction}]: coordinateMapCollectionManager is undefined`
+            )
+        }
+    }
+
+    private throwIfOutOfBattleSquaddieManagerIsUndefined(
+        callingFunction: string
+    ): void {
+        if (this.missionManager?.outOfBattleSquaddieManager == undefined) {
+            throw new Error(
+                `[MissionEngine.${callingFunction}]: outOfBattleSquaddieManager is undefined`
             )
         }
     }

@@ -11,6 +11,8 @@ import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfB
 import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection.js"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.js"
 import { OutOfBattleSquaddieAttributeSheetService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
+import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
+import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
 import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
 import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
@@ -101,6 +103,24 @@ const buildEngineWithCampaignDeployment = () => {
                 [AttributeScore.MIND]: 1,
                 [AttributeScore.SOUL]: 1,
             },
+        })
+    )
+    outOfBattleSquaddieManager.addOrUpdateSquaddie(
+        OutOfBattleSquaddieService.new({
+            id: LINI_OUT_OF_BATTLE_ID,
+            name: "Lini",
+            attributeSheetId: LINI_ATTRIBUTE_SHEET_ID,
+            affiliation: SquaddieAffiliation.PLAYER,
+            actionIds: ["scimitar"],
+        })
+    )
+    outOfBattleSquaddieManager.addOrUpdateSquaddie(
+        OutOfBattleSquaddieService.new({
+            id: REM_OUT_OF_BATTLE_ID,
+            name: "Rem",
+            attributeSheetId: REM_ATTRIBUTE_SHEET_ID,
+            affiliation: SquaddieAffiliation.PLAYER,
+            actionIds: ["heal"],
         })
     )
 
@@ -304,6 +324,33 @@ describe("MissionEngine campaign squaddie deployment", () => {
                 expect(engine.isCampaignSquaddieDeploymentInProgress()).toBe(
                     false
                 )
+            })
+        })
+    })
+
+    describe("getOutOfBattleSquaddieDetails", () => {
+        describe("for a campaign squaddie not yet placed on the map", () => {
+            it("returns her out-of-battle squaddie and attribute sheet", () => {
+                const { engine } = buildEngineWithCampaignDeployment()
+
+                const details =
+                    engine.getOutOfBattleSquaddieDetails(REM_OUT_OF_BATTLE_ID)
+
+                expect(details?.squaddie.name).toBe("Rem")
+                expect(details?.squaddie.actionIds).toEqual(["heal"])
+                expect(details?.attributeSheet.id).toBe(REM_ATTRIBUTE_SHEET_ID)
+            })
+        })
+
+        describe("for an outOfBattleSquaddieId that has not been registered", () => {
+            it("returns undefined", () => {
+                const { engine } = buildEngineWithCampaignDeployment()
+
+                const details = engine.getOutOfBattleSquaddieDetails(
+                    "unregistered-squaddie"
+                )
+
+                expect(details).toBeUndefined()
             })
         })
     })
