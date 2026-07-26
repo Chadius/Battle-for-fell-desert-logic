@@ -18,6 +18,7 @@ export const MissionObjectiveCriteriaType = {
     SPECIFIC_SQUADDIES_INJURED: "SPECIFIC_SQUADDIES_INJURED",
     SPECIFIC_SQUADDIES_DEFEATED: "SPECIFIC_SQUADDIES_DEFEATED",
     PHASE_REACHED: "PHASE_REACHED",
+    ARMY_LEADER_DEFEATED: "ARMY_LEADER_DEFEATED",
 } as const satisfies Record<string, string>
 
 export type TMissionObjectiveCriteriaType = EnumLike<
@@ -49,11 +50,16 @@ export interface PhaseReachedCriteria {
     missionAffiliationTurn: TMissionAffiliationTurn
 }
 
+export interface ArmyLeaderDefeatedCriteria {
+    type: typeof MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED
+}
+
 export type MissionObjectiveCriteria =
     | AllSquaddiesDefeatedCriteria
     | SpecificSquaddiesInjuredCriteria
     | SpecificSquaddiesDefeatedCriteria
     | PhaseReachedCriteria
+    | ArmyLeaderDefeatedCriteria
 
 const serializedBattleSquaddieIdSchema = z.object({
     inBattleSquaddieId: z.number(),
@@ -268,6 +274,10 @@ export const MissionObjectiveCriteriaService = {
             missionAffiliationTurn,
         }
     },
+
+    newArmyLeaderDefeatedCriteria: (): ArmyLeaderDefeatedCriteria => ({
+        type: MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED,
+    }),
 
     serialize: (
         criteria: MissionObjectiveCriteria
