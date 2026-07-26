@@ -273,6 +273,24 @@ describe("CampaignSquaddieDeploymentManager", () => {
                 ).toEqual(["slot-filled"])
             })
         })
+
+        describe("getAssignedCampaignSquaddie", () => {
+            it("returns the full campaign squaddie assigned to a filled coordinate", () => {
+                const manager = buildManagerWithOneOpenAndOneFilledCoordinate()
+
+                expect(
+                    manager.getAssignedCampaignSquaddie("slot-filled")?.name
+                ).toBe("lini")
+            })
+
+            it("returns undefined for an open coordinate", () => {
+                const manager = buildManagerWithOneOpenAndOneFilledCoordinate()
+
+                expect(
+                    manager.getAssignedCampaignSquaddie("slot-open")
+                ).toBeUndefined()
+            })
+        })
     })
 
     describe("getUnplacedEligibleCampaignSquaddies", () => {

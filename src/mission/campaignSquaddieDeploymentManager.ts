@@ -105,6 +105,15 @@ export class CampaignSquaddieDeploymentManager {
         return this.campaignSquaddieIdByCoordinateId.get(coordinateId)
     }
 
+    getAssignedCampaignSquaddie(
+        coordinateId: string
+    ): CampaignSquaddie | undefined {
+        const campaignSquaddieId =
+            this.getAssignedCampaignSquaddieId(coordinateId)
+        if (campaignSquaddieId == undefined) return undefined
+        return this.armyManager.get(campaignSquaddieId)
+    }
+
     assign({
         coordinateId,
         campaignSquaddieId,

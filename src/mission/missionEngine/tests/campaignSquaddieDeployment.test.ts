@@ -165,14 +165,17 @@ describe("MissionEngine campaign squaddie deployment", () => {
         })
 
         describe("after finalizeLoadingMission has run its default assignment pass", () => {
-            it("reports Lini's coordinate as deployed and assigned to her, the other coordinate still open, and Rem still unplaced", () => {
+            it("reports Lini's coordinate as deployed and assigned to her full campaign squaddie details, the other coordinate still open, and Rem still unplaced", () => {
                 const { engine } = buildEngineWithCampaignDeployment()
                 engine.finalizeLoadingMission()
 
                 const status = engine.getCampaignDeploymentStatus()
 
-                expect(status.assignments[REQUESTED_COORDINATE_ID]).toBe(
+                expect(status.assignments[REQUESTED_COORDINATE_ID].id).toBe(
                     LINI_ID
+                )
+                expect(status.assignments[REQUESTED_COORDINATE_ID].name).toBe(
+                    "Lini"
                 )
                 expect(
                     status.deployedCoordinates.map(
@@ -202,7 +205,7 @@ describe("MissionEngine campaign squaddie deployment", () => {
             })
 
             const status = engine.getCampaignDeploymentStatus()
-            expect(status.assignments[OPEN_COORDINATE_ID]).toBe(REM_ID)
+            expect(status.assignments[OPEN_COORDINATE_ID].id).toBe(REM_ID)
         })
     })
 
@@ -233,8 +236,8 @@ describe("MissionEngine campaign squaddie deployment", () => {
             })
 
             const status = engine.getCampaignDeploymentStatus()
-            expect(status.assignments[REQUESTED_COORDINATE_ID]).toBe(REM_ID)
-            expect(status.assignments[OPEN_COORDINATE_ID]).toBe(LINI_ID)
+            expect(status.assignments[REQUESTED_COORDINATE_ID].id).toBe(REM_ID)
+            expect(status.assignments[OPEN_COORDINATE_ID].id).toBe(LINI_ID)
         })
     })
 

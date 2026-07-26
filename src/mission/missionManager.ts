@@ -1003,7 +1003,7 @@ export class MissionManager {
         openCoordinates: CampaignSquaddieDeploymentCoordinate[]
         deployedCoordinates: CampaignSquaddieDeploymentCoordinate[]
         unplacedEligibleCampaignSquaddies: CampaignSquaddie[]
-        assignments: Record<string, string>
+        assignments: Record<string, CampaignSquaddie>
     } {
         this.throwIfCampaignSquaddieDeploymentManagerIsUndefined(
             this.getCampaignDeploymentStatus.name
@@ -1012,10 +1012,10 @@ export class MissionManager {
         const deploymentManager = this.campaignSquaddieDeploymentManager!
         const deployedCoordinates = deploymentManager.getDeployedCoordinates()
 
-        const assignments: Record<string, string> = {}
+        const assignments: Record<string, CampaignSquaddie> = {}
         for (const coordinate of deployedCoordinates) {
             assignments[coordinate.id] =
-                deploymentManager.getAssignedCampaignSquaddieId(coordinate.id)!
+                deploymentManager.getAssignedCampaignSquaddie(coordinate.id)!
         }
 
         return {
