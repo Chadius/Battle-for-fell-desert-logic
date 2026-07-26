@@ -12,8 +12,7 @@ import {
     MissionTurnService,
     type TMissionAffiliationTurn,
 } from "./missionTurn.js"
-import type { ArmyManager } from "../campaign/army/armyManager.js"
-import { ArmyService } from "../campaign/army/army.js"
+import { type Army, ArmyService } from "../campaign/army/army.js"
 
 export const MissionObjectiveCriteriaType = {
     ALL_SQUADDIES_DEFEATED: "ALL_SQUADDIES_DEFEATED",
@@ -112,7 +111,7 @@ export type SerializedMissionObjectiveCriteria = z.infer<
 export interface MissionObjectiveCriteriaContext {
     actionResult?: ActionResult
     missionTurn?: MissionTurn
-    armyManager?: ArmyManager
+    army?: Army
 }
 
 export const MissionObjectiveCriteriaService = {
@@ -390,7 +389,7 @@ export const MissionObjectiveCriteriaService = {
             case MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED:
                 return isArmyLeaderDefeatedSatisfied(
                     inBattleSquaddieManager,
-                    context?.armyManager
+                    context?.army
                 )
             default:
                 return false
@@ -568,9 +567,8 @@ const isPhaseReachedSatisfied = (
 
 const isArmyLeaderDefeatedSatisfied = (
     inBattleSquaddieManager: InBattleSquaddieManager,
-    armyManager?: ArmyManager
+    army?: Army
 ): boolean => {
-    const army = armyManager?.army
     if (army == undefined) return false
 
     const leader = ArmyService.getLeader(army)

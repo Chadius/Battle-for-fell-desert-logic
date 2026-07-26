@@ -9,17 +9,16 @@ import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleS
 import { SquaddieAffiliation } from "../affiliation/affiliation.js"
 import { AttributeScore } from "../proficiency/attributeScore.js"
 import { OutOfBattleSquaddieTestSetup } from "../testUtils/outOfBattleSquaddieTestSetup.js"
-import { ArmyManager } from "../campaign/army/armyManager.js"
-import { ArmyService } from "../campaign/army/army.js"
+import { type Army, ArmyService } from "../campaign/army/army.js"
 import { CampaignSquaddieService } from "../campaign/army/campaignSquaddie.js"
 
-const buildArmyManagerWithLeaderSquaddie = ({
+const buildArmyWithLeaderSquaddie = ({
     outOfBattleSquaddieId,
     isLeader,
 }: {
     outOfBattleSquaddieId: string
     isLeader: boolean
-}): ArmyManager => {
+}): Army => {
     const campaignSquaddie = CampaignSquaddieService.new({
         id: "campaign-squaddie",
         outOfBattleAttributeSheetId: "test sheet",
@@ -27,11 +26,10 @@ const buildArmyManagerWithLeaderSquaddie = ({
         name: "Campaign Squaddie",
         isLeader,
     })
-    const army = ArmyService.addOrUpdate({
+    return ArmyService.addOrUpdate({
         army: ArmyService.new(),
         campaignSquaddie,
     })
-    return new ArmyManager(army)
 }
 
 describe("ArmyLeaderDefeatedCriteria", () => {
@@ -96,7 +94,7 @@ describe("ArmyLeaderDefeatedCriteria", () => {
         })
 
         it("is true when the army leader's in-battle squaddie is defeated", () => {
-            const armyManager = buildArmyManagerWithLeaderSquaddie({
+            const army = buildArmyWithLeaderSquaddie({
                 outOfBattleSquaddieId: "leader-out-of-battle",
                 isLeader: true,
             })
@@ -114,13 +112,13 @@ describe("ArmyLeaderDefeatedCriteria", () => {
 
             expect(
                 MissionObjectiveCriteriaService.isSatisfied(criteria, manager, {
-                    armyManager,
+                    army,
                 })
             ).toBe(true)
         })
 
         it("is false when the army leader's in-battle squaddie is still alive", () => {
-            const armyManager = buildArmyManagerWithLeaderSquaddie({
+            const army = buildArmyWithLeaderSquaddie({
                 outOfBattleSquaddieId: "leader-out-of-battle",
                 isLeader: true,
             })
@@ -129,13 +127,13 @@ describe("ArmyLeaderDefeatedCriteria", () => {
 
             expect(
                 MissionObjectiveCriteriaService.isSatisfied(criteria, manager, {
-                    armyManager,
+                    army,
                 })
             ).toBe(false)
         })
 
         it("is false when the army has no leader", () => {
-            const armyManager = buildArmyManagerWithLeaderSquaddie({
+            const army = buildArmyWithLeaderSquaddie({
                 outOfBattleSquaddieId: "leader-out-of-battle",
                 isLeader: false,
             })
@@ -144,12 +142,12 @@ describe("ArmyLeaderDefeatedCriteria", () => {
 
             expect(
                 MissionObjectiveCriteriaService.isSatisfied(criteria, manager, {
-                    armyManager,
+                    army,
                 })
             ).toBe(false)
         })
 
-        it("is false when no armyManager is provided in the context", () => {
+        it("is false when no army is provided in the context", () => {
             const criteria =
                 MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
 
