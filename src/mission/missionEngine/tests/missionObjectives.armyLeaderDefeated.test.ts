@@ -53,35 +53,39 @@ function setSlitherDemonAsArmyLeader(harness: MissionEngineTestHarness): void {
 }
 
 describe("MissionEngine — ARMY_LEADER_DEFEATED objective", () => {
-    describe("when the army leader's squaddie is KO'd", () => {
-        let harness: MissionEngineTestHarness
+    let harness: MissionEngineTestHarness
 
-        beforeEach(() => {
-            harness = new MissionEngineTestHarness(new RollGenerator(KILL_HIT))
-            placeSlitherDemonAdjacentToLini(harness)
-            setSlitherDemonAsArmyLeader(harness)
-            advanceHarnessToPlayerTurn(harness)
+    beforeEach(() => {
+        harness = new MissionEngineTestHarness(new RollGenerator(KILL_HIT))
+        placeSlitherDemonAdjacentToLini(harness)
+        setSlitherDemonAsArmyLeader(harness)
+        advanceHarnessToPlayerTurn(harness)
+
+        const defeatLeaderObjective = MissionObjectiveService.new({
+            id: "leader-koed",
+            rewards: [
+                MissionObjectiveRewardService.newPlayMovieReward("down!"),
+            ],
+            criteria: [
+                MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria(),
+            ],
         })
+        harness.addObjective(defeatLeaderObjective)
+    })
 
-        it("moves from in-progress to completed-but-not-rewarded once the leader is KO'd", () => {
-            const demonId = harness.getSlitherDemonSquaddieId()
-            const defeatLeaderObjective = MissionObjectiveService.new({
-                id: "leader-koed",
-                rewards: [
-                    MissionObjectiveRewardService.newPlayMovieReward("down!"),
-                ],
-                criteria: [
-                    MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria(),
-                ],
-            })
-            harness.addObjective(defeatLeaderObjective)
-
+    describe("before the leader is defeated", () => {
+        it("the objective remains in-progress", () => {
             expect(
                 harness
                     .getInProgressMissionObjectives()
                     .map((objective) => objective.id)
             ).toContain("leader-koed")
+        })
+    })
 
+    describe("once the leader is KO'd", () => {
+        beforeEach(() => {
+            const demonId = harness.getSlitherDemonSquaddieId()
             harness.readyAction({
                 actor: harness.getLiniSquaddieId(),
                 targets: [demonId],
@@ -90,12 +94,17 @@ describe("MissionEngine — ARMY_LEADER_DEFEATED objective", () => {
                 },
             })
             harness.useActionAndGetResults()
+        })
 
+        it("moves the objective to completed-but-not-rewarded", () => {
             expect(
                 harness
                     .getCompletedButNotRewardedMissionObjectives()
                     .map((objective) => objective.id)
             ).toContain("leader-koed")
+        })
+
+        it("removes the objective from the in-progress list", () => {
             expect(
                 harness
                     .getInProgressMissionObjectives()

@@ -13,6 +13,27 @@ import { ArmyManager } from "../campaign/army/armyManager.js"
 import { ArmyService } from "../campaign/army/army.js"
 import { CampaignSquaddieService } from "../campaign/army/campaignSquaddie.js"
 
+const buildArmyManagerWithLeaderSquaddie = ({
+    outOfBattleSquaddieId,
+    isLeader,
+}: {
+    outOfBattleSquaddieId: string
+    isLeader: boolean
+}): ArmyManager => {
+    const campaignSquaddie = CampaignSquaddieService.new({
+        id: "campaign-squaddie",
+        outOfBattleAttributeSheetId: "test sheet",
+        outOfBattleSquaddieId,
+        name: "Campaign Squaddie",
+        isLeader,
+    })
+    const army = ArmyService.addOrUpdate({
+        army: ArmyService.new(),
+        campaignSquaddie,
+    })
+    return new ArmyManager(army)
+}
+
 describe("ArmyLeaderDefeatedCriteria", () => {
     describe("creation", () => {
         it("creates a criteria of type ARMY_LEADER_DEFEATED", () => {
@@ -75,18 +96,12 @@ describe("ArmyLeaderDefeatedCriteria", () => {
         })
 
         it("is true when the army leader's in-battle squaddie is defeated", () => {
-            const leader = CampaignSquaddieService.new({
-                id: "leader",
-                outOfBattleAttributeSheetId: "test sheet",
+            const armyManager = buildArmyManagerWithLeaderSquaddie({
                 outOfBattleSquaddieId: "leader-out-of-battle",
-                name: "Leader",
                 isLeader: true,
             })
-            const army = ArmyService.addOrUpdate({
-                army: ArmyService.new(),
-                campaignSquaddie: leader,
-            })
-            const armyManager = new ArmyManager(army)
+            const criteria =
+                MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
 
             manager.dealDamageToSquaddie({
                 inBattleSquaddieId: 0,
@@ -97,9 +112,6 @@ describe("ArmyLeaderDefeatedCriteria", () => {
                 },
             })
 
-            const criteria =
-                MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
-
             expect(
                 MissionObjectiveCriteriaService.isSatisfied(criteria, manager, {
                     armyManager,
@@ -108,19 +120,10 @@ describe("ArmyLeaderDefeatedCriteria", () => {
         })
 
         it("is false when the army leader's in-battle squaddie is still alive", () => {
-            const leader = CampaignSquaddieService.new({
-                id: "leader",
-                outOfBattleAttributeSheetId: "test sheet",
+            const armyManager = buildArmyManagerWithLeaderSquaddie({
                 outOfBattleSquaddieId: "leader-out-of-battle",
-                name: "Leader",
                 isLeader: true,
             })
-            const army = ArmyService.addOrUpdate({
-                army: ArmyService.new(),
-                campaignSquaddie: leader,
-            })
-            const armyManager = new ArmyManager(army)
-
             const criteria =
                 MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
 
@@ -132,28 +135,10 @@ describe("ArmyLeaderDefeatedCriteria", () => {
         })
 
         it("is false when the army has no leader", () => {
-            const nonLeader = CampaignSquaddieService.new({
-                id: "non-leader",
-                outOfBattleAttributeSheetId: "test sheet",
+            const armyManager = buildArmyManagerWithLeaderSquaddie({
                 outOfBattleSquaddieId: "leader-out-of-battle",
-                name: "Not The Leader",
                 isLeader: false,
             })
-            const army = ArmyService.addOrUpdate({
-                army: ArmyService.new(),
-                campaignSquaddie: nonLeader,
-            })
-            const armyManager = new ArmyManager(army)
-
-            manager.dealDamageToSquaddie({
-                inBattleSquaddieId: 0,
-                outOfBattleSquaddieId: "leader-out-of-battle",
-                damage: {
-                    amount: 10,
-                    type: AttributeScore.BODY,
-                },
-            })
-
             const criteria =
                 MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
 
