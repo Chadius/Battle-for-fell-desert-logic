@@ -221,9 +221,9 @@ describe("CampaignSquaddieDeploymentManager", () => {
         })
     })
 
-    describe("getOpenCoordinates", () => {
-        describe("after defaultAssign leaves some coordinates unfilled", () => {
-            it("returns only the unfilled coordinates", () => {
+    describe("after defaultAssign leaves one coordinate unfilled and fills another", () => {
+        const buildManagerWithOneOpenAndOneFilledCoordinate =
+            (): CampaignSquaddieDeploymentManager => {
                 const armyManager = armyManagerWithSquaddies(
                     campaignSquaddie("lini")
                 )
@@ -247,11 +247,30 @@ describe("CampaignSquaddieDeploymentManager", () => {
 
                 manager.defaultAssign()
 
+                return manager
+            }
+
+        describe("getOpenCoordinates", () => {
+            it("returns only the unfilled coordinates", () => {
+                const manager = buildManagerWithOneOpenAndOneFilledCoordinate()
+
                 expect(
                     manager
                         .getOpenCoordinates()
                         .map((coordinate) => coordinate.id)
                 ).toEqual(["slot-open"])
+            })
+        })
+
+        describe("getDeployedCoordinates", () => {
+            it("returns only the filled coordinates", () => {
+                const manager = buildManagerWithOneOpenAndOneFilledCoordinate()
+
+                expect(
+                    manager
+                        .getDeployedCoordinates()
+                        .map((coordinate) => coordinate.id)
+                ).toEqual(["slot-filled"])
             })
         })
     })

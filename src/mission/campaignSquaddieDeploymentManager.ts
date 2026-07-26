@@ -80,6 +80,12 @@ export class CampaignSquaddieDeploymentManager {
         )
     }
 
+    getDeployedCoordinates(): CampaignSquaddieDeploymentCoordinate[] {
+        return this.getCoordinates().filter((deploymentCoordinate) =>
+            this.campaignSquaddieIdByCoordinateId.has(deploymentCoordinate.id)
+        )
+    }
+
     getUnplacedEligibleCampaignSquaddies(): CampaignSquaddie[] {
         const placedCampaignSquaddieIds = new Set(
             this.campaignSquaddieIdByCoordinateId.values()
