@@ -116,5 +116,38 @@ describe("ArmyLeaderDefeatedCriteria", () => {
                 })
             ).toBe(false)
         })
+
+        it("is false when the army has no leader", () => {
+            const nonLeader = CampaignSquaddieService.new({
+                id: "non-leader",
+                outOfBattleAttributeSheetId: "test sheet",
+                outOfBattleSquaddieId: "leader-out-of-battle",
+                name: "Not The Leader",
+                isLeader: false,
+            })
+            const army = ArmyService.addOrUpdate({
+                army: ArmyService.new(),
+                campaignSquaddie: nonLeader,
+            })
+            const armyManager = new ArmyManager(army)
+
+            manager.dealDamageToSquaddie({
+                inBattleSquaddieId: 0,
+                outOfBattleSquaddieId: "leader-out-of-battle",
+                damage: {
+                    amount: 10,
+                    type: AttributeScore.BODY,
+                },
+            })
+
+            const criteria =
+                MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
+
+            expect(
+                MissionObjectiveCriteriaService.isSatisfied(criteria, manager, {
+                    armyManager,
+                })
+            ).toBe(false)
+        })
     })
 })
