@@ -149,5 +149,14 @@ describe("ArmyLeaderDefeatedCriteria", () => {
                 })
             ).toBe(false)
         })
+
+        it("is false when no armyManager is provided in the context", () => {
+            const criteria =
+                MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
+
+            expect(
+                MissionObjectiveCriteriaService.isSatisfied(criteria, manager)
+            ).toBe(false)
+        })
     })
 })
