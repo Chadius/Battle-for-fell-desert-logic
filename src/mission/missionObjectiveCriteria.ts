@@ -93,11 +93,16 @@ const phaseReachedCriteriaSchema = z.object({
     missionAffiliationTurn: z.string(),
 })
 
+const armyLeaderDefeatedCriteriaSchema = z.object({
+    type: z.literal(MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED),
+})
+
 export const missionObjectiveCriteriaSchema = z.discriminatedUnion("type", [
     allSquaddiesDefeatedCriteriaSchema,
     specificSquaddiesInjuredCriteriaSchema,
     specificSquaddiesDefeatedCriteriaSchema,
     phaseReachedCriteriaSchema,
+    armyLeaderDefeatedCriteriaSchema,
 ])
 
 export type SerializedMissionObjectiveCriteria = z.infer<
@@ -295,6 +300,8 @@ export const MissionObjectiveCriteriaService = {
                 return serializeSquaddieIdFilterCriteria(criteria)
             case MissionObjectiveCriteriaType.PHASE_REACHED:
                 return serializeMissionObjectiveCriteriaPhaseReached(criteria)
+            case MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED:
+                return { type: criteria.type }
             default:
                 throw new Error(
                     `[MissionObjectiveCriteriaService.serialize]: unknown criteria type`
@@ -348,6 +355,8 @@ export const MissionObjectiveCriteriaService = {
                     missionAffiliationTurn:
                         data.missionAffiliationTurn as TMissionAffiliationTurn,
                 })
+            case MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED:
+                return MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
             default:
                 throw new Error(
                     `[MissionObjectiveCriteriaService.createFromJSON]: invalid criteria type: ${data.type}`

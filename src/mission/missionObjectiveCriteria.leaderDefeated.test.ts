@@ -25,6 +25,20 @@ describe("ArmyLeaderDefeatedCriteria", () => {
         })
     })
 
+    describe("serialization", () => {
+        it("round trips through serialize and createFromJSON", () => {
+            const criteria =
+                MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
+
+            const serialized =
+                MissionObjectiveCriteriaService.serialize(criteria)
+            const deserialized =
+                MissionObjectiveCriteriaService.createFromJSON(serialized)
+
+            expect(deserialized).toEqual(criteria)
+        })
+    })
+
     describe("isSatisfied", () => {
         let manager: InBattleSquaddieManager
 
