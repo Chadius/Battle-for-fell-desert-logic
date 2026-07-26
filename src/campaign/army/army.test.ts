@@ -127,6 +127,17 @@ describe("Army", () => {
                 expect(ArmyService.getLeader(withLeader)).toEqual(leader)
             })
         })
+
+        describe("when the army has no leader", () => {
+            it("returns undefined", () => {
+                const withLini = ArmyService.addOrUpdate({
+                    army,
+                    campaignSquaddie: lini,
+                })
+
+                expect(ArmyService.getLeader(withLini)).toBeUndefined()
+            })
+        })
     })
 
     describe("serialize and deserializeAll", () => {
