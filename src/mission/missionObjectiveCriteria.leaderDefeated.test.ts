@@ -92,5 +92,29 @@ describe("ArmyLeaderDefeatedCriteria", () => {
                 })
             ).toBe(true)
         })
+
+        it("is false when the army leader's in-battle squaddie is still alive", () => {
+            const leader = CampaignSquaddieService.new({
+                id: "leader",
+                outOfBattleAttributeSheetId: "test sheet",
+                outOfBattleSquaddieId: "leader-out-of-battle",
+                name: "Leader",
+                isLeader: true,
+            })
+            const army = ArmyService.addOrUpdate({
+                army: ArmyService.new(),
+                campaignSquaddie: leader,
+            })
+            const armyManager = new ArmyManager(army)
+
+            const criteria =
+                MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
+
+            expect(
+                MissionObjectiveCriteriaService.isSatisfied(criteria, manager, {
+                    armyManager,
+                })
+            ).toBe(false)
+        })
     })
 })
