@@ -179,6 +179,14 @@ export class MissionEngine {
             }
         }
 
+        if (this.isCampaignSquaddieDeploymentInProgress()) {
+            return {
+                isValid: false,
+                message:
+                    "[MissionEngine.readyAction]: campaign squaddie deployment is in progress",
+            }
+        }
+
         let validityCheck = this.canReadyActionBecauseOfAffiliationTurn({
             actor,
             targets,
@@ -565,6 +573,13 @@ export class MissionEngine {
     isMoviePlaying(): boolean {
         return (
             this.activeMovieEngine?.status().state === MovieEngineState.PLAYING
+        )
+    }
+
+    isCampaignSquaddieDeploymentInProgress(): boolean {
+        return (
+            this.missionManager?.isCampaignSquaddieDeploymentInProgress() ??
+            false
         )
     }
 
@@ -1269,8 +1284,81 @@ export class MissionEngine {
         if (!validation.isValid) {
             return validation
         }
+        if (
+            this.missionManager!.hasPendingCampaignSquaddieDeploymentCoordinates()
+        ) {
+            this.missionManager!.beginCampaignSquaddieDeployment()
+            return { isValid: true, errors: [] }
+        }
         this.missionManager!.deployRequiredSquaddies()
         return { isValid: true, errors: [] }
+    }
+
+    getCampaignDeploymentStatus(): ReturnType<
+        MissionManager["getCampaignDeploymentStatus"]
+    > {
+        this.throwIfMissionManagerIsUndefined(
+            this.getCampaignDeploymentStatus.name
+        )
+        return this.missionManager!.getCampaignDeploymentStatus()
+    }
+
+    deployCampaignSquaddie({
+        coordinateId,
+        campaignSquaddieId,
+    }: {
+        coordinateId: string
+        campaignSquaddieId: string
+    }): void {
+        this.throwIfMissionManagerIsUndefined(this.deployCampaignSquaddie.name)
+        this.missionManager!.deployCampaignSquaddie({
+            coordinateId,
+            campaignSquaddieId,
+        })
+    }
+
+    undeployCampaignSquaddie(coordinateId: string): void {
+        this.throwIfMissionManagerIsUndefined(
+            this.undeployCampaignSquaddie.name
+        )
+        this.missionManager!.undeployCampaignSquaddie(coordinateId)
+    }
+
+    swapCampaignSquaddieDeployment({
+        coordinateIdA,
+        coordinateIdB,
+    }: {
+        coordinateIdA: string
+        coordinateIdB: string
+    }): void {
+        this.throwIfMissionManagerIsUndefined(
+            this.swapCampaignSquaddieDeployment.name
+        )
+        this.missionManager!.swapCampaignSquaddieDeployment({
+            coordinateIdA,
+            coordinateIdB,
+        })
+    }
+
+    finalizeCampaignSquaddieDeploymentAndStartMission(): void {
+        this.throwIfMissionManagerIsUndefined(
+            this.finalizeCampaignSquaddieDeploymentAndStartMission.name
+        )
+        this.missionManager!.finalizeCampaignSquaddieDeploymentAndStartMission()
+    }
+
+    getOutOfBattleSquaddieDetails(
+        outOfBattleSquaddieId: string
+    ): ReturnType<OutOfBattleSquaddieManager["getSquaddie"]> {
+        this.throwIfMissionManagerIsUndefined(
+            this.getOutOfBattleSquaddieDetails.name
+        )
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(
+            this.getOutOfBattleSquaddieDetails.name
+        )
+        return this.missionManager!.outOfBattleSquaddieManager!.getSquaddie(
+            outOfBattleSquaddieId
+        )
     }
 
     serialize(): SerializedMissionEngine {
@@ -1436,6 +1524,16 @@ export class MissionEngine {
         if (this.missionManager?.coordinateMapCollectionManager == undefined) {
             throw new Error(
                 `[MissionEngine.${callingFunction}]: coordinateMapCollectionManager is undefined`
+            )
+        }
+    }
+
+    private throwIfOutOfBattleSquaddieManagerIsUndefined(
+        callingFunction: string
+    ): void {
+        if (this.missionManager?.outOfBattleSquaddieManager == undefined) {
+            throw new Error(
+                `[MissionEngine.${callingFunction}]: outOfBattleSquaddieManager is undefined`
             )
         }
     }

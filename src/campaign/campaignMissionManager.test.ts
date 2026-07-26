@@ -1,17 +1,19 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { CampaignManager } from "./campaignManager.js"
-import { CampaignCollectionService } from "./campaignCollection.js"
+import { CampaignMissionManager } from "./campaignMissionManager.js"
+import { CampaignMissionCollectionService } from "./campaignMissionCollection.js"
 import { CampaignMissionService } from "./campaignMission.js"
 import type { MissionManager } from "../mission/missionManager.js"
 
-describe("CampaignManager", () => {
-    let manager: CampaignManager
+describe("CampaignMissionManager", () => {
+    let manager: CampaignMissionManager
 
     const createMission = (id: string, name: string) =>
         CampaignMissionService.new({ id, name })
 
     beforeEach(() => {
-        manager = new CampaignManager(CampaignCollectionService.new())
+        manager = new CampaignMissionManager(
+            CampaignMissionCollectionService.new()
+        )
     })
 
     describe("addMission", () => {
@@ -27,12 +29,12 @@ describe("CampaignManager", () => {
         })
 
         it("throws when collection is undefined", () => {
-            const managerWithoutCollection = new CampaignManager()
+            const managerWithoutCollection = new CampaignMissionManager()
             expect(() =>
                 managerWithoutCollection.addMission(
                     createMission("mission-1", "First Mission")
                 )
-            ).toThrow(/CampaignManager\.addMission/)
+            ).toThrow(/CampaignMissionManager\.addMission/)
         })
     })
 
@@ -74,7 +76,7 @@ describe("CampaignManager", () => {
 
         it("throws when the mission id has no registered manager", () => {
             expect(() => manager.loadMissionById("nonexistent-id")).toThrow(
-                /CampaignManager\.loadMissionById/
+                /CampaignMissionManager\.loadMissionById/
             )
         })
     })

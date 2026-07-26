@@ -65,6 +65,12 @@ import {
     ChallengeModifierSettingService,
     ChallengeModifierType,
 } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting.js"
+import type { ArmyManager } from "../campaign/army/armyManager.js"
+import type { CampaignSquaddie } from "../campaign/army/campaignSquaddie.js"
+import { CampaignSquaddieDeploymentManager } from "./campaignSquaddieDeploymentManager.js"
+import { CampaignSquaddieMissionBridgeService } from "./campaignSquaddieMissionBridgeService.js"
+import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
+import type { CampaignSquaddieDeploymentCoordinate } from "./campaignSquaddieDeploymentCoordinate.js"
 
 export class MissionManager {
     missionState?: MissionState
@@ -73,8 +79,10 @@ export class MissionManager {
     squaddieActionManager?: SquaddieActionManager
     outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
     movieManager?: MovieManager
+    armyManager?: ArmyManager
 
     private _loader: MissionResourceLoader | undefined = undefined
+    private campaignSquaddieDeploymentManager?: CampaignSquaddieDeploymentManager
 
     constructor({
         missionState,
@@ -83,6 +91,7 @@ export class MissionManager {
         squaddieActionManager,
         outOfBattleSquaddieManager,
         movieManager,
+        armyManager,
     }: {
         missionState?: MissionState
         inBattleSquaddieManager?: InBattleSquaddieManager
@@ -90,6 +99,7 @@ export class MissionManager {
         squaddieActionManager?: SquaddieActionManager
         outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
         movieManager?: MovieManager
+        armyManager?: ArmyManager
     } = {}) {
         this.missionState = missionState
         this.inBattleSquaddieManager = inBattleSquaddieManager
@@ -97,6 +107,7 @@ export class MissionManager {
         this.squaddieActionManager = squaddieActionManager
         this.outOfBattleSquaddieManager = outOfBattleSquaddieManager
         this.movieManager = movieManager
+        this.armyManager = armyManager
     }
 
     hasMissionEnded(): boolean {
@@ -953,6 +964,141 @@ export class MissionManager {
         }
     }
 
+    hasPendingCampaignSquaddieDeploymentCoordinates(): boolean {
+        this.throwIfStateIsUndefined(
+            this.hasPendingCampaignSquaddieDeploymentCoordinates.name
+        )
+
+        const coordinateCollection =
+            this.missionState!.campaignSquaddieDeploymentCoordinates
+        if (coordinateCollection == undefined) return false
+
+        return (
+            CampaignSquaddieDeploymentCoordinateCollectionService.getAll(
+                coordinateCollection
+            ).length > 0
+        )
+    }
+
+    beginCampaignSquaddieDeployment(): void {
+        this.throwIfStateIsUndefined(this.beginCampaignSquaddieDeployment.name)
+        this.throwIfArmyManagerIsUndefined(
+            this.beginCampaignSquaddieDeployment.name
+        )
+
+        this.campaignSquaddieDeploymentManager =
+            new CampaignSquaddieDeploymentManager({
+                armyManager: this.armyManager!,
+                coordinateCollection:
+                    this.missionState!.campaignSquaddieDeploymentCoordinates!,
+            })
+        this.campaignSquaddieDeploymentManager.defaultAssign()
+    }
+
+    isCampaignSquaddieDeploymentInProgress(): boolean {
+        return this.campaignSquaddieDeploymentManager != undefined
+    }
+
+    getCampaignDeploymentStatus(): {
+        openCoordinates: CampaignSquaddieDeploymentCoordinate[]
+        deployedCoordinates: CampaignSquaddieDeploymentCoordinate[]
+        unplacedEligibleCampaignSquaddies: CampaignSquaddie[]
+        assignments: Record<string, CampaignSquaddie>
+    } {
+        this.throwIfCampaignSquaddieDeploymentManagerIsUndefined(
+            this.getCampaignDeploymentStatus.name
+        )
+
+        const deploymentManager = this.campaignSquaddieDeploymentManager!
+        const deployedCoordinates = deploymentManager.getDeployedCoordinates()
+
+        const assignments: Record<string, CampaignSquaddie> = {}
+        for (const coordinate of deployedCoordinates) {
+            assignments[coordinate.id] =
+                deploymentManager.getAssignedCampaignSquaddie(coordinate.id)!
+        }
+
+        return {
+            openCoordinates: deploymentManager.getOpenCoordinates(),
+            deployedCoordinates,
+            unplacedEligibleCampaignSquaddies:
+                deploymentManager.getUnplacedEligibleCampaignSquaddies(),
+            assignments,
+        }
+    }
+
+    deployCampaignSquaddie({
+        coordinateId,
+        campaignSquaddieId,
+    }: {
+        coordinateId: string
+        campaignSquaddieId: string
+    }): void {
+        this.throwIfCampaignSquaddieDeploymentManagerIsUndefined(
+            this.deployCampaignSquaddie.name
+        )
+        this.campaignSquaddieDeploymentManager!.assign({
+            coordinateId,
+            campaignSquaddieId,
+        })
+    }
+
+    undeployCampaignSquaddie(coordinateId: string): void {
+        this.throwIfCampaignSquaddieDeploymentManagerIsUndefined(
+            this.undeployCampaignSquaddie.name
+        )
+        this.campaignSquaddieDeploymentManager!.unassign(coordinateId)
+    }
+
+    swapCampaignSquaddieDeployment({
+        coordinateIdA,
+        coordinateIdB,
+    }: {
+        coordinateIdA: string
+        coordinateIdB: string
+    }): void {
+        this.throwIfCampaignSquaddieDeploymentManagerIsUndefined(
+            this.swapCampaignSquaddieDeployment.name
+        )
+        this.campaignSquaddieDeploymentManager!.swap({
+            coordinateIdA,
+            coordinateIdB,
+        })
+    }
+
+    finalizeCampaignSquaddieDeploymentAndStartMission(): void {
+        this.throwIfCampaignSquaddieDeploymentManagerIsUndefined(
+            this.finalizeCampaignSquaddieDeploymentAndStartMission.name
+        )
+        this.throwIfArmyManagerIsUndefined(
+            this.finalizeCampaignSquaddieDeploymentAndStartMission.name
+        )
+        this.throwIfOutOfBattleSquaddieManagerIsUndefined(
+            this.finalizeCampaignSquaddieDeploymentAndStartMission.name
+        )
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.finalizeCampaignSquaddieDeploymentAndStartMission.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.finalizeCampaignSquaddieDeploymentAndStartMission.name
+        )
+
+        CampaignSquaddieMissionBridgeService.deployAssignedCampaignSquaddies({
+            armyManager: this.armyManager!,
+            coordinateCollection:
+                this.missionState!.campaignSquaddieDeploymentCoordinates!,
+            deploymentManager: this.campaignSquaddieDeploymentManager!,
+            outOfBattleSquaddieManager: this.outOfBattleSquaddieManager!,
+            inBattleSquaddieManager: this.inBattleSquaddieManager!,
+            coordinateMapCollectionManager:
+                this.coordinateMapCollectionManager!,
+            mapId: this.missionState!.mapId,
+        })
+
+        this.deployRequiredSquaddies()
+        this.campaignSquaddieDeploymentManager = undefined
+    }
+
     loadMissionStateFromJson(data: unknown): void {
         this.initializeLoaderIfNeeded()
         this._loader!.loadMissionStateFromJson(data)
@@ -1118,6 +1264,7 @@ export class MissionManager {
             squaddieActionManager:
                 this._loader.squaddieActionManager ??
                 this.squaddieActionManager,
+            armyManager: this.armyManager,
         }
 
         const result = MissionManagerValidationService.validate(candidate)
@@ -1195,6 +1342,29 @@ export class MissionManager {
         if (this.squaddieActionManager == undefined)
             throw new Error(
                 `[MissionManager.${callName}]: squaddieActionManager must be defined`
+            )
+    }
+
+    private throwIfOutOfBattleSquaddieManagerIsUndefined(callName: string) {
+        if (this.outOfBattleSquaddieManager == undefined)
+            throw new Error(
+                `[MissionManager.${callName}]: outOfBattleSquaddieManager must be defined`
+            )
+    }
+
+    private throwIfArmyManagerIsUndefined(callName: string) {
+        if (this.armyManager == undefined)
+            throw new Error(
+                `[MissionManager.${callName}]: armyManager must be defined`
+            )
+    }
+
+    private throwIfCampaignSquaddieDeploymentManagerIsUndefined(
+        callName: string
+    ) {
+        if (this.campaignSquaddieDeploymentManager == undefined)
+            throw new Error(
+                `[MissionManager.${callName}]: campaignSquaddieDeploymentManager must be defined`
             )
     }
 

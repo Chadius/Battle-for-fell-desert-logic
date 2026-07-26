@@ -1,32 +1,34 @@
 import { describe, expect, it } from "vitest"
 import {
-    createDefaultCampaignManager,
+    createDefaultCampaignMissionManager,
     DefaultCampaignIds,
 } from "./defaultCampaign.js"
 import { MissionEngineTestHarnessIds } from "./missionEngineTestHarness.js"
 import { InBattleSquaddieCollectionService } from "../../squaddie/inBattle/inBattleSquaddieCollection.js"
 
 describe("DefaultCampaign", () => {
-    it("createDefaultCampaignManager returns a manager with missions", () => {
-        const campaignManager = createDefaultCampaignManager()
+    it("createDefaultCampaignMissionManager returns a manager with missions", () => {
+        const campaignMissionManager = createDefaultCampaignMissionManager()
 
-        const serialized = campaignManager.getSerializedMissions()
+        const serialized = campaignMissionManager.getSerializedMissions()
         expect(serialized.length).greaterThan(0)
     })
 
     it("loadMissionById returns a MissionManager for the first mission", () => {
-        const campaignManager = createDefaultCampaignManager()
+        const campaignMissionManager = createDefaultCampaignMissionManager()
 
-        campaignManager.loadMissionById(DefaultCampaignIds.mission1Id)
+        campaignMissionManager.loadMissionById(DefaultCampaignIds.mission1Id)
 
-        expect(campaignManager.getCurrentMission()).toBeDefined()
+        expect(campaignMissionManager.getCurrentMission()).toBeDefined()
     })
 
     describe("the loaded first MissionManager has Lini and Slither Demon", () => {
         const loadFirstMission = () => {
-            const campaignManager = createDefaultCampaignManager()
-            campaignManager.loadMissionById(DefaultCampaignIds.mission1Id)
-            const missionManager = campaignManager.getCurrentMission()!
+            const campaignMissionManager = createDefaultCampaignMissionManager()
+            campaignMissionManager.loadMissionById(
+                DefaultCampaignIds.mission1Id
+            )
+            const missionManager = campaignMissionManager.getCurrentMission()!
             return missionManager.inBattleSquaddieManager!
                 .inBattleSquaddieCollection!
         }

@@ -34,6 +34,15 @@ import {
     MissionStatisticsService,
     type SerializedMissionStatistics,
 } from "./missionStatistics.js"
+import {
+    type CampaignSquaddieDeploymentCoordinateCollection,
+    CampaignSquaddieDeploymentCoordinateCollectionService,
+} from "./campaignSquaddieDeploymentCoordinateCollection.js"
+import {
+    campaignSquaddieDeploymentCoordinateSchema,
+    CampaignSquaddieDeploymentCoordinateService,
+    type SerializedCampaignSquaddieDeploymentCoordinate,
+} from "./campaignSquaddieDeploymentCoordinate.js"
 
 export interface MissionState {
     id: string
@@ -47,6 +56,7 @@ export interface MissionState {
         required: MissionDeployment[]
         completedDeploymentIds: string[]
     }
+    campaignSquaddieDeploymentCoordinates?: CampaignSquaddieDeploymentCoordinateCollection
 }
 
 export const missionStateSchema = z.object({
@@ -62,6 +72,9 @@ export const missionStateSchema = z.object({
             completedDeploymentIds: z.array(z.string()),
         })
         .optional(),
+    campaignSquaddieDeploymentCoordinates: z
+        .array(campaignSquaddieDeploymentCoordinateSchema)
+        .optional(),
 })
 
 export type SerializedMissionState = {
@@ -75,6 +88,7 @@ export type SerializedMissionState = {
         required: SerializedMissionDeployment[]
         completedDeploymentIds: string[]
     }
+    campaignSquaddieDeploymentCoordinates?: SerializedCampaignSquaddieDeploymentCoordinate[]
 }
 
 export interface MissionStateOverrides {
@@ -97,6 +111,7 @@ export const MissionStateService = {
         missionStatistics,
         overrides,
         deployments,
+        campaignSquaddieDeploymentCoordinates,
     }: {
         id: string
         mapId: string
@@ -106,6 +121,7 @@ export const MissionStateService = {
         missionStatistics?: MissionStatistics
         overrides?: MissionStateOverrides
         deployments?: { required: MissionDeployment[] }
+        campaignSquaddieDeploymentCoordinates?: CampaignSquaddieDeploymentCoordinateCollection
     }): MissionState => {
         if (id == undefined || id.length === 0) {
             throw new Error(
@@ -134,6 +150,7 @@ export const MissionStateService = {
                       completedDeploymentIds: [],
                   }
                 : undefined,
+            campaignSquaddieDeploymentCoordinates,
         }
     },
 
@@ -225,6 +242,12 @@ export const MissionStateService = {
                       ],
                   }
                 : undefined,
+            campaignSquaddieDeploymentCoordinates:
+                state.campaignSquaddieDeploymentCoordinates
+                    ? CampaignSquaddieDeploymentCoordinateCollectionService.serialize(
+                          state.campaignSquaddieDeploymentCoordinates
+                      )
+                    : undefined,
         }
     },
 
@@ -274,6 +297,22 @@ export const MissionStateService = {
                       ],
                   }
                 : undefined,
+            campaignSquaddieDeploymentCoordinates:
+                parsed.campaignSquaddieDeploymentCoordinates
+                    ? parsed.campaignSquaddieDeploymentCoordinates.reduce(
+                          (collection, d) =>
+                              CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate(
+                                  {
+                                      collection,
+                                      campaignSquaddieDeploymentCoordinate:
+                                          CampaignSquaddieDeploymentCoordinateService.new(
+                                              d
+                                          ),
+                                  }
+                              ),
+                          CampaignSquaddieDeploymentCoordinateCollectionService.new()
+                      )
+                    : undefined,
         }
     },
 }
