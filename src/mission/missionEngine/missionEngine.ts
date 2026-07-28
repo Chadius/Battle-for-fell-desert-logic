@@ -285,7 +285,7 @@ export class MissionEngine {
 
         this.readiedAction = undefined
 
-        this.triggerImmediateObjectiveRewards()
+        this.checkAndTriggerObjectiveRewards()
         this.autoAdvanceThroughBookendAffiliationTurns()
 
         return this.actionResults
@@ -790,7 +790,7 @@ export class MissionEngine {
         return true
     }
 
-    private triggerImmediateObjectiveRewards(): void {
+    checkAndTriggerObjectiveRewards(): void {
         if (!this.missionManager) return
 
         const missionObjectiveCriteriaContext =
@@ -846,7 +846,7 @@ export class MissionEngine {
         )
         this.recentPhaseTransitions.push(this.getCurrentAffiliationTurn())
 
-        this.triggerImmediateObjectiveRewards()
+        this.checkAndTriggerObjectiveRewards()
     }
 
     private canSkipAffiliationTurn(): boolean {

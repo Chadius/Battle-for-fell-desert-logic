@@ -21,6 +21,28 @@ import { CoordinateMapService } from "../../../coordinateMap/coordinateMap.js"
 import { SquaddieActionManager } from "../../../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../../squaddieAction/squaddieActionCollection.js"
 import { AttributeScore } from "../../../proficiency/attributeScore.js"
+import type { MissionObjective } from "../../missionObjective.js"
+import { MissionObjectiveService } from "../../missionObjective.js"
+import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
+import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
+import { MissionAffiliationTurn } from "../../missionTurn.js"
+import { MovieSceneImageService } from "../../../movie/movieSceneImage.js"
+import { MovieSceneType } from "../../../movie/movieScene.js"
+import type { Movie } from "../../../movie/movie.js"
+
+const makeBriefingMovie = (sceneId: string): Movie => ({
+    id: "movie-1",
+    firstSceneId: sceneId,
+    scenes: [
+        {
+            type: MovieSceneType.IMAGE,
+            data: MovieSceneImageService.new({
+                id: sceneId,
+                resourceManifestEntryId: "img",
+            }),
+        },
+    ],
+})
 
 const MAP_ID = "map-1"
 const LINI_ID = "lini"
@@ -32,7 +54,11 @@ const REM_OUT_OF_BATTLE_ID = "battle-rem"
 const REQUESTED_COORDINATE_ID = "slot-lini"
 const OPEN_COORDINATE_ID = "slot-open"
 
-const buildEngineWithCampaignDeployment = () => {
+const buildEngineWithCampaignDeployment = ({
+    objectives = [],
+}: {
+    objectives?: MissionObjective[]
+} = {}) => {
     const armyManager = new ArmyManager(ArmyService.new())
     armyManager.addOrUpdate(
         CampaignSquaddieService.new({
@@ -148,6 +174,7 @@ const buildEngineWithCampaignDeployment = () => {
         id: "mission-1",
         mapId: MAP_ID,
         campaignSquaddieDeploymentCoordinates: coordinateCollection,
+        objectives,
     })
 
     const missionManager = new MissionManager({
@@ -377,6 +404,40 @@ describe("MissionEngine campaign squaddie deployment", () => {
 
                 expect(result.isValid).toBe(false)
                 expect(result.message).toContain("deployment")
+            })
+        })
+    })
+
+    describe("checkAndTriggerObjectiveRewards", () => {
+        describe("when called before finalizeLoadingMission — i.e. before the engine decides whether deployment is needed", () => {
+            it("triggers the objective's movie reward immediately, before deployment begins", () => {
+                const preDeploymentBriefing = MissionObjectiveService.new({
+                    id: "pre-deployment-briefing",
+                    rewards: [
+                        MissionObjectiveRewardService.newPlayMovieReward(
+                            "movie-1"
+                        ),
+                    ],
+                    criteria: [
+                        MissionObjectiveCriteriaService.newPhaseReachedCriteria(
+                            {
+                                turnCount: 0,
+                                missionAffiliationTurn:
+                                    MissionAffiliationTurn.TURN_START,
+                            }
+                        ),
+                    ],
+                })
+                const { engine } = buildEngineWithCampaignDeployment({
+                    objectives: [preDeploymentBriefing],
+                })
+                engine.registerMovie(
+                    makeBriefingMovie("pre-deployment-briefing")
+                )
+
+                engine.checkAndTriggerObjectiveRewards()
+
+                expect(engine.isMoviePlaying()).toBe(true)
             })
         })
     })
