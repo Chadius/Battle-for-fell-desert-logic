@@ -325,6 +325,7 @@ export class MissionEngine {
         return {
             actionResult: this.actionResults,
             missionTurn: this.missionManager?.missionState?.turn,
+            army: this.missionManager?.armyManager?.army,
         }
     }
 

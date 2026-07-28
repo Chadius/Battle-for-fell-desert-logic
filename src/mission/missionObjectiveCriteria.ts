@@ -12,12 +12,14 @@ import {
     MissionTurnService,
     type TMissionAffiliationTurn,
 } from "./missionTurn.js"
+import { type Army, ArmyService } from "../campaign/army/army.js"
 
 export const MissionObjectiveCriteriaType = {
     ALL_SQUADDIES_DEFEATED: "ALL_SQUADDIES_DEFEATED",
     SPECIFIC_SQUADDIES_INJURED: "SPECIFIC_SQUADDIES_INJURED",
     SPECIFIC_SQUADDIES_DEFEATED: "SPECIFIC_SQUADDIES_DEFEATED",
     PHASE_REACHED: "PHASE_REACHED",
+    ARMY_LEADER_DEFEATED: "ARMY_LEADER_DEFEATED",
 } as const satisfies Record<string, string>
 
 export type TMissionObjectiveCriteriaType = EnumLike<
@@ -49,11 +51,16 @@ export interface PhaseReachedCriteria {
     missionAffiliationTurn: TMissionAffiliationTurn
 }
 
+export interface ArmyLeaderDefeatedCriteria {
+    type: typeof MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED
+}
+
 export type MissionObjectiveCriteria =
     | AllSquaddiesDefeatedCriteria
     | SpecificSquaddiesInjuredCriteria
     | SpecificSquaddiesDefeatedCriteria
     | PhaseReachedCriteria
+    | ArmyLeaderDefeatedCriteria
 
 const serializedBattleSquaddieIdSchema = z.object({
     inBattleSquaddieId: z.number(),
@@ -85,11 +92,16 @@ const phaseReachedCriteriaSchema = z.object({
     missionAffiliationTurn: z.string(),
 })
 
+const armyLeaderDefeatedCriteriaSchema = z.object({
+    type: z.literal(MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED),
+})
+
 export const missionObjectiveCriteriaSchema = z.discriminatedUnion("type", [
     allSquaddiesDefeatedCriteriaSchema,
     specificSquaddiesInjuredCriteriaSchema,
     specificSquaddiesDefeatedCriteriaSchema,
     phaseReachedCriteriaSchema,
+    armyLeaderDefeatedCriteriaSchema,
 ])
 
 export type SerializedMissionObjectiveCriteria = z.infer<
@@ -99,6 +111,7 @@ export type SerializedMissionObjectiveCriteria = z.infer<
 export interface MissionObjectiveCriteriaContext {
     actionResult?: ActionResult
     missionTurn?: MissionTurn
+    army?: Army
 }
 
 export const MissionObjectiveCriteriaService = {
@@ -269,6 +282,10 @@ export const MissionObjectiveCriteriaService = {
         }
     },
 
+    newArmyLeaderDefeatedCriteria: (): ArmyLeaderDefeatedCriteria => ({
+        type: MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED,
+    }),
+
     serialize: (
         criteria: MissionObjectiveCriteria
     ): SerializedMissionObjectiveCriteria => {
@@ -282,6 +299,8 @@ export const MissionObjectiveCriteriaService = {
                 return serializeSquaddieIdFilterCriteria(criteria)
             case MissionObjectiveCriteriaType.PHASE_REACHED:
                 return serializeMissionObjectiveCriteriaPhaseReached(criteria)
+            case MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED:
+                return { type: criteria.type }
             default:
                 throw new Error(
                     `[MissionObjectiveCriteriaService.serialize]: unknown criteria type`
@@ -335,6 +354,8 @@ export const MissionObjectiveCriteriaService = {
                     missionAffiliationTurn:
                         data.missionAffiliationTurn as TMissionAffiliationTurn,
                 })
+            case MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED:
+                return MissionObjectiveCriteriaService.newArmyLeaderDefeatedCriteria()
             default:
                 throw new Error(
                     `[MissionObjectiveCriteriaService.createFromJSON]: invalid criteria type: ${data.type}`
@@ -365,6 +386,11 @@ export const MissionObjectiveCriteriaService = {
                 )
             case MissionObjectiveCriteriaType.PHASE_REACHED:
                 return isPhaseReachedSatisfied(criteria, context?.missionTurn)
+            case MissionObjectiveCriteriaType.ARMY_LEADER_DEFEATED:
+                return isArmyLeaderDefeatedSatisfied(
+                    inBattleSquaddieManager,
+                    context?.army
+                )
             default:
                 return false
         }
@@ -537,6 +563,26 @@ const isPhaseReachedSatisfied = (
         return false
 
     return currentPhaseOrder >= targetPhaseOrder
+}
+
+const isArmyLeaderDefeatedSatisfied = (
+    inBattleSquaddieManager: InBattleSquaddieManager,
+    army?: Army
+): boolean => {
+    if (army == undefined) return false
+
+    const leader = ArmyService.getLeader(army)
+    if (leader == undefined) return false
+
+    const matchingSquaddie = inBattleSquaddieManager
+        .getAllSquaddies()
+        .find(
+            (squaddie) =>
+                squaddie.outOfBattleSquaddieId === leader.outOfBattleSquaddieId
+        )
+    if (matchingSquaddie == undefined) return false
+
+    return inBattleSquaddieManager.isSquaddieDefeated(matchingSquaddie)
 }
 
 const serializeMissionObjectiveCriteriaAllSquaddiesDefeated = (

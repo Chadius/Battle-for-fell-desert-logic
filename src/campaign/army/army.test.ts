@@ -105,6 +105,41 @@ describe("Army", () => {
         expect(ArmyService.getAll(withLini)).toEqual([lini])
     })
 
+    describe("getLeader", () => {
+        describe("when the army has a leader", () => {
+            it("returns the campaign squaddie flagged as leader", () => {
+                const leader = CampaignSquaddieService.new({
+                    id: "leader",
+                    outOfBattleAttributeSheetId: "sheet-leader",
+                    outOfBattleSquaddieId: "battle-leader",
+                    name: "Leader",
+                    isLeader: true,
+                })
+                const withLini = ArmyService.addOrUpdate({
+                    army,
+                    campaignSquaddie: lini,
+                })
+                const withLeader = ArmyService.addOrUpdate({
+                    army: withLini,
+                    campaignSquaddie: leader,
+                })
+
+                expect(ArmyService.getLeader(withLeader)).toEqual(leader)
+            })
+        })
+
+        describe("when the army has no leader", () => {
+            it("returns undefined", () => {
+                const withLini = ArmyService.addOrUpdate({
+                    army,
+                    campaignSquaddie: lini,
+                })
+
+                expect(ArmyService.getLeader(withLini)).toBeUndefined()
+            })
+        })
+    })
+
     describe("serialize and deserializeAll", () => {
         it("round-trips an army", () => {
             const withLini = ArmyService.addOrUpdate({

@@ -56,6 +56,12 @@ export const ArmyService = {
         throwIfArmyIsUndefined(army, "getAll")
         return Array.from(army.squaddieById.values())
     },
+    getLeader: (army: Army): CampaignSquaddie | undefined => {
+        throwIfArmyIsUndefined(army, "getLeader")
+        return Array.from(army.squaddieById.values()).find(
+            (campaignSquaddie) => campaignSquaddie.isLeader
+        )
+    },
     remove: ({ army, id }: { army: Army; id: string }): Army => {
         throwIfArmyIsUndefined(army, "remove")
         const newArmy = clone(army)
