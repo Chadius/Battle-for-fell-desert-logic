@@ -86,6 +86,7 @@ export interface SquaddieAction {
     cooldownTurns?: number
     usesPerTurn?: number
     usesPerMission?: number
+    glossaryTermIds?: string[]
 }
 
 const WEAPON_PROFICIENCY_TYPES: ReadonlySet<TProficiencyType> = new Set([
@@ -134,6 +135,7 @@ export const squaddieActionSchema = z.object({
     cooldownTurns: z.number().int().min(1).optional(),
     usesPerTurn: z.number().int().min(1).optional(),
     usesPerMission: z.number().int().min(1).optional(),
+    glossaryTermIds: z.array(z.string()).optional(),
 })
 
 export type SerializedSquaddieAction = z.infer<typeof squaddieActionSchema>
@@ -179,6 +181,9 @@ const serializeSquaddieAction = (
     cooldownTurns: action.cooldownTurns,
     usesPerTurn: action.usesPerTurn,
     usesPerMission: action.usesPerMission,
+    glossaryTermIds: action.glossaryTermIds
+        ? [...action.glossaryTermIds]
+        : undefined,
 })
 
 export const SquaddieActionService = {
@@ -203,6 +208,7 @@ export const SquaddieActionService = {
         cooldownTurns,
         usesPerTurn,
         usesPerMission,
+        glossaryTermIds,
     }: Omit<Partial<SquaddieAction>, "multipleAttackPenalty"> &
         Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
         Partial<SquaddieActionTargeting> & {
@@ -272,6 +278,7 @@ export const SquaddieActionService = {
             cooldownTurns,
             usesPerTurn,
             usesPerMission,
+            glossaryTermIds,
         }
     },
     defaultEndTurn: (): SquaddieAction => {

@@ -7,6 +7,7 @@ export interface SquaddieItem {
     numberOfUses?: number
     passiveProficiencyBonuses: Map<TProficiencyType, number>
     actionIds: Set<string>
+    glossaryTermIds?: string[]
 }
 
 export const squaddieItemSchema = z.object({
@@ -15,6 +16,7 @@ export const squaddieItemSchema = z.object({
     numberOfUses: z.number().optional(),
     passiveProficiencyBonuses: z.record(z.string(), z.number()),
     actionIds: z.array(z.string()),
+    glossaryTermIds: z.array(z.string()).optional(),
 })
 
 export type SerializedSquaddieItem = z.infer<typeof squaddieItemSchema>
@@ -26,12 +28,14 @@ export const SquaddieItemService = {
         numberOfUses,
         passiveProficiencyBonuses,
         actionIds,
+        glossaryTermIds,
     }: {
         id: string
         name: string
         numberOfUses?: number
         passiveProficiencyBonuses?: { [t in TProficiencyType]?: number }
         actionIds?: string[]
+        glossaryTermIds?: string[]
     }): SquaddieItem => {
         const passiveProficiencyBonusEntries: [TProficiencyType, number][] =
             Object.entries(passiveProficiencyBonuses ?? {}).map(
@@ -46,6 +50,7 @@ export const SquaddieItemService = {
             numberOfUses,
             passiveProficiencyBonuses: new Map(passiveProficiencyBonusEntries),
             actionIds: new Set(actionIds ?? []),
+            glossaryTermIds,
         }
     },
     getPassiveProficiencyBonuses: (
@@ -65,6 +70,9 @@ export const SquaddieItemService = {
             numberOfUses: item.numberOfUses,
             passiveProficiencyBonuses,
             actionIds: Array.from(item.actionIds),
+            glossaryTermIds: item.glossaryTermIds
+                ? [...item.glossaryTermIds]
+                : undefined,
         }
     },
     deserialize: (data: unknown): SquaddieItem => {
@@ -87,6 +95,7 @@ export const SquaddieItemService = {
                 ][]
             ),
             actionIds: new Set(serialized.actionIds),
+            glossaryTermIds: serialized.glossaryTermIds,
         }
     },
 }
