@@ -1,8 +1,4 @@
-import {
-    type GlossaryTerm,
-    GlossaryTermService,
-    type SerializedGlossaryTerm,
-} from "./glossaryTerm.js"
+import { type GlossaryTerm } from "./glossaryTerm.js"
 import { glossarySchema } from "./glossary.js"
 
 export interface GlossaryCollection {
@@ -11,13 +7,6 @@ export interface GlossaryCollection {
 
 export const GlossaryCollectionService = {
     new: (): GlossaryCollection => constructNewCollection(),
-
-    serialize: (collection: GlossaryCollection): SerializedGlossaryTerm[] => {
-        throwIfCollectionIsUndefined(collection, "serialize")
-        return Array.from(collection.termById.values()).map(
-            GlossaryTermService.serialize
-        )
-    },
 
     deserializeAll: (
         data: unknown
@@ -37,18 +26,13 @@ export const GlossaryCollectionService = {
         }
 
         for (const rawTerm of result.data.terms) {
-            try {
-                const glossaryTerm = GlossaryTermService.deserialize(rawTerm)
-                if (collection.termById.has(glossaryTerm.termId)) {
-                    errors.push(
-                        `[GlossaryCollectionService.deserializeAll]: duplicate termId "${glossaryTerm.termId}"`
-                    )
-                    continue
-                }
-                collection.termById.set(glossaryTerm.termId, glossaryTerm)
-            } catch (e) {
-                errors.push(e instanceof Error ? e.message : String(e))
+            if (collection.termById.has(rawTerm.termId)) {
+                errors.push(
+                    `[GlossaryCollectionService.deserializeAll]: duplicate termId "${rawTerm.termId}"`
+                )
+                continue
             }
+            collection.termById.set(rawTerm.termId, rawTerm)
         }
         return { collection, errors }
     },
@@ -86,19 +70,6 @@ export const GlossaryCollectionService = {
     }): boolean => {
         throwIfCollectionIsUndefined(collection, "has")
         return collection.termById.has(termId)
-    },
-
-    remove: ({
-        collection,
-        termId,
-    }: {
-        collection: GlossaryCollection
-        termId: string
-    }): GlossaryCollection => {
-        throwIfCollectionIsUndefined(collection, "remove")
-        const newCollection = clone(collection)
-        newCollection.termById.delete(termId)
-        return newCollection
     },
 }
 

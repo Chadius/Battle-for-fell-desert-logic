@@ -2,7 +2,7 @@ import {
     type GlossaryCollection,
     GlossaryCollectionService,
 } from "./glossaryCollection.js"
-import type { GlossaryTerm, SerializedGlossaryTerm } from "./glossaryTerm.js"
+import type { GlossaryTerm } from "./glossaryTerm.js"
 import { LocalizedTextService } from "../../localization/localizedText.js"
 
 export interface ResolvedGlossaryTerm {
@@ -15,14 +15,6 @@ export class GlossaryManager {
 
     constructor(collection?: GlossaryCollection) {
         this.collection = collection
-    }
-
-    addOrUpdate(glossaryTerm: GlossaryTerm): void {
-        this.throwIfCollectionIsUndefined(this.addOrUpdate.name)
-        this.collection = GlossaryCollectionService.addOrUpdate({
-            collection: this.collection!,
-            glossaryTerm,
-        })
     }
 
     has(termId: string): boolean {
@@ -45,19 +37,6 @@ export class GlossaryManager {
             )
         }
         return glossaryTerm
-    }
-
-    remove(termId: string): void {
-        this.throwIfCollectionIsUndefined(this.remove.name)
-        this.collection = GlossaryCollectionService.remove({
-            collection: this.collection!,
-            termId,
-        })
-    }
-
-    serialize(): SerializedGlossaryTerm[] {
-        this.throwIfCollectionIsUndefined(this.serialize.name)
-        return GlossaryCollectionService.serialize(this.collection!)
     }
 
     addTermsFromJson(data: unknown): string[] {
