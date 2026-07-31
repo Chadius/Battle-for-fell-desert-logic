@@ -1,9 +1,9 @@
 import type {
     ConversationLine,
     DialogLine,
-    LocalizedText,
     MovieSceneConversation,
 } from "./movieSceneConversation.js"
+import type { LocalizedText } from "../localization/localizedText.js"
 import {
     type MovieScene,
     MovieSceneService,

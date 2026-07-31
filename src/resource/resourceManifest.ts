@@ -1,3 +1,5 @@
+import { LocalizedTextService } from "../localization/localizedText.js"
+
 export type ResourceManifestType = "IMAGE" | "LEVEL" | "DATA" | "TEXT"
 
 export interface ResourceManifestEntryDescription {
@@ -13,7 +15,7 @@ export interface ResourceManifestEntry {
     type: ResourceManifestType
 }
 
-const FALLBACK_LANGUAGE = "en-us"
+const FALLBACK_LANGUAGE = LocalizedTextService.FALLBACK_LANGUAGE
 
 export const ResourceManifestEntryService = {
     FALLBACK_LANGUAGE,
@@ -44,20 +46,6 @@ export const ResourceManifestEntryService = {
         entry: ResourceManifestEntry,
         languageCode: string,
         fallback = FALLBACK_LANGUAGE
-    ): string => {
-        if (entry.description[languageCode]) {
-            return entry.description[languageCode].text
-        }
-
-        const fallbackEntry = entry.description[fallback]
-
-        if (fallback !== FALLBACK_LANGUAGE && fallbackEntry !== undefined) {
-            return fallbackEntry.text
-        }
-
-        if (fallbackEntry !== undefined) {
-            return `${languageCode} MISSING: ${fallbackEntry.text}`
-        }
-        return `${languageCode} MISSING:`
-    },
+    ): string =>
+        LocalizedTextService.resolve(entry.description, languageCode, fallback),
 }

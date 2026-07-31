@@ -1,3 +1,6 @@
+import type { LocalizedText } from "../localization/localizedText.js"
+import { LocalizedTextService } from "../localization/localizedText.js"
+
 export const MovieSceneConversationCommand = {
     CONFIRM: "CONFIRM",
     COMPLETE_SCENE: "COMPLETE_SCENE",
@@ -5,8 +8,6 @@ export const MovieSceneConversationCommand = {
 
 export type TMovieSceneConversationCommand =
     (typeof MovieSceneConversationCommand)[keyof typeof MovieSceneConversationCommand]
-
-export type LocalizedText = Record<string, { text: string }>
 
 export interface DialogLine {
     type: "DIALOG"
@@ -60,18 +61,6 @@ export interface ConversationSceneStatus {
     dialogPosition: "LEFT" | "CENTER" | "RIGHT"
     isWaitingForDecision: boolean
     decisions: { decisionId: string; text: string }[]
-}
-
-const FALLBACK_LANGUAGE = "en-us"
-
-const resolveLocalizedText = (
-    map: LocalizedText,
-    languageCode: string
-): string => {
-    if (map[languageCode]) return map[languageCode].text
-    const fallback = map[FALLBACK_LANGUAGE]
-    if (fallback) return `${languageCode} MISSING: ${fallback.text}`
-    return `${languageCode} MISSING:`
 }
 
 export const MovieSceneConversationService = {
@@ -212,7 +201,7 @@ export const MovieSceneConversationService = {
     status: (
         movieSceneConversation: MovieSceneConversation,
         movieSceneConversationState: MovieSceneConversationState,
-        languageCode: string = FALLBACK_LANGUAGE
+        languageCode: string = LocalizedTextService.FALLBACK_LANGUAGE
     ): ConversationSceneStatus => {
         const line =
             movieSceneConversation.lines[
@@ -223,7 +212,7 @@ export const MovieSceneConversationService = {
                 type: "CONVERSATION",
                 sceneId: movieSceneConversation.id,
                 speakerId: line.speakerId,
-                text: resolveLocalizedText(line.text, languageCode),
+                text: LocalizedTextService.resolve(line.text, languageCode),
                 portrait: line.portrait,
                 dialogPosition: line.dialogPosition ?? "LEFT",
                 isWaitingForDecision: false,
@@ -234,13 +223,13 @@ export const MovieSceneConversationService = {
             type: "CONVERSATION",
             sceneId: movieSceneConversation.id,
             speakerId: undefined,
-            text: resolveLocalizedText(line.prompt, languageCode),
+            text: LocalizedTextService.resolve(line.prompt, languageCode),
             portrait: undefined,
             dialogPosition: "LEFT",
             isWaitingForDecision: true,
             decisions: line.options.map((option) => ({
                 decisionId: option.decisionId,
-                text: resolveLocalizedText(option.text, languageCode),
+                text: LocalizedTextService.resolve(option.text, languageCode),
             })),
         }
     },
