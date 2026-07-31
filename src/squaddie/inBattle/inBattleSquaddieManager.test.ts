@@ -1922,6 +1922,36 @@ describe("In Battle Squaddie Manager", () => {
                 ])
             )
         })
+        it("passes through a consumable item's glossaryTermIds", () => {
+            itemManager.addOrUpdate(
+                SquaddieItemService.new({
+                    id: "healScroll",
+                    name: "Heal Scroll",
+                    numberOfUses: 2,
+                    actionIds: [],
+                    glossaryTermIds: ["item.healScroll"],
+                })
+            )
+
+            expect(
+                manager.getConsumableItems({
+                    ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(
+                new Map<
+                    string,
+                    { numberOfUses: number; glossaryTermIds?: string[] }
+                >([
+                    [
+                        "healScroll",
+                        {
+                            numberOfUses: 2,
+                            glossaryTermIds: ["item.healScroll"],
+                        },
+                    ],
+                ])
+            )
+        })
         it("knows which items are providing passive bonuses", () => {
             expect(
                 manager.getPassiveItemIds({

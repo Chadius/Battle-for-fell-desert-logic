@@ -121,6 +121,7 @@ describe("categorizeSquaddieActions", () => {
                 friend: false,
             },
             proficiency: ProficiencyType.WEAPON_SIMPLE,
+            glossaryTermIds: ["condition.ARMOR"],
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
                     actionPoints: { spent: 1 },
@@ -336,6 +337,73 @@ describe("categorizeSquaddieActions", () => {
                 outOfBattleSquaddieId: "enemy",
             })
         )
+    })
+
+    describe("when an action carries glossaryTermIds", () => {
+        it("passes them through on a valid action", () => {
+            coordinateMapCollectionManager.addSquaddie({
+                mapId,
+                squaddieId: actor,
+                coordinate: { row: 0, col: 0 },
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId,
+                squaddieId: enemy,
+                coordinate: { row: 0, col: 1 },
+            })
+
+            const result =
+                SquaddieActionValidationService.categorizeSquaddieActions({
+                    actor,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager,
+                        coordinateMapCollectionManager,
+                    },
+                    map: { mapId },
+                })
+
+            const meleeValid = result.validActions.find(
+                (a) => a.actionId === meleeAttackId
+            )
+            expect(meleeValid).toBeDefined()
+            expect(meleeValid!.glossaryTermIds).toEqual(["condition.ARMOR"])
+        })
+
+        it("passes them through on an invalid action", () => {
+            coordinateMapCollectionManager.addSquaddie({
+                mapId,
+                squaddieId: actor,
+                coordinate: { row: 0, col: 0 },
+            })
+            coordinateMapCollectionManager.addSquaddie({
+                mapId,
+                squaddieId: enemy,
+                coordinate: { row: 0, col: 1 },
+            })
+
+            inBattleSquaddieManager.spendActionPoints({
+                ...actor,
+                actionPoints: 3,
+            })
+
+            const result =
+                SquaddieActionValidationService.categorizeSquaddieActions({
+                    actor,
+                    managers: {
+                        inBattleSquaddieManager,
+                        squaddieActionManager,
+                        coordinateMapCollectionManager,
+                    },
+                    map: { mapId },
+                })
+
+            const meleeInvalid = result.invalidActions.find(
+                (a) => a.actionId === meleeAttackId
+            )
+            expect(meleeInvalid).toBeDefined()
+            expect(meleeInvalid!.glossaryTermIds).toEqual(["condition.ARMOR"])
+        })
     })
 
     it("when the actor is damaged and the enemy is out of melee range, lists melee as invalid and ranged heal as valid", () => {
