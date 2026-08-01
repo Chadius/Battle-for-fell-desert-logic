@@ -71,6 +71,15 @@ export const GlossaryCollectionService = {
         throwIfCollectionIsUndefined(collection, "has")
         return collection.termById.has(termId)
     },
+
+    termIds: ({
+        collection,
+    }: {
+        collection: GlossaryCollection
+    }): string[] => {
+        throwIfCollectionIsUndefined(collection, "termIds")
+        return Array.from(collection.termById.keys())
+    },
 }
 
 const constructNewCollection = (): GlossaryCollection => ({

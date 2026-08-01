@@ -52,6 +52,13 @@ export class GlossaryManager {
         return errors
     }
 
+    termIds(): string[] {
+        this.throwIfCollectionIsUndefined(this.termIds.name)
+        return GlossaryCollectionService.termIds({
+            collection: this.collection!,
+        })
+    }
+
     resolveTerm(
         termId: string,
         languageCode: string

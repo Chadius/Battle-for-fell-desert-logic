@@ -76,6 +76,45 @@ describe("GlossaryManager.addTermsFromJson", () => {
     })
 })
 
+describe("GlossaryManager.termIds", () => {
+    describe("when terms have been added", () => {
+        it("enumerates every registered termId", () => {
+            const glossaryManager = newGlossaryManager()
+            glossaryManager.addTermsFromJson({
+                terms: [
+                    {
+                        termId: "condition.ARMOR",
+                        type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
+                        name: { "en-us": { text: "Armor" } },
+                        definition: { "en-us": { text: "Reduces hits" } },
+                    },
+                    {
+                        termId: "condition.HUSTLE",
+                        type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
+                        name: { "en-us": { text: "Hustle" } },
+                        definition: {
+                            "en-us": { text: "Reduces movement costs" },
+                        },
+                    },
+                ],
+            })
+
+            expect(glossaryManager.termIds().sort()).toEqual([
+                "condition.ARMOR",
+                "condition.HUSTLE",
+            ])
+        })
+    })
+
+    describe("when no terms have been added", () => {
+        it("returns an empty list", () => {
+            const glossaryManager = newGlossaryManager()
+
+            expect(glossaryManager.termIds()).toEqual([])
+        })
+    })
+})
+
 describe("GlossaryManager.resolveTerm", () => {
     describe("when the term exists", () => {
         it("resolves the name and definition for the requested language", () => {
