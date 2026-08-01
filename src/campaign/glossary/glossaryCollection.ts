@@ -72,11 +72,7 @@ export const GlossaryCollectionService = {
         return collection.termById.has(termId)
     },
 
-    termIds: ({
-        collection,
-    }: {
-        collection: GlossaryCollection
-    }): string[] => {
+    termIds: ({ collection }: { collection: GlossaryCollection }): string[] => {
         throwIfCollectionIsUndefined(collection, "termIds")
         return Array.from(collection.termById.keys())
     },
