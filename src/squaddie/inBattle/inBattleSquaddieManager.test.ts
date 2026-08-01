@@ -2006,6 +2006,62 @@ describe("In Battle Squaddie Manager", () => {
         })
     })
 
+    describe("when a squaddie carries no items and no squaddieItemManager is configured", () => {
+        it("returns an empty map from getConsumableItems instead of throwing", () => {
+            const { manager: outOfBattleSquaddieManagerWithNoItems } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    { sheetId: "no-items-sheet" }
+                )
+            outOfBattleSquaddieManagerWithNoItems.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "no-items-squaddie",
+                    name: "No Items Squaddie",
+                    actionIds: [],
+                    attributeSheetId: "no-items-sheet",
+                    affiliation: SquaddieAffiliation.NONE,
+                })
+            )
+            const managerWithNoItems = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManagerWithNoItems
+            )
+            const noItemsSquaddieId = managerWithNoItems.createNewSquaddie({
+                outOfBattleSquaddieId: "no-items-squaddie",
+            })
+
+            expect(
+                managerWithNoItems.getConsumableItems(noItemsSquaddieId)
+            ).toEqual(new Map())
+        })
+
+        it("returns an empty map from getPassiveItemIds instead of throwing", () => {
+            const { manager: outOfBattleSquaddieManagerWithNoItems } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    { sheetId: "no-items-sheet" }
+                )
+            outOfBattleSquaddieManagerWithNoItems.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "no-items-squaddie",
+                    name: "No Items Squaddie",
+                    actionIds: [],
+                    attributeSheetId: "no-items-sheet",
+                    affiliation: SquaddieAffiliation.NONE,
+                })
+            )
+            const managerWithNoItems = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManagerWithNoItems
+            )
+            const noItemsSquaddieId = managerWithNoItems.createNewSquaddie({
+                outOfBattleSquaddieId: "no-items-squaddie",
+            })
+
+            expect(
+                managerWithNoItems.getPassiveItemIds(noItemsSquaddieId)
+            ).toEqual(new Map())
+        })
+    })
+
     it("Can get Movement Info", () => {
         const inBattleSquaddie00Id = manager.createNewSquaddie({
             outOfBattleSquaddieId: outOfBattleSquaddie0.id,

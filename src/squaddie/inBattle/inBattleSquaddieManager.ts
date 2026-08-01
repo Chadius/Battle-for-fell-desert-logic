@@ -768,9 +768,11 @@ export class InBattleSquaddieManager {
     getConsumableItems(
         battleSquaddieId: BattleSquaddieId
     ): Map<string, { numberOfUses: number; glossaryTermIds?: string[] }> {
-        this.throwIfSquaddieItemManagerIsUndefined(this.getConsumableItems.name)
-
         const squaddieItems = this.getAllSquaddieItemIds(battleSquaddieId)
+        if (squaddieItems.length === 0) {
+            return new Map()
+        }
+        this.throwIfSquaddieItemManagerIsUndefined(this.getConsumableItems.name)
 
         const { inBattleSquaddie } = this.getSquaddie(battleSquaddieId)
         const alreadyConsumedItems = new Map<string, number>()
@@ -938,8 +940,11 @@ export class InBattleSquaddieManager {
         string,
         { passiveProficiencyBonuses: Map<TProficiencyType, number> }
     > {
-        this.throwIfSquaddieItemManagerIsUndefined(this.getPassiveItemIds.name)
         const squaddieItems = this.getAllSquaddieItemIds(battleSquaddieId)
+        if (squaddieItems.length === 0) {
+            return new Map()
+        }
+        this.throwIfSquaddieItemManagerIsUndefined(this.getPassiveItemIds.name)
 
         const mapEntries: [
             string,
