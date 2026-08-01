@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { GlossaryManager } from "./glossaryManager.js"
 import { GlossaryCollectionService } from "./glossaryCollection.js"
+import { GlossaryTermType } from "./glossaryTermType.js"
 
 const newGlossaryManager = (): GlossaryManager =>
     new GlossaryManager(GlossaryCollectionService.new())
@@ -14,6 +15,7 @@ describe("GlossaryManager.addTermsFromJson", () => {
                 terms: [
                     {
                         termId: "condition.ARMOR",
+                        type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                         name: { "en-us": { text: "Armor" } },
                         definition: { "en-us": { text: "Reduces hits" } },
                     },
@@ -33,11 +35,13 @@ describe("GlossaryManager.addTermsFromJson", () => {
                 terms: [
                     {
                         termId: "condition.ARMOR",
+                        type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                         name: { "en-us": { text: "Armor" } },
                         definition: { "en-us": { text: "First definition" } },
                     },
                     {
                         termId: "condition.ARMOR",
+                        type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                         name: { "en-us": { text: "Armor" } },
                         definition: { "en-us": { text: "Second definition" } },
                     },
@@ -60,6 +64,7 @@ describe("GlossaryManager.addTermsFromJson", () => {
             const errors = glossaryManager.addTermsFromJson({
                 terms: [
                     {
+                        type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                         name: { "en-us": { text: "Armor" } },
                         definition: { "en-us": { text: "Reduces hits" } },
                     },
@@ -79,6 +84,7 @@ describe("GlossaryManager.resolveTerm", () => {
                 terms: [
                     {
                         termId: "condition.HUSTLE",
+                        type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                         name: {
                             "en-us": { text: "Hustle" },
                             "fr-fr": { text: "Hâte" },

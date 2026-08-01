@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { GlossaryManager } from "./glossaryManager.js"
 import { GlossaryCollectionService } from "./glossaryCollection.js"
+import { GlossaryTermType } from "./glossaryTermType.js"
 import { TextSubstitutionService } from "../../movie/textSubstitution.js"
 import {
     SquaddieConditionDecaysAt,
@@ -18,6 +19,7 @@ describe("resolving a condition's glossary term as a definition template", () =>
             terms: [
                 {
                     termId: "condition.ARMOR",
+                    type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                     name: { "en-us": { text: "Armor" } },
                     definition: {
                         "en-us": {

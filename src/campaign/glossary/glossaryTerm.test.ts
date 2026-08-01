@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { GlossaryTermService } from "./glossaryTerm.js"
+import { GlossaryTermType } from "./glossaryTermType.js"
 
 describe("GlossaryTermService.deserialize", () => {
     describe("when the data matches the schema", () => {
         it("returns a GlossaryTerm with the parsed fields", () => {
             const data = {
                 termId: "condition.ARMOR",
+                type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                 name: { "en-us": { text: "Armor" } },
                 definition: {
                     "en-us": { text: "Reduces the chance to get hit" },
@@ -22,6 +24,7 @@ describe("GlossaryTermService.deserialize", () => {
     describe("when termId is missing", () => {
         it("throws an error naming the deserializing service", () => {
             const data = {
+                type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                 name: { "en-us": { text: "Armor" } },
                 definition: {
                     "en-us": { text: "Reduces the chance to get hit" },
@@ -39,6 +42,7 @@ describe("when a GlossaryTerm is serialized then deserialized", () => {
     it("produces an equivalent GlossaryTerm", () => {
         const glossaryTerm = GlossaryTermService.new({
             termId: "condition.HUSTLE",
+            type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
             name: { "en-us": { text: "Hustle" } },
             definition: {
                 "en-us": { text: "Reduces movement costs to a minimum of 1" },
