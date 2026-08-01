@@ -32,6 +32,24 @@ describe("GlossaryTermTypeService.subtypesOf", () => {
             ).toBeUndefined()
         })
     })
+
+    describe("when the type's subtypes are dynamic campaign/mission content", () => {
+        it("returns undefined for SQUADDIE_ACTION since action ids aren't a compile-time enum", () => {
+            expect(
+                GlossaryTermTypeService.subtypesOf(
+                    GlossaryTermType.SQUADDIE_ACTION
+                )
+            ).toBeUndefined()
+        })
+
+        it("returns undefined for SQUADDIE_ITEM since item ids aren't a compile-time enum", () => {
+            expect(
+                GlossaryTermTypeService.subtypesOf(
+                    GlossaryTermType.SQUADDIE_ITEM
+                )
+            ).toBeUndefined()
+        })
+    })
 })
 
 describe("GlossaryTermTypeService.termIdPrefix", () => {
@@ -50,6 +68,24 @@ describe("GlossaryTermTypeService.termIdPrefix", () => {
             expect(
                 GlossaryTermTypeService.termIdPrefix(GlossaryTermType.OTHER)
             ).toBeUndefined()
+        })
+    })
+
+    describe("when the type has dynamic subtypes but a fixed prefix", () => {
+        it("returns the settled termId prefix for SQUADDIE_ACTION", () => {
+            expect(
+                GlossaryTermTypeService.termIdPrefix(
+                    GlossaryTermType.SQUADDIE_ACTION
+                )
+            ).toBe("action")
+        })
+
+        it("returns the settled termId prefix for SQUADDIE_ITEM", () => {
+            expect(
+                GlossaryTermTypeService.termIdPrefix(
+                    GlossaryTermType.SQUADDIE_ITEM
+                )
+            ).toBe("item")
         })
     })
 })
@@ -74,6 +110,26 @@ describe("GlossaryTermTypeService.termIdFor", () => {
                     "ARMOR"
                 )
             ).toThrow("[GlossaryTermTypeService.termIdFor]")
+        })
+    })
+
+    describe("when the type has dynamic subtypes but a fixed termId prefix", () => {
+        it("builds a termId from a squaddie action's own id", () => {
+            expect(
+                GlossaryTermTypeService.termIdFor(
+                    GlossaryTermType.SQUADDIE_ACTION,
+                    "scimitar"
+                )
+            ).toBe("action.scimitar")
+        })
+
+        it("builds a termId from a squaddie item's own id", () => {
+            expect(
+                GlossaryTermTypeService.termIdFor(
+                    GlossaryTermType.SQUADDIE_ITEM,
+                    "healing-potion"
+                )
+            ).toBe("item.healing-potion")
         })
     })
 })
