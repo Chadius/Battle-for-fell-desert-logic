@@ -38,7 +38,35 @@ const subtypesByGlossaryTermType: Record<
     [GlossaryTermType.ACTION_RANGE]: Object.values(ActionRange),
 }
 
+// Campaign glossary.json is expected to define a term per subtype using
+// termId `<prefix>.<TYPE>` (e.g. `condition.ARMOR`, `actionRange.MELEE`).
+// OTHER has no fixed prefix; editors must build a free text termId instead.
+const termIdPrefixByGlossaryTermType: Record<
+    TGlossaryTermType,
+    string | undefined
+> = {
+    [GlossaryTermType.OTHER]: undefined,
+    [GlossaryTermType.PROFICIENCY_TYPE]: "proficiencyType",
+    [GlossaryTermType.SQUADDIE_CONDITION_TYPE]: "condition",
+    [GlossaryTermType.ATTRIBUTE_SCORE_TYPE]: "attribute",
+    [GlossaryTermType.SQUADDIE_AFFILIATION]: "affiliation",
+    [GlossaryTermType.DEGREE_OF_SUCCESS]: "degreeOfSuccess",
+    [GlossaryTermType.PROFICIENCY_LEVEL]: "proficiencyLevel",
+    [GlossaryTermType.ACTION_RANGE]: "actionRange",
+}
+
 export const GlossaryTermTypeService = {
     subtypesOf: (type: TGlossaryTermType): readonly string[] | undefined =>
         subtypesByGlossaryTermType[type],
+    termIdPrefix: (type: TGlossaryTermType): string | undefined =>
+        termIdPrefixByGlossaryTermType[type],
+    termIdFor: (type: TGlossaryTermType, subtype: string): string => {
+        const prefix = termIdPrefixByGlossaryTermType[type]
+        if (prefix == undefined) {
+            throw new Error(
+                `[GlossaryTermTypeService.termIdFor]: ${type} has no fixed termId prefix; build a free text termId instead`
+            )
+        }
+        return `${prefix}.${subtype}`
+    },
 }

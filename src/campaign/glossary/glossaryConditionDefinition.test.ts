@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { GlossaryManager } from "./glossaryManager.js"
 import { GlossaryCollectionService } from "./glossaryCollection.js"
-import { GlossaryTermType } from "./glossaryTermType.js"
+import {
+    GlossaryTermType,
+    GlossaryTermTypeService,
+} from "./glossaryTermType.js"
 import { TextSubstitutionService } from "../../movie/textSubstitution.js"
 import {
     SquaddieConditionDecaysAt,
@@ -40,7 +43,10 @@ describe("resolving a condition's glossary term as a definition template", () =>
         })
 
         const resolvedTerm = glossaryManager.resolveTerm(
-            `condition.${armorCondition.type}`,
+            GlossaryTermTypeService.termIdFor(
+                GlossaryTermType.SQUADDIE_CONDITION_TYPE,
+                armorCondition.type
+            ),
             "en-us"
         )
         expect(resolvedTerm).toBeDefined()

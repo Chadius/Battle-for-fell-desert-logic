@@ -33,3 +33,47 @@ describe("GlossaryTermTypeService.subtypesOf", () => {
         })
     })
 })
+
+describe("GlossaryTermTypeService.termIdPrefix", () => {
+    describe("when the type has a fixed set of game values", () => {
+        it("returns the settled termId prefix for ACTION_RANGE", () => {
+            expect(
+                GlossaryTermTypeService.termIdPrefix(
+                    GlossaryTermType.ACTION_RANGE
+                )
+            ).toBe("actionRange")
+        })
+    })
+
+    describe("when the type is OTHER", () => {
+        it("returns undefined so editors fall back to a free text termId", () => {
+            expect(
+                GlossaryTermTypeService.termIdPrefix(GlossaryTermType.OTHER)
+            ).toBeUndefined()
+        })
+    })
+})
+
+describe("GlossaryTermTypeService.termIdFor", () => {
+    describe("when the type has a fixed termId prefix", () => {
+        it("returns the termId used to look up the subtype's glossary entry", () => {
+            expect(
+                GlossaryTermTypeService.termIdFor(
+                    GlossaryTermType.SQUADDIE_CONDITION_TYPE,
+                    "ARMOR"
+                )
+            ).toBe("condition.ARMOR")
+        })
+    })
+
+    describe("when the type is OTHER", () => {
+        it("throws an error naming the calling function", () => {
+            expect(() =>
+                GlossaryTermTypeService.termIdFor(
+                    GlossaryTermType.OTHER,
+                    "ARMOR"
+                )
+            ).toThrow("[GlossaryTermTypeService.termIdFor]")
+        })
+    })
+})
