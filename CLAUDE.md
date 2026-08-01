@@ -20,3 +20,5 @@ phased implementation plan.
   SquaddieItemCollection → SquaddieItemManager.
 - If the function's complexity is over 15 (evaluated by SonarQube), split it into helper functions to increase
   readability.
+
+Do not modify other repositories. If you need to do this, then prompt me first. I will usually make an update in another repo.
