@@ -304,7 +304,7 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
             map: CoordinateMapService.new({
                 id: CampaignTestHarnessWithLockedDeploymentIds.mapId,
                 name: CampaignTestHarnessWithLockedDeploymentIds.mapName,
-                movementProperties: ["1 1", "1 1"],
+                movementProperties: ["1 1 1 ", "1 1 1 "],
             }),
         })
         return coordinateMapCollectionManager
