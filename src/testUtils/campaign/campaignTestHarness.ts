@@ -241,7 +241,7 @@ export class CampaignTestHarness extends MissionEngine {
         return squaddieActionManager
     }
 
-    private static createScimitarAction(): SquaddieAction {
+    static createScimitarAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: CampaignTestHarnessIds.lini.scimitarActionId,
             name: "Scimitar",
