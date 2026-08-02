@@ -1922,6 +1922,36 @@ describe("In Battle Squaddie Manager", () => {
                 ])
             )
         })
+        it("passes through a consumable item's glossaryTermIds", () => {
+            itemManager.addOrUpdate(
+                SquaddieItemService.new({
+                    id: "healScroll",
+                    name: "Heal Scroll",
+                    numberOfUses: 2,
+                    actionIds: [],
+                    glossaryTermIds: ["item.healScroll"],
+                })
+            )
+
+            expect(
+                manager.getConsumableItems({
+                    ...inBattleSquaddie00Id!,
+                })
+            ).toEqual(
+                new Map<
+                    string,
+                    { numberOfUses: number; glossaryTermIds?: string[] }
+                >([
+                    [
+                        "healScroll",
+                        {
+                            numberOfUses: 2,
+                            glossaryTermIds: ["item.healScroll"],
+                        },
+                    ],
+                ])
+            )
+        })
         it("knows which items are providing passive bonuses", () => {
             expect(
                 manager.getPassiveItemIds({
@@ -1973,6 +2003,62 @@ describe("In Battle Squaddie Manager", () => {
                     2 +
                     armorPositive1LongDuration.amount!.current
             )
+        })
+    })
+
+    describe("when a squaddie carries no items and no squaddieItemManager is configured", () => {
+        it("returns an empty map from getConsumableItems instead of throwing", () => {
+            const { manager: outOfBattleSquaddieManagerWithNoItems } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    { sheetId: "no-items-sheet" }
+                )
+            outOfBattleSquaddieManagerWithNoItems.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "no-items-squaddie",
+                    name: "No Items Squaddie",
+                    actionIds: [],
+                    attributeSheetId: "no-items-sheet",
+                    affiliation: SquaddieAffiliation.NONE,
+                })
+            )
+            const managerWithNoItems = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManagerWithNoItems
+            )
+            const noItemsSquaddieId = managerWithNoItems.createNewSquaddie({
+                outOfBattleSquaddieId: "no-items-squaddie",
+            })
+
+            expect(
+                managerWithNoItems.getConsumableItems(noItemsSquaddieId)
+            ).toEqual(new Map())
+        })
+
+        it("returns an empty map from getPassiveItemIds instead of throwing", () => {
+            const { manager: outOfBattleSquaddieManagerWithNoItems } =
+                OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet(
+                    { sheetId: "no-items-sheet" }
+                )
+            outOfBattleSquaddieManagerWithNoItems.addOrUpdateSquaddie(
+                OutOfBattleSquaddieService.new({
+                    id: "no-items-squaddie",
+                    name: "No Items Squaddie",
+                    actionIds: [],
+                    attributeSheetId: "no-items-sheet",
+                    affiliation: SquaddieAffiliation.NONE,
+                })
+            )
+            const managerWithNoItems = new InBattleSquaddieManager(
+                InBattleSquaddieCollectionService.new(),
+                outOfBattleSquaddieManagerWithNoItems
+            )
+            const noItemsSquaddieId = managerWithNoItems.createNewSquaddie({
+                outOfBattleSquaddieId: "no-items-squaddie",
+            })
+
+            expect(
+                managerWithNoItems.getPassiveItemIds(noItemsSquaddieId)
+            ).toEqual(new Map())
         })
     })
 

@@ -2,25 +2,26 @@ import { describe, expect, it } from "vitest"
 import { CampaignSquaddieMissionBridgeService } from "./campaignSquaddieMissionBridgeService.js"
 import { ArmyManager } from "../campaign/army/armyManager.js"
 import { ArmyService } from "../campaign/army/army.js"
-import { CampaignSquaddieService } from "../campaign/army/campaignSquaddie.js"
 import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
 import { CampaignSquaddieDeploymentCoordinateService } from "./campaignSquaddieDeploymentCoordinate.js"
 import { CampaignSquaddieDeploymentManager } from "./campaignSquaddieDeploymentManager.js"
 import { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
-import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
 import { OutOfBattleSquaddieCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieCollection.js"
 import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.js"
-import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
 import { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquaddieManager.js"
 import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattleSquaddieCollection.js"
 import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
 import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection.js"
 import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate.js"
-import { AttributeScore } from "../proficiency/attributeScore.js"
 import { SquaddieAffiliation } from "../affiliation/affiliation.js"
+import {
+    CampaignTestHarness,
+    CampaignTestHarnessIds,
+} from "../testUtils/campaign/campaignTestHarness.js"
 
 const MAP_ID = "map-1"
+const LINI_ID = CampaignTestHarnessIds.lini.campaignSquaddieId
 
 const buildEmptyMissionManagers = () => {
     const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
@@ -53,14 +54,7 @@ const buildAssignedLiniDeployment = (
     coordinate: OffsetCoordinate = { row: 0, col: 0 }
 ) => {
     const armyManager = new ArmyManager(ArmyService.new())
-    armyManager.addOrUpdate(
-        CampaignSquaddieService.new({
-            id: "lini",
-            outOfBattleAttributeSheetId: "sheet-lini",
-            outOfBattleSquaddieId: "battle-lini",
-            name: "Lini",
-        })
-    )
+    armyManager.addOrUpdate(CampaignTestHarness.createLiniCampaignSquaddie())
 
     let coordinateCollection =
         CampaignSquaddieDeploymentCoordinateCollectionService.new()
@@ -73,7 +67,7 @@ const buildAssignedLiniDeployment = (
                     coordinate,
                     request: {
                         type: "SPECIFIC_SQUADDIE",
-                        campaignSquaddieId: "lini",
+                        campaignSquaddieId: LINI_ID,
                     },
                 }),
         })
@@ -90,16 +84,7 @@ const buildAssignedLiniDeployment = (
         coordinateMapCollectionManager,
     } = buildEmptyMissionManagers()
     outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
-        OutOfBattleSquaddieAttributeSheetService.new({
-            id: "sheet-lini",
-            maxHitPoints: 5,
-            movement: {},
-            attributeScores: {
-                [AttributeScore.BODY]: 1,
-                [AttributeScore.MIND]: 0,
-                [AttributeScore.SOUL]: 1,
-            },
-        })
+        CampaignTestHarness.createLiniAttributeSheet()
     )
 
     return {
@@ -177,12 +162,13 @@ describe("CampaignSquaddieMissionBridgeService", () => {
 
                 expect(
                     outOfBattleSquaddieManager.getRawOutOfBattleSquaddie(
-                        "battle-lini"
+                        CampaignTestHarnessIds.lini.outOfBattleSquaddieId
                     )
                 ).toMatchObject({
-                    id: "battle-lini",
+                    id: CampaignTestHarnessIds.lini.outOfBattleSquaddieId,
                     name: "Lini",
-                    attributeSheetId: "sheet-lini",
+                    attributeSheetId:
+                        CampaignTestHarnessIds.lini.attributeSheetId,
                     affiliation: SquaddieAffiliation.PLAYER,
                 })
             })
@@ -199,13 +185,7 @@ describe("CampaignSquaddieMissionBridgeService", () => {
                     coordinateMapCollectionManager,
                 } = buildAssignedLiniDeployment()
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
-                    OutOfBattleSquaddieService.new({
-                        id: "battle-lini",
-                        name: "Lini",
-                        attributeSheetId: "sheet-lini",
-                        actionIds: ["lini-scimitar"],
-                        affiliation: SquaddieAffiliation.PLAYER,
-                    })
+                    CampaignTestHarness.createLiniOutOfBattleSquaddie()
                 )
 
                 CampaignSquaddieMissionBridgeService.deployAssignedCampaignSquaddies(
@@ -222,9 +202,9 @@ describe("CampaignSquaddieMissionBridgeService", () => {
 
                 expect(
                     outOfBattleSquaddieManager.getRawOutOfBattleSquaddie(
-                        "battle-lini"
+                        CampaignTestHarnessIds.lini.outOfBattleSquaddieId
                     )?.actionIds
-                ).toEqual(["lini-scimitar"])
+                ).toEqual([CampaignTestHarnessIds.lini.scimitarActionId])
             })
         })
 
@@ -257,7 +237,8 @@ describe("CampaignSquaddieMissionBridgeService", () => {
                         coordinate: { row: 1, col: 2 },
                     })
                 ).toEqual({
-                    outOfBattleSquaddieId: "battle-lini",
+                    outOfBattleSquaddieId:
+                        CampaignTestHarnessIds.lini.outOfBattleSquaddieId,
                     inBattleSquaddieId: expect.any(Number),
                 })
             })

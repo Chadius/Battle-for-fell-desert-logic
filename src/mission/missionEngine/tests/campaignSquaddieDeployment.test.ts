@@ -1,26 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { MissionEngine } from "../missionEngine.js"
-import { MissionManager } from "../../missionManager.js"
-import { MissionStateService } from "../../missionState.js"
-import { ArmyManager } from "../../../campaign/army/armyManager.js"
-import { ArmyService } from "../../../campaign/army/army.js"
-import { CampaignSquaddieService } from "../../../campaign/army/campaignSquaddie.js"
-import { CampaignSquaddieDeploymentCoordinateCollectionService } from "../../campaignSquaddieDeploymentCoordinateCollection.js"
-import { CampaignSquaddieDeploymentCoordinateService } from "../../campaignSquaddieDeploymentCoordinate.js"
-import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
-import { OutOfBattleSquaddieCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieCollection.js"
-import { OutOfBattleSquaddieAttributeSheetCollectionService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheetCollection.js"
-import { OutOfBattleSquaddieAttributeSheetService } from "../../../squaddie/outOfBattle/outOfBattleSquaddieAttributeSheet.js"
-import { OutOfBattleSquaddieService } from "../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
-import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
-import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
-import { InBattleSquaddieCollectionService } from "../../../squaddie/inBattle/inBattleSquaddieCollection.js"
-import { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
-import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinateMapCollection.js"
-import { CoordinateMapService } from "../../../coordinateMap/coordinateMap.js"
-import { SquaddieActionManager } from "../../../squaddieAction/squaddieActionManager.js"
-import { SquaddieActionCollectionService } from "../../../squaddieAction/squaddieActionCollection.js"
-import { AttributeScore } from "../../../proficiency/attributeScore.js"
 import type { MissionObjective } from "../../missionObjective.js"
 import { MissionObjectiveService } from "../../missionObjective.js"
 import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
@@ -29,6 +7,10 @@ import { MissionAffiliationTurn } from "../../missionTurn.js"
 import { MovieSceneImageService } from "../../../movie/movieSceneImage.js"
 import { MovieSceneType } from "../../../movie/movieScene.js"
 import type { Movie } from "../../../movie/movie.js"
+import {
+    CampaignTestHarness,
+    CampaignTestHarnessIds,
+} from "../../../testUtils/campaign/campaignTestHarness.js"
 
 const makeBriefingMovie = (sceneId: string): Movie => ({
     id: "movie-1",
@@ -44,150 +26,20 @@ const makeBriefingMovie = (sceneId: string): Movie => ({
     ],
 })
 
-const MAP_ID = "map-1"
-const LINI_ID = "lini"
-const LINI_ATTRIBUTE_SHEET_ID = "sheet-lini"
-const LINI_OUT_OF_BATTLE_ID = "battle-lini"
-const REM_ID = "rem"
-const REM_ATTRIBUTE_SHEET_ID = "sheet-rem"
-const REM_OUT_OF_BATTLE_ID = "battle-rem"
-const REQUESTED_COORDINATE_ID = "slot-lini"
-const OPEN_COORDINATE_ID = "slot-open"
+const LINI_ID = CampaignTestHarnessIds.lini.campaignSquaddieId
+const LINI_OUT_OF_BATTLE_ID = CampaignTestHarnessIds.lini.outOfBattleSquaddieId
+const REM_ID = CampaignTestHarnessIds.rem.campaignSquaddieId
+const REM_OUT_OF_BATTLE_ID = CampaignTestHarnessIds.rem.outOfBattleSquaddieId
+const REQUESTED_COORDINATE_ID = CampaignTestHarnessIds.lini.coordinateId
+const OPEN_COORDINATE_ID = CampaignTestHarnessIds.openCoordinateId
 
 const buildEngineWithCampaignDeployment = ({
     objectives = [],
 }: {
     objectives?: MissionObjective[]
-} = {}) => {
-    const armyManager = new ArmyManager(ArmyService.new())
-    armyManager.addOrUpdate(
-        CampaignSquaddieService.new({
-            id: LINI_ID,
-            outOfBattleAttributeSheetId: LINI_ATTRIBUTE_SHEET_ID,
-            outOfBattleSquaddieId: LINI_OUT_OF_BATTLE_ID,
-            name: "Lini",
-        })
-    )
-    armyManager.addOrUpdate(
-        CampaignSquaddieService.new({
-            id: REM_ID,
-            outOfBattleAttributeSheetId: REM_ATTRIBUTE_SHEET_ID,
-            outOfBattleSquaddieId: REM_OUT_OF_BATTLE_ID,
-            name: "Rem",
-        })
-    )
-
-    let coordinateCollection =
-        CampaignSquaddieDeploymentCoordinateCollectionService.new()
-    coordinateCollection =
-        CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate({
-            collection: coordinateCollection,
-            campaignSquaddieDeploymentCoordinate:
-                CampaignSquaddieDeploymentCoordinateService.new({
-                    id: REQUESTED_COORDINATE_ID,
-                    coordinate: { row: 0, col: 0 },
-                    request: {
-                        type: "SPECIFIC_SQUADDIE",
-                        campaignSquaddieId: LINI_ID,
-                    },
-                }),
-        })
-    coordinateCollection =
-        CampaignSquaddieDeploymentCoordinateCollectionService.addOrUpdate({
-            collection: coordinateCollection,
-            campaignSquaddieDeploymentCoordinate:
-                CampaignSquaddieDeploymentCoordinateService.new({
-                    id: OPEN_COORDINATE_ID,
-                    coordinate: { row: 0, col: 1 },
-                    request: { type: "NONE" },
-                }),
-        })
-
-    const outOfBattleSquaddieManager = new OutOfBattleSquaddieManager(
-        OutOfBattleSquaddieCollectionService.new(),
-        OutOfBattleSquaddieAttributeSheetCollectionService.new()
-    )
-    outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
-        OutOfBattleSquaddieAttributeSheetService.new({
-            id: LINI_ATTRIBUTE_SHEET_ID,
-            maxHitPoints: 5,
-            movement: { movementPointsPerAction: 2 },
-            attributeScores: {
-                [AttributeScore.BODY]: 1,
-                [AttributeScore.MIND]: 0,
-                [AttributeScore.SOUL]: 1,
-            },
-        })
-    )
-    outOfBattleSquaddieManager.addOrUpdateAttributeSheet(
-        OutOfBattleSquaddieAttributeSheetService.new({
-            id: REM_ATTRIBUTE_SHEET_ID,
-            maxHitPoints: 5,
-            movement: { movementPointsPerAction: 2 },
-            attributeScores: {
-                [AttributeScore.BODY]: 0,
-                [AttributeScore.MIND]: 1,
-                [AttributeScore.SOUL]: 1,
-            },
-        })
-    )
-    outOfBattleSquaddieManager.addOrUpdateSquaddie(
-        OutOfBattleSquaddieService.new({
-            id: LINI_OUT_OF_BATTLE_ID,
-            name: "Lini",
-            attributeSheetId: LINI_ATTRIBUTE_SHEET_ID,
-            affiliation: SquaddieAffiliation.PLAYER,
-            actionIds: ["scimitar"],
-        })
-    )
-    outOfBattleSquaddieManager.addOrUpdateSquaddie(
-        OutOfBattleSquaddieService.new({
-            id: REM_OUT_OF_BATTLE_ID,
-            name: "Rem",
-            attributeSheetId: REM_ATTRIBUTE_SHEET_ID,
-            affiliation: SquaddieAffiliation.PLAYER,
-            actionIds: ["heal"],
-        })
-    )
-
-    const inBattleSquaddieManager = new InBattleSquaddieManager(
-        InBattleSquaddieCollectionService.new(),
-        outOfBattleSquaddieManager
-    )
-
-    const coordinateMapCollectionManager = new CoordinateMapCollectionManager(
-        CoordinateMapCollectionService.new()
-    )
-    coordinateMapCollectionManager.addOrUpdate({
-        map: CoordinateMapService.new({
-            id: MAP_ID,
-            name: "Map",
-            movementProperties: ["1 1"],
-        }),
-    })
-
-    const squaddieActionManager = new SquaddieActionManager(
-        SquaddieActionCollectionService.new()
-    )
-
-    const missionState = MissionStateService.new({
-        id: "mission-1",
-        mapId: MAP_ID,
-        campaignSquaddieDeploymentCoordinates: coordinateCollection,
-        objectives,
-    })
-
-    const missionManager = new MissionManager({
-        missionState,
-        inBattleSquaddieManager,
-        coordinateMapCollectionManager,
-        squaddieActionManager,
-        outOfBattleSquaddieManager,
-        armyManager,
-    })
-
-    return { engine: new MissionEngine(missionManager), armyManager }
-}
+} = {}) => ({
+    engine: new CampaignTestHarness({ objectives }),
+})
 
 describe("MissionEngine campaign squaddie deployment", () => {
     describe("finalizeLoadingMission", () => {
@@ -364,8 +216,12 @@ describe("MissionEngine campaign squaddie deployment", () => {
                     engine.getOutOfBattleSquaddieDetails(REM_OUT_OF_BATTLE_ID)
 
                 expect(details?.squaddie.name).toBe("Rem")
-                expect(details?.squaddie.actionIds).toEqual(["heal"])
-                expect(details?.attributeSheet.id).toBe(REM_ATTRIBUTE_SHEET_ID)
+                expect(details?.squaddie.actionIds).toEqual([
+                    CampaignTestHarnessIds.rem.healActionId,
+                ])
+                expect(details?.attributeSheet.id).toBe(
+                    CampaignTestHarnessIds.rem.attributeSheetId
+                )
             })
         })
 

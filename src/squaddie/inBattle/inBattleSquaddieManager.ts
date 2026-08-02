@@ -767,10 +767,12 @@ export class InBattleSquaddieManager {
 
     getConsumableItems(
         battleSquaddieId: BattleSquaddieId
-    ): Map<string, { numberOfUses: number }> {
-        this.throwIfSquaddieItemManagerIsUndefined(this.getConsumableItems.name)
-
+    ): Map<string, { numberOfUses: number; glossaryTermIds?: string[] }> {
         const squaddieItems = this.getAllSquaddieItemIds(battleSquaddieId)
+        if (squaddieItems.length === 0) {
+            return new Map()
+        }
+        this.throwIfSquaddieItemManagerIsUndefined(this.getConsumableItems.name)
 
         const { inBattleSquaddie } = this.getSquaddie(battleSquaddieId)
         const alreadyConsumedItems = new Map<string, number>()
@@ -781,7 +783,10 @@ export class InBattleSquaddieManager {
             )
         }
 
-        const mapEntries: [string, { numberOfUses: number }][] = squaddieItems
+        const mapEntries: [
+            string,
+            { numberOfUses: number; glossaryTermIds?: string[] },
+        ][] = squaddieItems
             .map((itemId) => this.squaddieItemManager!.get(itemId))
             .filter((item) => item.numberOfUses != undefined)
             .map((item) => [
@@ -790,6 +795,7 @@ export class InBattleSquaddieManager {
                     numberOfUses:
                         item.numberOfUses! -
                         (alreadyConsumedItems.get(item.id) ?? 0),
+                    glossaryTermIds: item.glossaryTermIds,
                 },
             ])
 
@@ -934,8 +940,11 @@ export class InBattleSquaddieManager {
         string,
         { passiveProficiencyBonuses: Map<TProficiencyType, number> }
     > {
-        this.throwIfSquaddieItemManagerIsUndefined(this.getPassiveItemIds.name)
         const squaddieItems = this.getAllSquaddieItemIds(battleSquaddieId)
+        if (squaddieItems.length === 0) {
+            return new Map()
+        }
+        this.throwIfSquaddieItemManagerIsUndefined(this.getPassiveItemIds.name)
 
         const mapEntries: [
             string,
