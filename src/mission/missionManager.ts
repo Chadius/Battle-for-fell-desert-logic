@@ -56,6 +56,7 @@ import {
     type TSquaddieConditionType,
 } from "../proficiency/squaddieCondition.js"
 import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
+import type { MissionDeployment } from "./missionDeployment.js"
 import { MovieManager } from "../movie/movieManager.js"
 import { MissionStatisticsService } from "./missionStatistics.js"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
@@ -946,30 +947,60 @@ export class MissionManager {
             this.deployRequiredSquaddies.name
         )
 
-        const pending = MissionStateService.getPendingDeployments(
+        const pendingDeployments = MissionStateService.getPendingDeployments(
             this.missionState!
         )
-        for (const deployment of pending) {
-            const battleSquaddieIds =
-                this.inBattleSquaddieManager!.getBattleSquaddieIdsByOutOfBattleSquaddieId(
+        const claimedCountByOutOfBattleSquaddieId = new Map<string, number>()
+        for (const deployment of pendingDeployments) {
+            const claimedCount =
+                claimedCountByOutOfBattleSquaddieId.get(
                     deployment.outOfBattleSquaddieId
-                )
-            if (battleSquaddieIds.length < deployment.coordinates.length)
-                throw new Error(
-                    `[MissionManager.${this.deployRequiredSquaddies.name}]: no inBattleSquaddie found for outOfBattleSquaddieId "${deployment.outOfBattleSquaddieId}"`
-                )
-            for (let i = 0; i < deployment.coordinates.length; i++) {
+                ) ?? 0
+
+            const placements = this.placementsForDeployment(
+                deployment,
+                claimedCount
+            )
+            for (const placement of placements) {
                 this.coordinateMapCollectionManager!.addSquaddie({
                     mapId: this.missionState!.mapId,
-                    squaddieId: battleSquaddieIds[i],
-                    coordinate: deployment.coordinates[i],
+                    squaddieId: placement.squaddieId,
+                    coordinate: placement.coordinate,
                 })
             }
+
+            claimedCountByOutOfBattleSquaddieId.set(
+                deployment.outOfBattleSquaddieId,
+                claimedCount + deployment.coordinates.length
+            )
             this.missionState = MissionStateService.markDeploymentComplete(
                 this.missionState!,
                 deployment.id
             )
         }
+    }
+
+    private placementsForDeployment(
+        deployment: MissionDeployment,
+        claimedCount: number
+    ): { squaddieId: BattleSquaddieId; coordinate: OffsetCoordinate }[] {
+        const battleSquaddieIds =
+            this.inBattleSquaddieManager!.getBattleSquaddieIdsByOutOfBattleSquaddieId(
+                deployment.outOfBattleSquaddieId
+            )
+
+        if (
+            battleSquaddieIds.length <
+            claimedCount + deployment.coordinates.length
+        )
+            throw new Error(
+                `[MissionManager.${this.placementsForDeployment.name}]: no inBattleSquaddie found for outOfBattleSquaddieId "${deployment.outOfBattleSquaddieId}"`
+            )
+
+        return deployment.coordinates.map((coordinate, index) => ({
+            squaddieId: battleSquaddieIds[claimedCount + index],
+            coordinate,
+        }))
     }
 
     hasPendingCampaignSquaddieDeploymentCoordinates(): boolean {

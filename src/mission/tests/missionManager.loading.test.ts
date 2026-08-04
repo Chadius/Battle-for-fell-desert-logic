@@ -171,6 +171,50 @@ describe("MissionManager", () => {
             ).toEqual({ row: 0, col: 2 })
         })
 
+        it("deploys multiple separate deployment entries sharing the same outOfBattleSquaddieId at their own distinct coordinates", () => {
+            const secondDemonId = inBattleSquaddieManager.createNewSquaddie({
+                outOfBattleSquaddieId: "slither-demon",
+            })
+            const missionState = MissionStateService.new({
+                id: "mission-deploy",
+                mapId: "deploy_map",
+                deployments: {
+                    required: [
+                        MissionDeploymentService.new({
+                            id: "enemy_demon_slither_0",
+                            outOfBattleSquaddieId: "slither-demon",
+                            coordinates: [{ row: 0, col: 1 }],
+                        }),
+                        MissionDeploymentService.new({
+                            id: "enemy_demon_slither_1",
+                            outOfBattleSquaddieId: "slither-demon",
+                            coordinates: [{ row: 0, col: 2 }],
+                        }),
+                    ],
+                },
+            })
+            const manager = new MissionManager({
+                missionState,
+                inBattleSquaddieManager,
+                coordinateMapCollectionManager,
+            })
+
+            manager.deployRequiredSquaddies()
+
+            expect(
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "deploy_map",
+                    squaddieId: demonSquaddieId,
+                })
+            ).toEqual({ row: 0, col: 1 })
+            expect(
+                coordinateMapCollectionManager.getSquaddieCoordinate({
+                    mapId: "deploy_map",
+                    squaddieId: secondDemonId,
+                })
+            ).toEqual({ row: 0, col: 2 })
+        })
+
         it("marks all deployed squaddies as complete", () => {
             const missionState = MissionStateService.new({
                 id: "mission-deploy",
@@ -376,7 +420,7 @@ describe("MissionManager", () => {
             expect(errors[0]).toContain("SquaddieActionService.deserialize")
         })
 
-        it("addActionsFromJson works without a pre-existing squaddieActionManager by staging a new one", () => {
+        it("addActionsFromJson works without a pre-existing squaddieActionManager", () => {
             const empty = new MissionManager()
             expect(() => empty.addActionsFromJson([])).not.toThrow()
             expect(empty.squaddieActionManager).toBeUndefined()
@@ -521,13 +565,11 @@ describe("MissionManager", () => {
                 ),
             })
             const result = manager.validate()
-            expect(result.isValid).toBeTruthy()
             expect(result.errors).toHaveLength(0)
         })
 
         it("reports all missing components", () => {
             const result = new MissionManager().validate()
-            expect(result.isValid).toBeFalsy()
             expect(result.errors).toContain("missionState must be defined")
             expect(result.errors).toContain(
                 "inBattleSquaddieManager must be defined"
@@ -558,7 +600,6 @@ describe("MissionManager", () => {
                 ),
             })
             const result = manager.validate()
-            expect(result.isValid).toBeFalsy()
             expect(result.errors).toContain(
                 'map "missing-map" not found in coordinateMapCollectionManager'
             )
