@@ -252,8 +252,9 @@ export class MissionEngineTestHarness extends MissionEngine {
             MissionEngineTestHarness.createLimitedMissionAction()
         )
         manager.addOrUpdate(MissionEngineTestHarness.createClawAction())
-        manager.addOrUpdate(SquaddieActionService.defaultMove())
-        manager.addOrUpdate(SquaddieActionService.defaultEndTurn())
+        SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+            manager.addOrUpdate(squaddieAction)
+        )
 
         return manager
     }

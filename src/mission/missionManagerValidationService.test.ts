@@ -82,6 +82,9 @@ const buildSquaddieActionManager = (): SquaddieActionManager => {
             },
         })
     )
+    SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+        manager.addOrUpdate(squaddieAction)
+    )
     return manager
 }
 
@@ -382,6 +385,30 @@ describe("MissionManagerValidationService", () => {
             expect(result.errors).toContain(
                 `[MissionManagerValidationService.validate]: action "missing-action-2" referenced by outOfBattleSquaddie "${TEST_IDS.squaddieId}" not found in squaddieActionManager`
             )
+        })
+
+        describe("when a default action is missing from squaddieActionManager", () => {
+            it("returns an error when default-move is not registered in squaddieActionManager", () => {
+                const input = buildValidInput()
+                input.squaddieActionManager!.remove("default-move")
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toContain(
+                    `[MissionManagerValidationService.validate]: "default-move" not found in squaddieActionManager`
+                )
+            })
+
+            it("returns an error when default-end-turn is not registered in squaddieActionManager", () => {
+                const input = buildValidInput()
+                input.squaddieActionManager!.remove("default-end-turn")
+
+                const result = MissionManagerValidationService.validate(input)
+
+                expect(result.errors).toContain(
+                    `[MissionManagerValidationService.validate]: "default-end-turn" not found in squaddieActionManager`
+                )
+            })
         })
 
         it("returns no errors with an item that exists in both attributeSheet and squaddieItemManager", () => {

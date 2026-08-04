@@ -11,6 +11,7 @@ import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMa
 import { CoordinateMapService } from "../../coordinateMap/coordinateMap.js"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection.js"
+import { SquaddieActionService } from "../../squaddieAction/squaddieAction.js"
 
 const MAP_ID = "glossary-test-map"
 
@@ -26,15 +27,20 @@ const buildValidMissionManager = (): MissionManager => {
         }),
     })
 
+    const squaddieActionManager = new SquaddieActionManager(
+        SquaddieActionCollectionService.new()
+    )
+    SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+        squaddieActionManager.addOrUpdate(squaddieAction)
+    )
+
     return new MissionManager({
         missionState: MissionStateService.new({ id: "m1", mapId: MAP_ID }),
         inBattleSquaddieManager: new InBattleSquaddieManager(
             InBattleSquaddieCollectionService.new()
         ),
         coordinateMapCollectionManager,
-        squaddieActionManager: new SquaddieActionManager(
-            SquaddieActionCollectionService.new()
-        ),
+        squaddieActionManager,
     })
 }
 

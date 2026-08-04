@@ -238,6 +238,9 @@ export class CampaignTestHarness extends MissionEngine {
         squaddieActionManager.addOrUpdate(
             CampaignTestHarness.createHealAction()
         )
+        SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+            squaddieActionManager.addOrUpdate(squaddieAction)
+        )
         return squaddieActionManager
     }
 

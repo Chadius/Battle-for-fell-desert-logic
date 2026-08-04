@@ -350,6 +350,9 @@ describe("MissionManager", () => {
                 SquaddieActionCollectionService.new()
             )
             squaddieActionManager.addOrUpdate(attackAction)
+            SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+                squaddieActionManager.addOrUpdate(squaddieAction)
+            )
 
             coordinateMapCollectionManager = new CoordinateMapCollectionManager(
                 CoordinateMapCollectionService.new()
@@ -551,6 +554,12 @@ describe("MissionManager", () => {
                     movementProperties: ["1 1 1"],
                 }),
             })
+            const squaddieActionManager = new SquaddieActionManager(
+                SquaddieActionCollectionService.new()
+            )
+            SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+                squaddieActionManager.addOrUpdate(squaddieAction)
+            )
             const manager = new MissionManager({
                 missionState: MissionStateService.new({
                     id: "m1",
@@ -560,9 +569,7 @@ describe("MissionManager", () => {
                     InBattleSquaddieCollectionService.new()
                 ),
                 coordinateMapCollectionManager,
-                squaddieActionManager: new SquaddieActionManager(
-                    SquaddieActionCollectionService.new()
-                ),
+                squaddieActionManager,
             })
             const result = manager.validate()
             expect(result.errors).toHaveLength(0)

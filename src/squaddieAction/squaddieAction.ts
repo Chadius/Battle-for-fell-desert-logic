@@ -328,6 +328,10 @@ export const SquaddieActionService = {
             },
         })
     },
+    defaultActions: (): SquaddieAction[] => [
+        SquaddieActionService.defaultMove(),
+        SquaddieActionService.defaultEndTurn(),
+    ],
     serialize: (action: SquaddieAction): SerializedSquaddieAction =>
         serializeSquaddieAction(action),
     deserialize: (data: unknown): SquaddieAction => {

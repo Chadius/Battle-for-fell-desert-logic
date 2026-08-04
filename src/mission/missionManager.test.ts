@@ -16,6 +16,7 @@ import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCo
 import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection.js"
+import { SquaddieActionService } from "../squaddieAction/squaddieAction.js"
 
 describe("MissionManager", () => {
     describe("constructor", () => {
@@ -123,6 +124,10 @@ describe("MissionManager", () => {
                 )
                 const squaddieActionManager = new SquaddieActionManager(
                     SquaddieActionCollectionService.new()
+                )
+                SquaddieActionService.defaultActions().forEach(
+                    (squaddieAction) =>
+                        squaddieActionManager.addOrUpdate(squaddieAction)
                 )
 
                 let coordinateCollection =

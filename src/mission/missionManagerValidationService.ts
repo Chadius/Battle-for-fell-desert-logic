@@ -8,6 +8,7 @@ import { CoordinateMapService } from "../coordinateMap/coordinateMap.js"
 import type { ArmyManager } from "../campaign/army/armyManager.js"
 import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
 import { CampaignSquaddieDeploymentValidationService } from "./campaignSquaddieDeploymentValidationService.js"
+import { SquaddieActionService } from "../squaddieAction/squaddieAction.js"
 
 export interface MissionManagerValidationInput {
     missionState?: MissionState
@@ -26,6 +27,7 @@ export const MissionManagerValidationService = {
             ...validateManagersDefined(input),
             ...validateMapId(input),
             ...validateInBattleSquaddieReferences(input),
+            ...validateDefaultActionsRegistered(input),
             ...validateDeploymentSquaddieCounts(input),
             ...validateDeploymentCoordinates(input),
             ...validateCampaignSquaddieDeploymentRequiresArmyManager(input),
@@ -67,6 +69,22 @@ const validateMapId = (input: MissionManagerValidationInput): string[] => {
             `map "${input.missionState.mapId}" not found in coordinateMapCollectionManager`,
         ]
     }
+}
+
+const validateDefaultActionsRegistered = (
+    input: MissionManagerValidationInput
+): string[] => {
+    if (input.squaddieActionManager == undefined) return []
+
+    return SquaddieActionService.defaultActions()
+        .filter(
+            (squaddieAction) =>
+                !input.squaddieActionManager!.has(squaddieAction.id)
+        )
+        .map(
+            (squaddieAction) =>
+                `[MissionManagerValidationService.validate]: "${squaddieAction.id}" not found in squaddieActionManager`
+        )
 }
 
 const validateInBattleSquaddieReferences = (

@@ -47,6 +47,9 @@ describe("MissionManager — transactional JSON loading", () => {
         squaddieActionManager = new SquaddieActionManager(
             SquaddieActionCollectionService.new()
         )
+        SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+            squaddieActionManager.addOrUpdate(squaddieAction)
+        )
     })
 
     describe("happy path — commit on valid state", () => {
@@ -261,6 +264,9 @@ describe("MissionManager — transactional JSON loading", () => {
                 SquaddieActionCollectionService.new()
             )
             managerA.addOrUpdate(actionA)
+            SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+                managerA.addOrUpdate(squaddieAction)
+            )
 
             const managerB = new SquaddieActionManager(
                 SquaddieActionCollectionService.new()

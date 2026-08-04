@@ -197,8 +197,9 @@ function createSquaddieActionManager(): SquaddieActionManager {
     manager.addOrUpdate(createShieldAction())
     manager.addOrUpdate(createSweepAction())
     manager.addOrUpdate(createDemonBiteAction())
-    manager.addOrUpdate(SquaddieActionService.defaultMove())
-    manager.addOrUpdate(SquaddieActionService.defaultEndTurn())
+    SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+        manager.addOrUpdate(squaddieAction)
+    )
 
     return manager
 }

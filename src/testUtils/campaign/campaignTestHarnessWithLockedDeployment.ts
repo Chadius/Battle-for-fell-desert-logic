@@ -30,6 +30,7 @@ import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMa
 import { CoordinateMapService } from "../../coordinateMap/coordinateMap.js"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection.js"
+import { SquaddieActionService } from "../../squaddieAction/squaddieAction.js"
 import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
 import { AttributeScore } from "../../proficiency/attributeScore.js"
 import type { RollGenerator } from "../../squaddieAction/calculate/roll/rollGenerator.js"
@@ -316,6 +317,9 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
         )
         squaddieActionManager.addOrUpdate(
             CampaignTestHarness.createScimitarAction()
+        )
+        SquaddieActionService.defaultActions().forEach((squaddieAction) =>
+            squaddieActionManager.addOrUpdate(squaddieAction)
         )
         return squaddieActionManager
     }
