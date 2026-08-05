@@ -158,6 +158,10 @@ export class MissionEngine {
     private recentTransitionResults: SerializedSquaddieActionResult[] = []
     private activeMovieEngine?: MovieEngine
     private recentMovieEvents: TMissionMovieEvent[] = []
+    private queuedMovies: {
+        movie: Movie
+        resourceCollections: ResourceManifestCollection[]
+    }[] = []
 
     constructor(
         missionManager?: MissionManager,
@@ -576,6 +580,11 @@ export class MissionEngine {
         movie: Movie,
         resourceCollections: ResourceManifestCollection[]
     ): void {
+        if (this.isMoviePlaying()) {
+            this.queuedMovies.push({ movie, resourceCollections })
+            return
+        }
+
         this.activeMovieEngine = new MovieEngine(movie, resourceCollections)
         this.recentMovieEvents = [MissionMovieEvent.MOVIE_STARTED]
     }
@@ -782,7 +791,21 @@ export class MissionEngine {
             ...this.recentMovieEvents,
             MissionMovieEvent.MOVIE_COMPLETE,
         ]
+
+        if (this.playNextQueuedMovie()) return
+
         this.autoAdvanceThroughBookendAffiliationTurns()
+    }
+
+    private playNextQueuedMovie(): boolean {
+        const nextQueuedMovie = this.queuedMovies.shift()
+        if (!nextQueuedMovie) return false
+
+        this.playMovie(
+            nextQueuedMovie.movie,
+            nextQueuedMovie.resourceCollections
+        )
+        return true
     }
 
     private triggerPlayMovieReward(reward: MissionObjectiveReward): boolean {

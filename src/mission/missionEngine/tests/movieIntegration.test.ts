@@ -156,6 +156,72 @@ describe("MissionEngine movie integration", () => {
         })
     })
 
+    describe("when an objective grants multiple PLAY_MOVIE rewards for the same completed criteria", () => {
+        const makeNamedMovie = (movieId: string, sceneId: string): Movie => ({
+            id: movieId,
+            firstSceneId: sceneId,
+            scenes: [
+                {
+                    type: MovieSceneType.IMAGE,
+                    data: MovieSceneImageService.new({
+                        id: sceneId,
+                        resourceManifestEntryId: "img",
+                    }),
+                },
+            ],
+        })
+
+        let harness: MissionEngineTestHarness
+        beforeEach(() => {
+            harness = new MissionEngineTestHarness()
+            harness.registerMovie(
+                makeNamedMovie("movie-introduction", "introduction-scene")
+            )
+            harness.registerMovie(makeNamedMovie("movie-turn1", "turn1-scene"))
+            harness.addObjective(
+                MissionObjectiveService.new({
+                    id: "introduction",
+                    rewards: [
+                        MissionObjectiveRewardService.newPlayMovieReward(
+                            "movie-introduction"
+                        ),
+                        MissionObjectiveRewardService.newPlayMovieReward(
+                            "movie-turn1"
+                        ),
+                    ],
+                    criteria: [
+                        MissionObjectiveCriteriaService.newPhaseReachedCriteria(
+                            {
+                                turnCount: 0,
+                                missionAffiliationTurn:
+                                    MissionAffiliationTurn.PLAYER_TURN_START,
+                            }
+                        ),
+                    ],
+                })
+            )
+            harness.transitionToNextPhase()
+        })
+
+        it("plays the first movie", () => {
+            expect(harness.getMovieStatus()?.currentScene?.sceneId).toBe(
+                "introduction-scene"
+            )
+        })
+
+        describe("once the first movie completes", () => {
+            beforeEach(() => {
+                harness.processMovieCommand(MovieEngineCommand.STOP)
+            })
+
+            it("plays the second movie next, instead of skipping it", () => {
+                expect(harness.getMovieStatus()?.currentScene?.sceneId).toBe(
+                    "turn1-scene"
+                )
+            })
+        })
+    })
+
     describe("getRecentMovieEvents", () => {
         describe("when a movie starts", () => {
             it("records a MOVIE_STARTED event", () => {
