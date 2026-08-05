@@ -1029,6 +1029,8 @@ const drainAbsorbConditionsBySource = ({
     }
 }
 
+const BINARY_CONDITION_ACTIVE_AMOUNT = 1
+
 const effectiveConditionAmount = (
     conditions: Omit<SquaddieCondition, TSquaddieConditionType>[] | undefined
 ): number => {
@@ -1040,7 +1042,9 @@ const effectiveConditionAmount = (
     >()
     for (const condition of conditions) {
         const source = condition.source
-        const amount = condition.amount?.current ?? 0
+        const amount = SquaddieConditionService.isBinary(condition)
+            ? BINARY_CONDITION_ACTIVE_AMOUNT
+            : (condition.amount?.current ?? 0)
         const existing = bySource.get(source) ?? { maxPos: 0, maxNeg: 0 }
         bySource.set(source, {
             maxPos: Math.max(existing.maxPos, amount, 0),

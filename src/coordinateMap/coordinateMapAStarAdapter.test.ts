@@ -118,7 +118,7 @@ describe("coordinateMapAStarAdapter", () => {
                     conditions: [
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.HUSTLE,
-                            amount: { amount: 1 },
+                            amount: undefined,
                             duration: {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -675,7 +675,7 @@ describe("coordinateMapAStarAdapter", () => {
                     conditions: [
                         SquaddieConditionService.new({
                             type: SquaddieConditionType.ELUSIVE,
-                            amount: { amount: 1 },
+                            amount: undefined,
                             duration: {
                                 duration: 1,
                                 decaysAt: SquaddieConditionDecaysAt.TURN_END,

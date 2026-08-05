@@ -721,6 +721,58 @@ describe("InBattleSquaddie", () => {
         })
     })
 
+    describe("when a squaddie has a binary condition (HUSTLE) with no amount field", () => {
+        it("is treated as active, matching how campaign data grants it", () => {
+            const attributeSheet =
+                OutOfBattleSquaddieTestSetup.createTestAttributeSheet({
+                    id: "sheet-hustle",
+                    maxHitPoints: 10,
+                    attributeScores: {
+                        [AttributeScore.BODY]: 0,
+                        [AttributeScore.MIND]: 0,
+                        [AttributeScore.SOUL]: 0,
+                    },
+                    items: { itemIds: [], maxCapacity: 0 },
+                    distancePerAction: 2,
+                    skipOverPits: false,
+                    moveThroughWalls: false,
+                    stopOnSquaddies: false,
+                })
+            const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
+                id: "squaddie-out-hustle",
+                name: "Test Squaddie",
+                actionIds: [],
+                attributeSheetId: "sheet-hustle",
+                affiliation: SquaddieAffiliation.NONE,
+            })
+            let squaddie: InBattleSquaddie = InBattleSquaddieService.new({
+                id: 14,
+                name: "Hustling Squaddie",
+                outOfBattleSquaddie,
+                attributeSheet,
+            })
+            const hustle = SquaddieConditionService.new({
+                type: SquaddieConditionType.HUSTLE,
+                amount: undefined,
+                duration: undefined,
+                source: SquaddieConditionSource.PHYSICAL,
+            })
+            const addResult = InBattleSquaddieService.addConditionsToSquaddie({
+                squaddie,
+                conditions: [hustle],
+            })
+            squaddie = addResult.squaddie
+
+            const effectiveAmount =
+                InBattleSquaddieService.calculateConditionAmount({
+                    squaddie,
+                    conditionType: SquaddieConditionType.HUSTLE,
+                })
+
+            expect(effectiveAmount).toBeGreaterThan(0)
+        })
+    })
+
     describe("attackContributionThisTurn (Multiple Attack Penalty)", () => {
         let attributeSheet: OutOfBattleSquaddieAttributeSheet
         let outOfBattleSquaddie: OutOfBattleSquaddie
