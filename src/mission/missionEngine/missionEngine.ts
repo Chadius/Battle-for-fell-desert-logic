@@ -599,7 +599,7 @@ export class MissionEngine {
 
     processMovieCommand(command: TMovieEngineCommand): void {
         this.activeMovieEngine?.processCommand(command)
-        this.recordMovieCompleteIfTerminated()
+        this.recordMovieCompleteAndResumePhaseAdvance()
     }
 
     selectMovieDecision(decisionId: string): {
@@ -614,13 +614,13 @@ export class MissionEngine {
             }
         }
         const result = this.activeMovieEngine.selectDecision(decisionId)
-        this.recordMovieCompleteIfTerminated()
+        this.recordMovieCompleteAndResumePhaseAdvance()
         return result
     }
 
     tickMovie(elapsedMs: number): void {
         this.activeMovieEngine?.tick(elapsedMs)
-        this.recordMovieCompleteIfTerminated()
+        this.recordMovieCompleteAndResumePhaseAdvance()
     }
 
     getMovieStatus(
@@ -772,7 +772,7 @@ export class MissionEngine {
         return this.useActionAndGetResults()
     }
 
-    private recordMovieCompleteIfTerminated(): void {
+    private recordMovieCompleteAndResumePhaseAdvance(): void {
         if (!this.activeMovieEngine) return
         if (this.activeMovieEngine.status().state === MovieEngineState.PLAYING)
             return
@@ -782,6 +782,7 @@ export class MissionEngine {
             ...this.recentMovieEvents,
             MissionMovieEvent.MOVIE_COMPLETE,
         ]
+        this.autoAdvanceThroughBookendAffiliationTurns()
     }
 
     private triggerPlayMovieReward(reward: MissionObjectiveReward): boolean {
@@ -832,6 +833,8 @@ export class MissionEngine {
     }
 
     private autoAdvanceThroughBookendAffiliationTurns(): void {
+        if (!this.missionManager) return
+
         this.recentPhaseTransitions = []
         this.recentTransitionResults = []
 

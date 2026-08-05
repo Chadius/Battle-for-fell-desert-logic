@@ -10,6 +10,7 @@ import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
 import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 import { MovieSceneConversationService } from "../../../movie/movieSceneConversation.js"
+import { MissionAffiliationTurn } from "../../missionTurn.js"
 
 const makeMovie = (...sceneIds: string[]): Movie => ({
     id: "movie-1",
@@ -93,6 +94,64 @@ describe("MissionEngine movie integration", () => {
                 harness.endSquaddieTurn(harness.getLiniSquaddieId())
 
                 expect(harness.isMoviePlaying()).toBe(true)
+            })
+        })
+    })
+
+    describe("when a movie completes after the acting affiliation already exhausted its turn", () => {
+        const setUpHarnessWithPlayMovieOnPlayerTurn =
+            (): MissionEngineTestHarness => {
+                const harness = new MissionEngineTestHarness()
+                harness.registerMovie(makeMovie("scene-1"))
+                harness.addObjective(
+                    MissionObjectiveService.new({
+                        id: "play-movie-on-player-turn",
+                        rewards: [
+                            MissionObjectiveRewardService.newPlayMovieReward(
+                                "movie-1"
+                            ),
+                        ],
+                        criteria: [
+                            MissionObjectiveCriteriaService.newPhaseReachedCriteria(
+                                {
+                                    turnCount: 0,
+                                    missionAffiliationTurn:
+                                        MissionAffiliationTurn.PLAYER_TURN,
+                                }
+                            ),
+                        ],
+                    })
+                )
+                harness.advanceToPlayerTurn()
+                return harness
+            }
+
+        describe("while the movie is still playing", () => {
+            let harness: MissionEngineTestHarness
+            beforeEach(() => {
+                harness = setUpHarnessWithPlayMovieOnPlayerTurn()
+                harness.endSquaddieTurn(harness.getLiniSquaddieId())
+            })
+
+            it("keeps the affiliation turn on the exhausted phase", () => {
+                expect(harness.getCurrentAffiliationTurn()).toBe(
+                    MissionAffiliationTurn.PLAYER_TURN
+                )
+            })
+        })
+
+        describe("once the movie completes", () => {
+            let harness: MissionEngineTestHarness
+            beforeEach(() => {
+                harness = setUpHarnessWithPlayMovieOnPlayerTurn()
+                harness.endSquaddieTurn(harness.getLiniSquaddieId())
+                harness.processMovieCommand(MovieEngineCommand.STOP)
+            })
+
+            it("advances past the exhausted affiliation turn", () => {
+                expect(harness.getCurrentAffiliationTurn()).not.toBe(
+                    MissionAffiliationTurn.PLAYER_TURN
+                )
             })
         })
     })
