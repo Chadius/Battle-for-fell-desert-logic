@@ -148,11 +148,6 @@ const newSquaddieTurnRecordService = (
 ): SquaddieTurnRecord => {
     return {
         actingBattleSquaddieId,
-        actions: actions.map((actionRecord) => {
-            return {
-                action: { ...actionRecord.action },
-                results: actionRecord.results.map((r) => ({ ...r })),
-            }
-        }),
+        actions: actions.map(SquaddieTurnActionRecordService.clone),
     }
 }

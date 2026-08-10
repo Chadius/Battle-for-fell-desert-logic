@@ -15,6 +15,7 @@ import {
     type TDegreeOfSuccess,
 } from "../../degreesOfSuccess/degreeOfSuccess.js"
 import { SquaddieIdConverterService } from "../../squaddie/idConverterService.js"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
 
 export interface SquaddieTurnActionRecord {
     action: {
@@ -22,6 +23,8 @@ export interface SquaddieTurnActionRecord {
         name: string
     }
     results: SquaddieActionResult[]
+    actor?: BattleSquaddieId
+    sequenceNumber?: number
 }
 
 export type SerializedSquaddieTurnActionRecord = Omit<
@@ -34,15 +37,26 @@ export type SerializedSquaddieTurnActionRecord = Omit<
 export const squaddieTurnActionRecordSchema = z.object({
     action: z.object({ id: z.string(), name: z.string() }),
     results: z.array(squaddieActionResultSchema),
+    actor: z
+        .object({
+            inBattleSquaddieId: z.number(),
+            outOfBattleSquaddieId: z.string(),
+        })
+        .optional(),
+    sequenceNumber: z.number().optional(),
 })
 
 export const SquaddieTurnActionRecordService = {
     new: ({
         action,
         results,
+        actor,
+        sequenceNumber,
     }: {
         action: SquaddieAction
         results: SquaddieActionResult[]
+        actor?: BattleSquaddieId
+        sequenceNumber?: number
     }): SquaddieTurnActionRecord => {
         throwIfActionDataIsInvalid(action, "new")
 
@@ -57,20 +71,26 @@ export const SquaddieTurnActionRecordService = {
         })
         return newSquaddieTurnActionRecordService(
             action,
-            results.map((r) => SquaddieActionResultService.clone(r))
+            results.map((r) => SquaddieActionResultService.clone(r)),
+            actor,
+            sequenceNumber
         )
     },
 
     clone: (original: SquaddieTurnActionRecord): SquaddieTurnActionRecord => {
         return newSquaddieTurnActionRecordService(
             original.action,
-            original.results
+            original.results,
+            original.actor,
+            original.sequenceNumber
         )
     },
 
     createFromJSON: (data: {
         action: { id: string; name: string }
         results: SerializedSquaddieActionResult[]
+        actor?: BattleSquaddieId
+        sequenceNumber?: number
     }): SquaddieTurnActionRecord => {
         throwIfActionDataIsInvalid(data.action, "createFromJSON")
 
@@ -89,6 +109,8 @@ export const SquaddieTurnActionRecordService = {
             results: data.results.map((result) =>
                 SquaddieActionResultService.deserialize(result)
             ),
+            actor: data.actor ? { ...data.actor } : undefined,
+            sequenceNumber: data.sequenceNumber,
         }
     },
 
@@ -117,6 +139,10 @@ export const SquaddieTurnActionRecordService = {
             results: squaddieTurnActionRecord.results.map((result) =>
                 SquaddieActionResultService.serialize(result)
             ),
+            actor: squaddieTurnActionRecord.actor
+                ? { ...squaddieTurnActionRecord.actor }
+                : undefined,
+            sequenceNumber: squaddieTurnActionRecord.sequenceNumber,
         }
     },
 
@@ -233,7 +259,9 @@ const throwIfResultIsInvalid = (
 
 const newSquaddieTurnActionRecordService = (
     action: { id: string; name: string },
-    results: SquaddieActionResult[]
+    results: SquaddieActionResult[],
+    actor: BattleSquaddieId | undefined,
+    sequenceNumber: number | undefined
 ): SquaddieTurnActionRecord => {
     return {
         action: {
@@ -241,5 +269,7 @@ const newSquaddieTurnActionRecordService = (
             name: action.name,
         },
         results: [...results],
+        actor: actor ? { ...actor } : undefined,
+        sequenceNumber,
     }
 }

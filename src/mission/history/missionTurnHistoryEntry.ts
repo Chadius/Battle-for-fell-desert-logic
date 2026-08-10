@@ -206,54 +206,38 @@ export const MissionTurnHistoryEntryService = {
             "removeLastAction"
         )
 
-        const lastSquaddieTurnActionRecord =
-            MissionTurnHistoryEntryService.getLastAction(
-                missionTurnHistoryEntry
-            )
-
-        if (lastSquaddieTurnActionRecord == undefined) {
-            return {
-                missionTurnHistoryEntry,
-            }
+        const lastAction = MissionTurnHistoryEntryService.getLastAction(
+            missionTurnHistoryEntry
+        )
+        if (lastAction == undefined) {
+            return { missionTurnHistoryEntry }
         }
 
         const lastSquaddieTurnRecord =
             missionTurnHistoryEntry.squaddieTurnRecords.at(-1)
-        if (lastSquaddieTurnRecord == undefined) {
-            return {
-                missionTurnHistoryEntry,
-            }
-        }
-
-        let removedAction: SquaddieTurnActionRecord | undefined =
-            lastSquaddieTurnRecord.actions.at(-1)
-        if (removedAction == undefined) {
-            return {
-                missionTurnHistoryEntry,
-            }
+        if (
+            lastSquaddieTurnRecord == undefined ||
+            lastSquaddieTurnRecord.actions.length === 0
+        ) {
+            return { missionTurnHistoryEntry }
         }
 
         const newSquaddieRecords: SquaddieTurnRecord[] =
             missionTurnHistoryEntry.squaddieTurnRecords
-                .slice(0, -1)
-                .map((squaddieTurnRecord) => {
-                    return SquaddieTurnRecordService.clone(squaddieTurnRecord)
-                })
-
-        const updatedLastTurnRecord: SquaddieTurnRecord =
-            SquaddieTurnRecordService.new({
-                actingBattleSquaddieId:
-                    SquaddieIdConverterService.keyToSquaddieId(
-                        missionTurnHistoryEntry.squaddieTurnRecords.at(-1)!
-                            .actingBattleSquaddieId
-                    ),
-                actions: missionTurnHistoryEntry.squaddieTurnRecords
-                    .at(-1)!
-                    .actions.slice(0, -1),
-            })
-        if (updatedLastTurnRecord.actions.length > 0) {
-            newSquaddieRecords.push(updatedLastTurnRecord)
-        }
+                .map((squaddieTurnRecord) =>
+                    removeMatchingLastActionFromRecord({
+                        squaddieTurnRecord,
+                        isLastTurnRecord:
+                            squaddieTurnRecord === lastSquaddieTurnRecord,
+                        targetSequenceNumber: lastAction.sequenceNumber,
+                    })
+                )
+                .filter(
+                    (
+                        squaddieTurnRecord
+                    ): squaddieTurnRecord is SquaddieTurnRecord =>
+                        squaddieTurnRecord != undefined
+                )
 
         return {
             missionTurnHistoryEntry: {
@@ -262,7 +246,7 @@ export const MissionTurnHistoryEntryService = {
                     missionTurnHistoryEntry.missionAffiliationTurn,
                 squaddieTurnRecords: newSquaddieRecords,
             },
-            removed: removedAction,
+            removed: lastAction,
         }
     },
 
@@ -287,4 +271,53 @@ const throwIfTurnHistoryIsUndefined = (
         throw new Error(
             `[MissionTurnHistoryEntryService.${callName}]: turnHistory must be defined`
         )
+}
+
+const removeMatchingLastActionFromRecord = ({
+    squaddieTurnRecord,
+    isLastTurnRecord,
+    targetSequenceNumber,
+}: {
+    squaddieTurnRecord: SquaddieTurnRecord
+    isLastTurnRecord: boolean
+    targetSequenceNumber: number | undefined
+}): SquaddieTurnRecord | undefined => {
+    if (
+        !bucketRecordedTheSameAction({
+            squaddieTurnRecord,
+            isLastTurnRecord,
+            targetSequenceNumber,
+        })
+    ) {
+        return SquaddieTurnRecordService.clone(squaddieTurnRecord)
+    }
+
+    const remainingActions = squaddieTurnRecord.actions.slice(0, -1)
+    if (remainingActions.length === 0) {
+        return undefined
+    }
+
+    return SquaddieTurnRecordService.new({
+        actingBattleSquaddieId: SquaddieIdConverterService.keyToSquaddieId(
+            squaddieTurnRecord.actingBattleSquaddieId
+        ),
+        actions: remainingActions,
+    })
+}
+
+const bucketRecordedTheSameAction = ({
+    squaddieTurnRecord,
+    isLastTurnRecord,
+    targetSequenceNumber,
+}: {
+    squaddieTurnRecord: SquaddieTurnRecord
+    isLastTurnRecord: boolean
+    targetSequenceNumber: number | undefined
+}): boolean => {
+    if (targetSequenceNumber == undefined) {
+        return isLastTurnRecord
+    }
+
+    const lastActionInBucket = squaddieTurnRecord.actions.at(-1)
+    return lastActionInBucket?.sequenceNumber === targetSequenceNumber
 }

@@ -1650,10 +1650,87 @@ export class MissionEngine {
                     message: "This squaddie is AI controlled",
                 }
             }
+
+            const activeSquaddieCheck =
+                this.canReadyActionBecauseNoOtherSquaddieIsActive({
+                    actor,
+                    actorAffiliation,
+                })
+            if (!activeSquaddieCheck.isValid) {
+                return activeSquaddieCheck
+            }
         }
 
         return {
             isValid: true,
+        }
+    }
+
+    private canReadyActionBecauseNoOtherSquaddieIsActive({
+        actor,
+        actorAffiliation,
+    }: {
+        actor: BattleSquaddieId
+        actorAffiliation: TSquaddieAffiliation
+    }): { isValid: boolean; message?: string } {
+        const readiedActionCheck =
+            this.canReadyActionBecauseNoUnexecutedReadiedAction(actor)
+        if (!readiedActionCheck.isValid) {
+            return readiedActionCheck
+        }
+
+        return this.canReadyActionBecauseSquaddieIsNotMidTurn(
+            actor,
+            actorAffiliation
+        )
+    }
+
+    private canReadyActionBecauseNoUnexecutedReadiedAction(
+        actor: BattleSquaddieId
+    ): { isValid: boolean; message?: string } {
+        if (!this.readiedAction) {
+            return { isValid: true }
+        }
+
+        const actorKey = SquaddieIdConverterService.squaddieIdToKey(actor)
+        const readiedActorKey = SquaddieIdConverterService.squaddieIdToKey(
+            this.readiedAction.actor
+        )
+        if (readiedActorKey === actorKey) {
+            return { isValid: true }
+        }
+
+        return {
+            isValid: false,
+            message:
+                "Another squaddie has a readied action that must be executed or cancelled first",
+        }
+    }
+
+    private canReadyActionBecauseSquaddieIsNotMidTurn(
+        actor: BattleSquaddieId,
+        actorAffiliation: TSquaddieAffiliation
+    ): { isValid: boolean; message?: string } {
+        const activeSquaddieId =
+            this.missionManager!.getActiveSquaddieForAffiliation(
+                actorAffiliation
+            )
+        if (!activeSquaddieId) {
+            return { isValid: true }
+        }
+
+        const actorKey = SquaddieIdConverterService.squaddieIdToKey(actor)
+        if (
+            SquaddieIdConverterService.squaddieIdToKey(activeSquaddieId) ===
+            actorKey
+        ) {
+            return { isValid: true }
+        }
+
+        return {
+            isValid: false,
+            message:
+                "Another squaddie has already started their turn and must finish before this squaddie can act",
         }
     }
 }

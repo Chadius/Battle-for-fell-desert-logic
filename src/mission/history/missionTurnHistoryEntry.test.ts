@@ -823,6 +823,59 @@ describe("MissionTurnHistoryEntryService", () => {
                 )
             ).toThrow("turnHistory must be defined")
         })
+
+        describe("when an action was recorded under multiple squaddies (actor and target)", () => {
+            it("removes the action from every squaddie's turn record, not just the last one", () => {
+                const actorId = {
+                    inBattleSquaddieId: 1,
+                    outOfBattleSquaddieId: "actor",
+                }
+                const targetId = {
+                    inBattleSquaddieId: 2,
+                    outOfBattleSquaddieId: "target",
+                }
+                const sharedAction = SquaddieTurnActionRecordService.new({
+                    action: { id: "poke", name: "Poke" } as SquaddieAction,
+                    results: [
+                        {
+                            inBattleSquaddieId: actorId.inBattleSquaddieId,
+                            outOfBattleSquaddieId:
+                                actorId.outOfBattleSquaddieId,
+                        } as SquaddieActionResult,
+                    ],
+                    actor: actorId,
+                    sequenceNumber: 5,
+                })
+
+                const actorTurnRecord = SquaddieTurnRecordService.new({
+                    actingBattleSquaddieId: actorId,
+                    actions: [sharedAction],
+                })
+                const targetTurnRecord = SquaddieTurnRecordService.new({
+                    actingBattleSquaddieId: targetId,
+                    actions: [sharedAction],
+                })
+
+                const missionTurnHistoryEntry =
+                    MissionTurnHistoryEntryService.new({
+                        turnNumber: 0,
+                        missionAffiliationTurn:
+                            MissionAffiliationTurn.PLAYER_TURN,
+                        squaddieTurnRecords: [
+                            actorTurnRecord,
+                            targetTurnRecord,
+                        ],
+                    })
+
+                const updated = MissionTurnHistoryEntryService.removeLastAction(
+                    missionTurnHistoryEntry
+                )
+
+                expect(
+                    updated.missionTurnHistoryEntry.squaddieTurnRecords
+                ).toHaveLength(0)
+            })
+        })
     })
 })
 
