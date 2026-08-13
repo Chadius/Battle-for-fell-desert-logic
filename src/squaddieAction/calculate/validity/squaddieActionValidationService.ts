@@ -2392,7 +2392,8 @@ export const calculateAimCoordinateResults = ({
 
     const isAreaEffect = (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
     const isDirectionalShape =
-        squaddieAction.targeting.shape === CoordinateGeneratorShape.LINE
+        squaddieAction.targeting.shape === CoordinateGeneratorShape.LINE ||
+        squaddieAction.targeting.shape === CoordinateGeneratorShape.CONE
     if (isAreaEffect || isDirectionalShape) {
         return calculateAimCoordinateResultsWithAreaOfEffect({
             squaddieAction,

@@ -1,9 +1,19 @@
-import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
+import {
+    CoordinateGeneratorShape,
+    CoordinateShapeService,
+} from "../../../coordinateMap/shape.js"
+import {
+    LineOfSightService,
+    type TLineOfSightStatus,
+} from "../../../coordinateMap/lineOfSightService.js"
 import { SquaddieAffiliationService } from "../../../affiliation/affiliation.js"
 import type { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
 import type { CoordinateMapCollectionManager } from "../../../coordinateMap/coordinateMapManager.js"
 import type { SquaddieAction } from "../../squaddieAction.js"
-import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate.js"
+import {
+    type OffsetCoordinate,
+    OffsetCoordinateService,
+} from "../../../coordinateMap/offsetCoordinate.js"
 import { ActionRangeService } from "../../actionRange.js"
 import {
     CoordinateCalculator,
@@ -28,21 +38,13 @@ export const AoeTargetResolutionService = {
             inBattleSquaddieManager: InBattleSquaddieManager
         }
     }): BattleSquaddieId[] {
-        const affectedCoordinates =
-            action.targeting.shape === CoordinateGeneratorShape.LINE
-                ? getLineAffectedCoordinates({
-                      action,
-                      actor,
-                      targetCoordinate,
-                      mapId,
-                      managers,
-                  })
-                : getBloomAffectedCoordinates({
-                      action,
-                      targetCoordinate,
-                      mapId,
-                      managers,
-                  })
+        const affectedCoordinates = getAffectedCoordinatesForShape({
+            action,
+            actor,
+            targetCoordinate,
+            mapId,
+            managers,
+        })
 
         const candidates = collectSquaddiesAtCoordinates({
             affectedCoordinates,
@@ -60,13 +62,48 @@ export const AoeTargetResolutionService = {
     },
 }
 
-const classifyTerrain = (props: {
-    movementCost: number | undefined
-    canStop: boolean
-}): { isWall: boolean; isPit: boolean } => ({
-    isWall: props.movementCost == undefined && !props.canStop,
-    isPit: props.movementCost != undefined && !props.canStop,
-})
+const getAffectedCoordinatesForShape = ({
+    action,
+    actor,
+    targetCoordinate,
+    mapId,
+    managers,
+}: {
+    action: SquaddieAction
+    actor: BattleSquaddieId
+    targetCoordinate: OffsetCoordinate
+    mapId: string
+    managers: {
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+        inBattleSquaddieManager: InBattleSquaddieManager
+    }
+}): OffsetCoordinate[] => {
+    switch (action.targeting.shape) {
+        case CoordinateGeneratorShape.BLOOM:
+            return getBloomAffectedCoordinates({
+                action,
+                targetCoordinate,
+                mapId,
+                managers,
+            })
+        case CoordinateGeneratorShape.LINE:
+            return getLineAffectedCoordinates({
+                action,
+                actor,
+                targetCoordinate,
+                mapId,
+                managers,
+            })
+        case CoordinateGeneratorShape.CONE:
+            return getConeAffectedCoordinates({
+                action,
+                actor,
+                targetCoordinate,
+                mapId,
+                managers,
+            })
+    }
+}
 
 const collectSquaddiesAtCoordinates = ({
     affectedCoordinates,
@@ -91,6 +128,65 @@ const collectSquaddiesAtCoordinates = ({
     return result
 }
 
+const getActorOriginCoordinate = ({
+    actor,
+    mapId,
+    coordinateMapCollectionManager,
+}: {
+    actor: BattleSquaddieId
+    mapId: string
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+}): OffsetCoordinate | undefined => {
+    const actorCoordinate =
+        coordinateMapCollectionManager.getSquaddieCoordinate({
+            mapId,
+            squaddieId: actor,
+        })
+
+    if (actorCoordinate?.row == undefined || actorCoordinate.col == undefined) {
+        return undefined
+    }
+
+    return { row: actorCoordinate.row, col: actorCoordinate.col }
+}
+
+const coordinatesAlongRayUntilBlocked = ({
+    ray,
+    mapId,
+    coordinateMapCollectionManager,
+    skipOverPits,
+    moveThroughWalls,
+}: {
+    ray: OffsetCoordinate[]
+    mapId: string
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    skipOverPits: boolean
+    moveThroughWalls: boolean
+}): OffsetCoordinate[] => {
+    const result: OffsetCoordinate[] = []
+    for (const hex of ray) {
+        const movementProperties =
+            coordinateMapCollectionManager.getMovementPropertiesAtCoordinate({
+                id: mapId,
+                row: hex.row,
+                col: hex.col,
+            })
+
+        if (
+            LineOfSightService.terrainBlocksPassage({
+                movementProperties,
+                skipOverPits,
+                moveThroughWalls,
+            })
+        ) {
+            break
+        }
+
+        result.push(hex)
+    }
+    return result
+}
+
 const getLineAffectedCoordinates = ({
     action,
     actor,
@@ -107,17 +203,16 @@ const getLineAffectedCoordinates = ({
         inBattleSquaddieManager: InBattleSquaddieManager
     }
 }): OffsetCoordinate[] => {
-    const actorCoordinate =
-        managers.coordinateMapCollectionManager.getSquaddieCoordinate({
-            mapId,
-            squaddieId: actor,
-        })
+    const from = getActorOriginCoordinate({
+        actor,
+        mapId,
+        coordinateMapCollectionManager: managers.coordinateMapCollectionManager,
+    })
 
-    if (actorCoordinate?.row == undefined || actorCoordinate.col == undefined) {
+    if (from == undefined) {
         return []
     }
 
-    const from = { row: actorCoordinate.row, col: actorCoordinate.col }
     const width = action.targeting.areaOfEffectSize ?? 0
     const skipOverPits = action.targeting.skipOverPits ?? true
     const moveThroughWalls = action.targeting.moveThroughWalls ?? false
@@ -172,20 +267,15 @@ const getLineAffectedCoordinates = ({
         results.push(hex)
     }
 
-    for (const centerHex of centerline) {
-        const props =
-            managers.coordinateMapCollectionManager.getMovementPropertiesAtCoordinate(
-                {
-                    id: mapId,
-                    row: centerHex.row,
-                    col: centerHex.col,
-                }
-            )
-        const { isWall, isPit } = classifyTerrain(props)
+    const unblockedCenterline = coordinatesAlongRayUntilBlocked({
+        ray: centerline,
+        mapId,
+        coordinateMapCollectionManager: managers.coordinateMapCollectionManager,
+        skipOverPits,
+        moveThroughWalls,
+    })
 
-        if (isWall && !moveThroughWalls) break
-        if (isPit && !skipOverPits) break
-
+    for (const centerHex of unblockedCenterline) {
         addOnce(centerHex)
 
         for (let w = 1; w <= width; w++) {
@@ -195,6 +285,72 @@ const getLineAffectedCoordinates = ({
     }
 
     return results
+}
+
+const getConeAffectedCoordinates = ({
+    action,
+    actor,
+    targetCoordinate,
+    mapId,
+    managers,
+}: {
+    action: SquaddieAction
+    actor: BattleSquaddieId
+    targetCoordinate: OffsetCoordinate
+    mapId: string
+    managers: {
+        coordinateMapCollectionManager: CoordinateMapCollectionManager
+        inBattleSquaddieManager: InBattleSquaddieManager
+    }
+}): OffsetCoordinate[] => {
+    const origin = getActorOriginCoordinate({
+        actor,
+        mapId,
+        coordinateMapCollectionManager: managers.coordinateMapCollectionManager,
+    })
+
+    if (origin == undefined) {
+        return []
+    }
+
+    const width = action.targeting.areaOfEffectSize ?? 0
+    const skipOverPits = action.targeting.skipOverPits ?? true
+    const moveThroughWalls = action.targeting.moveThroughWalls ?? false
+
+    const actionRange =
+        ActionRangeService.minAndMaxByRange[action.targeting.range]
+    const maxRange = actionRange.maximum
+
+    const mainDirection = CoordinateCalculator.getNearestDirection(
+        origin,
+        targetCoordinate
+    )
+
+    const candidateCoordinates = CoordinateShapeService.calculateCoordinates({
+        shape: CoordinateGeneratorShape.CONE,
+        origin,
+        direction: mainDirection,
+        width,
+        length: maxRange,
+    })
+
+    const mutableVisibilityCache = new Map<string, TLineOfSightStatus>([
+        [OffsetCoordinateService.coordinateToKey(origin), "REACHABLE"],
+    ])
+
+    return candidateCoordinates.filter(
+        (candidate) =>
+            LineOfSightService.resolveLineOfSightStatus({
+                origin,
+                target: candidate,
+                mapId,
+                coordinateMapCollectionManager:
+                    managers.coordinateMapCollectionManager,
+                skipOverPits,
+                moveThroughWalls,
+                mutableVisibilityCache,
+            }) === "REACHABLE"
+    )
 }
 
 const getBloomAffectedCoordinates = ({
@@ -218,12 +374,10 @@ const getBloomAffectedCoordinates = ({
     const seen = new Set<string>()
     const results: OffsetCoordinate[] = []
 
-    const coordinateKey = (c: OffsetCoordinate) => `${c.row},${c.col}`
-
     const queue: { coordinate: OffsetCoordinate; dist: number }[] = [
         { coordinate: targetCoordinate, dist: 0 },
     ]
-    seen.add(coordinateKey(targetCoordinate))
+    seen.add(OffsetCoordinateService.coordinateToKey(targetCoordinate))
     results.push(targetCoordinate)
 
     while (queue.length > 0) {
@@ -236,7 +390,7 @@ const getBloomAffectedCoordinates = ({
                 coordinate,
                 direction
             )
-            const nKey = coordinateKey(neighbor)
+            const nKey = OffsetCoordinateService.coordinateToKey(neighbor)
             if (seen.has(nKey)) continue
             seen.add(nKey)
 
@@ -272,16 +426,18 @@ const canBloomPassThroughTerrain = ({
     moveThroughWalls: boolean
     skipOverPits: boolean
 }): boolean => {
-    const terrainProperties =
+    const movementProperties =
         coordinateMapCollectionManager.getMovementPropertiesAtCoordinate({
             id: mapId,
             row: neighbor.row,
             col: neighbor.col,
         })
-    const { isWall, isPit } = classifyTerrain(terrainProperties)
 
-    if (isWall && !moveThroughWalls) return false
-    return !(isPit && !skipOverPits)
+    return !LineOfSightService.terrainBlocksPassage({
+        movementProperties,
+        skipOverPits,
+        moveThroughWalls,
+    })
 }
 
 const filterByAffiliation = ({

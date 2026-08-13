@@ -184,4 +184,180 @@ describe("Coordinate Shapes", () => {
             expect(coordinates).toEqual(expect.arrayContaining(expectedPath))
         })
     })
+
+    describe("Generate CONE type Shapes", () => {
+        it("width 0 is just a single ray in the given direction", () => {
+            const origin = { row: 2, col: 0 }
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.CONE,
+                origin,
+                direction: CoordinateDirection.RIGHT,
+                width: 0,
+                length: 2,
+            })
+
+            const expectedRay =
+                CoordinateCalculator.calculateEveryCoordinateInLine(origin, {
+                    row: 2,
+                    col: 2,
+                })
+            expect(coordinates).toHaveLength(expectedRay.length)
+            expect(coordinates).toEqual(expect.arrayContaining(expectedRay))
+        })
+
+        it("includes the actor's own coordinate in the affected area", () => {
+            const origin = { row: 2, col: 0 }
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.CONE,
+                origin,
+                direction: CoordinateDirection.RIGHT,
+                width: 1,
+                length: 2,
+            })
+            expect(coordinates).toEqual(expect.arrayContaining([origin]))
+        })
+
+        it("width 1 fans out into the main direction plus its two neighbors", () => {
+            const origin = { row: 2, col: 0 }
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.CONE,
+                origin,
+                direction: CoordinateDirection.RIGHT,
+                width: 1,
+                length: 1,
+            })
+
+            expect(coordinates).toHaveLength(4)
+            expect(coordinates).toEqual(
+                expect.arrayContaining([
+                    origin,
+                    CoordinateCalculator.getNeighbor(
+                        origin,
+                        CoordinateDirection.RIGHT
+                    ),
+                    CoordinateCalculator.getNeighbor(
+                        origin,
+                        CoordinateDirection.UP_RIGHT
+                    ),
+                    CoordinateCalculator.getNeighbor(
+                        origin,
+                        CoordinateDirection.DOWN_RIGHT
+                    ),
+                ])
+            )
+        })
+
+        it("fills the wedge with every hex up to range, not just the boundary rays", () => {
+            const origin = { row: 2, col: 0 }
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.CONE,
+                origin,
+                direction: CoordinateDirection.RIGHT,
+                width: 1,
+                length: 2,
+            })
+
+            const right = CoordinateCalculator.getNeighbor(
+                origin,
+                CoordinateDirection.RIGHT
+            )
+            const upRight = CoordinateCalculator.getNeighbor(
+                origin,
+                CoordinateDirection.UP_RIGHT
+            )
+            const downRight = CoordinateCalculator.getNeighbor(
+                origin,
+                CoordinateDirection.DOWN_RIGHT
+            )
+
+            const expectedCoordinates = [
+                origin,
+                // distance 1: the main direction plus its two flanking neighbors
+                right,
+                upRight,
+                downRight,
+                // distance 2: each boundary ray extended one more step...
+                CoordinateCalculator.getNeighbor(
+                    right,
+                    CoordinateDirection.RIGHT
+                ),
+                CoordinateCalculator.getNeighbor(
+                    upRight,
+                    CoordinateDirection.UP_RIGHT
+                ),
+                CoordinateCalculator.getNeighbor(
+                    downRight,
+                    CoordinateDirection.DOWN_RIGHT
+                ),
+                // ...plus the two interior hexes between adjacent boundary rays
+                CoordinateCalculator.getNeighbor(
+                    right,
+                    CoordinateDirection.UP_RIGHT
+                ),
+                CoordinateCalculator.getNeighbor(
+                    right,
+                    CoordinateDirection.DOWN_RIGHT
+                ),
+            ]
+
+            const coordinateKeys = new Set(
+                coordinates.map((c) => `${c.row},${c.col}`)
+            )
+            const expectedKeys = new Set(
+                expectedCoordinates.map((c) => `${c.row},${c.col}`)
+            )
+            expect(coordinateKeys).toEqual(expectedKeys)
+        })
+
+        it("at width 3 (a full circle), matches BLOOM's radius fill exactly", () => {
+            const origin = { row: 2, col: 0 }
+            const coneCoordinates = CoordinateShapeService.calculateCoordinates(
+                {
+                    shape: CoordinateGeneratorShape.CONE,
+                    origin,
+                    direction: CoordinateDirection.RIGHT,
+                    width: 3,
+                    length: 2,
+                }
+            )
+            const bloomCoordinates =
+                CoordinateShapeService.calculateCoordinates({
+                    shape: CoordinateGeneratorShape.BLOOM,
+                    origin,
+                    radius: 2,
+                })
+
+            const coneKeys = new Set(
+                coneCoordinates.map((c) => `${c.row},${c.col}`)
+            )
+            const bloomKeys = new Set(
+                bloomCoordinates.map((c) => `${c.row},${c.col}`)
+            )
+            expect(coneKeys).toEqual(bloomKeys)
+        })
+
+        it("contains no duplicate coordinates", () => {
+            const coordinates = CoordinateShapeService.calculateCoordinates({
+                shape: CoordinateGeneratorShape.CONE,
+                origin: { row: 2, col: 0 },
+                direction: CoordinateDirection.RIGHT,
+                width: 3,
+                length: 3,
+            })
+            const keys = coordinates.map((c) => `${c.row},${c.col}`)
+            expect(keys).toHaveLength(new Set(keys).size)
+        })
+
+        it("throws an error if negative width is given", () => {
+            expect(() => {
+                CoordinateShapeService.calculateCoordinates({
+                    shape: CoordinateGeneratorShape.CONE,
+                    origin: { row: 0, col: 0 },
+                    direction: CoordinateDirection.RIGHT,
+                    width: -1,
+                    length: 2,
+                })
+            }).toThrow("width must be a non-negative integer")
+        })
+    })
 })

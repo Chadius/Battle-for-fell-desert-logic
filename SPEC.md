@@ -265,7 +265,7 @@ Eventually there will be new conditions.
 - `SquaddieActionResultCalculator` must query active conditions on actor and target when computing
   net damage and movement.
 
-### Gap 5 — LINE and CONE Area Targeting
+### Gap 5 — LINE and CONE Area Targeting (DONE)
 
 Shape constants are defined but area expansion is not implemented.
 Required:
@@ -275,7 +275,7 @@ Required:
 - CONE requires a direction parameter. This game uses a Hexagonal Grid, so we can use 1 of 6 directions.
 - CONE requires a width parameter. This will indicate how wide the cone will spread. A width of 0 would collapse into a
   line. A width of 1 would expand into 2 more directions, so a direction of right would spread into upright and
-  downright. A width of 4 would be a complete circle.
+  downright. A width of 3 or more is a complete circle (6 directions total).
 - LINE requires a width parameter. A width of 0 is the minimum width. A width of 1 would expand 2 more lines. A line
   pointing to the right would have 3 lines going to the right, one above and below the squaddie.
 - `SquaddieActionValidationService` and the calculator must accept a set of target coordinates, not
@@ -283,6 +283,37 @@ Required:
 
 Red Blob Games has a great explanation of drawing lines.
 https://www.redblobgames.com/grids/hexagons/implementation.html#line-drawing
+
+CONE is a **filled wedge**, not a sparse set of boundary rays — at width 1 and range 2 it covers all 9 hexes in the
+"1+3+5" pattern (every hex up to `range` hexes away whose angle from the actor falls within the cone's span), not
+just the 7 hexes that lie exactly on the 3 boundary directions ("1+3+3"). Implemented as two layers, mirroring the
+existing BLOOM/LINE split: `CoordinateShapeService.calculateCoordinates` (`src/coordinateMap/shape.ts`) is the
+pure-geometry generator (no terrain, no actor lookup) used for unit testing the raw shape math;
+`AoeTargetResolutionService.resolveAoeTargets` (`src/squaddieAction/calculate/aoe/aoeTargetResolutionService.ts`) is
+the terrain-aware, actor-position-aware resolver actually used during play. CONE's main direction is derived from
+the actor's position and the aim/click coordinate via `CoordinateCalculator.getNearestDirection` — snapped to the
+nearest of the 6 major directions using cube-coordinate dot products — rather than being a stored field on the
+action definition, matching how LINE already derives its direction from the aim point.
+
+The wedge is filled by decomposing its angular span into 60° triangular sectors, one per pair of _adjacent_ hex
+directions from `main - width` to `main + width` (`CoordinateCalculator.getConeSectorDirectionPairs`; width 3 spans
+all 6 directions and closes into a full circle, matching BLOOM's radius fill exactly). Each sector is filled using
+its two boundary directions as basis vectors: every hex `a·direction1 + b·direction2` with `a, b ≥ 0` and
+`a + b ≤ range` belongs to the sector, and its hex-distance from the origin is exactly `a + b`. Sectors are unioned
+(deduping shared boundary hexes) to produce the filled wedge; width 0 is a special case with no sector (just the
+single ray along the main direction, since a wedge needs two boundary directions to span).
+
+Occlusion is resolved **per target hex**, not per boundary ray: `AoeTargetResolutionService` casts a line of sight
+from the actor to every hex in the filled wedge (reusing `calculateEveryCoordinateInLine`) and excludes a hex if a
+wall/pit lies on that line before reaching it. This is memoized in a single `Map<coordinate, Reachable|Unreachable>`
+shared across all the lines traced for one resolution call (analogous to A\*'s visited-node set): once a coordinate
+along a line is resolved, walking any other line that passes through it reuses the cached answer instead of
+rechecking terrain, and once a line hits a blocker every remaining coordinate on that same line is marked
+unreachable without individual checks. This generalizes the old "each ray is blocked independently" rule (a wall
+still only shadows the hexes behind it along its own line, so hexes on other lines are unaffected) to every hex in
+the wedge, not just the ones lying exactly on a boundary ray. Every hex in the wedge includes the actor's own tile by
+default; `SquaddieAction.targeting.affiliationRelationship.self` (already used by BLOOM/LINE) is what determines
+whether the actor actually counts as a valid target.
 
 ### Gap 6 — Complete Turn Advancement in the Engine (DONE)
 
@@ -482,13 +513,15 @@ Tasks:
 5. Tests: Slither Demon moves toward player; Slither Demon attacks when in range; Slither Demon ends turn when out of
    AP.
 
-### Phase 6 — LINE and CONE Area Targeting (Gap 5)
+### Phase 6 — LINE and CONE Area Targeting (Gap 5, DONE)
 
 **Goal**: Actions with LINE or CONE shapes affect all tiles in the projected area.
 
 Tasks:
 
 1. Implement `AreaTargetCalculator.getAffectedCoordinates(origin, direction, shape, range, width)`.
+   Superseded — see Gap 5 above for the two functions actually shipped (`CoordinateShapeService.calculateCoordinates`
+   for pure geometry, `AoeTargetResolutionService.resolveAoeTargets` for terrain/actor-aware resolution).
 2. Update `SquaddieActionValidationService` to validate area targets.
 3. Update `SquaddieActionResultCalculator` to produce one `TargetResult` per affected tile that
    contains a living squaddie.
