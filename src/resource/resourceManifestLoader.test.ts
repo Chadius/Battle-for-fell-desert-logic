@@ -65,11 +65,28 @@ describe("loadResourceManifestFromJSON", () => {
                 id: "xyz",
                 label: "Weird",
                 description: { "en-us": { text: "Unknown type" } },
-                type: "AUDIO",
+                type: "SMELL",
             },
         }
         expect(() => loadResourceManifestFromJSON(badJSON)).toThrow(
-            /Unknown resource type "AUDIO"/
+            /Unknown resource type "SMELL"/
         )
     })
+
+    it.each(["AUDIO", "VIDEO"] as const)(
+        "accepts %s as a valid resource type",
+        (type) => {
+            const collection = loadResourceManifestFromJSON({
+                theme: {
+                    id: "theme-1",
+                    label: "Battle Theme",
+                    description: { "en-us": { text: "The battle theme" } },
+                    type,
+                },
+            })
+            expect(
+                ResourceManifestCollectionService.get(collection, "theme")?.type
+            ).toBe(type)
+        }
+    )
 })

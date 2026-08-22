@@ -153,7 +153,8 @@ split into two parallel manifests, each with its own Data Object → Collection 
 stack, so content authors and media producers can work without blocking each other:
 
 - **`ResourceManifestEntry`** (`resource/resourceManifest.ts`) is _content_: `id`, `label`,
-  `description` (localized, alt-text-shaped), and `type` (`IMAGE | LEVEL | DATA | TEXT`). Written
+  `description` (localized, alt-text-shaped), and `type`
+  (`IMAGE | LEVEL | DATA | TEXT | AUDIO | VIDEO`). Written
   alongside the dialogue/scene that references it, independent of whether a media file exists yet.
 - **`ResourceManifestMediaEntry`** (`resource/resourceManifestMedia.ts`) is _media_: `id`,
   `filepath`, `format`. Produced by an artist/composer and lags behind content by design.

@@ -12,7 +12,14 @@ import {
     type ResourceManifestMediaCollection,
 } from "./resourceManifestMediaCollection.js"
 
-const VALID_TYPES: ResourceManifestType[] = ["IMAGE", "LEVEL", "DATA", "TEXT"]
+const VALID_TYPES: ResourceManifestType[] = [
+    "IMAGE",
+    "LEVEL",
+    "DATA",
+    "TEXT",
+    "AUDIO",
+    "VIDEO",
+]
 
 export type ResourceManifestRawJSON = Record<
     string,

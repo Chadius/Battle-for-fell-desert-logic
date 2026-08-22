@@ -1,6 +1,12 @@
 import { LocalizedTextService } from "../localization/localizedText.js"
 
-export type ResourceManifestType = "IMAGE" | "LEVEL" | "DATA" | "TEXT"
+export type ResourceManifestType =
+    | "IMAGE"
+    | "LEVEL"
+    | "DATA"
+    | "TEXT"
+    | "AUDIO"
+    | "VIDEO"
 
 export interface ResourceManifestEntryDescription {
     text: string
