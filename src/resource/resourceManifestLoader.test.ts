@@ -18,16 +18,12 @@ describe("loadResourceManifestFromJSON", () => {
                     text: "Une rivière traverse une clairière forestière",
                 },
             },
-            filepath: "./blue-river.png",
-            format: "PNG",
             type: "IMAGE",
         },
         desertLevel: {
             id: "efgh-5678-nopq",
             label: "Fell Desert",
             description: { "en-us": { text: "An arid desert battlefield" } },
-            filepath: "./fell-desert.json",
-            format: "JSON",
             type: "LEVEL",
         },
     }
@@ -50,8 +46,6 @@ describe("loadResourceManifestFromJSON", () => {
         )
         expect(entry?.id).toBe("abcd-1234-jklm")
         expect(entry?.label).toBe("Blue River at Dawn")
-        expect(entry?.filepath).toBe("./blue-river.png")
-        expect(entry?.format).toBe("PNG")
         expect(entry?.type).toBe("IMAGE")
         expect(entry?.description["fr-fr"].text).toBe(
             "Une rivière traverse une clairière forestière"
@@ -71,8 +65,6 @@ describe("loadResourceManifestFromJSON", () => {
                 id: "xyz",
                 label: "Weird",
                 description: { "en-us": { text: "Unknown type" } },
-                filepath: "./weird.bin",
-                format: "BIN",
                 type: "AUDIO",
             },
         }

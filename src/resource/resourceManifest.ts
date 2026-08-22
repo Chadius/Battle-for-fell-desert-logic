@@ -10,8 +10,6 @@ export interface ResourceManifestEntry {
     id: string
     label: string
     description: Record<string, ResourceManifestEntryDescription>
-    filepath: string
-    format: string
     type: ResourceManifestType
 }
 
@@ -23,22 +21,16 @@ export const ResourceManifestEntryService = {
         id,
         label,
         description,
-        filepath,
-        format,
         type,
     }: {
         id: string
         label: string
         description: Record<string, ResourceManifestEntryDescription>
-        filepath: string
-        format: string
         type: ResourceManifestType
     }): ResourceManifestEntry => ({
         id,
         label,
         description,
-        filepath,
-        format,
         type,
     }),
 

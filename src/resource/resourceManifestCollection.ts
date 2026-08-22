@@ -12,11 +12,11 @@ export const ResourceManifestCollectionService = {
     add: (
         resourceManifestCollection: ResourceManifestCollection,
         key: string,
-        entry: ResourceManifestEntry
+        resourceManifestEntry: ResourceManifestEntry
     ): ResourceManifestCollection => ({
         entriesByKey: new Map(resourceManifestCollection.entriesByKey).set(
             key,
-            entry
+            resourceManifestEntry
         ),
     }),
 

@@ -19,8 +19,6 @@ describe("resolveResourceManifestEntry", () => {
                     id,
                     label: `Label ${id}`,
                     description: { "en-us": { text: `Desc ${id}` } },
-                    filepath: `./${id}.png`,
-                    format: "PNG",
                     type: "IMAGE",
                 })
             )

@@ -14,8 +14,6 @@ describe("ResourceManifestCollection", () => {
             id,
             label: `Label ${id}`,
             description: { "en-us": { text: `Description for ${id}` } },
-            filepath: `./${id}.png`,
-            format: "PNG",
             type: "IMAGE",
         })
 

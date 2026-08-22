@@ -15,8 +15,6 @@ describe("ResourceManifestEntry", () => {
                 "en-us": { text: "A river flows through a forest glade" },
                 "fr-fr": { text: "Une rivière traverse une clairière" },
             },
-            filepath: "./blue-river.png",
-            format: "PNG",
             type: "IMAGE",
             ...overrides,
         })
@@ -25,8 +23,6 @@ describe("ResourceManifestEntry", () => {
         const entry = makeEntry()
         expect(entry.id).toBe("abcd-1234")
         expect(entry.label).toBe("Blue River at Dawn")
-        expect(entry.filepath).toBe("./blue-river.png")
-        expect(entry.format).toBe("PNG")
         expect(entry.type).toBe("IMAGE")
     })
 

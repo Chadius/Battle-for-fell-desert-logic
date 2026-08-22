@@ -17,8 +17,6 @@ const makeImageEntry = () =>
             "en-us": { text: "A tactical map of the fell desert" },
             "fr-fr": { text: "Une carte tactique du désert maudit" },
         },
-        filepath: "./battlefield.png",
-        format: "PNG",
         type: "IMAGE",
     })
 

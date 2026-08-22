@@ -35,20 +35,21 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 
 ### Domain Folders Under `src/`
 
-| Folder                  | Purpose                                                         |
-| ----------------------- | --------------------------------------------------------------- |
-| `squaddie/inBattle/`    | In-mission character state (HP, action points, conditions)      |
-| `squaddie/outOfBattle/` | Static character definition (attributes, action list)           |
-| `squaddieAction/`       | Action definitions, targeting, calculation, application         |
-| `squad/`                | Squad groupings and roles                                       |
-| `squaddieItem/`         | Equipment and passive bonuses                                   |
-| `affiliation/`          | Team constants (PLAYER, ALLY, ENEMY, NONE) and friendship rules |
-| `proficiency/`          | Attribute scores, proficiency levels, condition types           |
-| `coordinateMap/`        | Grid map, terrain, pathfinding adapter                          |
-| `aStarSearch/`          | Generic A\* implementation                                      |
-| `priorityQueue/`        | Min-heap used by A\*                                            |
-| `degreesOfSuccess/`     | Hit probability (CRITICAL / SUCCESS / FAILURE / BOTCH)          |
-| `mission/`              | MissionEngine, MissionManager, turn state, objectives, history  |
+| Folder                  | Purpose                                                                       |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| `squaddie/inBattle/`    | In-mission character state (HP, action points, conditions)                    |
+| `squaddie/outOfBattle/` | Static character definition (attributes, action list)                         |
+| `squaddieAction/`       | Action definitions, targeting, calculation, application                       |
+| `squad/`                | Squad groupings and roles                                                     |
+| `squaddieItem/`         | Equipment and passive bonuses                                                 |
+| `affiliation/`          | Team constants (PLAYER, ALLY, ENEMY, NONE) and friendship rules               |
+| `proficiency/`          | Attribute scores, proficiency levels, condition types                         |
+| `coordinateMap/`        | Grid map, terrain, pathfinding adapter                                        |
+| `aStarSearch/`          | Generic A\* implementation                                                    |
+| `priorityQueue/`        | Min-heap used by A\*                                                          |
+| `degreesOfSuccess/`     | Hit probability (CRITICAL / SUCCESS / FAILURE / BOTCH)                        |
+| `mission/`              | MissionEngine, MissionManager, turn state, objectives, history                |
+| `resource/`             | Resource manifest: content (id/label/description) vs. media (filepath/format) |
 
 ---
 
@@ -144,6 +145,30 @@ once per mission.
 
 - `SquaddieItem` provides passive proficiency bonuses and grants additional action IDs.
 - `SquaddieItemManager` handles CRUD; items are attached to attribute sheets.
+
+### Resources
+
+Assets referenced by missions, campaigns, and movies (images, levels, and eventually audio) are
+split into two parallel manifests, each with its own Data Object → Collection → Loader/Resolver
+stack, so content authors and media producers can work without blocking each other:
+
+- **`ResourceManifestEntry`** (`resource/resourceManifest.ts`) is _content_: `id`, `label`,
+  `description` (localized, alt-text-shaped), and `type` (`IMAGE | LEVEL | DATA | TEXT`). Written
+  alongside the dialogue/scene that references it, independent of whether a media file exists yet.
+- **`ResourceManifestMediaEntry`** (`resource/resourceManifestMedia.ts`) is _media_: `id`,
+  `filepath`, `format`. Produced by an artist/composer and lags behind content by design.
+- Each has its own `*Collection` (`resourceManifestCollection.ts` /
+  `resourceManifestMediaCollection.ts`), loader function (`loadResourceManifestFromJSON` /
+  `loadResourceManifestMediaFromJSON` in `resourceManifestLoader.ts`), and resolver function
+  (`resolveResourceManifestEntry` / `resolveResourceManifestMedia` in `resourceManifestResolver.ts`)
+  that walks a mission → campaign → core list of collections for the first match.
+- The media manifest JSON is **sparse**: an id with no produced file yet simply has no entry, rather
+  than a `filepath: ""` placeholder. `resolveResourceManifestMedia` returning `undefined` is a
+  normal, expected "no media yet" result, not an error — callers (e.g. a renderer choosing to show a
+  placeholder) check for it rather than relying on empty-string sniffing.
+- Consumers (movie scenes, etc.) hold only the opaque manifest key (`resourceManifestEntryId`) and
+  resolve content/media independently as needed; nothing outside `resource/` reads `filepath`/
+  `format` directly.
 
 ### Squaddie Conditions
 
