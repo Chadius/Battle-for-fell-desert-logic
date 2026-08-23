@@ -1,4 +1,5 @@
 import {
+    RESOURCE_MANIFEST_TYPES,
     ResourceManifestEntryService,
     type ResourceManifestType,
 } from "./resourceManifest.js"
@@ -11,15 +12,6 @@ import {
     ResourceManifestMediaCollectionService,
     type ResourceManifestMediaCollection,
 } from "./resourceManifestMediaCollection.js"
-
-const VALID_TYPES: ResourceManifestType[] = [
-    "IMAGE",
-    "LEVEL",
-    "DATA",
-    "TEXT",
-    "AUDIO",
-    "VIDEO",
-]
 
 export type ResourceManifestRawJSON = Record<
     string,
@@ -37,9 +29,13 @@ export function loadResourceManifestFromJSON(
     let resourceManifestCollection = ResourceManifestCollectionService.new()
 
     for (const [key, rawEntry] of Object.entries(json)) {
-        if (!VALID_TYPES.includes(rawEntry.type as ResourceManifestType)) {
+        if (
+            !RESOURCE_MANIFEST_TYPES.includes(
+                rawEntry.type as ResourceManifestType
+            )
+        ) {
             throw new Error(
-                `[loadResourceManifestFromJSON] Unknown resource type "${rawEntry.type}" for key "${key}". Valid types: ${VALID_TYPES.join(", ")}`
+                `[loadResourceManifestFromJSON] Unknown resource type "${rawEntry.type}" for key "${key}". Valid types: ${RESOURCE_MANIFEST_TYPES.join(", ")}`
             )
         }
 
