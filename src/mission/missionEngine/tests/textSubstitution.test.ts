@@ -83,7 +83,7 @@ const buildEngineWithMovie = (movie: Movie): MissionEngine => {
         }),
     })
     const engine = new MissionEngine(missionManager)
-    engine.playMovie(movie, [])
+    engine.playMovie(movie)
     return engine
 }
 
@@ -108,9 +108,10 @@ describe("MissionEngine.getMovieStatus", () => {
                 throw new Error("expected a conversation scene")
             }
 
-            expect(currentScene.decisions[0].text).toBe(
-                "Healed 2, unknown {MYSTERY}"
+            const choiceA = currentScene.decisions.find(
+                (decision) => decision.decisionId === "choice-a"
             )
+            expect(choiceA?.text).toBe("Healed 2, unknown {MYSTERY}")
         })
     })
 
@@ -133,22 +134,19 @@ describe("MissionEngine.getMovieStatus", () => {
     describe("when an image scene is playing", () => {
         it("returns the scene unchanged", () => {
             const engine = new MissionEngine()
-            engine.playMovie(
-                {
-                    id: "image-movie",
-                    firstSceneId: "img-scene",
-                    scenes: [
-                        {
-                            type: MovieSceneType.IMAGE,
-                            data: MovieSceneImageService.new({
-                                id: "img-scene",
-                                resourceManifestEntryId: "img",
-                            }),
-                        },
-                    ],
-                },
-                []
-            )
+            engine.playMovie({
+                id: "image-movie",
+                firstSceneId: "img-scene",
+                scenes: [
+                    {
+                        type: MovieSceneType.IMAGE,
+                        data: MovieSceneImageService.new({
+                            id: "img-scene",
+                            resourceManifestEntryId: "img",
+                        }),
+                    },
+                ],
+            })
 
             const status = engine.getMovieStatus()
 

@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MissionEngine } from "../missionEngine.js"
+import { MissionEngine, MissionMovieEvent } from "../missionEngine.js"
 import { MovieSceneImageService } from "../../../movie/movieSceneImage.js"
 import { MovieSceneType } from "../../../movie/movieScene.js"
 import type { Movie } from "../../../movie/movie.js"
-import { MovieEngineCommand } from "../../../movie/movieEngine.js"
+import {
+    MovieEngineCommand,
+    MovieEngineState,
+} from "../../../movie/movieEngine.js"
 import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness.js"
 import { MissionObjectiveService } from "../../missionObjective.js"
 import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
@@ -11,6 +14,8 @@ import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.
 import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 import { MovieSceneConversationService } from "../../../movie/movieSceneConversation.js"
 import { MissionAffiliationTurn } from "../../missionTurn.js"
+import { ResourceManifestCollectionService } from "../../../resource/resourceManifestCollection.js"
+import { ResourceManifestEntryService } from "../../../resource/resourceManifest.js"
 
 const makeMovie = (...sceneIds: string[]): Movie => ({
     id: "movie-1",
@@ -44,7 +49,7 @@ describe("MissionEngine movie integration", () => {
         describe("when a movie is playing", () => {
             it("blocks the action", () => {
                 const engine = new MissionEngine()
-                engine.playMovie(makeMovie("scene-1"), [])
+                engine.playMovie(makeMovie("scene-1"))
 
                 const result = engine.readyAction({
                     actor: {
@@ -94,6 +99,57 @@ describe("MissionEngine movie integration", () => {
                 harness.endSquaddieTurn(harness.getLiniSquaddieId())
 
                 expect(harness.isMoviePlaying()).toBe(true)
+            })
+        })
+
+        describe("when resource collections are registered and the referenced movie has an image scene", () => {
+            it("resolves the scene's description from the registered resource collection", () => {
+                const resourceManifestCollection =
+                    ResourceManifestCollectionService.add(
+                        ResourceManifestCollectionService.new(),
+                        "img",
+                        ResourceManifestEntryService.new({
+                            id: "victory-image",
+                            label: "Victory",
+                            description: {
+                                "en-us": { text: "The squad celebrates." },
+                            },
+                            type: "IMAGE",
+                        })
+                    )
+
+                const harness = new MissionEngineTestHarness()
+                harness.registerResourceCollections([
+                    resourceManifestCollection,
+                ])
+                harness.registerMovie(makeMovie("victory-scene"))
+                harness.addObjective(
+                    MissionObjectiveService.new({
+                        id: "play-victory-movie",
+                        rewards: [
+                            MissionObjectiveRewardService.newPlayMovieReward(
+                                "movie-1"
+                            ),
+                        ],
+                        criteria: [
+                            MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
+                                {
+                                    affiliations: [SquaddieAffiliation.ENEMY],
+                                }
+                            ),
+                        ],
+                    })
+                )
+                harness.defeatSlitherDemon()
+                harness.advanceToPlayerTurn()
+
+                harness.endSquaddieTurn(harness.getLiniSquaddieId())
+
+                const currentScene = harness.getMovieStatus()?.currentScene
+                if (currentScene?.type !== "IMAGE") {
+                    throw new Error("expected an image scene")
+                }
+                expect(currentScene.description).toBe("The squad celebrates.")
             })
         })
     })
@@ -227,21 +283,23 @@ describe("MissionEngine movie integration", () => {
             it("records a MOVIE_STARTED event", () => {
                 const engine = new MissionEngine()
 
-                engine.playMovie(makeMovie("scene-1"), [])
+                engine.playMovie(makeMovie("scene-1"))
 
-                expect(engine.getRecentMovieEvents()).toContain("MOVIE_STARTED")
+                expect(engine.getRecentMovieEvents()).toContain(
+                    MissionMovieEvent.MOVIE_STARTED
+                )
             })
         })
 
         describe("when the active movie completes", () => {
             it("records a MOVIE_COMPLETE event", () => {
                 const engine = new MissionEngine()
-                engine.playMovie(makeFiniteMovie("scene-1", 100), [])
+                engine.playMovie(makeFiniteMovie("scene-1", 100))
                 engine.processMovieCommand(MovieEngineCommand.FAST_FORWARD)
                 engine.tickMovie(200)
 
                 expect(engine.getRecentMovieEvents()).toContain(
-                    "MOVIE_COMPLETE"
+                    MissionMovieEvent.MOVIE_COMPLETE
                 )
             })
         })
@@ -251,11 +309,11 @@ describe("MissionEngine movie integration", () => {
         describe("when a movie is playing", () => {
             it("reports state as PLAYING", () => {
                 const engine = new MissionEngine()
-                engine.playMovie(makeMovie("scene-1"), [])
+                engine.playMovie(makeMovie("scene-1"))
 
                 const status = engine.getMovieStatus()
 
-                expect(status!.state).toBe("PLAYING")
+                expect(status!.state).toBe(MovieEngineState.PLAYING)
             })
         })
 
@@ -272,7 +330,7 @@ describe("MissionEngine movie integration", () => {
         describe("when the active movie completes via tick", () => {
             it("the movie stops playing", () => {
                 const engine = new MissionEngine()
-                engine.playMovie(makeFiniteMovie("scene-1", 100), [])
+                engine.playMovie(makeFiniteMovie("scene-1", 100))
                 engine.processMovieCommand(MovieEngineCommand.FAST_FORWARD)
 
                 engine.tickMovie(200)
@@ -294,7 +352,7 @@ describe("MissionEngine movie integration", () => {
         describe("when a movie is playing and STOP is sent", () => {
             it("the movie stops playing", () => {
                 const engine = new MissionEngine()
-                engine.playMovie(makeMovie("scene-1"), [])
+                engine.playMovie(makeMovie("scene-1"))
 
                 engine.processMovieCommand(MovieEngineCommand.STOP)
 
@@ -318,7 +376,7 @@ describe("MissionEngine movie integration", () => {
             it("the movie is playing", () => {
                 const engine = new MissionEngine()
 
-                engine.playMovie(makeMovie("scene-1"), [])
+                engine.playMovie(makeMovie("scene-1"))
 
                 expect(engine.isMoviePlaying()).toBe(true)
             })
@@ -377,7 +435,7 @@ describe("MissionEngine movie integration", () => {
                 let engine: MissionEngine
                 beforeEach(() => {
                     engine = new MissionEngine()
-                    engine.playMovie(makeConversationMovie(), [])
+                    engine.playMovie(makeConversationMovie())
                     engine.selectMovieDecision("choice-a")
                 })
 
@@ -387,7 +445,7 @@ describe("MissionEngine movie integration", () => {
 
                 it("records a MOVIE_COMPLETE event", () => {
                     expect(engine.getRecentMovieEvents()).toContain(
-                        "MOVIE_COMPLETE"
+                        MissionMovieEvent.MOVIE_COMPLETE
                     )
                 })
             })
@@ -395,7 +453,7 @@ describe("MissionEngine movie integration", () => {
             describe("when an unrecognized decision ID is submitted", () => {
                 it("rejects it with a message naming the unknown ID", () => {
                     const engine = new MissionEngine()
-                    engine.playMovie(makeConversationMovie(), [])
+                    engine.playMovie(makeConversationMovie())
 
                     const result = engine.selectMovieDecision("no-such-choice")
 
@@ -408,7 +466,7 @@ describe("MissionEngine movie integration", () => {
         describe("when a movie with only image scenes is playing", () => {
             it("rejects the decision", () => {
                 const engine = new MissionEngine()
-                engine.playMovie(makeMovie("scene-1"), [])
+                engine.playMovie(makeMovie("scene-1"))
 
                 const result = engine.selectMovieDecision("choice-a")
 

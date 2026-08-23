@@ -7,8 +7,8 @@ import {
     type TMovieEngineCommand,
 } from "../../movie/movieEngine.js"
 import {
-    MissionObjectiveRewardType,
     type MissionObjectiveReward,
+    MissionObjectiveRewardType,
 } from "../missionObjectiveReward.js"
 import {
     type SquaddieTurnActionRecord,
@@ -158,10 +158,8 @@ export class MissionEngine {
     private recentTransitionResults: SerializedSquaddieActionResult[] = []
     private activeMovieEngine?: MovieEngine
     private recentMovieEvents: TMissionMovieEvent[] = []
-    private queuedMovies: {
-        movie: Movie
-        resourceCollections: ResourceManifestCollection[]
-    }[] = []
+    private readonly queuedMovies: Movie[] = []
+    private resourceCollections: ResourceManifestCollection[] = []
 
     constructor(
         missionManager?: MissionManager,
@@ -576,16 +574,22 @@ export class MissionEngine {
         this.missionManager!.movieManager.add(movie)
     }
 
-    playMovie(
-        movie: Movie,
+    registerResourceCollections(
         resourceCollections: ResourceManifestCollection[]
     ): void {
+        this.resourceCollections = resourceCollections
+    }
+
+    playMovie(movie: Movie): void {
         if (this.isMoviePlaying()) {
-            this.queuedMovies.push({ movie, resourceCollections })
+            this.queuedMovies.push(movie)
             return
         }
 
-        this.activeMovieEngine = new MovieEngine(movie, resourceCollections)
+        this.activeMovieEngine = new MovieEngine(
+            movie,
+            this.resourceCollections
+        )
         this.recentMovieEvents = [MissionMovieEvent.MOVIE_STARTED]
     }
 
@@ -801,10 +805,7 @@ export class MissionEngine {
         const nextQueuedMovie = this.queuedMovies.shift()
         if (!nextQueuedMovie) return false
 
-        this.playMovie(
-            nextQueuedMovie.movie,
-            nextQueuedMovie.resourceCollections
-        )
+        this.playMovie(nextQueuedMovie)
         return true
     }
 
@@ -814,7 +815,7 @@ export class MissionEngine {
         if (!movieManager) return false
 
         const movie = movieManager.get(reward.movieId)
-        this.playMovie(movie, [])
+        this.playMovie(movie)
         return true
     }
 
