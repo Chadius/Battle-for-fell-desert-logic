@@ -63,7 +63,7 @@ describe("ResourceManifestCollection", () => {
     })
 
     describe("get", () => {
-        it("retrieves an entry by camelCase key", () => {
+        it("retrieves an entry by its key", () => {
             const collection = buildCollectionWithOneEntry()
             const entry = ResourceManifestCollectionService.get(
                 collection,
@@ -99,12 +99,12 @@ describe("ResourceManifestCollection", () => {
 
     describe("addEntriesFromJson", () => {
         describe("when given a well-formed manifest payload", () => {
-            it("makes each entry retrievable by key", () => {
+            it("makes each entry retrievable by its own id", () => {
                 const { collection, errors } =
                     ResourceManifestCollectionService.addEntriesFromJson(
                         ResourceManifestCollectionService.new(),
-                        {
-                            riverImage: {
+                        [
+                            {
                                 id: "abcd-1234",
                                 label: "Blue River at Dawn",
                                 description: {
@@ -112,28 +112,32 @@ describe("ResourceManifestCollection", () => {
                                 },
                                 type: "IMAGE",
                             },
-                        }
+                        ]
                     )
 
                 expect(errors).toEqual([])
                 expect(
                     ResourceManifestCollectionService.get(
                         collection,
-                        "riverImage"
-                    )?.id
-                ).toBe("abcd-1234")
+                        "abcd-1234"
+                    )?.label
+                ).toBe("Blue River at Dawn")
             })
         })
 
         describe("when called on a collection that already has entries", () => {
             it("adds the new entries alongside the existing ones", () => {
-                const existing = buildCollectionWithOneEntry()
+                const existing = ResourceManifestCollectionService.add(
+                    ResourceManifestCollectionService.new(),
+                    "abcd-1234",
+                    makeEntry("abcd-1234")
+                )
 
                 const { collection, errors } =
                     ResourceManifestCollectionService.addEntriesFromJson(
                         existing,
-                        {
-                            forestLevel: {
+                        [
+                            {
                                 id: "efgh-5678",
                                 label: "Fell Forest",
                                 description: {
@@ -141,13 +145,13 @@ describe("ResourceManifestCollection", () => {
                                 },
                                 type: "LEVEL",
                             },
-                        }
+                        ]
                     )
 
                 expect(errors).toEqual([])
                 expect(
                     ResourceManifestCollectionService.keys(collection).sort()
-                ).toEqual(["forestLevel", "riverImage"])
+                ).toEqual(["abcd-1234", "efgh-5678"])
             })
         })
 
@@ -156,15 +160,15 @@ describe("ResourceManifestCollection", () => {
                 const { collection, errors } =
                     ResourceManifestCollectionService.addEntriesFromJson(
                         ResourceManifestCollectionService.new(),
-                        {
-                            riverImage: {
+                        [
+                            {
                                 label: "Blue River at Dawn",
                                 description: {
                                     "en-us": { text: "A river at dawn" },
                                 },
                                 type: "IMAGE",
                             },
-                        }
+                        ]
                     )
 
                 expect(errors).toHaveLength(1)
@@ -179,8 +183,8 @@ describe("ResourceManifestCollection", () => {
                 const { collection, errors } =
                     ResourceManifestCollectionService.addEntriesFromJson(
                         ResourceManifestCollectionService.new(),
-                        {
-                            riverImage: {
+                        [
+                            {
                                 id: "abcd-1234",
                                 label: "Blue River at Dawn",
                                 description: {
@@ -188,7 +192,7 @@ describe("ResourceManifestCollection", () => {
                                 },
                                 type: "SMELL",
                             },
-                        }
+                        ]
                     )
 
                 expect(errors).toHaveLength(1)
@@ -198,7 +202,7 @@ describe("ResourceManifestCollection", () => {
             })
         })
 
-        describe("when the payload is not a manifest object", () => {
+        describe("when the payload is not a manifest array", () => {
             it("reports a validation error and adds nothing", () => {
                 const { collection, errors } =
                     ResourceManifestCollectionService.addEntriesFromJson(

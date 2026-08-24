@@ -8,10 +8,7 @@ export interface ResourceManifestCollection {
     entriesByKey: Map<string, ResourceManifestEntry>
 }
 
-const resourceManifestJsonSchema = z.record(
-    z.string(),
-    resourceManifestEntrySchema
-)
+const resourceManifestJsonSchema = z.array(resourceManifestEntrySchema)
 
 export type SerializedResourceManifest = z.infer<
     typeof resourceManifestJsonSchema
@@ -40,13 +37,11 @@ export const ResourceManifestCollectionService = {
         }
 
         let updatedResourceManifestCollection = resourceManifestCollection
-        for (const [key, resourceManifestEntry] of Object.entries(
-            result.data
-        )) {
+        for (const resourceManifestEntry of result.data) {
             updatedResourceManifestCollection =
                 ResourceManifestCollectionService.add(
                     updatedResourceManifestCollection,
-                    key,
+                    resourceManifestEntry.id,
                     resourceManifestEntry
                 )
         }

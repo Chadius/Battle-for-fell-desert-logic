@@ -1,9 +1,4 @@
 import {
-    RESOURCE_MANIFEST_TYPES,
-    ResourceManifestEntryService,
-    type ResourceManifestType,
-} from "./resourceManifest.js"
-import {
     ResourceManifestCollectionService,
     type ResourceManifestCollection,
 } from "./resourceManifestCollection.js"
@@ -13,47 +8,21 @@ import {
     type ResourceManifestMediaCollection,
 } from "./resourceManifestMediaCollection.js"
 
-export type ResourceManifestRawJSON = Record<
-    string,
-    {
-        id: string
-        label: string
-        description: Record<string, { text: string }>
-        type: string
-    }
->
+// Campaign resource files are written as { "data": [entry, ...] }, keyed by nothing but each
+// entry's own id. Unwrap that envelope here so callers can pass the parsed file straight through.
+export function loadResourceManifestFromJSON(json: unknown): {
+    collection: ResourceManifestCollection
+    errors: string[]
+} {
+    const entries =
+        typeof json === "object" && json !== null && "data" in json
+            ? (json as { data: unknown }).data
+            : json
 
-export function loadResourceManifestFromJSON(
-    json: ResourceManifestRawJSON
-): ResourceManifestCollection {
-    let resourceManifestCollection = ResourceManifestCollectionService.new()
-
-    for (const [key, rawEntry] of Object.entries(json)) {
-        if (
-            !RESOURCE_MANIFEST_TYPES.includes(
-                rawEntry.type as ResourceManifestType
-            )
-        ) {
-            throw new Error(
-                `[loadResourceManifestFromJSON] Unknown resource type "${rawEntry.type}" for key "${key}". Valid types: ${RESOURCE_MANIFEST_TYPES.join(", ")}`
-            )
-        }
-
-        const resourceManifestEntry = ResourceManifestEntryService.new({
-            id: rawEntry.id,
-            label: rawEntry.label,
-            description: rawEntry.description,
-            type: rawEntry.type as ResourceManifestType,
-        })
-
-        resourceManifestCollection = ResourceManifestCollectionService.add(
-            resourceManifestCollection,
-            key,
-            resourceManifestEntry
-        )
-    }
-
-    return resourceManifestCollection
+    return ResourceManifestCollectionService.addEntriesFromJson(
+        ResourceManifestCollectionService.new(),
+        entries
+    )
 }
 
 export type ResourceManifestMediaRawJSON = Record<
