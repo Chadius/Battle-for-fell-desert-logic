@@ -103,7 +103,9 @@ describe("MissionEngine movie integration", () => {
         })
 
         describe("when resource collections are registered and the referenced movie has an image scene", () => {
-            it("resolves the scene's description from the registered resource collection", () => {
+            let harness: MissionEngineTestHarness
+
+            beforeEach(() => {
                 const resourceManifestCollection =
                     ResourceManifestCollectionService.add(
                         ResourceManifestCollectionService.new(),
@@ -118,7 +120,7 @@ describe("MissionEngine movie integration", () => {
                         })
                     )
 
-                const harness = new MissionEngineTestHarness()
+                harness = new MissionEngineTestHarness()
                 harness.registerResourceCollections([
                     resourceManifestCollection,
                 ])
@@ -142,7 +144,9 @@ describe("MissionEngine movie integration", () => {
                 )
                 harness.defeatSlitherDemon()
                 harness.advanceToPlayerTurn()
+            })
 
+            it("resolves the scene's description from the registered resource collection", () => {
                 harness.endSquaddieTurn(harness.getLiniSquaddieId())
 
                 const currentScene = harness.getMovieStatus()?.currentScene
