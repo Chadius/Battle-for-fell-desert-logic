@@ -10,6 +10,7 @@ import {
 import {
     type ConversationSceneStatus,
     type DecisionRecord,
+    type MovieSceneConversation,
     MovieSceneConversationService,
     type MovieSceneConversationState,
 } from "./movieSceneConversation.js"
@@ -583,14 +584,50 @@ const sceneStatus = (
         movieScene.type === MovieSceneType.CONVERSATION &&
         activeSceneState.type === MovieSceneType.CONVERSATION
     ) {
-        return MovieSceneConversationService.status(
+        return conversationSceneStatus(
             movieScene.data,
-            activeSceneState.state
+            activeSceneState.state,
+            resourceCollections,
+            languageCode
         )
     }
     throw new Error(
         `MovieEngine: cannot build status for unknown scene type "${(movieScene as MovieScene).type}"`
     )
+}
+
+const conversationSceneStatus = (
+    movieSceneConversation: MovieSceneConversation,
+    movieSceneConversationState: MovieSceneConversationState,
+    resourceCollections: ResourceManifestCollection[],
+    languageCode: string
+): ConversationSceneStatus => {
+    const status = MovieSceneConversationService.status(
+        movieSceneConversation,
+        movieSceneConversationState,
+        languageCode
+    )
+    if (status.portrait === undefined) return status
+
+    const resourceManifestEntry = resolveResourceManifestEntry(
+        resourceCollections,
+        status.portrait.resourceManifestEntryId
+    )
+    const description =
+        resourceManifestEntry !== undefined
+            ? ResourceManifestEntryService.getDescription(
+                  resourceManifestEntry,
+                  languageCode
+              )
+            : undefined
+
+    return {
+        ...status,
+        portrait: {
+            ...status.portrait,
+            description,
+        },
+    }
 }
 
 const imageSceneStatus = (

@@ -462,10 +462,34 @@ describe("MovieSceneConversationService", () => {
                     state
                 )
 
-                expect(status.portrait).toEqual({
+                expect(status.portrait).toMatchObject({
                     resourceManifestEntryId: "lini-portrait",
                     position: "LEFT",
                 })
+            })
+
+            it("does not resolve the portrait's description, since that's the engine's job", () => {
+                const scene = MovieSceneConversationService.new({
+                    id: "scene-1",
+                    lines: [
+                        {
+                            type: "DIALOG",
+                            text: { "en-us": { text: "Hello" } },
+                            portrait: {
+                                resourceManifestEntryId: "lini-portrait",
+                                position: "LEFT",
+                            },
+                        },
+                    ],
+                })
+                const state = MovieSceneConversationService.initialState(scene)
+
+                const status = MovieSceneConversationService.status(
+                    scene,
+                    state
+                )
+
+                expect(status.portrait?.description).toBeUndefined()
             })
         })
 

@@ -56,7 +56,11 @@ export interface ConversationSceneStatus {
     speakerId: string | undefined
     text: string
     portrait:
-        | { resourceManifestEntryId: string; position: "LEFT" | "RIGHT" }
+        | {
+              resourceManifestEntryId: string
+              position: "LEFT" | "RIGHT"
+              description: string | undefined
+          }
         | undefined
     dialogPosition: "LEFT" | "CENTER" | "RIGHT"
     isWaitingForDecision: boolean
@@ -213,7 +217,10 @@ export const MovieSceneConversationService = {
                 sceneId: movieSceneConversation.id,
                 speakerId: line.speakerId,
                 text: LocalizedTextService.resolve(line.text, languageCode),
-                portrait: line.portrait,
+                portrait:
+                    line.portrait !== undefined
+                        ? { ...line.portrait, description: undefined }
+                        : undefined,
                 dialogPosition: line.dialogPosition ?? "LEFT",
                 isWaitingForDecision: false,
                 decisions: [],

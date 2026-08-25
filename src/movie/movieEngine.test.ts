@@ -4,6 +4,8 @@ import { MovieSceneConversationService } from "./movieSceneConversation.js"
 import type { Movie } from "./movie.js"
 import { MovieEngine, MovieEngineCommand } from "./movieEngine.js"
 import { MovieSceneType } from "./movieScene.js"
+import { ResourceManifestCollectionService } from "../resource/resourceManifestCollection.js"
+import { ResourceManifestEntryService } from "../resource/resourceManifest.js"
 
 const makeScene = (id: string) =>
     MovieSceneImageService.new({ id, resourceManifestEntryId: "someImage" })
@@ -270,6 +272,51 @@ describe("MovieEngine", () => {
                 dialogPosition: "LEFT",
                 isWaitingForDecision: false,
                 decisions: [],
+            })
+        })
+    })
+
+    describe("when the current scene is a conversation scene with a portrait", () => {
+        it("resolves the portrait's description from the resource manifest", () => {
+            const scene = MovieSceneConversationService.new({
+                id: "conv-1",
+                lines: [
+                    {
+                        type: "DIALOG",
+                        speakerId: "lini",
+                        text: { "en-us": { text: "Hello" } },
+                        portrait: {
+                            resourceManifestEntryId: "lini-portrait",
+                            position: "LEFT",
+                        },
+                    },
+                ],
+            })
+            const movie: Movie = {
+                id: "movie-1",
+                firstSceneId: "conv-1",
+                scenes: [{ type: MovieSceneType.CONVERSATION, data: scene }],
+            }
+            const resourceCollection = ResourceManifestCollectionService.add(
+                ResourceManifestCollectionService.new(),
+                "lini-portrait",
+                ResourceManifestEntryService.new({
+                    id: "lini-portrait",
+                    label: "Lini portrait",
+                    description: { "en-us": { text: "Lini, smiling" } },
+                    type: "IMAGE",
+                })
+            )
+            const engine = new MovieEngine(movie, [resourceCollection])
+
+            const status = engine.status()
+
+            expect(status.currentScene).toMatchObject({
+                portrait: {
+                    resourceManifestEntryId: "lini-portrait",
+                    position: "LEFT",
+                    description: "Lini, smiling",
+                },
             })
         })
     })
