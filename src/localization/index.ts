@@ -1,0 +1,1 @@
+export * from "./localizedText.js"
