@@ -109,4 +109,89 @@ describe("ResourceManifestMediaCollection", () => {
             ).toEqual(["forestLevel", "riverImage"])
         })
     })
+
+    describe("addEntriesFromJson", () => {
+        describe("when given a well-formed media payload", () => {
+            it("makes each entry retrievable by its own id", () => {
+                const { collection, errors } =
+                    ResourceManifestMediaCollectionService.addEntriesFromJson(
+                        ResourceManifestMediaCollectionService.new(),
+                        [
+                            {
+                                id: "abcd-1234",
+                                filepath: "./blue-river.png",
+                                format: "PNG",
+                            },
+                        ]
+                    )
+
+                expect(errors).toEqual([])
+                expect(
+                    ResourceManifestMediaCollectionService.get(
+                        collection,
+                        "abcd-1234"
+                    )?.filepath
+                ).toBe("./blue-river.png")
+            })
+        })
+
+        describe("when called on a collection that already has entries", () => {
+            it("adds the new entries alongside the existing ones", () => {
+                const existing = ResourceManifestMediaCollectionService.add(
+                    ResourceManifestMediaCollectionService.new(),
+                    "abcd-1234",
+                    makeEntry("abcd-1234")
+                )
+
+                const { collection, errors } =
+                    ResourceManifestMediaCollectionService.addEntriesFromJson(
+                        existing,
+                        [
+                            {
+                                id: "efgh-5678",
+                                filepath: "./fell-forest.png",
+                                format: "PNG",
+                            },
+                        ]
+                    )
+
+                expect(errors).toEqual([])
+                expect(
+                    ResourceManifestMediaCollectionService.keys(
+                        collection
+                    ).sort()
+                ).toEqual(["abcd-1234", "efgh-5678"])
+            })
+        })
+
+        describe("when an entry is missing a required field", () => {
+            it("reports a validation error and adds nothing", () => {
+                const { collection, errors } =
+                    ResourceManifestMediaCollectionService.addEntriesFromJson(
+                        ResourceManifestMediaCollectionService.new(),
+                        [{ id: "abcd-1234", format: "PNG" }]
+                    )
+
+                expect(errors).toHaveLength(1)
+                expect(
+                    ResourceManifestMediaCollectionService.keys(collection)
+                ).toHaveLength(0)
+            })
+        })
+
+        describe("when the payload is not a media array", () => {
+            it("reports a validation error and adds nothing", () => {
+                const { collection, errors } =
+                    ResourceManifestMediaCollectionService.addEntriesFromJson(
+                        ResourceManifestMediaCollectionService.new(),
+                        "not a manifest"
+                    )
+
+                expect(errors).toHaveLength(1)
+                expect(
+                    ResourceManifestMediaCollectionService.keys(collection)
+                ).toHaveLength(0)
+            })
+        })
+    })
 })
