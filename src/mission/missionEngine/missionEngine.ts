@@ -13,6 +13,7 @@ import {
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
+    SquaddieTurnActionRecordUndoBlockedReason,
 } from "../history/squaddieTurnActionRecord.js"
 import {
     type InMissionSummary,
@@ -703,6 +704,24 @@ export class MissionEngine {
         )
     }
 
+    canUndoLastPlayerUndoableAction(): { canUndo: boolean; reason?: string } {
+        this.throwIfMissionManagerIsUndefined(
+            this.canUndoLastPlayerUndoableAction.name
+        )
+
+        const squaddieTurnActionRecord =
+            this.missionManager!.getLastSquaddieTurnActionRecord()
+        if (squaddieTurnActionRecord == undefined) {
+            return {
+                canUndo: false,
+                reason: SquaddieTurnActionRecordUndoBlockedReason.NO_ACTION_TO_UNDO,
+            }
+        }
+
+        const reason = this.undoBlockReason(squaddieTurnActionRecord)
+        return reason == null ? { canUndo: true } : { canUndo: false, reason }
+    }
+
     undoLastPlayerUndoableAction(): {
         success: boolean
         removedAction?: SquaddieTurnActionRecord
@@ -712,43 +731,21 @@ export class MissionEngine {
             this.undoLastPlayerUndoableAction.name
         )
 
-        const lastSquaddieTurnActionRecord =
+        const squaddieTurnActionRecord =
             this.missionManager!.getLastSquaddieTurnActionRecord()
-        if (lastSquaddieTurnActionRecord == undefined) {
-            return { success: false, reason: "no action to undo" }
+        if (squaddieTurnActionRecord == undefined) {
+            return {
+                success: false,
+                reason: SquaddieTurnActionRecordUndoBlockedReason.NO_ACTION_TO_UNDO,
+            }
         }
 
-        const squaddieAffiliations: Map<string, TSquaddieAffiliation> = new Map(
-            lastSquaddieTurnActionRecord.results.map((result) => {
-                const battleSquaddieId =
-                    SquaddieIdConverterService.squaddieIdToKey({
-                        inBattleSquaddieId: result.inBattleSquaddieId,
-                        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
-                    })
-                const squaddieAffiliation =
-                    this.missionManager!.getSquaddieAffiliation({
-                        inBattleSquaddieId: result.inBattleSquaddieId,
-                        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
-                    })
-                return [battleSquaddieId, squaddieAffiliation]
-            })
-        )
-
-        const squaddieAction = this.missionManager!.squaddieActionManager?.get(
-            lastSquaddieTurnActionRecord.action.id
-        )
-
-        const undoReason =
-            SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
-                squaddieTurnActionRecord: lastSquaddieTurnActionRecord,
-                squaddieAffiliations,
-                squaddieAction,
-            })
-        if (undoReason !== null) {
-            return { success: false, reason: undoReason }
+        const reason = this.undoBlockReason(squaddieTurnActionRecord)
+        if (reason != null) {
+            return { success: false, reason }
         }
 
-        const reversingResults = lastSquaddieTurnActionRecord.results.map(
+        const reversingResults = squaddieTurnActionRecord.results.map(
             (result) => SquaddieActionResultCalculator.reverseResult(result)
         )
 
@@ -757,6 +754,37 @@ export class MissionEngine {
         })
 
         return { success: true, removedAction }
+    }
+
+    private undoBlockReason(
+        squaddieTurnActionRecord: SquaddieTurnActionRecord
+    ): string | null {
+        return SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
+            squaddieTurnActionRecord,
+            squaddieAffiliations: this.squaddieAffiliationsForResults(
+                squaddieTurnActionRecord.results
+            ),
+            squaddieAction: this.missionManager!.squaddieActionManager?.get(
+                squaddieTurnActionRecord.action.id
+            ),
+        })
+    }
+
+    private squaddieAffiliationsForResults(
+        squaddieActionResults: SquaddieActionResult[]
+    ): Map<string, TSquaddieAffiliation> {
+        return new Map(
+            squaddieActionResults.map((result) => [
+                SquaddieIdConverterService.squaddieIdToKey({
+                    inBattleSquaddieId: result.inBattleSquaddieId,
+                    outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+                }),
+                this.missionManager!.getSquaddieAffiliation({
+                    inBattleSquaddieId: result.inBattleSquaddieId,
+                    outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+                }),
+            ])
+        )
     }
 
     endSquaddieTurn(battleSquaddieId: BattleSquaddieId): ActionResult {

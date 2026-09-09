@@ -3,8 +3,8 @@ import type { SquaddieAction } from "../../squaddieAction/squaddieAction.js"
 import {
     type SerializedSquaddieActionResult,
     type SquaddieActionResult,
-    SquaddieActionResultService,
     squaddieActionResultSchema,
+    SquaddieActionResultService,
 } from "../../squaddieAction/calculate/result/squaddieActionResult.js"
 import {
     SquaddieAffiliationService,
@@ -45,6 +45,14 @@ export const squaddieTurnActionRecordSchema = z.object({
         .optional(),
     sequenceNumber: z.number().optional(),
 })
+
+export const SquaddieTurnActionRecordUndoBlockedReason = {
+    NO_ACTION_TO_UNDO: "no action to undo",
+    NO_RECORDED_RESULTS: "action has no recorded results",
+    ACTION_TYPE_CANNOT_BE_UNDONE: "action type cannot be undone",
+    ACTION_DID_NOT_SUCCEED: "action did not succeed",
+    ACTION_TARGETED_ENEMIES: "action targeted enemies and cannot be reversed",
+} as const
 
 export const SquaddieTurnActionRecordService = {
     new: ({
@@ -156,7 +164,8 @@ export const SquaddieTurnActionRecordService = {
         squaddieAction: SquaddieAction | undefined
     }): string | null => {
         const actorResult = squaddieTurnActionRecord.results[0]
-        if (!actorResult) return "action has no recorded results"
+        if (!actorResult)
+            return SquaddieTurnActionRecordUndoBlockedReason.NO_RECORDED_RESULTS
 
         if (
             squaddieAction?.degreesOfSuccess?.some(
@@ -165,7 +174,7 @@ export const SquaddieTurnActionRecordService = {
                     d != DegreeOfSuccess.CRITICAL
             )
         )
-            return "action type cannot be undone"
+            return SquaddieTurnActionRecordUndoBlockedReason.ACTION_TYPE_CANNOT_BE_UNDONE
 
         const actorAffiliation = squaddieAffiliations.get(
             SquaddieIdConverterService.squaddieIdToKey(actorResult)
@@ -182,7 +191,7 @@ export const SquaddieTurnActionRecordService = {
                 degreeOfSuccess != undefined &&
                 degreeOfSuccess !== DegreeOfSuccess.SUCCESS
             ) {
-                return "action did not succeed"
+                return SquaddieTurnActionRecordUndoBlockedReason.ACTION_DID_NOT_SUCCEED
             }
 
             if (
@@ -206,7 +215,7 @@ export const SquaddieTurnActionRecordService = {
                         target: targetAffiliation,
                     })
                 ) {
-                    return "action targeted enemies and cannot be reversed"
+                    return SquaddieTurnActionRecordUndoBlockedReason.ACTION_TARGETED_ENEMIES
                 }
             }
         }
