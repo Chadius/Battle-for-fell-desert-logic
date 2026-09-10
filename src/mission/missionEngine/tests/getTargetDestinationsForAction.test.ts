@@ -230,19 +230,43 @@ describe("MissionEngine.getTargetDestinationsForAction", () => {
             expect(occupiedIncluded).toBe(false)
         })
 
-        it("returns empty array when the actor cannot afford the action", () => {
-            missionManager.inBattleSquaddieManager!.spendActionPoints({
-                inBattleSquaddieId: actorId.inBattleSquaddieId,
-                outOfBattleSquaddieId: actorId.outOfBattleSquaddieId,
-                actionPoints: DEFAULT_ACTION_POINTS,
+        describe("when the actor has spent all its action points", () => {
+            it("offers no Leap destinations under the default query", () => {
+                missionManager.inBattleSquaddieManager!.spendActionPoints({
+                    ...actorId,
+                    actionPoints: DEFAULT_ACTION_POINTS,
+                })
+
+                expect(
+                    missionEngine.getTargetDestinationsForAction(
+                        actorId,
+                        leapActionId
+                    )
+                ).toHaveLength(0)
             })
 
-            const result = missionEngine.getTargetDestinationsForAction(
-                actorId,
-                leapActionId
-            )
+            it("offers the same Leap destinations it would have had with full action points", () => {
+                const reachWithFullActionPoints =
+                    missionEngine.getTargetDestinationsForAction(
+                        actorId,
+                        leapActionId
+                    )
+                missionManager.inBattleSquaddieManager!.spendActionPoints({
+                    ...actorId,
+                    actionPoints: DEFAULT_ACTION_POINTS,
+                })
 
-            expect(result).toHaveLength(0)
+                const reachUnderMaximumQuery =
+                    missionEngine.getTargetDestinationsForAction(
+                        actorId,
+                        leapActionId,
+                        { actionPoints: "maximum" }
+                    )
+
+                expect(reachUnderMaximumQuery).toEqual(
+                    reachWithFullActionPoints
+                )
+            })
         })
     })
 })

@@ -44,7 +44,13 @@ import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap.js"
 import type { SquaddieAction } from "../squaddieAction/squaddieAction.js"
 import { type TSquaddieAffiliation } from "../affiliation/affiliation.js"
 import { MissionResourceLoader } from "./missionResourceLoader.js"
-import { SquaddieActionValidationService } from "../squaddieAction/calculate/validity/squaddieActionValidationService.js"
+import {
+    type ActionableCoordinate,
+    type MovementDestinationWithCost,
+    ReachablePreviewCalculator,
+    type ReachableActionTarget,
+    type ReachablePreviewQueryOptions,
+} from "../squaddieAction/calculate/reachablePreview/reachablePreviewCalculator.js"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate.js"
 import { AoeTargetResolutionService } from "../squaddieAction/calculate/aoe/aoeTargetResolutionService.js"
 import {
@@ -76,10 +82,6 @@ import {
     GlossaryManager,
     type ResolvedGlossaryTerm,
 } from "../campaign/glossary/glossaryManager.js"
-
-export interface MovementOptionsQueryOptions {
-    actionPoints?: "current" | "maximum"
-}
 
 export class MissionManager {
     missionState?: MissionState
@@ -689,8 +691,8 @@ export class MissionManager {
 
     getMovementOptionsWithCosts(
         actor: BattleSquaddieId,
-        options?: MovementOptionsQueryOptions
-    ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
+        options?: ReachablePreviewQueryOptions
+    ): MovementDestinationWithCost[] {
         this.throwIfStateIsUndefined(this.getMovementOptionsWithCosts.name)
         this.throwIfInBattleSquaddieManagerIsUndefined(
             this.getMovementOptionsWithCosts.name
@@ -702,48 +704,53 @@ export class MissionManager {
             this.getMovementOptionsWithCosts.name
         )
 
-        const useMaximumActionPoints = options?.actionPoints === "maximum"
-        const actionPointBudget = useMaximumActionPoints
-            ? {
-                  current:
-                      this.inBattleSquaddieManager!.getMaximumActionPoints(
-                          actor
-                      ),
-              }
-            : this.inBattleSquaddieManager!.getActionPoints(actor)
+        return ReachablePreviewCalculator.movementDestinationsWithCosts(
+            this.reachablePreviewCalculatorInput(actor, options)
+        )
+    }
 
-        const validSquaddieActionOptions =
-            SquaddieActionValidationService.generateValidSquaddieActions({
-                actor,
-                managers: {
-                    inBattleSquaddieManager: this.inBattleSquaddieManager!,
-                    squaddieActionManager: this.squaddieActionManager!,
-                    coordinateMapCollectionManager:
-                        this.coordinateMapCollectionManager!,
-                },
-                map: { mapId: this.missionState!.mapId },
-                actionPointsOverride: actionPointBudget,
-            })
+    getActionableCoordinates(
+        actor: BattleSquaddieId,
+        options?: ReachablePreviewQueryOptions
+    ): ActionableCoordinate[] {
+        this.throwIfStateIsUndefined(this.getActionableCoordinates.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getActionableCoordinates.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getActionableCoordinates.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getActionableCoordinates.name
+        )
 
-        return validSquaddieActionOptions
-            .filter(
-                (validSquaddieActionOption) =>
-                    validSquaddieActionOption.decisions.targetDestination !=
-                    undefined
-            )
-            .map((validSquaddieActionOption) => ({
-                destination:
-                    validSquaddieActionOption.decisions.targetDestination!,
-                actionPointCost:
-                    actionPointBudget.current -
-                    validSquaddieActionOption.actionPointsRemaining.current,
-            }))
+        return ReachablePreviewCalculator.actionableCoordinates(
+            this.reachablePreviewCalculatorInput(actor, options)
+        )
+    }
+
+    private reachablePreviewCalculatorInput(
+        actor: BattleSquaddieId,
+        options?: ReachablePreviewQueryOptions
+    ) {
+        return {
+            actor,
+            managers: {
+                inBattleSquaddieManager: this.inBattleSquaddieManager!,
+                squaddieActionManager: this.squaddieActionManager!,
+                coordinateMapCollectionManager:
+                    this.coordinateMapCollectionManager!,
+            },
+            mapId: this.missionState!.mapId,
+            options,
+        }
     }
 
     getTargetDestinationsForAction(
         actor: BattleSquaddieId,
-        actionId: string
-    ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
+        actionId: string,
+        options?: ReachablePreviewQueryOptions
+    ): MovementDestinationWithCost[] {
         this.throwIfStateIsUndefined(this.getTargetDestinationsForAction.name)
         this.throwIfInBattleSquaddieManagerIsUndefined(
             this.getTargetDestinationsForAction.name
@@ -755,45 +762,30 @@ export class MissionManager {
             this.getTargetDestinationsForAction.name
         )
 
-        const squaddieAction = this.squaddieActionManager!.get(actionId)
-        const currentActionPoints =
-            this.inBattleSquaddieManager!.getActionPoints(actor)
+        return ReachablePreviewCalculator.movementActionDestinations({
+            ...this.reachablePreviewCalculatorInput(actor, options),
+            actionId,
+        })
+    }
 
-        const actionPointCost =
-            squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
-        if (
-            actionPointCost != undefined &&
-            actionPointCost !== "all" &&
-            actionPointCost > currentActionPoints.current
-        ) {
-            return []
-        }
-        if (actionPointCost === "all" && currentActionPoints.current <= 0) {
-            return []
-        }
+    getReachableActionTargets(
+        actor: BattleSquaddieId,
+        options?: ReachablePreviewQueryOptions
+    ): ReachableActionTarget[] {
+        this.throwIfStateIsUndefined(this.getReachableActionTargets.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getReachableActionTargets.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getReachableActionTargets.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getReachableActionTargets.name
+        )
 
-        const options =
-            SquaddieActionValidationService.generateMovementOptionsForAction({
-                actor,
-                squaddieAction,
-                managers: {
-                    inBattleSquaddieManager: this.inBattleSquaddieManager!,
-                    squaddieActionManager: this.squaddieActionManager!,
-                    coordinateMapCollectionManager:
-                        this.coordinateMapCollectionManager!,
-                },
-                map: { mapId: this.missionState!.mapId },
-                currentActionPoints,
-            })
-
-        return options
-            .filter((option) => option.decisions.targetDestination != undefined)
-            .map((option) => ({
-                destination: option.decisions.targetDestination!,
-                actionPointCost:
-                    currentActionPoints.current -
-                    option.actionPointsRemaining.current,
-            }))
+        return ReachablePreviewCalculator.reachableActionTargets(
+            this.reachablePreviewCalculatorInput(actor, options)
+        )
     }
 
     serializeCoordinateMap(mapId: string): SerializedCoordinateMap {

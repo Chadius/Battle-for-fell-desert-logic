@@ -84,11 +84,28 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 - Multiple movement types: WALK, JUMP, PHASE.
 - Path is expressed as ordered `CoordinateMovePathStep` records.
 - Squaddies block movement by default; the adapter supports `stopSearchOnSquaddie` flag.
-- `MissionEngine.getMovementOptionsWithCosts(actor, options?)` returns reachable destinations with
-  AP costs. `options.actionPoints` is `"current"` (default — remaining AP this turn) or `"maximum"`
+- `ReachablePreviewCalculator` (`src/squaddieAction/calculate/reachablePreview/`) is the single home
+  for "what can this squaddie reach" previews, wrapping `SquaddieActionValidationService`.
+  `MissionEngine`/`MissionManager` expose thin delegators over it; every one takes an optional
+  `{ actionPoints: "current" | "maximum" }`.
+- `getMovementOptionsWithCosts(actor, options?)` returns reachable movement destinations with AP costs.
+- `getActionableCoordinates(actor, options?)` returns the coordinates the squaddie could target with
+  an ability **from its current position** — each entry carries the action id, target coordinate, the
+  squaddies standing there, and the AP cost. A squaddie that cannot move but has a melee attack still
+  reports its adjacent tiles here.
+- `getTargetDestinationsForAction(actor, actionId, options?)` returns the destinations a
+  movement-granting action (special traversal such as Leap, or teleporting a target such as Rescue)
+  could send the actor or its target. These are the actions for which
+  `SquaddieActionService.getRequiredDecisions(action)` reports `requiresTargetDestination`.
+- `getReachableActionTargets(actor, options?)` returns the squaddie's **threat range**: every
+  coordinate it could target with an ability this turn after first moving into position, each with
+  the minimum move+act AP cost. Lets a caller show an enemy's reach so a player can stay out of it or
+  bait the enemy into moving. Runs one action-validity pass per reachable standing position — a
+  select-time query, not a per-frame one — and does not model act-then-move-then-act.
+- For every query, `actionPoints` is `"current"` (default — remaining AP this turn) or `"maximum"`
   (the squaddie's maximum AP, already reduced by SLOWED, ignoring whose turn it is) — the latter
-  previews how far an off-turn enemy/ally could move on its next turn. Terrain cost, walls/pits,
-  blocking squaddies, and movement conditions (ELUSIVE, HUSTLE) are honored in both modes.
+  previews what an off-turn enemy/ally could do on its next turn. Terrain cost, walls/pits, blocking
+  squaddies, and movement conditions (ELUSIVE, HUSTLE) are honored in every mode.
 
 ### Targeting
 

@@ -1,7 +1,10 @@
+import { MissionManager } from "../missionManager.js"
 import {
-    MissionManager,
-    type MovementOptionsQueryOptions,
-} from "../missionManager.js"
+    type ActionableCoordinate,
+    type MovementDestinationWithCost,
+    type ReachableActionTarget,
+    type ReachablePreviewQueryOptions,
+} from "../../squaddieAction/calculate/reachablePreview/reachablePreviewCalculator.js"
 import type { Movie } from "../../movie/movie.js"
 import type { ResourceManifestCollection } from "../../resource/resourceManifestCollection.js"
 import {
@@ -1142,8 +1145,8 @@ export class MissionEngine {
 
     getMovementOptionsWithCosts(
         actor: BattleSquaddieId,
-        options?: MovementOptionsQueryOptions
-    ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
+        options?: ReachablePreviewQueryOptions
+    ): MovementDestinationWithCost[] {
         this.throwIfMissionManagerIsUndefined(
             this.getMovementOptionsWithCosts.name
         )
@@ -1159,10 +1162,30 @@ export class MissionEngine {
         return this.missionManager!.getMovementOptionsWithCosts(actor, options)
     }
 
+    getActionableCoordinates(
+        actor: BattleSquaddieId,
+        options?: ReachablePreviewQueryOptions
+    ): ActionableCoordinate[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getActionableCoordinates.name
+        )
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getActionableCoordinates.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getActionableCoordinates.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getActionableCoordinates.name
+        )
+        return this.missionManager!.getActionableCoordinates(actor, options)
+    }
+
     getTargetDestinationsForAction(
         actor: BattleSquaddieId,
-        actionId: string
-    ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
+        actionId: string,
+        options?: ReachablePreviewQueryOptions
+    ): MovementDestinationWithCost[] {
         this.throwIfMissionManagerIsUndefined(
             this.getTargetDestinationsForAction.name
         )
@@ -1177,8 +1200,28 @@ export class MissionEngine {
         )
         return this.missionManager!.getTargetDestinationsForAction(
             actor,
-            actionId
+            actionId,
+            options
         )
+    }
+
+    getReachableActionTargets(
+        actor: BattleSquaddieId,
+        options?: ReachablePreviewQueryOptions
+    ): ReachableActionTarget[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getReachableActionTargets.name
+        )
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getReachableActionTargets.name
+        )
+        this.throwIfSquaddieActionManagerIsUndefined(
+            this.getReachableActionTargets.name
+        )
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(
+            this.getReachableActionTargets.name
+        )
+        return this.missionManager!.getReachableActionTargets(actor, options)
     }
 
     getRequiredDecisionsForAction(actionId: string): {
