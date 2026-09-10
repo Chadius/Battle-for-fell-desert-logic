@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
+    SquaddieTurnActionRecordUndoBlockedReason,
 } from "./squaddieTurnActionRecord.js"
 import {
     type SquaddieAction,
@@ -621,6 +622,50 @@ describe("SquaddieTurnActionRecordService", () => {
                     squaddieAction: actionThatCouldFail,
                 })
             ).toBe("action type cannot be undone")
+        })
+
+        it("blocks the player from undoing an action taken by a non-player squaddie, even a friendly one", () => {
+            const squaddieAffiliations = new Map([
+                [
+                    SquaddieIdConverterService.squaddieIdToKey({
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "actor",
+                    }),
+                    SquaddieAffiliation.ENEMY,
+                ],
+                [
+                    SquaddieIdConverterService.squaddieIdToKey({
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "friend",
+                    }),
+                    SquaddieAffiliation.ENEMY,
+                ],
+            ])
+            const entry = SquaddieTurnActionRecordService.new({
+                action: { id: "heal", name: "Heal" } as SquaddieAction,
+                results: [
+                    {
+                        inBattleSquaddieId: 1,
+                        outOfBattleSquaddieId: "actor",
+                        actionPoints: { spent: 1 },
+                    },
+                    {
+                        inBattleSquaddieId: 2,
+                        outOfBattleSquaddieId: "friend",
+                        healing: { net: 3, raw: 3 },
+                    },
+                ],
+            })
+
+            expect(
+                SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
+                    squaddieTurnActionRecord: entry,
+                    squaddieAffiliations,
+                    squaddieAction: onlySuccessAndCriticalDegreeAction,
+                })
+            ).toBe(
+                SquaddieTurnActionRecordUndoBlockedReason.ACTOR_IS_NOT_PLAYER_AFFILIATED
+            )
         })
     })
 

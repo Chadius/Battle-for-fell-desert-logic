@@ -7,6 +7,7 @@ import {
     SquaddieActionResultService,
 } from "../../squaddieAction/calculate/result/squaddieActionResult.js"
 import {
+    SquaddieAffiliation,
     SquaddieAffiliationService,
     type TSquaddieAffiliation,
 } from "../../affiliation/affiliation.js"
@@ -52,7 +53,15 @@ export const SquaddieTurnActionRecordUndoBlockedReason = {
     ACTION_TYPE_CANNOT_BE_UNDONE: "action type cannot be undone",
     ACTION_DID_NOT_SUCCEED: "action did not succeed",
     ACTION_TARGETED_ENEMIES: "action targeted enemies and cannot be reversed",
+    ACTOR_IS_NOT_PLAYER_AFFILIATED:
+        "action was taken by a non-player squaddie and cannot be undone by the player",
 } as const
+
+type IsPlayerAllowedToUndoInput = {
+    squaddieTurnActionRecord: SquaddieTurnActionRecord
+    squaddieAffiliations: Map<string, TSquaddieAffiliation>
+    squaddieAction: SquaddieAction | undefined
+}
 
 export const SquaddieTurnActionRecordService = {
     new: ({
@@ -154,74 +163,101 @@ export const SquaddieTurnActionRecordService = {
         }
     },
 
-    isPlayerAllowedToUndo: ({
-        squaddieTurnActionRecord,
-        squaddieAffiliations,
-        squaddieAction,
-    }: {
-        squaddieTurnActionRecord: SquaddieTurnActionRecord
-        squaddieAffiliations: Map<string, TSquaddieAffiliation>
-        squaddieAction: SquaddieAction | undefined
-    }): string | null => {
-        const actorResult = squaddieTurnActionRecord.results[0]
-        if (!actorResult)
-            return SquaddieTurnActionRecordUndoBlockedReason.NO_RECORDED_RESULTS
+    isPlayerAllowedToUndo: (input: IsPlayerAllowedToUndoInput): string | null =>
+        noRecordedResultsReason(input) ??
+        actionCannotSucceedReason(input) ??
+        actorIsNotPlayerAffiliatedReason(input) ??
+        resultsBlockUndoReason(input),
+}
 
+const noRecordedResultsReason = ({
+    squaddieTurnActionRecord,
+}: IsPlayerAllowedToUndoInput): string | null =>
+    squaddieTurnActionRecord.results[0] == undefined
+        ? SquaddieTurnActionRecordUndoBlockedReason.NO_RECORDED_RESULTS
+        : null
+
+const actionCannotSucceedReason = ({
+    squaddieAction,
+}: IsPlayerAllowedToUndoInput): string | null =>
+    squaddieAction?.degreesOfSuccess?.some(
+        (degreeOfSuccess) =>
+            degreeOfSuccess != DegreeOfSuccess.SUCCESS &&
+            degreeOfSuccess != DegreeOfSuccess.CRITICAL
+    )
+        ? SquaddieTurnActionRecordUndoBlockedReason.ACTION_TYPE_CANNOT_BE_UNDONE
+        : null
+
+const actorIsNotPlayerAffiliatedReason = (
+    input: IsPlayerAllowedToUndoInput
+): string | null =>
+    actorAffiliationOrThrow(input) === SquaddieAffiliation.PLAYER
+        ? null
+        : SquaddieTurnActionRecordUndoBlockedReason.ACTOR_IS_NOT_PLAYER_AFFILIATED
+
+const resultsBlockUndoReason = (
+    input: IsPlayerAllowedToUndoInput
+): string | null => {
+    const { squaddieTurnActionRecord, squaddieAffiliations } = input
+    const actorResult = squaddieTurnActionRecord.results[0]
+    const actorAffiliation = actorAffiliationOrThrow(input)
+
+    for (const result of squaddieTurnActionRecord.results) {
+        const degreeOfSuccess = getDegreeOfSuccess(result)
         if (
-            squaddieAction?.degreesOfSuccess?.some(
-                (d) =>
-                    d != DegreeOfSuccess.SUCCESS &&
-                    d != DegreeOfSuccess.CRITICAL
-            )
-        )
-            return SquaddieTurnActionRecordUndoBlockedReason.ACTION_TYPE_CANNOT_BE_UNDONE
-
-        const actorAffiliation = squaddieAffiliations.get(
-            SquaddieIdConverterService.squaddieIdToKey(actorResult)
-        )
-        if (!actorAffiliation) {
-            throw new Error(
-                `[SquaddieTurnActionRecord.isPlayerAllowedToUndo]: ${SquaddieIdConverterService.squaddieIdToKey(actorResult)} does not have an affiliation`
-            )
+            degreeOfSuccess != undefined &&
+            degreeOfSuccess !== DegreeOfSuccess.SUCCESS
+        ) {
+            return SquaddieTurnActionRecordUndoBlockedReason.ACTION_DID_NOT_SUCCEED
         }
 
-        for (const result of squaddieTurnActionRecord.results) {
-            const degreeOfSuccess = getDegreeOfSuccess(result)
-            if (
-                degreeOfSuccess != undefined &&
-                degreeOfSuccess !== DegreeOfSuccess.SUCCESS
-            ) {
-                return SquaddieTurnActionRecordUndoBlockedReason.ACTION_DID_NOT_SUCCEED
-            }
+        if (isSameSquaddie(result, actorResult)) continue
 
-            if (
-                result.inBattleSquaddieId !== actorResult.inBattleSquaddieId ||
-                result.outOfBattleSquaddieId !==
-                    actorResult.outOfBattleSquaddieId
-            ) {
-                const targetAffiliation = squaddieAffiliations.get(
-                    SquaddieIdConverterService.squaddieIdToKey(result)
-                )
-
-                if (!targetAffiliation) {
-                    throw new Error(
-                        `[SquaddieTurnActionRecord.isPlayerAllowedToUndo]: ${SquaddieIdConverterService.squaddieIdToKey(result)} does not have an affiliation`
-                    )
-                }
-
-                if (
-                    !SquaddieAffiliationService.areFriends({
-                        actor: actorAffiliation,
-                        target: targetAffiliation,
-                    })
-                ) {
-                    return SquaddieTurnActionRecordUndoBlockedReason.ACTION_TARGETED_ENEMIES
-                }
-            }
+        const targetAffiliation = affiliationOrThrow(
+            squaddieAffiliations,
+            result
+        )
+        if (
+            !SquaddieAffiliationService.areFriends({
+                actor: actorAffiliation,
+                target: targetAffiliation,
+            })
+        ) {
+            return SquaddieTurnActionRecordUndoBlockedReason.ACTION_TARGETED_ENEMIES
         }
+    }
 
-        return null
-    },
+    return null
+}
+
+const isSameSquaddie = (
+    left: SquaddieActionResult,
+    right: SquaddieActionResult
+): boolean =>
+    left.inBattleSquaddieId === right.inBattleSquaddieId &&
+    left.outOfBattleSquaddieId === right.outOfBattleSquaddieId
+
+const actorAffiliationOrThrow = ({
+    squaddieTurnActionRecord,
+    squaddieAffiliations,
+}: IsPlayerAllowedToUndoInput): TSquaddieAffiliation =>
+    affiliationOrThrow(
+        squaddieAffiliations,
+        squaddieTurnActionRecord.results[0]
+    )
+
+const affiliationOrThrow = (
+    squaddieAffiliations: Map<string, TSquaddieAffiliation>,
+    result: SquaddieActionResult
+): TSquaddieAffiliation => {
+    const squaddieKey = SquaddieIdConverterService.squaddieIdToKey(result)
+    const affiliation = squaddieAffiliations.get(squaddieKey)
+    if (!affiliation) {
+        throw new Error(
+            `[SquaddieTurnActionRecord.isPlayerAllowedToUndo]: ${squaddieKey} does not have an affiliation`
+        )
+    }
+    return affiliation
 }
 
 const getDegreeOfSuccess = (
