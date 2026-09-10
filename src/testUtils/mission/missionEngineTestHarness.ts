@@ -651,6 +651,17 @@ export class MissionEngineTestHarness extends MissionEngine {
         this.missionManager!.missionState!.objectives.push(objective)
     }
 
+    exhaustActionPoints(battleSquaddieId: BattleSquaddieId): void {
+        const inBattleSquaddieManager =
+            this.missionManager!.inBattleSquaddieManager!
+        const { current } =
+            inBattleSquaddieManager.getActionPoints(battleSquaddieId)
+        inBattleSquaddieManager.spendActionPoints({
+            ...battleSquaddieId,
+            actionPoints: current,
+        })
+    }
+
     defeatSlitherDemon(): void {
         this.missionManager!.inBattleSquaddieManager!.dealDamageToSquaddie({
             ...this.slitherDemonSquaddieId,

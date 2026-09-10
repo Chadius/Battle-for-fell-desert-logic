@@ -1,4 +1,7 @@
-import { MissionManager } from "../missionManager.js"
+import {
+    MissionManager,
+    type MovementOptionsQueryOptions,
+} from "../missionManager.js"
 import type { Movie } from "../../movie/movie.js"
 import type { ResourceManifestCollection } from "../../resource/resourceManifestCollection.js"
 import {
@@ -1138,7 +1141,8 @@ export class MissionEngine {
     }
 
     getMovementOptionsWithCosts(
-        actor: BattleSquaddieId
+        actor: BattleSquaddieId,
+        options?: MovementOptionsQueryOptions
     ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
         this.throwIfMissionManagerIsUndefined(
             this.getMovementOptionsWithCosts.name
@@ -1152,7 +1156,7 @@ export class MissionEngine {
         this.throwIfCoordinateMapCollectionManagerIsUndefined(
             this.getMovementOptionsWithCosts.name
         )
-        return this.missionManager!.getMovementOptionsWithCosts(actor)
+        return this.missionManager!.getMovementOptionsWithCosts(actor, options)
     }
 
     getTargetDestinationsForAction(

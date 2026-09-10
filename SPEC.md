@@ -84,6 +84,11 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 - Multiple movement types: WALK, JUMP, PHASE.
 - Path is expressed as ordered `CoordinateMovePathStep` records.
 - Squaddies block movement by default; the adapter supports `stopSearchOnSquaddie` flag.
+- `MissionEngine.getMovementOptionsWithCosts(actor, options?)` returns reachable destinations with
+  AP costs. `options.actionPoints` is `"current"` (default — remaining AP this turn) or `"maximum"`
+  (the squaddie's maximum AP, already reduced by SLOWED, ignoring whose turn it is) — the latter
+  previews how far an off-turn enemy/ally could move on its next turn. Terrain cost, walls/pits,
+  blocking squaddies, and movement conditions (ELUSIVE, HUSTLE) are honored in both modes.
 
 ### Targeting
 

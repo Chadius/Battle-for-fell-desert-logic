@@ -4,7 +4,6 @@ import { MissionManager } from "../../missionManager.js"
 import { MissionStateService } from "../../missionState.js"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness.js"
-import { DEFAULT_ACTION_POINTS } from "../../../squaddie/inBattle/inBattleSquaddie.js"
 
 describe("MissionEngine.getMovementOptionsWithCosts", () => {
     it("throws error if missionManager is undefined", () => {
@@ -67,11 +66,7 @@ describe("MissionEngine.getMovementOptionsWithCosts", () => {
 
         const liniId = harness.getLiniSquaddieId()
 
-        harness.missionManager!.inBattleSquaddieManager!.spendActionPoints({
-            inBattleSquaddieId: liniId.inBattleSquaddieId,
-            outOfBattleSquaddieId: liniId.outOfBattleSquaddieId,
-            actionPoints: DEFAULT_ACTION_POINTS,
-        })
+        harness.exhaustActionPoints(liniId)
 
         const result = missionEngine.getMovementOptionsWithCosts(liniId)
 

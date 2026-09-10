@@ -77,6 +77,10 @@ import {
     type ResolvedGlossaryTerm,
 } from "../campaign/glossary/glossaryManager.js"
 
+export interface MovementOptionsQueryOptions {
+    actionPoints?: "current" | "maximum"
+}
+
 export class MissionManager {
     missionState?: MissionState
     inBattleSquaddieManager?: InBattleSquaddieManager
@@ -684,7 +688,8 @@ export class MissionManager {
     }
 
     getMovementOptionsWithCosts(
-        actor: BattleSquaddieId
+        actor: BattleSquaddieId,
+        options?: MovementOptionsQueryOptions
     ): Array<{ destination: OffsetCoordinate; actionPointCost: number }> {
         this.throwIfStateIsUndefined(this.getMovementOptionsWithCosts.name)
         this.throwIfInBattleSquaddieManagerIsUndefined(
@@ -697,10 +702,17 @@ export class MissionManager {
             this.getMovementOptionsWithCosts.name
         )
 
-        const currentActionPoints =
-            this.inBattleSquaddieManager!.getActionPoints(actor)
+        const useMaximumActionPoints = options?.actionPoints === "maximum"
+        const actionPointBudget = useMaximumActionPoints
+            ? {
+                  current:
+                      this.inBattleSquaddieManager!.getMaximumActionPoints(
+                          actor
+                      ),
+              }
+            : this.inBattleSquaddieManager!.getActionPoints(actor)
 
-        const options =
+        const validSquaddieActionOptions =
             SquaddieActionValidationService.generateValidSquaddieActions({
                 actor,
                 managers: {
@@ -710,15 +722,21 @@ export class MissionManager {
                         this.coordinateMapCollectionManager!,
                 },
                 map: { mapId: this.missionState!.mapId },
+                actionPointsOverride: actionPointBudget,
             })
 
-        return options
-            .filter((option) => option.decisions.targetDestination != undefined)
-            .map((option) => ({
-                destination: option.decisions.targetDestination!,
+        return validSquaddieActionOptions
+            .filter(
+                (validSquaddieActionOption) =>
+                    validSquaddieActionOption.decisions.targetDestination !=
+                    undefined
+            )
+            .map((validSquaddieActionOption) => ({
+                destination:
+                    validSquaddieActionOption.decisions.targetDestination!,
                 actionPointCost:
-                    currentActionPoints.current -
-                    option.actionPointsRemaining.current,
+                    actionPointBudget.current -
+                    validSquaddieActionOption.actionPointsRemaining.current,
             }))
     }
 
