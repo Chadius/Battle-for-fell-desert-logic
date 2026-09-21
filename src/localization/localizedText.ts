@@ -26,6 +26,9 @@ export const localizedTextSchema = z.record(
 export const LocalizedTextService = {
     FALLBACK_LANGUAGE_CODE,
 
+    isValidLanguageCode: (languageCode: string): boolean =>
+        languageCodeSchema.safeParse(languageCode).success,
+
     resolve: (
         localizedText: LocalizedText,
         languageCode: string,

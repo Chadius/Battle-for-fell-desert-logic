@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest"
 import { LocalizedTextService, localizedTextSchema } from "./localizedText.js"
 
+const VALID_LANGUAGE_CODES = ["en-US", "fr-FR", "de-DE"]
+const INVALID_LANGUAGE_CODES = [
+    "en-us",
+    "en-Us",
+    "EN-US",
+    "en",
+    "english",
+    "en_US",
+    "",
+    "en-US ",
+]
+
 describe("LocalizedTextService.resolve", () => {
     describe("when the requested language code is present", () => {
         it("returns that language's text", () => {
@@ -50,7 +62,7 @@ describe("LocalizedTextService.resolve", () => {
 
 describe("localizedTextSchema", () => {
     describe("when the language code is language-REGION", () => {
-        it.each(["en-US", "fr-FR", "de-DE"])("accepts %s", (languageCode) => {
+        it.each(VALID_LANGUAGE_CODES)("accepts '%s'", (languageCode) => {
             const result = localizedTextSchema.safeParse({
                 [languageCode]: { text: "Hello" },
             })
@@ -58,25 +70,13 @@ describe("localizedTextSchema", () => {
         })
     })
 
-    describe("when the language code has the wrong casing", () => {
-        it.each(["en-us", "en-Us", "EN-US"])("rejects %s", (languageCode) => {
+    describe("when the language code has the wrong casing, separator, or no region", () => {
+        it.each(INVALID_LANGUAGE_CODES)("rejects '%s'", (languageCode) => {
             const result = localizedTextSchema.safeParse({
                 [languageCode]: { text: "Hello" },
             })
             expect(result.success).toBe(false)
         })
-    })
-
-    describe("when the language code has no region or the wrong separator", () => {
-        it.each(["en", "english", "en_US", ""])(
-            "rejects '%s'",
-            (languageCode) => {
-                const result = localizedTextSchema.safeParse({
-                    [languageCode]: { text: "Hello" },
-                })
-                expect(result.success).toBe(false)
-            }
-        )
     })
 
     describe("when the language code is rejected", () => {
@@ -86,5 +86,45 @@ describe("localizedTextSchema", () => {
             })
             expect(result.error?.message).toContain("language-REGION")
         })
+    })
+})
+
+describe("LocalizedTextService.isValidLanguageCode", () => {
+    describe("when the language code is language-REGION", () => {
+        it.each(VALID_LANGUAGE_CODES)(
+            "returns true for '%s'",
+            (languageCode) => {
+                expect(
+                    LocalizedTextService.isValidLanguageCode(languageCode)
+                ).toBe(true)
+            }
+        )
+    })
+
+    describe("when the language code has the wrong casing, separator, or no region", () => {
+        it.each(INVALID_LANGUAGE_CODES)(
+            "returns false for '%s'",
+            (languageCode) => {
+                expect(
+                    LocalizedTextService.isValidLanguageCode(languageCode)
+                ).toBe(false)
+            }
+        )
+    })
+})
+
+describe("LocalizedTextService.isValidLanguageCode and localizedTextSchema", () => {
+    describe("when validating the same language code", () => {
+        it.each([...VALID_LANGUAGE_CODES, ...INVALID_LANGUAGE_CODES])(
+            "agree on whether '%s' is valid",
+            (languageCode) => {
+                const asStandaloneCode =
+                    LocalizedTextService.isValidLanguageCode(languageCode)
+                const asLocalizedTextKey = localizedTextSchema.safeParse({
+                    [languageCode]: { text: "Hello" },
+                }).success
+                expect(asStandaloneCode).toBe(asLocalizedTextKey)
+            }
+        )
     })
 })
