@@ -20,7 +20,7 @@ const makeConversationMovie = (): Movie => ({
                     {
                         type: "DECISION",
                         prompt: {
-                            "en-us": {
+                            "en-US": {
                                 text: "Turn {TURN_COUNT}: dealt {DAMAGE_DEALT_BY_PLAYER_TEAM}",
                             },
                         },
@@ -28,7 +28,7 @@ const makeConversationMovie = (): Movie => ({
                             {
                                 decisionId: "choice-a",
                                 text: {
-                                    "en-us": {
+                                    "en-US": {
                                         text: "Healed {HEALING_RECEIVED_BY_PLAYER_TEAM}, unknown {MYSTERY}",
                                     },
                                 },
@@ -53,14 +53,14 @@ const makeConversationMovieWithExtraToken = (): Movie => ({
                     {
                         type: "DECISION",
                         prompt: {
-                            "en-us": {
+                            "en-US": {
                                 text: "Elapsed: {timeFormat(TIME_ELAPSED, mm:ss)}",
                             },
                         },
                         options: [
                             {
                                 decisionId: "choice-a",
-                                text: { "en-us": { text: "OK" } },
+                                text: { "en-US": { text: "OK" } },
                             },
                         ],
                     },

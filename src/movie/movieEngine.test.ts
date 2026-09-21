@@ -92,11 +92,11 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
@@ -176,11 +176,11 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
@@ -208,17 +208,17 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "You attacked!" } },
+                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -250,7 +250,7 @@ describe("MovieEngine", () => {
                     {
                         type: "DIALOG",
                         speakerId: "lini",
-                        text: { "en-us": { text: "Hello" } },
+                        text: { "en-US": { text: "Hello" } },
                     },
                 ],
             })
@@ -284,7 +284,7 @@ describe("MovieEngine", () => {
                     {
                         type: "DIALOG",
                         speakerId: "lini",
-                        text: { "en-us": { text: "Hello" } },
+                        text: { "en-US": { text: "Hello" } },
                         portrait: {
                             resourceManifestEntryId: "lini-portrait",
                             position: "LEFT",
@@ -303,7 +303,7 @@ describe("MovieEngine", () => {
                 ResourceManifestEntryService.new({
                     id: "lini-portrait",
                     label: "Lini portrait",
-                    description: { "en-us": { text: "Lini, smiling" } },
+                    description: { "en-US": { text: "Lini, smiling" } },
                     type: "IMAGE",
                 })
             )
@@ -329,11 +329,11 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION" as const,
-                            prompt: { "en-us": { text: "Which path?" } },
+                            prompt: { "en-US": { text: "Which path?" } },
                             options: [
                                 {
                                     decisionId: "go-right",
-                                    text: { "en-us": { text: "Right" } },
+                                    text: { "en-US": { text: "Right" } },
                                     nextSceneId: "scene-right",
                                 },
                             ],
@@ -378,16 +378,16 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DECISION" as const,
-                        prompt: { "en-us": { text: "Where to?" } },
+                        prompt: { "en-US": { text: "Where to?" } },
                         options: [
                             {
                                 decisionId: "go-to-gloria",
-                                text: { "en-us": { text: "Meet Gloria" } },
+                                text: { "en-US": { text: "Meet Gloria" } },
                                 nextSceneId: "scene-gloria",
                             },
                             {
                                 decisionId: "go-to-monastery",
-                                text: { "en-us": { text: "Go to monastery" } },
+                                text: { "en-US": { text: "Go to monastery" } },
                                 nextSceneId: "scene-monastery",
                             },
                         ],
@@ -399,7 +399,7 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DIALOG" as const,
-                        text: { "en-us": { text: "Gloria: Hello!" } },
+                        text: { "en-US": { text: "Gloria: Hello!" } },
                     },
                 ],
             })
@@ -408,7 +408,7 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DIALOG" as const,
-                        text: { "en-us": { text: "Vale: Welcome!" } },
+                        text: { "en-US": { text: "Vale: Welcome!" } },
                     },
                 ],
             })
@@ -418,7 +418,7 @@ describe("MovieEngine", () => {
                     {
                         type: "DIALOG" as const,
                         text: {
-                            "en-us": { text: "The adventure continues..." },
+                            "en-US": { text: "The adventure continues..." },
                         },
                     },
                 ],
@@ -576,7 +576,7 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -602,15 +602,15 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Preamble" } },
+                            text: { "en-US": { text: "Preamble" } },
                         },
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "Choose" } },
+                            prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {
                                     decisionId: "yes",
-                                    text: { "en-us": { text: "Yes" } },
+                                    text: { "en-US": { text: "Yes" } },
                                 },
                             ],
                         },
@@ -644,15 +644,15 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Preamble" } },
+                            text: { "en-US": { text: "Preamble" } },
                         },
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "Choose" } },
+                            prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {
                                     decisionId: "yes",
-                                    text: { "en-us": { text: "Yes" } },
+                                    text: { "en-US": { text: "Yes" } },
                                 },
                             ],
                         },
@@ -682,11 +682,11 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "Choose" } },
+                            prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {
                                     decisionId: "yes",
-                                    text: { "en-us": { text: "Yes" } },
+                                    text: { "en-US": { text: "Yes" } },
                                 },
                             ],
                         },

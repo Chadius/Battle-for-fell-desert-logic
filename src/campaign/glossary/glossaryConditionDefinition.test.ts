@@ -23,9 +23,9 @@ describe("resolving a condition's glossary term as a definition template", () =>
                 {
                     termId: "condition.ARMOR",
                     type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                    name: { "en-us": { text: "Armor" } },
+                    name: { "en-US": { text: "Armor" } },
                     definition: {
-                        "en-us": {
+                        "en-US": {
                             text: "({SOURCE}, {DURATION} rounds) Reduces the chance to get hit",
                         },
                     },
@@ -47,7 +47,7 @@ describe("resolving a condition's glossary term as a definition template", () =>
                 GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                 armorCondition.type
             ),
-            "en-us"
+            "en-US"
         )
         expect(resolvedTerm).toBeDefined()
         const definition = TextSubstitutionService.substitute(

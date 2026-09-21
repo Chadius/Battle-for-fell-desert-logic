@@ -18,7 +18,7 @@ describe("resolveResourceManifestEntry", () => {
                 ResourceManifestEntryService.new({
                     id,
                     label: `Label ${id}`,
-                    description: { "en-us": { text: `Desc ${id}` } },
+                    description: { "en-US": { text: `Desc ${id}` } },
                     type: "IMAGE",
                 })
             )

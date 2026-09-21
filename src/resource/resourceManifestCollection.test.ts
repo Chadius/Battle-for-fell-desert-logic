@@ -13,7 +13,7 @@ describe("ResourceManifestCollection", () => {
         ResourceManifestEntryService.new({
             id,
             label: `Label ${id}`,
-            description: { "en-us": { text: `Description for ${id}` } },
+            description: { "en-US": { text: `Description for ${id}` } },
             type: "IMAGE",
         })
 
@@ -108,7 +108,7 @@ describe("ResourceManifestCollection", () => {
                                 id: "abcd-1234",
                                 label: "Blue River at Dawn",
                                 description: {
-                                    "en-us": { text: "A river at dawn" },
+                                    "en-US": { text: "A river at dawn" },
                                 },
                                 type: "IMAGE",
                             },
@@ -141,7 +141,7 @@ describe("ResourceManifestCollection", () => {
                                 id: "efgh-5678",
                                 label: "Fell Forest",
                                 description: {
-                                    "en-us": { text: "A dense forest" },
+                                    "en-US": { text: "A dense forest" },
                                 },
                                 type: "LEVEL",
                             },
@@ -164,7 +164,7 @@ describe("ResourceManifestCollection", () => {
                             {
                                 label: "Blue River at Dawn",
                                 description: {
-                                    "en-us": { text: "A river at dawn" },
+                                    "en-US": { text: "A river at dawn" },
                                 },
                                 type: "IMAGE",
                             },
@@ -188,7 +188,7 @@ describe("ResourceManifestCollection", () => {
                                 id: "abcd-1234",
                                 label: "Blue River at Dawn",
                                 description: {
-                                    "en-us": { text: "A river at dawn" },
+                                    "en-US": { text: "A river at dawn" },
                                 },
                                 type: "SMELL",
                             },

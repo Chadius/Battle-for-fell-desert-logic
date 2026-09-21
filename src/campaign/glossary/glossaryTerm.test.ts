@@ -8,9 +8,9 @@ describe("GlossaryTermService.deserialize", () => {
             const data = {
                 termId: "condition.ARMOR",
                 type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                name: { "en-us": { text: "Armor" } },
+                name: { "en-US": { text: "Armor" } },
                 definition: {
-                    "en-us": { text: "Reduces the chance to get hit" },
+                    "en-US": { text: "Reduces the chance to get hit" },
                 },
                 iconResourceKey: "icon-armor",
             }
@@ -25,14 +25,31 @@ describe("GlossaryTermService.deserialize", () => {
         it("throws an error naming the deserializing service", () => {
             const data = {
                 type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                name: { "en-us": { text: "Armor" } },
+                name: { "en-US": { text: "Armor" } },
                 definition: {
-                    "en-us": { text: "Reduces the chance to get hit" },
+                    "en-US": { text: "Reduces the chance to get hit" },
                 },
             }
 
             expect(() => GlossaryTermService.deserialize(data)).toThrow(
                 "[GlossaryTermService.deserialize]"
+            )
+        })
+    })
+
+    describe("when a name uses a lowercase language code", () => {
+        it("throws an error naming the offending key", () => {
+            const data = {
+                termId: "condition.ARMOR",
+                type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
+                name: { "en-us": { text: "Armor" } },
+                definition: {
+                    "en-US": { text: "Reduces the chance to get hit" },
+                },
+            }
+
+            expect(() => GlossaryTermService.deserialize(data)).toThrow(
+                "name.en-us"
             )
         })
     })
@@ -43,9 +60,9 @@ describe("when a GlossaryTerm is serialized then deserialized", () => {
         const glossaryTerm = GlossaryTermService.new({
             termId: "condition.HUSTLE",
             type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-            name: { "en-us": { text: "Hustle" } },
+            name: { "en-US": { text: "Hustle" } },
             definition: {
-                "en-us": { text: "Reduces movement costs to a minimum of 1" },
+                "en-US": { text: "Reduces movement costs to a minimum of 1" },
             },
         })
 

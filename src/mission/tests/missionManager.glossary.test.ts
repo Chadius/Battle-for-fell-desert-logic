@@ -55,17 +55,17 @@ describe("MissionManager.resolveGlossaryTerms", () => {
                     {
                         termId: "action.scimitar",
                         type: GlossaryTermType.SQUADDIE_ACTION,
-                        name: { "en-us": { text: "Scimitar" } },
+                        name: { "en-US": { text: "Scimitar" } },
                         definition: {
-                            "en-us": { text: "A curved melee blade" },
+                            "en-US": { text: "A curved melee blade" },
                         },
                     },
                     {
                         termId: "item.healing-potion",
                         type: GlossaryTermType.SQUADDIE_ITEM,
-                        name: { "en-us": { text: "Healing Potion" } },
+                        name: { "en-US": { text: "Healing Potion" } },
                         definition: {
-                            "en-us": { text: "Restores hit points" },
+                            "en-US": { text: "Restores hit points" },
                         },
                     },
                 ],
@@ -74,7 +74,7 @@ describe("MissionManager.resolveGlossaryTerms", () => {
 
             const resolvedGlossaryTerms = manager.resolveGlossaryTerms(
                 ["action.scimitar", "item.healing-potion"],
-                "en-us"
+                "en-US"
             )
 
             expect(resolvedGlossaryTerms).toEqual({
@@ -99,7 +99,7 @@ describe("MissionManager.resolveGlossaryTerms", () => {
 
             const resolvedGlossaryTerms = manager.resolveGlossaryTerms(
                 ["action.unknown"],
-                "en-us"
+                "en-US"
             )
 
             expect(resolvedGlossaryTerms).toEqual({})
@@ -111,7 +111,7 @@ describe("MissionManager.resolveGlossaryTerms", () => {
             const manager = new MissionManager()
 
             expect(() =>
-                manager.resolveGlossaryTerms(["action.scimitar"], "en-us")
+                manager.resolveGlossaryTerms(["action.scimitar"], "en-US")
             ).toThrow("[MissionManager.resolveGlossaryTerms]")
         })
     })
@@ -127,9 +127,9 @@ describe("MissionManager.addGlossaryFromJson", () => {
                     {
                         termId: "action.scimitar",
                         type: GlossaryTermType.SQUADDIE_ACTION,
-                        name: { "en-us": { text: "Scimitar" } },
+                        name: { "en-US": { text: "Scimitar" } },
                         definition: {
-                            "en-us": { text: "A curved melee blade" },
+                            "en-US": { text: "A curved melee blade" },
                         },
                     },
                 ],
@@ -138,7 +138,7 @@ describe("MissionManager.addGlossaryFromJson", () => {
 
             expect(result.isValid).toBeTruthy()
             expect(
-                manager.resolveGlossaryTerms(["action.scimitar"], "en-us")
+                manager.resolveGlossaryTerms(["action.scimitar"], "en-US")
             ).toEqual({
                 "action.scimitar": {
                     name: "Scimitar",

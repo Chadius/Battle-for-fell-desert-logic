@@ -114,7 +114,7 @@ describe("MissionEngine movie integration", () => {
                             id: "victory-image",
                             label: "Victory",
                             description: {
-                                "en-us": { text: "The squad celebrates." },
+                                "en-US": { text: "The squad celebrates." },
                             },
                             type: "IMAGE",
                         })
@@ -412,19 +412,19 @@ describe("MissionEngine movie integration", () => {
                                 {
                                     type: "DECISION",
                                     prompt: {
-                                        "en-us": { text: "Choose wisely" },
+                                        "en-US": { text: "Choose wisely" },
                                     },
                                     options: [
                                         {
                                             decisionId: "choice-a",
                                             text: {
-                                                "en-us": { text: "Option A" },
+                                                "en-US": { text: "Option A" },
                                             },
                                         },
                                         {
                                             decisionId: "choice-b",
                                             text: {
-                                                "en-us": { text: "Option B" },
+                                                "en-US": { text: "Option B" },
                                             },
                                         },
                                     ],

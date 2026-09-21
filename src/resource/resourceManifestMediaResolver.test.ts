@@ -76,7 +76,7 @@ describe("when a content entry exists but its media has not been produced yet", 
                 id: "desert-background",
                 label: "Desert Background",
                 description: {
-                    "en-us": { text: "A vast desert opens ahead of you." },
+                    "en-US": { text: "A vast desert opens ahead of you." },
                 },
                 type: "IMAGE",
             })

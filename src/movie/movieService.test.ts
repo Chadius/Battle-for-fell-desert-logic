@@ -147,13 +147,13 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     prompt: {
-                                        "en-us": { text: "What do you do?" },
+                                        "en-US": { text: "What do you do?" },
                                     },
                                     options: [
                                         {
                                             decisionId: "attack",
                                             text: {
-                                                "en-us": { text: "Attack" },
+                                                "en-US": { text: "Attack" },
                                             },
                                             nextSceneId: "scene-does-not-exist",
                                         },
@@ -189,13 +189,13 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     prompt: {
-                                        "en-us": { text: "What do you do?" },
+                                        "en-US": { text: "What do you do?" },
                                     },
                                     options: [
                                         {
                                             decisionId: "attack",
                                             text: {
-                                                "en-us": { text: "Attack" },
+                                                "en-US": { text: "Attack" },
                                             },
                                         },
                                     ],
@@ -272,18 +272,18 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     prompt: {
-                                        "en-us": { text: "What do you do?" },
+                                        "en-US": { text: "What do you do?" },
                                     },
                                     options: [
                                         {
                                             decisionId: "loop",
-                                            text: { "en-us": { text: "Stay" } },
+                                            text: { "en-US": { text: "Stay" } },
                                             nextSceneId: "scene-a",
                                         },
                                         {
                                             decisionId: "exit",
                                             text: {
-                                                "en-us": { text: "Leave" },
+                                                "en-US": { text: "Leave" },
                                             },
                                         },
                                     ],
@@ -315,20 +315,20 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     prompt: {
-                                        "en-us": { text: "What do you do?" },
+                                        "en-US": { text: "What do you do?" },
                                     },
                                     options: [
                                         {
                                             decisionId: "option-b",
                                             text: {
-                                                "en-us": { text: "Go back" },
+                                                "en-US": { text: "Go back" },
                                             },
                                             nextSceneId: "scene-a",
                                         },
                                         {
                                             decisionId: "option-c",
                                             text: {
-                                                "en-us": {
+                                                "en-US": {
                                                     text: "Also go back",
                                                 },
                                             },
@@ -365,13 +365,13 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     prompt: {
-                                        "en-us": { text: "What do you do?" },
+                                        "en-US": { text: "What do you do?" },
                                     },
                                     options: [
                                         {
                                             decisionId: "option-b",
                                             text: {
-                                                "en-us": { text: "Go back" },
+                                                "en-US": { text: "Go back" },
                                             },
                                             nextSceneId: "scene-a",
                                         },
@@ -410,20 +410,20 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     prompt: {
-                                        "en-us": { text: "Choose your path" },
+                                        "en-US": { text: "Choose your path" },
                                     },
                                     options: [
                                         {
                                             decisionId: "go-b",
                                             text: {
-                                                "en-us": { text: "Go to B" },
+                                                "en-US": { text: "Go to B" },
                                             },
                                             nextSceneId: "scene-b",
                                         },
                                         {
                                             decisionId: "go-c",
                                             text: {
-                                                "en-us": { text: "Go to C" },
+                                                "en-US": { text: "Go to C" },
                                             },
                                             nextSceneId: "scene-c",
                                         },
@@ -440,7 +440,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
-                                    text: { "en-us": { text: "You are in B" } },
+                                    text: { "en-US": { text: "You are in B" } },
                                 },
                             ],
                         }),
@@ -461,7 +461,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
-                                    text: { "en-us": { text: "You are in C" } },
+                                    text: { "en-US": { text: "You are in C" } },
                                 },
                             ],
                         }),
@@ -533,7 +533,7 @@ describe("MovieService.validate", () => {
                                     type: "DIALOG" as const,
                                     speakerId:
                                         "This is definitely more than five words",
-                                    text: { "en-us": { text: "Hello" } },
+                                    text: { "en-US": { text: "Hello" } },
                                 },
                             ],
                         }),

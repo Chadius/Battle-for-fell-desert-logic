@@ -13,7 +13,7 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -32,11 +32,11 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Goodbye" } },
+                            text: { "en-US": { text: "Goodbye" } },
                         },
                     ],
                 })
@@ -61,7 +61,7 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -88,21 +88,21 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                                 {
                                     decisionId: "flee",
-                                    text: { "en-us": { text: "Flee" } },
+                                    text: { "en-US": { text: "Flee" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "You attacked!" } },
+                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -135,17 +135,17 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "You attacked!" } },
+                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -170,11 +170,11 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Goodbye" } },
+                            text: { "en-US": { text: "Goodbye" } },
                         },
                     ],
                 })
@@ -200,17 +200,17 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "You attacked!" } },
+                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -239,11 +239,11 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Goodbye" } },
+                            text: { "en-US": { text: "Goodbye" } },
                         },
                     ],
                 })
@@ -262,15 +262,15 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
@@ -293,15 +293,15 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Line 1" } },
+                            text: { "en-US": { text: "Line 1" } },
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Line 2" } },
+                            text: { "en-US": { text: "Line 2" } },
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Line 3" } },
+                            text: { "en-US": { text: "Line 3" } },
                         },
                     ],
                 })
@@ -342,17 +342,17 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "You attacked!" } },
+                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -381,7 +381,7 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             speakerId: "lini",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -403,7 +403,7 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Narration text" } },
+                            text: { "en-US": { text: "Narration text" } },
                         },
                     ],
                 })
@@ -425,7 +425,7 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -447,7 +447,7 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                             portrait: {
                                 resourceManifestEntryId: "lini-portrait",
                                 position: "LEFT",
@@ -474,7 +474,7 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                             portrait: {
                                 resourceManifestEntryId: "lini-portrait",
                                 position: "LEFT",
@@ -500,7 +500,7 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -523,8 +523,8 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             text: {
-                                "en-us": { text: "Hello" },
-                                "fr-fr": { text: "Bonjour" },
+                                "en-US": { text: "Hello" },
+                                "fr-FR": { text: "Bonjour" },
                             },
                         },
                     ],
@@ -534,21 +534,21 @@ describe("MovieSceneConversationService", () => {
                 const status = MovieSceneConversationService.status(
                     scene,
                     state,
-                    "fr-fr"
+                    "fr-FR"
                 )
 
                 expect(status.text).toBe("Bonjour")
             })
         })
 
-        describe("when the current line is a DIALOG line, the requested language is absent, and en-us exists", () => {
-            it("returns the en-us text prefixed with the missing language code", () => {
+        describe("when the current line is a DIALOG line, the requested language is absent, and en-US exists", () => {
+            it("returns the en-US text prefixed with the missing language code", () => {
                 const scene = MovieSceneConversationService.new({
                     id: "scene-1",
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "en-us": { text: "Hello" } },
+                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -557,21 +557,21 @@ describe("MovieSceneConversationService", () => {
                 const status = MovieSceneConversationService.status(
                     scene,
                     state,
-                    "fr-fr"
+                    "fr-FR"
                 )
 
-                expect(status.text).toBe("fr-fr MISSING: Hello")
+                expect(status.text).toBe("fr-FR MISSING: Hello")
             })
         })
 
-        describe("when the current line is a DIALOG line and neither the requested language nor en-us exists", () => {
+        describe("when the current line is a DIALOG line and neither the requested language nor en-US exists", () => {
             it("returns just the missing language code prefix", () => {
                 const scene = MovieSceneConversationService.new({
                     id: "scene-1",
                     lines: [
                         {
                             type: "DIALOG",
-                            text: { "de-de": { text: "Hallo" } },
+                            text: { "de-DE": { text: "Hallo" } },
                         },
                     ],
                 })
@@ -580,10 +580,10 @@ describe("MovieSceneConversationService", () => {
                 const status = MovieSceneConversationService.status(
                     scene,
                     state,
-                    "fr-fr"
+                    "fr-FR"
                 )
 
-                expect(status.text).toBe("fr-fr MISSING:")
+                expect(status.text).toBe("fr-FR MISSING:")
             })
         })
 
@@ -594,15 +594,15 @@ describe("MovieSceneConversationService", () => {
                     lines: [
                         {
                             type: "DECISION",
-                            prompt: { "en-us": { text: "What do you do?" } },
+                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-us": { text: "Attack" } },
+                                    text: { "en-US": { text: "Attack" } },
                                 },
                                 {
                                     decisionId: "flee",
-                                    text: { "en-us": { text: "Flee" } },
+                                    text: { "en-US": { text: "Flee" } },
                                 },
                             ],
                         },

@@ -1,4 +1,5 @@
 import type { Movie } from "./movie.js"
+import { LocalizedTextService } from "../localization/localizedText.js"
 import type { ResourceManifestCollection } from "../resource/resourceManifestCollection.js"
 import {
     type MovieSceneImage,
@@ -76,14 +77,14 @@ export class MovieEngine {
     private currentSceneState: ActiveSceneState
     private collectedDecisions: DecisionRecord[] = []
     private readonly resourceCollections: ResourceManifestCollection[] = []
-    private readonly languageCode: string = "en-us"
+    private readonly languageCode: string
     private readonly movie: Movie
     private branchOriginSceneId: string | undefined
 
     constructor(
         movie: Movie,
         resourceCollections: ResourceManifestCollection[],
-        languageCode: string = "en-us"
+        languageCode: string = LocalizedTextService.FALLBACK_LANGUAGE_CODE
     ) {
         this.currentScene = sceneById(movie, movie.firstSceneId)
         this.currentSceneState = initialSceneState(this.currentScene)

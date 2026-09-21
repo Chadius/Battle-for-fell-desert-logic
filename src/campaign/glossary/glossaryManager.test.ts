@@ -16,8 +16,8 @@ describe("GlossaryManager.addTermsFromJson", () => {
                     {
                         termId: "condition.ARMOR",
                         type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                        name: { "en-us": { text: "Armor" } },
-                        definition: { "en-us": { text: "Reduces hits" } },
+                        name: { "en-US": { text: "Armor" } },
+                        definition: { "en-US": { text: "Reduces hits" } },
                     },
                 ],
             })
@@ -36,14 +36,14 @@ describe("GlossaryManager.addTermsFromJson", () => {
                     {
                         termId: "condition.ARMOR",
                         type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                        name: { "en-us": { text: "Armor" } },
-                        definition: { "en-us": { text: "First definition" } },
+                        name: { "en-US": { text: "Armor" } },
+                        definition: { "en-US": { text: "First definition" } },
                     },
                     {
                         termId: "condition.ARMOR",
                         type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                        name: { "en-us": { text: "Armor" } },
-                        definition: { "en-us": { text: "Second definition" } },
+                        name: { "en-US": { text: "Armor" } },
+                        definition: { "en-US": { text: "Second definition" } },
                     },
                 ],
             })
@@ -52,7 +52,7 @@ describe("GlossaryManager.addTermsFromJson", () => {
                 expect.stringContaining('duplicate termId "condition.ARMOR"'),
             ])
             expect(glossaryManager.get("condition.ARMOR").definition).toEqual({
-                "en-us": { text: "First definition" },
+                "en-US": { text: "First definition" },
             })
         })
     })
@@ -65,8 +65,8 @@ describe("GlossaryManager.addTermsFromJson", () => {
                 terms: [
                     {
                         type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                        name: { "en-us": { text: "Armor" } },
-                        definition: { "en-us": { text: "Reduces hits" } },
+                        name: { "en-US": { text: "Armor" } },
+                        definition: { "en-US": { text: "Reduces hits" } },
                     },
                 ],
             })
@@ -85,15 +85,15 @@ describe("GlossaryManager.termIds", () => {
                     {
                         termId: "condition.ARMOR",
                         type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                        name: { "en-us": { text: "Armor" } },
-                        definition: { "en-us": { text: "Reduces hits" } },
+                        name: { "en-US": { text: "Armor" } },
+                        definition: { "en-US": { text: "Reduces hits" } },
                     },
                     {
                         termId: "condition.HUSTLE",
                         type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                        name: { "en-us": { text: "Hustle" } },
+                        name: { "en-US": { text: "Hustle" } },
                         definition: {
-                            "en-us": { text: "Reduces movement costs" },
+                            "en-US": { text: "Reduces movement costs" },
                         },
                     },
                 ],
@@ -125,12 +125,12 @@ describe("GlossaryManager.resolveTerm", () => {
                         termId: "condition.HUSTLE",
                         type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
                         name: {
-                            "en-us": { text: "Hustle" },
-                            "fr-fr": { text: "Hâte" },
+                            "en-US": { text: "Hustle" },
+                            "fr-FR": { text: "Hâte" },
                         },
                         definition: {
-                            "en-us": { text: "Reduces movement costs" },
-                            "fr-fr": {
+                            "en-US": { text: "Reduces movement costs" },
+                            "fr-FR": {
                                 text: "Réduit les coûts de déplacement",
                             },
                         },
@@ -140,7 +140,7 @@ describe("GlossaryManager.resolveTerm", () => {
 
             const resolved = glossaryManager.resolveTerm(
                 "condition.HUSTLE",
-                "fr-fr"
+                "fr-FR"
             )
 
             expect(resolved).toEqual({
@@ -155,7 +155,7 @@ describe("GlossaryManager.resolveTerm", () => {
             const glossaryManager = newGlossaryManager()
 
             expect(
-                glossaryManager.resolveTerm("condition.UNKNOWN", "en-us")
+                glossaryManager.resolveTerm("condition.UNKNOWN", "en-US")
             ).toBeUndefined()
         })
     })

@@ -12,8 +12,8 @@ describe("ResourceManifestEntry", () => {
             id: "abcd-1234",
             label: "Blue River at Dawn",
             description: {
-                "en-us": { text: "A river flows through a forest glade" },
-                "fr-fr": { text: "Une rivière traverse une clairière" },
+                "en-US": { text: "A river flows through a forest glade" },
+                "fr-FR": { text: "Une rivière traverse une clairière" },
             },
             type: "IMAGE",
             ...overrides,
@@ -30,33 +30,33 @@ describe("ResourceManifestEntry", () => {
         it("returns description for the requested language code", () => {
             const entry = makeEntry()
             expect(
-                ResourceManifestEntryService.getDescription(entry, "fr-fr")
+                ResourceManifestEntryService.getDescription(entry, "fr-FR")
             ).toBe("Une rivière traverse une clairière")
         })
 
-        it("falls back to en-us with a warning when the requested language code is absent", () => {
+        it("falls back to en-US with a warning when the requested language code is absent", () => {
             const entry = makeEntry()
             expect(
-                ResourceManifestEntryService.getDescription(entry, "de-de")
-            ).toBe("de-de MISSING: A river flows through a forest glade")
+                ResourceManifestEntryService.getDescription(entry, "de-DE")
+            ).toBe("de-DE MISSING: A river flows through a forest glade")
         })
 
-        it("returns warning when both requested code and en-us fallback are absent", () => {
+        it("returns warning when both requested code and en-US fallback are absent", () => {
             const entry = makeEntry({ description: {} })
             expect(
-                ResourceManifestEntryService.getDescription(entry, "de-de")
-            ).toBe("de-de MISSING:")
+                ResourceManifestEntryService.getDescription(entry, "de-DE")
+            ).toBe("de-DE MISSING:")
         })
 
         it("accepts a custom fallback language code", () => {
             const entry = makeEntry({
-                description: { "fr-fr": { text: "Une rivière" } },
+                description: { "fr-FR": { text: "Une rivière" } },
             })
             expect(
                 ResourceManifestEntryService.getDescription(
                     entry,
-                    "de-de",
-                    "fr-fr"
+                    "de-DE",
+                    "fr-FR"
                 )
             ).toBe("Une rivière")
         })

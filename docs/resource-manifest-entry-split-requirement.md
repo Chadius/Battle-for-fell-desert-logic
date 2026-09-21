@@ -36,7 +36,7 @@ this already happens in the campaign data:
     "filepath": "",
     "format": "",
     "type": "IMAGE",
-    "description": { "en-us": { "text": "A vast desert opens ahead of you." } }
+    "description": { "en-US": { "text": "A vast desert opens ahead of you." } }
 }
 ```
 

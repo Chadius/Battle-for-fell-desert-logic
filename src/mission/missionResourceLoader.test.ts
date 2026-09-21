@@ -12,8 +12,8 @@ describe("MissionResourceLoader.addGlossaryFromJson", () => {
                     {
                         termId: "condition.ARMOR",
                         type: GlossaryTermType.SQUADDIE_CONDITION_TYPE,
-                        name: { "en-us": { text: "Armor" } },
-                        definition: { "en-us": { text: "Reduces hits" } },
+                        name: { "en-US": { text: "Armor" } },
+                        definition: { "en-US": { text: "Reduces hits" } },
                     },
                 ],
             })

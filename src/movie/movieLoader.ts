@@ -1,8 +1,7 @@
 import { z } from "zod"
 import { type Movie, MovieService } from "./movie.js"
 import { MovieSceneType } from "./movieScene.js"
-
-const localizedTextSchema = z.record(z.string(), z.object({ text: z.string() }))
+import { localizedTextSchema } from "../localization/localizedText.js"
 
 const movieSceneTransitionSchema = z.object({
     durationMs: z.number().positive(),

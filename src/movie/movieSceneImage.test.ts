@@ -14,8 +14,8 @@ const makeImageEntry = () =>
         id: "battlefield-overview",
         label: "Battlefield Overview",
         description: {
-            "en-us": { text: "A tactical map of the fell desert" },
-            "fr-fr": { text: "Une carte tactique du désert maudit" },
+            "en-US": { text: "A tactical map of the fell desert" },
+            "fr-FR": { text: "Une carte tactique du désert maudit" },
         },
         type: "IMAGE",
     })
@@ -480,7 +480,7 @@ describe("MovieSceneImage", () => {
     })
 
     describe("getDescription()", () => {
-        it("returns en-us description by default", () => {
+        it("returns en-US description by default", () => {
             const scene = makeScene()
             const collection = makeCollection()
             expect(MovieSceneImageService.description(scene, collection)).toBe(
@@ -492,7 +492,7 @@ describe("MovieSceneImage", () => {
             const scene = makeScene()
             const collection = makeCollection()
             expect(
-                MovieSceneImageService.description(scene, collection, "fr-fr")
+                MovieSceneImageService.description(scene, collection, "fr-FR")
             ).toBe("Une carte tactique du désert maudit")
         })
 
@@ -502,9 +502,9 @@ describe("MovieSceneImage", () => {
             const result = MovieSceneImageService.description(
                 scene,
                 collection,
-                "de-de"
+                "de-DE"
             )
-            expect(result).toMatch(/^de-de MISSING: /)
+            expect(result).toMatch(/^de-DE MISSING: /)
         })
 
         it("returns undefined when entry is not in the collection", () => {

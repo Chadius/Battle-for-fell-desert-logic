@@ -18,7 +18,7 @@ describe("MovieService.validate — text substitution", () => {
                                 {
                                     type: "DIALOG" as const,
                                     text: {
-                                        "en-us": { text: "Turn {TOKEN+}" },
+                                        "en-US": { text: "Turn {TOKEN+}" },
                                     },
                                 },
                             ],
@@ -30,7 +30,7 @@ describe("MovieService.validate — text substitution", () => {
             const result = MovieService.validate(movie)
 
             expect(result.errors).toContainEqual(
-                expect.stringContaining("scene 'scene-a' line 0 (en-us):")
+                expect.stringContaining("scene 'scene-a' line 0 (en-US):")
             )
             expect(result.errors).toContainEqual(
                 expect.stringContaining("[TextSubstitutionService.substitute]")
@@ -52,7 +52,7 @@ describe("MovieService.validate — text substitution", () => {
                                 {
                                     type: "DIALOG" as const,
                                     text: {
-                                        "en-us": {
+                                        "en-US": {
                                             text: "Turn {TURN_COUNT + 1}",
                                         },
                                     },
@@ -83,7 +83,7 @@ describe("MovieService.validate — text substitution", () => {
                                 {
                                     type: "DECISION" as const,
                                     prompt: {
-                                        "en-us": {
+                                        "en-US": {
                                             text: "Choose ({TOKEN+})",
                                         },
                                     },
@@ -91,7 +91,7 @@ describe("MovieService.validate — text substitution", () => {
                                         {
                                             decisionId: "attack",
                                             text: {
-                                                "en-us": { text: "Attack" },
+                                                "en-US": { text: "Attack" },
                                             },
                                         },
                                     ],
@@ -105,7 +105,7 @@ describe("MovieService.validate — text substitution", () => {
             const result = MovieService.validate(movie)
 
             expect(result.errors).toContainEqual(
-                expect.stringContaining("scene 'scene-a' line 0 (en-us):")
+                expect.stringContaining("scene 'scene-a' line 0 (en-US):")
             )
         })
     })
@@ -124,13 +124,13 @@ describe("MovieService.validate — text substitution", () => {
                                 {
                                     type: "DECISION" as const,
                                     prompt: {
-                                        "en-us": { text: "What do you do?" },
+                                        "en-US": { text: "What do you do?" },
                                     },
                                     options: [
                                         {
                                             decisionId: "attack",
                                             text: {
-                                                "en-us": {
+                                                "en-US": {
                                                     text: "Attack {TOKEN+}",
                                                 },
                                             },
@@ -146,7 +146,7 @@ describe("MovieService.validate — text substitution", () => {
             const result = MovieService.validate(movie)
 
             expect(result.errors).toContainEqual(
-                expect.stringContaining("scene 'scene-a' line 0 (en-us):")
+                expect.stringContaining("scene 'scene-a' line 0 (en-US):")
             )
         })
     })
@@ -165,7 +165,7 @@ describe("MovieService.validate — text substitution", () => {
                                 {
                                     type: "DIALOG" as const,
                                     text: {
-                                        "en-us": { text: "{MYSTERY}" },
+                                        "en-US": { text: "{MYSTERY}" },
                                     },
                                 },
                             ],

@@ -205,7 +205,7 @@ export const MovieSceneConversationService = {
     status: (
         movieSceneConversation: MovieSceneConversation,
         movieSceneConversationState: MovieSceneConversationState,
-        languageCode: string = LocalizedTextService.FALLBACK_LANGUAGE
+        languageCode: string = LocalizedTextService.FALLBACK_LANGUAGE_CODE
     ): ConversationSceneStatus => {
         const line =
             movieSceneConversation.lines[

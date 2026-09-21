@@ -216,7 +216,7 @@ export const MovieSceneImageService = {
     description: (
         movieSceneImage: MovieSceneImage,
         resourceManifestCollection: ResourceManifestCollection,
-        languageCode = ResourceManifestEntryService.FALLBACK_LANGUAGE
+        languageCode = ResourceManifestEntryService.FALLBACK_LANGUAGE_CODE
     ): string | undefined => {
         if (movieSceneImage.resourceManifestEntryId == undefined) {
             return undefined

@@ -125,8 +125,8 @@ describe("MissionManager — transactional JSON loading", () => {
                     {
                         termId: "action.slash",
                         type: GlossaryTermType.SQUADDIE_ACTION,
-                        name: { "en-us": { text: "Slash" } },
-                        definition: { "en-us": { text: "A basic attack" } },
+                        name: { "en-US": { text: "Slash" } },
+                        definition: { "en-US": { text: "A basic attack" } },
                     },
                 ],
             })
@@ -187,8 +187,8 @@ describe("MissionManager — transactional JSON loading", () => {
                     {
                         termId: "action.slash",
                         type: GlossaryTermType.SQUADDIE_ACTION,
-                        name: { "en-us": { text: "Slash" } },
-                        definition: { "en-us": { text: "A basic attack" } },
+                        name: { "en-US": { text: "Slash" } },
+                        definition: { "en-US": { text: "A basic attack" } },
                     },
                 ],
             })

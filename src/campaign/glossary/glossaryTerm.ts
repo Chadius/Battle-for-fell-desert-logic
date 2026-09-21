@@ -1,5 +1,8 @@
 import { z } from "zod"
-import type { LocalizedText } from "../../localization/localizedText.js"
+import {
+    type LocalizedText,
+    localizedTextSchema,
+} from "../../localization/localizedText.js"
 import { GlossaryTermType, type TGlossaryTermType } from "./glossaryTermType.js"
 
 export interface GlossaryTerm {
@@ -9,8 +12,6 @@ export interface GlossaryTerm {
     definition: LocalizedText
     iconResourceKey?: string
 }
-
-const localizedTextSchema = z.record(z.string(), z.object({ text: z.string() }))
 
 export const glossaryTermSchema = z.object({
     termId: z.string().min(1),

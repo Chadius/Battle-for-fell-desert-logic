@@ -50,7 +50,7 @@ describe("MovieLoader.loadFromJSON", () => {
                             {
                                 type: "DIALOG",
                                 speakerId: "lini",
-                                text: { "en-us": { text: "Hello!" } },
+                                text: { "en-US": { text: "Hello!" } },
                             },
                         ],
                     },
@@ -67,7 +67,7 @@ describe("MovieLoader.loadFromJSON", () => {
             if (conversationLine.type !== "DIALOG")
                 throw new Error("expected DIALOG line")
             expect(conversationLine.text).toEqual({
-                "en-us": { text: "Hello!" },
+                "en-US": { text: "Hello!" },
             })
         })
     })
@@ -86,12 +86,12 @@ describe("MovieLoader.loadFromJSON", () => {
                             {
                                 type: "DECISION",
                                 prompt: {
-                                    "en-us": { text: "What do you do?" },
+                                    "en-US": { text: "What do you do?" },
                                 },
                                 options: [
                                     {
                                         decisionId: "fight",
-                                        text: { "en-us": { text: "Fight" } },
+                                        text: { "en-US": { text: "Fight" } },
                                     },
                                 ],
                             },
@@ -110,13 +110,13 @@ describe("MovieLoader.loadFromJSON", () => {
             if (conversationLine.type !== "DECISION")
                 throw new Error("expected DECISION line")
             expect(conversationLine.prompt).toEqual({
-                "en-us": { text: "What do you do?" },
+                "en-US": { text: "What do you do?" },
             })
             const fightOption = conversationLine.options.find(
                 (o) => o.decisionId === "fight"
             )
             expect(fightOption?.text).toEqual({
-                "en-us": { text: "Fight" },
+                "en-US": { text: "Fight" },
             })
         })
     })
@@ -143,6 +143,16 @@ describe("MovieLoader.loadFromJSON", () => {
             }
 
             expect(() => MovieLoader.loadFromJSON(json)).toThrow("lines.0.text")
+        })
+    })
+
+    describe("when a DIALOG line uses a lowercase language code", () => {
+        it("throws a validation error naming the offending key", () => {
+            const json = movieWithDialogText({ "en-us": { text: "Hello!" } })
+
+            expect(() => MovieLoader.loadFromJSON(json)).toThrow(
+                "lines.0.text.en-us"
+            )
         })
     })
 
@@ -354,3 +364,18 @@ describe("MovieLoader.loadFromJSON", () => {
         })
     })
 })
+
+function movieWithDialogText(text: Record<string, { text: string }>) {
+    return {
+        id: "movie-2",
+        firstSceneId: "convo-1",
+        scenes: [
+            {
+                type: "CONVERSATION",
+                id: "convo-1",
+                nextSceneId: null,
+                lines: [{ type: "DIALOG", speakerId: "lini", text }],
+            },
+        ],
+    }
+}

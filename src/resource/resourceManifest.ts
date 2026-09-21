@@ -1,5 +1,8 @@
 import { z } from "zod"
-import { LocalizedTextService } from "../localization/localizedText.js"
+import {
+    LocalizedTextService,
+    localizedTextSchema,
+} from "../localization/localizedText.js"
 
 export const RESOURCE_MANIFEST_TYPES = [
     "IMAGE",
@@ -23,8 +26,6 @@ export interface ResourceManifestEntry {
     type: ResourceManifestType
 }
 
-const localizedTextSchema = z.record(z.string(), z.object({ text: z.string() }))
-
 export const resourceManifestEntrySchema = z.object({
     id: z.string().min(1),
     label: z.string().min(1),
@@ -36,10 +37,10 @@ export type SerializedResourceManifestEntry = z.infer<
     typeof resourceManifestEntrySchema
 >
 
-const FALLBACK_LANGUAGE = LocalizedTextService.FALLBACK_LANGUAGE
+const FALLBACK_LANGUAGE_CODE = LocalizedTextService.FALLBACK_LANGUAGE_CODE
 
 export const ResourceManifestEntryService = {
-    FALLBACK_LANGUAGE,
+    FALLBACK_LANGUAGE_CODE,
     new: ({
         id,
         label,
@@ -60,7 +61,11 @@ export const ResourceManifestEntryService = {
     getDescription: (
         entry: ResourceManifestEntry,
         languageCode: string,
-        fallback = FALLBACK_LANGUAGE
+        fallbackLanguageCode = FALLBACK_LANGUAGE_CODE
     ): string =>
-        LocalizedTextService.resolve(entry.description, languageCode, fallback),
+        LocalizedTextService.resolve(
+            entry.description,
+            languageCode,
+            fallbackLanguageCode
+        ),
 }

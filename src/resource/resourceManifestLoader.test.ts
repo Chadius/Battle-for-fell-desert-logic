@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { loadResourceManifestFromJSON } from "./resourceManifestLoader.js"
 import { ResourceManifestCollectionService } from "./resourceManifestCollection.js"
 
@@ -8,10 +8,10 @@ describe("loadResourceManifestFromJSON", () => {
             id: "abcd-1234-jklm",
             label: "Blue River at Dawn",
             description: {
-                "en-us": {
+                "en-US": {
                     text: "A river flows through a forest glade during the blue hour in the morning",
                 },
-                "fr-fr": {
+                "fr-FR": {
                     text: "Une rivière traverse une clairière forestière",
                 },
             },
@@ -20,7 +20,7 @@ describe("loadResourceManifestFromJSON", () => {
         {
             id: "efgh-5678-nopq",
             label: "Fell Desert",
-            description: { "en-us": { text: "An arid desert battlefield" } },
+            description: { "en-US": { text: "An arid desert battlefield" } },
             type: "LEVEL",
         },
     ]
@@ -69,7 +69,7 @@ describe("loadResourceManifestFromJSON", () => {
             )
             expect(entry?.label).toBe("Blue River at Dawn")
             expect(entry?.type).toBe("IMAGE")
-            expect(entry?.description["fr-fr"].text).toBe(
+            expect(entry?.description["fr-FR"].text).toBe(
                 "Une rivière traverse une clairière forestière"
             )
         })
@@ -91,7 +91,7 @@ describe("loadResourceManifestFromJSON", () => {
                 {
                     id: "xyz",
                     label: "Weird",
-                    description: { "en-us": { text: "Unknown type" } },
+                    description: { "en-US": { text: "Unknown type" } },
                     type: "SMELL",
                 },
             ])
@@ -99,6 +99,33 @@ describe("loadResourceManifestFromJSON", () => {
             expect(errors).toHaveLength(1)
             expect(
                 ResourceManifestCollectionService.keys(collection)
+            ).toHaveLength(0)
+        })
+    })
+
+    describe("when an entry description uses a lowercase language code", () => {
+        let result: ReturnType<typeof loadResourceManifestFromJSON>
+
+        beforeEach(() => {
+            result = loadResourceManifestFromJSON([
+                {
+                    id: "xyz",
+                    label: "Desert",
+                    description: { "en-us": { text: "Sand" } },
+                    type: "IMAGE",
+                },
+            ])
+        })
+
+        it("reports a validation error naming the offending key", () => {
+            expect(result.errors).toEqual([
+                expect.stringContaining("description.en-us"),
+            ])
+        })
+
+        it("does not add the entry", () => {
+            expect(
+                ResourceManifestCollectionService.keys(result.collection)
             ).toHaveLength(0)
         })
     })
@@ -112,7 +139,7 @@ describe("loadResourceManifestFromJSON", () => {
                         id: "theme-1",
                         label: "Battle Theme",
                         description: {
-                            "en-us": { text: "The battle theme" },
+                            "en-US": { text: "The battle theme" },
                         },
                         type,
                     },
