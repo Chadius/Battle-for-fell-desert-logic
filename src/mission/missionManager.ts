@@ -15,7 +15,10 @@ import { InBattleSquaddieCollectionService } from "../squaddie/inBattle/inBattle
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
 import type { OutOfBattleSquaddieManager } from "../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
-import { MissionObjectiveRewardType } from "./missionObjectiveReward.js"
+import {
+    MissionObjectiveRewardType,
+    type TMissionObjectiveRewardType,
+} from "./missionObjectiveReward.js"
 import type { MissionObjective } from "./missionObjective.js"
 import { MissionObjectiveService } from "./missionObjective.js"
 import type { MissionObjectiveCriteriaContext } from "./missionObjectiveCriteria.js"
@@ -136,24 +139,26 @@ export class MissionManager {
     hasMissionEnded(): boolean {
         this.throwIfStateIsUndefined(this.hasMissionEnded.name)
 
-        return this.missionState!.objectives.some((objective) => {
-            const hasMissionEndsReward = objective.rewards.some(
-                (reward) =>
-                    reward.type === MissionObjectiveRewardType.MISSION_ENDS ||
-                    reward.type === MissionObjectiveRewardType.MISSION_FAILURE
-            )
-            return hasMissionEndsReward && objective.hasGivenReward
-        })
+        return this.hasGivenRewardOfAnyType(
+            MissionObjectiveRewardType.MISSION_ENDS,
+            MissionObjectiveRewardType.MISSION_FAILURE
+        )
     }
 
     private hasMissionFailed(): boolean {
+        return this.hasGivenRewardOfAnyType(
+            MissionObjectiveRewardType.MISSION_FAILURE
+        )
+    }
+
+    private hasGivenRewardOfAnyType(
+        ...rewardTypes: TMissionObjectiveRewardType[]
+    ): boolean {
         return this.missionState!.objectives.some(
             (objective) =>
                 objective.hasGivenReward &&
-                objective.rewards.some(
-                    (reward) =>
-                        reward.type ===
-                        MissionObjectiveRewardType.MISSION_FAILURE
+                objective.rewards.some((reward) =>
+                    rewardTypes.includes(reward.type)
                 )
         )
     }
