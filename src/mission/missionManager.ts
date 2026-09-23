@@ -42,7 +42,10 @@ import {
 } from "./inMissionSummary.js"
 import type { SerializedCoordinateMap } from "../coordinateMap/coordinateMap.js"
 import type { SquaddieAction } from "../squaddieAction/squaddieAction.js"
-import { type TSquaddieAffiliation } from "../affiliation/affiliation.js"
+import {
+    SquaddieAffiliation,
+    type TSquaddieAffiliation,
+} from "../affiliation/affiliation.js"
 import { MissionResourceLoader } from "./missionResourceLoader.js"
 import {
     type ActionableCoordinate,
@@ -74,6 +77,11 @@ import {
 } from "../squaddieAction/calculate/challengeModifier/challengeModifierSetting.js"
 import type { ArmyManager } from "../campaign/army/armyManager.js"
 import type { CampaignSquaddie } from "../campaign/army/campaignSquaddie.js"
+import type { ArmyMissionResult } from "../campaign/army/army.js"
+import {
+    CampaignSquaddieDeploymentValidationService,
+    type CampaignSquaddieDeploymentValidationResult,
+} from "./campaignSquaddieDeploymentValidationService.js"
 import { CampaignSquaddieDeploymentManager } from "./campaignSquaddieDeploymentManager.js"
 import { CampaignSquaddieMissionBridgeService } from "./campaignSquaddieMissionBridgeService.js"
 import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
@@ -136,6 +144,51 @@ export class MissionManager {
             )
             return hasMissionEndsReward && objective.hasGivenReward
         })
+    }
+
+    private hasMissionFailed(): boolean {
+        return this.missionState!.objectives.some(
+            (objective) =>
+                objective.hasGivenReward &&
+                objective.rewards.some(
+                    (reward) =>
+                        reward.type ===
+                        MissionObjectiveRewardType.MISSION_FAILURE
+                )
+        )
+    }
+
+    getArmyMissionResult(): ArmyMissionResult | undefined {
+        this.throwIfStateIsUndefined(this.getArmyMissionResult.name)
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.getArmyMissionResult.name
+        )
+        if (!this.hasMissionEnded() || this.hasMissionFailed()) return undefined
+
+        return {
+            missionId: this.missionState!.id,
+            knockedOutCampaignSquaddieIds: this.knockedOutCampaignSquaddieIds(),
+        }
+    }
+
+    private knockedOutCampaignSquaddieIds(): string[] {
+        return (this.missionState!.deployedCampaignSquaddies ?? [])
+            .filter((deployedCampaignSquaddie) =>
+                this.inBattleSquaddieManager!.isSquaddieDefeated(
+                    deployedCampaignSquaddie.battleSquaddieId
+                )
+            )
+            .map(
+                (deployedCampaignSquaddie) =>
+                    deployedCampaignSquaddie.campaignSquaddieId
+            )
+    }
+
+    getInjuredCampaignSquaddies(): CampaignSquaddie[] {
+        this.throwIfArmyManagerIsUndefined(
+            this.getInjuredCampaignSquaddies.name
+        )
+        return this.armyManager!.getInjured()
     }
 
     shouldCheckMissionObjectives(): boolean {
@@ -1091,6 +1144,28 @@ export class MissionManager {
         )
     }
 
+    validateCampaignSquaddieDeploymentCanBegin(): CampaignSquaddieDeploymentValidationResult {
+        this.throwIfArmyManagerIsUndefined(
+            this.validateCampaignSquaddieDeploymentCanBegin.name
+        )
+        return CampaignSquaddieDeploymentValidationService.validateAnyPlayerSquaddieCanDeploy(
+            {
+                campaignSquaddies: this.armyManager!.getAll(),
+                inMissionPlayerSquaddieCount:
+                    this.countInBattlePlayerSquaddies(),
+            }
+        )
+    }
+
+    private countInBattlePlayerSquaddies(): number {
+        this.throwIfInBattleSquaddieManagerIsUndefined(
+            this.countInBattlePlayerSquaddies.name
+        )
+        return this.inBattleSquaddieManager!.getAllSquaddiesOfAffiliation(
+            SquaddieAffiliation.PLAYER
+        ).length
+    }
+
     beginCampaignSquaddieDeployment(): void {
         this.throwIfStateIsUndefined(this.beginCampaignSquaddieDeployment.name)
         this.throwIfArmyManagerIsUndefined(
@@ -1194,20 +1269,50 @@ export class MissionManager {
             this.finalizeCampaignSquaddieDeploymentAndStartMission.name
         )
 
-        CampaignSquaddieMissionBridgeService.deployAssignedCampaignSquaddies({
-            armyManager: this.armyManager!,
-            coordinateCollection:
-                this.missionState!.campaignSquaddieDeploymentCoordinates!,
-            deploymentManager: this.campaignSquaddieDeploymentManager!,
-            outOfBattleSquaddieManager: this.outOfBattleSquaddieManager!,
-            inBattleSquaddieManager: this.inBattleSquaddieManager!,
-            coordinateMapCollectionManager:
-                this.coordinateMapCollectionManager!,
-            mapId: this.missionState!.mapId,
-        })
+        this.throwIfNoPlayerSquaddieIsDeployed(
+            this.finalizeCampaignSquaddieDeploymentAndStartMission.name
+        )
+
+        const deployedCampaignSquaddies =
+            CampaignSquaddieMissionBridgeService.deployAssignedCampaignSquaddies(
+                {
+                    armyManager: this.armyManager!,
+                    coordinateCollection:
+                        this.missionState!
+                            .campaignSquaddieDeploymentCoordinates!,
+                    deploymentManager: this.campaignSquaddieDeploymentManager!,
+                    outOfBattleSquaddieManager:
+                        this.outOfBattleSquaddieManager!,
+                    inBattleSquaddieManager: this.inBattleSquaddieManager!,
+                    coordinateMapCollectionManager:
+                        this.coordinateMapCollectionManager!,
+                    mapId: this.missionState!.mapId,
+                }
+            )
+        this.missionState = MissionStateService.recordDeployedCampaignSquaddies(
+            this.missionState!,
+            deployedCampaignSquaddies
+        )
 
         this.deployRequiredSquaddies()
         this.campaignSquaddieDeploymentManager = undefined
+    }
+
+    private throwIfNoPlayerSquaddieIsDeployed(callName: string): void {
+        const { isValid, errors } =
+            CampaignSquaddieDeploymentValidationService.validateAnyPlayerSquaddieIsDeployed(
+                {
+                    deployedCampaignSquaddieCount:
+                        this.campaignSquaddieDeploymentManager!.getDeployedCoordinates()
+                            .length,
+                    inMissionPlayerSquaddieCount:
+                        this.countInBattlePlayerSquaddies(),
+                }
+            )
+        if (!isValid)
+            throw new Error(
+                `[MissionManager.${callName}]: ${errors.join("; ")}`
+            )
     }
 
     loadMissionStateFromJson(data: unknown): void {

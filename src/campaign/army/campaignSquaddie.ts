@@ -4,6 +4,8 @@ export interface CampaignSquaddieInjury {
     duration?: number
 }
 
+export const DEFAULT_INJURY_DURATION_IN_MISSIONS = 1
+
 export interface CampaignSquaddie {
     id: string
     outOfBattleAttributeSheetId: string
@@ -78,6 +80,52 @@ export const CampaignSquaddieService = {
     },
     deserialize: (data: unknown): CampaignSquaddie =>
         validatedCampaignSquaddie(data, "deserialize"),
+    injureSquaddie: ({
+        campaignSquaddie,
+        missionId,
+        injury,
+    }: {
+        campaignSquaddie: CampaignSquaddie
+        missionId: string
+        injury: CampaignSquaddieInjury
+    }): CampaignSquaddie =>
+        validatedCampaignSquaddie(
+            {
+                ...campaignSquaddie,
+                injury,
+                injuryHistory: [...campaignSquaddie.injuryHistory, missionId],
+            },
+            "injureSquaddie"
+        ),
+    recoverFromInjuryByOneMission: (
+        campaignSquaddie: CampaignSquaddie
+    ): CampaignSquaddie => recoverFromInjuryByOneMission(campaignSquaddie),
+    isInjured: (campaignSquaddie: CampaignSquaddie): boolean =>
+        isInjured(campaignSquaddie),
+    isPermanentlyInjured: (campaignSquaddie: CampaignSquaddie): boolean =>
+        isPermanentlyInjured(campaignSquaddie),
+}
+
+const isInjured = (campaignSquaddie: CampaignSquaddie): boolean =>
+    campaignSquaddie.injury != undefined
+
+const isPermanentlyInjured = (campaignSquaddie: CampaignSquaddie): boolean =>
+    isInjured(campaignSquaddie) &&
+    campaignSquaddie.injury!.duration == undefined
+
+const recoverFromInjuryByOneMission = (
+    campaignSquaddie: CampaignSquaddie
+): CampaignSquaddie => {
+    if (!isInjured(campaignSquaddie) || isPermanentlyInjured(campaignSquaddie))
+        return clone(campaignSquaddie)
+    const remainingDuration = campaignSquaddie.injury!.duration!
+    return {
+        ...clone(campaignSquaddie),
+        injury:
+            remainingDuration > 1
+                ? { duration: remainingDuration - 1 }
+                : undefined,
+    }
 }
 
 const cloneInjury = (

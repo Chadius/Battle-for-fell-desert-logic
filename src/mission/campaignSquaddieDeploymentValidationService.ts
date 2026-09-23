@@ -3,7 +3,10 @@ import {
     type CampaignSquaddieDeploymentCoordinateCollection,
     CampaignSquaddieDeploymentCoordinateCollectionService,
 } from "./campaignSquaddieDeploymentCoordinateCollection.js"
-import type { CampaignSquaddie } from "../campaign/army/campaignSquaddie.js"
+import {
+    type CampaignSquaddie,
+    CampaignSquaddieService,
+} from "../campaign/army/campaignSquaddie.js"
 import type { MissionDeployment } from "./missionDeployment.js"
 import { OffsetCoordinateService } from "../coordinateMap/offsetCoordinate.js"
 
@@ -82,7 +85,47 @@ export const CampaignSquaddieDeploymentValidationService = {
     },
 
     isSquaddieEligible: (campaignSquaddie: CampaignSquaddie): boolean =>
-        campaignSquaddie.injury == undefined,
+        !CampaignSquaddieService.isInjured(campaignSquaddie),
+
+    validateAnyPlayerSquaddieCanDeploy: ({
+        campaignSquaddies,
+        inMissionPlayerSquaddieCount,
+    }: {
+        campaignSquaddies: CampaignSquaddie[]
+        inMissionPlayerSquaddieCount: number
+    }): CampaignSquaddieDeploymentValidationResult => {
+        const anyCampaignSquaddieIsEligible = campaignSquaddies.some(
+            CampaignSquaddieDeploymentValidationService.isSquaddieEligible
+        )
+        if (anyCampaignSquaddieIsEligible || inMissionPlayerSquaddieCount > 0)
+            return { isValid: true, errors: [] }
+        return {
+            isValid: false,
+            errors: [
+                `[CampaignSquaddieDeploymentValidationService.validateAnyPlayerSquaddieCanDeploy]: the mission cannot start because no campaign squaddie is healthy enough to deploy and the mission has no player squaddies of its own`,
+            ],
+        }
+    },
+
+    validateAnyPlayerSquaddieIsDeployed: ({
+        deployedCampaignSquaddieCount,
+        inMissionPlayerSquaddieCount,
+    }: {
+        deployedCampaignSquaddieCount: number
+        inMissionPlayerSquaddieCount: number
+    }): CampaignSquaddieDeploymentValidationResult => {
+        if (
+            deployedCampaignSquaddieCount > 0 ||
+            inMissionPlayerSquaddieCount > 0
+        )
+            return { isValid: true, errors: [] }
+        return {
+            isValid: false,
+            errors: [
+                `[CampaignSquaddieDeploymentValidationService.validateAnyPlayerSquaddieIsDeployed]: the mission cannot start because no campaign squaddie is deployed and the mission has no player squaddies of its own`,
+            ],
+        }
+    },
 
     validateNoOverlapWithMissionDeployments: ({
         collection,

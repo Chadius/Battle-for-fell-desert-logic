@@ -11,6 +11,8 @@ import type { InBattleSquaddieManager } from "../squaddie/inBattle/inBattleSquad
 import type { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapManager.js"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate.js"
 import { SquaddieAffiliation } from "../affiliation/affiliation.js"
+import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
+import type { DeployedCampaignSquaddie } from "./deployedCampaignSquaddie.js"
 
 export const CampaignSquaddieMissionBridgeService = {
     deployAssignedCampaignSquaddies: ({
@@ -29,7 +31,8 @@ export const CampaignSquaddieMissionBridgeService = {
         inBattleSquaddieManager: InBattleSquaddieManager
         coordinateMapCollectionManager: CoordinateMapCollectionManager
         mapId: string
-    }): void => {
+    }): DeployedCampaignSquaddie[] => {
+        const deployedCampaignSquaddies: DeployedCampaignSquaddie[] = []
         for (const campaignSquaddieDeploymentCoordinate of CampaignSquaddieDeploymentCoordinateCollectionService.getAll(
             coordinateCollection
         )) {
@@ -46,14 +49,19 @@ export const CampaignSquaddieMissionBridgeService = {
                 campaignSquaddie
             )
 
-            placeCampaignSquaddieOnMap({
+            const battleSquaddieId = placeCampaignSquaddieOnMap({
                 inBattleSquaddieManager,
                 coordinateMapCollectionManager,
                 campaignSquaddie,
                 coordinate: campaignSquaddieDeploymentCoordinate.coordinate,
                 mapId,
             })
+            deployedCampaignSquaddies.push({
+                campaignSquaddieId,
+                battleSquaddieId,
+            })
         }
+        return deployedCampaignSquaddies
     },
 }
 
@@ -90,7 +98,7 @@ const placeCampaignSquaddieOnMap = ({
     campaignSquaddie: CampaignSquaddie
     coordinate: OffsetCoordinate
     mapId: string
-}): void => {
+}): BattleSquaddieId => {
     const battleSquaddieId = inBattleSquaddieManager.createNewSquaddie({
         outOfBattleSquaddieId: campaignSquaddie.outOfBattleSquaddieId,
     })
@@ -100,4 +108,5 @@ const placeCampaignSquaddieOnMap = ({
         squaddieId: battleSquaddieId,
         coordinate,
     })
+    return battleSquaddieId
 }

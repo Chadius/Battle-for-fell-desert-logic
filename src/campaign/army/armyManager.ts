@@ -1,4 +1,4 @@
-import { type Army, ArmyService } from "./army.js"
+import { type Army, type ArmyMissionResult, ArmyService } from "./army.js"
 import {
     type CampaignSquaddie,
     type SerializedCampaignSquaddie,
@@ -43,11 +43,24 @@ export class ArmyManager {
         return ArmyService.getAll(this.army!)
     }
 
+    getInjured(): CampaignSquaddie[] {
+        this.throwIfArmyIsUndefined(this.getInjured.name)
+        return ArmyService.getInjured(this.army!)
+    }
+
     remove(campaignSquaddieId: string): void {
         this.throwIfArmyIsUndefined(this.remove.name)
         this.army = ArmyService.remove({
             army: this.army!,
             id: campaignSquaddieId,
+        })
+    }
+
+    recordMissionCompleted(armyMissionResult: ArmyMissionResult): void {
+        this.throwIfArmyIsUndefined(this.recordMissionCompleted.name)
+        this.army = ArmyService.recordMissionCompleted({
+            army: this.army!,
+            armyMissionResult,
         })
     }
 

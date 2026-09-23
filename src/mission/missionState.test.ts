@@ -572,6 +572,30 @@ describe("MissionState", () => {
             ).toBeUndefined()
         })
 
+        it("round-trips the campaign squaddies deployed into the mission", () => {
+            const deployedCampaignSquaddies = [
+                {
+                    campaignSquaddieId: "lini",
+                    battleSquaddieId: {
+                        inBattleSquaddieId: 0,
+                        outOfBattleSquaddieId: "lini",
+                    },
+                },
+            ]
+            const state = MissionStateService.recordDeployedCampaignSquaddies(
+                MissionStateService.new({ id: "mission-1", mapId: "map-1" }),
+                deployedCampaignSquaddies
+            )
+
+            const deserialized = MissionStateService.deserialize(
+                MissionStateService.serialize(state)
+            )
+
+            expect(deserialized.deployedCampaignSquaddies).toEqual(
+                deployedCampaignSquaddies
+            )
+        })
+
         it("round-trips a MissionState with history", () => {
             const history = MissionHistoryService.createFromJSON({
                 turns: [

@@ -5,6 +5,7 @@ import { ArmyManager } from "../../campaign/army/armyManager.js"
 import { ArmyService } from "../../campaign/army/army.js"
 import {
     type CampaignSquaddie,
+    type CampaignSquaddieInjury,
     CampaignSquaddieService,
 } from "../../campaign/army/campaignSquaddie.js"
 import {
@@ -62,6 +63,9 @@ export const CampaignTestHarnessIds = {
         healActionId: "rem-heal",
     },
     openCoordinateId: "slot-open",
+    guest: {
+        outOfBattleSquaddieId: "guest",
+    },
 } as const
 
 export class CampaignTestHarness extends MissionEngine {
@@ -109,6 +113,69 @@ export class CampaignTestHarness extends MissionEngine {
             squaddieActionManager,
             outOfBattleSquaddieManager,
             armyManager,
+        })
+    }
+
+    saveAndLoad(): MissionEngine {
+        return MissionEngine.deserialize(
+            this.serialize(),
+            this.missionManager!.outOfBattleSquaddieManager!
+        )
+    }
+
+    getArmyManager(): ArmyManager {
+        return this.missionManager!.armyManager!
+    }
+
+    injureCampaignSquaddie({
+        campaignSquaddieId,
+        injury,
+    }: {
+        campaignSquaddieId: string
+        injury: CampaignSquaddieInjury
+    }): void {
+        const armyManager = this.getArmyManager()
+        armyManager.addOrUpdate(
+            CampaignSquaddieService.injureSquaddie({
+                campaignSquaddie: armyManager.get(campaignSquaddieId),
+                missionId: "earlier-mission",
+                injury,
+            })
+        )
+    }
+
+    knockOutSquaddie(outOfBattleSquaddieId: string): void {
+        const inBattleSquaddieManager =
+            this.missionManager!.inBattleSquaddieManager!
+        for (const battleSquaddieId of inBattleSquaddieManager.getBattleSquaddieIdsByOutOfBattleSquaddieId(
+            outOfBattleSquaddieId
+        )) {
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...battleSquaddieId,
+                damage: {
+                    amount: inBattleSquaddieManager.getHitPoints(
+                        battleSquaddieId
+                    ).current,
+                    type: undefined,
+                },
+            })
+        }
+    }
+
+    addGuestPlayerSquaddie(): void {
+        const outOfBattleSquaddieManager =
+            this.missionManager!.outOfBattleSquaddieManager!
+        outOfBattleSquaddieManager.addOrUpdateSquaddie(
+            OutOfBattleSquaddieService.new({
+                id: CampaignTestHarnessIds.guest.outOfBattleSquaddieId,
+                name: "Guest",
+                attributeSheetId: CampaignTestHarnessIds.lini.attributeSheetId,
+                affiliation: SquaddieAffiliation.PLAYER,
+            })
+        )
+        this.missionManager!.inBattleSquaddieManager!.createNewSquaddie({
+            outOfBattleSquaddieId:
+                CampaignTestHarnessIds.guest.outOfBattleSquaddieId,
         })
     }
 

@@ -1,4 +1,6 @@
 import { MissionManager } from "../missionManager.js"
+import type { ArmyMissionResult } from "../../campaign/army/army.js"
+import type { CampaignSquaddie } from "../../campaign/army/campaignSquaddie.js"
 import {
     type ActionableCoordinate,
     type MovementDestinationWithCost,
@@ -1403,6 +1405,9 @@ export class MissionEngine {
         if (
             this.missionManager!.hasPendingCampaignSquaddieDeploymentCoordinates()
         ) {
+            const deploymentValidation =
+                this.missionManager!.validateCampaignSquaddieDeploymentCanBegin()
+            if (!deploymentValidation.isValid) return deploymentValidation
             this.missionManager!.beginCampaignSquaddieDeployment()
             return { isValid: true, errors: [] }
         }
@@ -1461,6 +1466,18 @@ export class MissionEngine {
             this.finalizeCampaignSquaddieDeploymentAndStartMission.name
         )
         this.missionManager!.finalizeCampaignSquaddieDeploymentAndStartMission()
+    }
+
+    getArmyMissionResult(): ArmyMissionResult | undefined {
+        this.throwIfMissionManagerIsUndefined(this.getArmyMissionResult.name)
+        return this.missionManager!.getArmyMissionResult()
+    }
+
+    getInjuredCampaignSquaddies(): CampaignSquaddie[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getInjuredCampaignSquaddies.name
+        )
+        return this.missionManager!.getInjuredCampaignSquaddies()
     }
 
     getOutOfBattleSquaddieDetails(
