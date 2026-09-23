@@ -1,20 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { CampaignSquaddieService } from "./campaignSquaddie.js"
+import {
+    type CampaignSquaddieInjury,
+    CampaignSquaddieService,
+} from "./campaignSquaddie.js"
+
+const lini = {
+    id: "lini",
+    outOfBattleAttributeSheetId: "sheet-lini",
+    outOfBattleSquaddieId: "battle-lini",
+    name: "Lini",
+}
+
+const permanentInjury: CampaignSquaddieInjury = {}
 
 describe("Campaign Squaddie", () => {
     describe("when isLeader, injury, and injuryHistory are omitted", () => {
-        it("defaults isLeader to false, injury to undefined, and injuryHistory to empty", () => {
-            const campaignSquaddie = CampaignSquaddieService.new({
-                id: "lini",
-                outOfBattleAttributeSheetId: "sheet-lini",
-                outOfBattleSquaddieId: "battle-lini",
-                name: "Lini",
-            })
-            expect(campaignSquaddie).toEqual({
-                id: "lini",
-                outOfBattleAttributeSheetId: "sheet-lini",
-                outOfBattleSquaddieId: "battle-lini",
-                name: "Lini",
+        it("is an uninjured non-leader with no injury history", () => {
+            const campaignSquaddie = CampaignSquaddieService.new(lini)
+            expect(campaignSquaddie).toMatchObject({
                 isLeader: false,
                 injury: undefined,
                 injuryHistory: [],
@@ -22,55 +25,46 @@ describe("Campaign Squaddie", () => {
         })
     })
 
-    describe("when outOfBattleSquaddieId is provided", () => {
-        it("carries that id on the resulting campaign squaddie", () => {
+    describe("when constructed as a leader with a temporary injury", () => {
+        it("keeps the leader flag, the remaining injury duration, and the injury history", () => {
             const campaignSquaddie = CampaignSquaddieService.new({
-                id: "lini",
-                outOfBattleAttributeSheetId: "sheet-lini",
-                outOfBattleSquaddieId: "battle-lini",
-                name: "Lini",
+                ...lini,
+                isLeader: true,
+                injury: { duration: 3 },
+                injuryHistory: ["mission-1"],
             })
-            expect(campaignSquaddie.outOfBattleSquaddieId).toBe("battle-lini")
+            expect(campaignSquaddie).toMatchObject({
+                isLeader: true,
+                injury: { duration: 3 },
+                injuryHistory: ["mission-1"],
+            })
         })
     })
 
-    it("can be constructed as a leader with a current injury and injury history", () => {
-        const campaignSquaddie = CampaignSquaddieService.new({
-            id: "lini",
-            outOfBattleAttributeSheetId: "sheet-lini",
-            outOfBattleSquaddieId: "battle-lini",
-            name: "Lini",
-            isLeader: true,
-            injury: { duration: 3, permanent: false },
-            injuryHistory: ["mission-1"],
+    describe("when the caller changes the injury history it passed in", () => {
+        it("leaves the squaddie's injury history unchanged", () => {
+            const injuryHistory = ["mission-1"]
+            const campaignSquaddie = CampaignSquaddieService.new({
+                ...lini,
+                injuryHistory,
+            })
+            injuryHistory.push("mission-2")
+            expect(campaignSquaddie.injuryHistory).toEqual(["mission-1"])
         })
-        expect(campaignSquaddie.isLeader).toBeTruthy()
-        expect(campaignSquaddie.injury).toEqual({
-            duration: 3,
-            permanent: false,
-        })
-        expect(campaignSquaddie.injuryHistory).toEqual(["mission-1"])
     })
 
     describe("when constructed with invalid data", () => {
         it("rejects a blank id", () => {
             expect(() =>
-                CampaignSquaddieService.new({
-                    id: "",
-                    outOfBattleAttributeSheetId: "sheet-lini",
-                    outOfBattleSquaddieId: "battle-lini",
-                    name: "Lini",
-                })
+                CampaignSquaddieService.new({ ...lini, id: "" })
             ).toThrow("CampaignSquaddieService.new")
         })
 
         it("rejects a blank outOfBattleSquaddieId", () => {
             expect(() =>
                 CampaignSquaddieService.new({
-                    id: "lini",
-                    outOfBattleAttributeSheetId: "sheet-lini",
+                    ...lini,
                     outOfBattleSquaddieId: "",
-                    name: "Lini",
                 })
             ).toThrow("CampaignSquaddieService.new")
         })
@@ -78,52 +72,47 @@ describe("Campaign Squaddie", () => {
         it("rejects a non-positive injury duration", () => {
             expect(() =>
                 CampaignSquaddieService.new({
-                    id: "lini",
-                    outOfBattleAttributeSheetId: "sheet-lini",
-                    outOfBattleSquaddieId: "battle-lini",
-                    name: "Lini",
-                    injury: { duration: 0, permanent: false },
+                    ...lini,
+                    injury: { duration: 0 },
                 })
             ).toThrow("CampaignSquaddieService.new")
         })
 
         it("rejects a blank mission id in the injury history", () => {
             expect(() =>
-                CampaignSquaddieService.new({
-                    id: "lini",
-                    outOfBattleAttributeSheetId: "sheet-lini",
-                    outOfBattleSquaddieId: "battle-lini",
-                    name: "Lini",
-                    injuryHistory: [""],
-                })
+                CampaignSquaddieService.new({ ...lini, injuryHistory: [""] })
             ).toThrow("CampaignSquaddieService.new")
         })
     })
 
-    describe("clone", () => {
-        it("produces a deep copy that does not share the injury history array", () => {
+    describe("when a clone's injury history is changed", () => {
+        it("leaves the original's injury history untouched", () => {
             const original = CampaignSquaddieService.new({
-                id: "lini",
-                outOfBattleAttributeSheetId: "sheet-lini",
-                outOfBattleSquaddieId: "battle-lini",
-                name: "Lini",
-                injury: { duration: 2, permanent: false },
+                ...lini,
                 injuryHistory: ["mission-1"],
             })
             const cloned = CampaignSquaddieService.clone(original)
             cloned.injuryHistory.push("mission-2")
             expect(original.injuryHistory).toEqual(["mission-1"])
-            expect(cloned.injuryHistory).toEqual(["mission-1", "mission-2"])
         })
     })
 
-    describe("serialize and deserialize", () => {
-        it("round-trips a squaddie without an injury", () => {
+    describe("when a clone's injury is changed", () => {
+        it("leaves the original's injury untouched", () => {
             const original = CampaignSquaddieService.new({
-                id: "lini",
-                outOfBattleAttributeSheetId: "sheet-lini",
-                outOfBattleSquaddieId: "battle-lini",
-                name: "Lini",
+                ...lini,
+                injury: { duration: 2 },
+            })
+            const cloned = CampaignSquaddieService.clone(original)
+            cloned.injury!.duration = 1
+            expect(original.injury).toEqual({ duration: 2 })
+        })
+    })
+
+    describe("when saved and loaded again", () => {
+        it("restores an uninjured leader", () => {
+            const original = CampaignSquaddieService.new({
+                ...lini,
                 isLeader: true,
             })
             const serialized = CampaignSquaddieService.serialize(original)
@@ -131,31 +120,42 @@ describe("Campaign Squaddie", () => {
             expect(deserialized).toEqual(original)
         })
 
-        it("round-trips a squaddie with a current injury and injury history that outlives it", () => {
+        it("restores a permanent injury and the injury history that outlives it", () => {
             const original = CampaignSquaddieService.new({
-                id: "lini",
-                outOfBattleAttributeSheetId: "sheet-lini",
-                outOfBattleSquaddieId: "battle-lini",
-                name: "Lini",
-                injury: { duration: 5, permanent: true },
+                ...lini,
+                injury: permanentInjury,
                 injuryHistory: ["mission-1", "mission-2"],
             })
             const serialized = CampaignSquaddieService.serialize(original)
             const deserialized = CampaignSquaddieService.deserialize(serialized)
             expect(deserialized).toEqual(original)
         })
+    })
 
-        it("throws a descriptive error for invalid data", () => {
-            expect(() =>
-                CampaignSquaddieService.deserialize({
-                    id: "lini",
-                    outOfBattleAttributeSheetId: "sheet-lini",
-                    outOfBattleSquaddieId: "battle-lini",
-                    name: "Lini",
-                    isLeader: "not-a-boolean",
-                    injuryHistory: [],
-                })
-            ).toThrow("CampaignSquaddieService.deserialize")
+    describe("when loading malformed data", () => {
+        describe("when a saved field has the wrong type", () => {
+            it("throws from deserialize", () => {
+                expect(() =>
+                    CampaignSquaddieService.deserialize({
+                        ...lini,
+                        isLeader: "not-a-boolean",
+                        injuryHistory: [],
+                    })
+                ).toThrow("CampaignSquaddieService.deserialize")
+            })
+        })
+
+        describe("when loading an injury saved with the old permanent flag", () => {
+            it("refuses it instead of loading it as a temporary injury", () => {
+                expect(() =>
+                    CampaignSquaddieService.deserialize({
+                        ...lini,
+                        isLeader: false,
+                        injury: { duration: 5, permanent: true },
+                        injuryHistory: [],
+                    })
+                ).toThrow("CampaignSquaddieService.deserialize")
+            })
         })
     })
 })

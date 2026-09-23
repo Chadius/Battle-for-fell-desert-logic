@@ -87,7 +87,6 @@ describe("Army", () => {
         })!
         liniFromWithRem.injury = {
             duration: 1,
-            permanent: false,
         }
 
         expect(

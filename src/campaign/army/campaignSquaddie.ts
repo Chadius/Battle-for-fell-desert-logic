@@ -1,8 +1,7 @@
 import { z } from "zod"
 
 export interface CampaignSquaddieInjury {
-    duration: number
-    permanent: boolean
+    duration?: number
 }
 
 export interface CampaignSquaddie {
@@ -15,9 +14,8 @@ export interface CampaignSquaddie {
     injuryHistory: string[]
 }
 
-const campaignSquaddieInjurySchema = z.object({
-    duration: z.number().int().positive(),
-    permanent: z.boolean(),
+const campaignSquaddieInjurySchema = z.strictObject({
+    duration: z.number().int().positive().optional(),
 })
 
 export const campaignSquaddieSchema = z.object({
@@ -49,19 +47,19 @@ export const CampaignSquaddieService = {
         isLeader?: boolean
         injury?: CampaignSquaddieInjury
         injuryHistory?: string[]
-    }): CampaignSquaddie => {
-        const campaignSquaddie: CampaignSquaddie = {
-            id,
-            outOfBattleAttributeSheetId,
-            outOfBattleSquaddieId,
-            name,
-            isLeader: isLeader ?? false,
-            injury: cloneInjury(injury),
-            injuryHistory: [...(injuryHistory ?? [])],
-        }
-        throwIfInvalid(campaignSquaddie, "new")
-        return campaignSquaddie
-    },
+    }): CampaignSquaddie =>
+        validatedCampaignSquaddie(
+            {
+                id,
+                outOfBattleAttributeSheetId,
+                outOfBattleSquaddieId,
+                name,
+                isLeader: isLeader ?? false,
+                injury,
+                injuryHistory: injuryHistory ?? [],
+            },
+            "new"
+        ),
     clone: (original: CampaignSquaddie): CampaignSquaddie => clone(original),
     serialize: (
         campaignSquaddie: CampaignSquaddie
@@ -78,25 +76,8 @@ export const CampaignSquaddieService = {
             injuryHistory: [...campaignSquaddie.injuryHistory],
         }
     },
-    deserialize: (data: unknown): CampaignSquaddie => {
-        const result = campaignSquaddieSchema.safeParse(data)
-        if (!result.success) {
-            const details = result.error.issues
-                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-                .join("; ")
-            throw new Error(`[CampaignSquaddieService.deserialize]: ${details}`)
-        }
-        const serialized = result.data
-        return {
-            id: serialized.id,
-            outOfBattleAttributeSheetId: serialized.outOfBattleAttributeSheetId,
-            outOfBattleSquaddieId: serialized.outOfBattleSquaddieId,
-            name: serialized.name,
-            isLeader: serialized.isLeader,
-            injury: cloneInjury(serialized.injury),
-            injuryHistory: [...serialized.injuryHistory],
-        }
-    },
+    deserialize: (data: unknown): CampaignSquaddie =>
+        validatedCampaignSquaddie(data, "deserialize"),
 }
 
 const cloneInjury = (
@@ -120,15 +101,16 @@ const throwIfSquaddieIsUndefined = (
         )
 }
 
-const throwIfInvalid = (
-    campaignSquaddie: CampaignSquaddie,
+const validatedCampaignSquaddie = (
+    data: unknown,
     callName: string
-) => {
-    const result = campaignSquaddieSchema.safeParse(campaignSquaddie)
-    if (!result.success) {
-        const details = result.error.issues
+): CampaignSquaddie => {
+    const parseResult = campaignSquaddieSchema.safeParse(data)
+    if (!parseResult.success) {
+        const details = parseResult.error.issues
             .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
             .join("; ")
         throw new Error(`[CampaignSquaddieService.${callName}]: ${details}`)
     }
+    return parseResult.data
 }

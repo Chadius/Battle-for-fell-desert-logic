@@ -263,7 +263,7 @@ describe("CampaignSquaddieDeploymentValidationService", () => {
                     CampaignSquaddieDeploymentValidationService.validateAssignmentEligibility(
                         {
                             campaignSquaddie: campaignSquaddie("lini", {
-                                injury: { duration: 3, permanent: false },
+                                injury: { duration: 3 },
                             }),
                         }
                     )

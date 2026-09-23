@@ -89,7 +89,7 @@ describe("CampaignSquaddieDeploymentManager assignment operations", () => {
             it("throws", () => {
                 const armyManager = armyManagerWithSquaddies(
                     campaignSquaddie("lini", {
-                        injury: { duration: 2, permanent: false },
+                        injury: { duration: 2 },
                     })
                 )
                 let coordinateCollection =

@@ -145,7 +145,7 @@ describe("CampaignSquaddieDeploymentManager", () => {
             it("leaves the coordinate open", () => {
                 const armyManager = armyManagerWithSquaddies(
                     campaignSquaddie("lini", {
-                        injury: { duration: 2, permanent: false },
+                        injury: { duration: 2 },
                     })
                 )
                 let coordinateCollection =
@@ -298,7 +298,7 @@ describe("CampaignSquaddieDeploymentManager", () => {
             it("excludes the injured squaddie from the unplaced eligible list", () => {
                 const armyManager = armyManagerWithSquaddies(
                     campaignSquaddie("injured-squaddie", {
-                        injury: { duration: 1, permanent: false },
+                        injury: { duration: 1 },
                     }),
                     campaignSquaddie("bench-squaddie")
                 )
