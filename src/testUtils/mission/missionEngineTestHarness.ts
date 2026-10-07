@@ -58,6 +58,8 @@ export const MissionEngineTestHarnessIds = {
     lini: {
         outOfBattleSquaddieId: "lini",
         attributeSheetId: "lini-attribute-sheet",
+        deploymentCoordinate: { row: 0, col: 0 },
+        adjacentCoordinate: { row: 0, col: 1 },
         scimitarActionId: "lini-scimitar",
         blessingActionId: "lini-blessing",
         healActionId: "lini-heal",
@@ -166,7 +168,10 @@ export class MissionEngineTestHarness extends MissionEngine {
                         outOfBattleSquaddieId:
                             MissionEngineTestHarnessIds.lini
                                 .outOfBattleSquaddieId,
-                        coordinates: [{ row: 0, col: 0 }],
+                        coordinates: [
+                            MissionEngineTestHarnessIds.lini
+                                .deploymentCoordinate,
+                        ],
                     }),
                     MissionDeploymentService.new({
                         id: "slither-demon",
@@ -666,6 +671,20 @@ export class MissionEngineTestHarness extends MissionEngine {
         this.missionManager!.inBattleSquaddieManager!.dealDamageToSquaddie({
             ...this.slitherDemonSquaddieId,
             damage: { amount: 999, type: undefined },
+        })
+    }
+
+    placeSlitherDemonAdjacentToLini(): void {
+        const coordinateMapManager =
+            this.missionManager!.coordinateMapCollectionManager!
+        coordinateMapManager.removeSquaddie({
+            mapId: MissionEngineTestHarnessIds.mapId,
+            squaddieId: this.slitherDemonSquaddieId,
+        })
+        coordinateMapManager.addSquaddie({
+            mapId: MissionEngineTestHarnessIds.mapId,
+            squaddieId: this.slitherDemonSquaddieId,
+            coordinate: MissionEngineTestHarnessIds.lini.adjacentCoordinate,
         })
     }
 

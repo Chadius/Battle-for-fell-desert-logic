@@ -5,6 +5,10 @@ import {
 } from "../proficiency/attributeScore.js"
 import { ActionRange, type TActionRange } from "./actionRange.js"
 import {
+    ActionTargetScope,
+    type TActionTargetScope,
+} from "./actionTargetScope.js"
+import {
     CoordinateGeneratorShape,
     type TCoordinateGeneratorShape,
 } from "../coordinateMap/shape.js"
@@ -354,6 +358,27 @@ export const SquaddieActionService = {
                     SquaddieConditionService.isHindering(condition)
                 )
         )
+    },
+    coversArea: (squaddieAction: SquaddieAction): boolean => {
+        const hasPositiveAreaOfEffectSize =
+            (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
+        const isDirectionalShape =
+            squaddieAction.targeting.shape === CoordinateGeneratorShape.LINE ||
+            squaddieAction.targeting.shape === CoordinateGeneratorShape.CONE
+        return hasPositiveAreaOfEffectSize || isDirectionalShape
+    },
+    getTargetScope: (squaddieAction: SquaddieAction): TActionTargetScope => {
+        if (SquaddieActionService.coversArea(squaddieAction))
+            return ActionTargetScope.AREA
+
+        const { foe, friend } = squaddieAction.targeting.affiliationRelationship
+        if (
+            squaddieAction.targeting.range === ActionRange.SELF ||
+            (!foe && !friend)
+        )
+            return ActionTargetScope.SELF
+
+        return ActionTargetScope.SINGLE
     },
     getRequiredDecisions: (
         action: SquaddieAction

@@ -12,23 +12,6 @@ import { ChallengeModifierType } from "../../../squaddieAction/calculate/challen
 
 const GUARANTEED_MISS: [number, number] = [1, 1]
 
-function placeSlitherDemonAdjacentToLini(
-    harness: MissionEngineTestHarness
-): void {
-    const demonId = harness.getSlitherDemonSquaddieId()
-    const coordinateMapManager =
-        harness.missionManager!.coordinateMapCollectionManager!
-    coordinateMapManager.removeSquaddie({
-        mapId: MissionEngineTestHarnessIds.mapId,
-        squaddieId: demonId,
-    })
-    coordinateMapManager.addSquaddie({
-        mapId: MissionEngineTestHarnessIds.mapId,
-        squaddieId: demonId,
-        coordinate: { row: 0, col: 1 },
-    })
-}
-
 function getDemonTargetResult(
     results: ActionResult,
     demonId: BattleSquaddieId
@@ -89,7 +72,7 @@ describe("Training Wheels challenge modifier — engine wiring", () => {
             harness = new MissionEngineTestHarness(
                 new RollGenerator(GUARANTEED_MISS)
             )
-            placeSlitherDemonAdjacentToLini(harness)
+            harness.placeSlitherDemonAdjacentToLini()
             harness.advanceToPlayerTurn()
             liniId = harness.getLiniSquaddieId()
             demonId = harness.getSlitherDemonSquaddieId()

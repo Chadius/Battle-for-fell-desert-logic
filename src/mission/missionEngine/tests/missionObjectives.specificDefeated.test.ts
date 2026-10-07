@@ -8,33 +8,9 @@ import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.
 import { MissionObjectiveService } from "../../missionObjective.js"
 import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
 
-// [6,6]: max-roll bump → CRITICAL → 4 damage → kills 3 HP demon (willKo=true)
 const KILL_HIT = [6, 6]
-// [4,3]: roll sum 7, modifier -5 (rank 1 - defense 0 - 6), value = 2 → SUCCESS (2 dmg, demon survives)
 const SUCCESS_HIT = [4, 3]
 const GUARANTEED_MISS = [1, 1]
-
-function advanceHarnessToPlayerTurn(harness: MissionEngineTestHarness): void {
-    harness.transitionToNextPhase()
-    harness.transitionToNextPhase()
-}
-
-function placeSlitherDemonAdjacentToLini(
-    harness: MissionEngineTestHarness
-): void {
-    const demonId = harness.getSlitherDemonSquaddieId()
-    const coordinateMapManager =
-        harness.missionManager!.coordinateMapCollectionManager!
-    coordinateMapManager.removeSquaddie({
-        mapId: MissionEngineTestHarnessIds.mapId,
-        squaddieId: demonId,
-    })
-    coordinateMapManager.addSquaddie({
-        mapId: MissionEngineTestHarnessIds.mapId,
-        squaddieId: demonId,
-        coordinate: { row: 0, col: 1 },
-    })
-}
 
 describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
     describe("when a matching squaddie is KO'd", () => {
@@ -42,8 +18,8 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
 
         beforeEach(() => {
             harness = new MissionEngineTestHarness(new RollGenerator(KILL_HIT))
-            placeSlitherDemonAdjacentToLini(harness)
-            advanceHarnessToPlayerTurn(harness)
+            harness.placeSlitherDemonAdjacentToLini()
+            harness.advanceToPlayerTurn()
         })
 
         it("the objective appears in the completed-but-not-rewarded list", () => {
@@ -185,8 +161,8 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             harness = new MissionEngineTestHarness(
                 new RollGenerator(GUARANTEED_MISS)
             )
-            placeSlitherDemonAdjacentToLini(harness)
-            advanceHarnessToPlayerTurn(harness)
+            harness.placeSlitherDemonAdjacentToLini()
+            harness.advanceToPlayerTurn()
         })
 
         it("the objective does not fire", () => {
@@ -230,8 +206,8 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             harness = new MissionEngineTestHarness(
                 new RollGenerator(SUCCESS_HIT)
             )
-            placeSlitherDemonAdjacentToLini(harness)
-            advanceHarnessToPlayerTurn(harness)
+            harness.placeSlitherDemonAdjacentToLini()
+            harness.advanceToPlayerTurn()
         })
 
         it("the objective does not fire", () => {
@@ -275,8 +251,8 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
             const harness = new MissionEngineTestHarness(
                 new RollGenerator(KILL_HIT)
             )
-            placeSlitherDemonAdjacentToLini(harness)
-            advanceHarnessToPlayerTurn(harness)
+            harness.placeSlitherDemonAdjacentToLini()
+            harness.advanceToPlayerTurn()
 
             const demonId = harness.getSlitherDemonSquaddieId()
             const defeatedObjective = MissionObjectiveService.new({
@@ -310,7 +286,7 @@ describe("MissionEngine — SPECIFIC_SQUADDIES_DEFEATED objective", () => {
     describe("before any action is taken", () => {
         it("the objective is listed as in-progress", () => {
             const harness = new MissionEngineTestHarness()
-            advanceHarnessToPlayerTurn(harness)
+            harness.advanceToPlayerTurn()
 
             const defeatedObjective = MissionObjectiveService.new({
                 id: "demon-koed-in-progress",

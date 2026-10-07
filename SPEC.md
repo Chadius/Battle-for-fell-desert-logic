@@ -113,6 +113,11 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 - Area shapes: BLOOM (expanding circle), LINE, CONE (constants defined; area expansion is per action).
 - Affiliation filters: target self, friends, or foes; determined by `SquaddieAffiliationService`.
 - `SquaddieActionValidationService` confirms a proposed target is legal before acting.
+- `SquaddieActionService.getTargetScope(action)` classifies an action as `SELF`, `SINGLE`, or `AREA`
+  (`areaOfEffectSize > 0`, or any LINE/CONE). Combined with `isAttackAction` and `targeting.range`,
+  consumers can tell e.g. a single-target melee attack apart without inspecting targeting internals.
+- Every `ActionResult` carries the `actionId` that produced it, so consumers can look up these
+  facts (via `MissionEngine.getActionById`) after the readied action has been cleared.
 
 ### Turn Structure
 

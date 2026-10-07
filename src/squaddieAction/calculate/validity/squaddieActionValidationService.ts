@@ -43,7 +43,6 @@ import type {
 } from "../../../squaddie/inBattle/inBattleSquaddie.js"
 import { AoeTargetResolutionService } from "../aoe/aoeTargetResolutionService.js"
 import { LineOfSightService } from "../../../coordinateMap/lineOfSightService.js"
-import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
 
 export interface InvalidSquaddieAction {
     actionId: string
@@ -2390,11 +2389,7 @@ export const calculateAimCoordinateResults = ({
         mapId: map.mapId,
     })
 
-    const isAreaEffect = (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
-    const isDirectionalShape =
-        squaddieAction.targeting.shape === CoordinateGeneratorShape.LINE ||
-        squaddieAction.targeting.shape === CoordinateGeneratorShape.CONE
-    if (isAreaEffect || isDirectionalShape) {
+    if (SquaddieActionService.coversArea(squaddieAction)) {
         return calculateAimCoordinateResultsWithAreaOfEffect({
             squaddieAction,
             reachableCoordinateKeys,

@@ -1,4 +1,5 @@
 export * from "./actionRange.js"
+export * from "./actionTargetScope.js"
 export * from "./apply/applyResultService.js"
 export * from "./calculate/aoe/aoeTargetResolutionService.js"
 export * from "./calculate/challengeModifier/challengeModifierSetting.js"

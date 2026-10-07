@@ -289,6 +289,7 @@ export class MissionEngine {
         this.serializeTargetResults(managerResults, targetResults)
 
         this.actionResults = {
+            actionId: this.readiedAction!.action.id,
             actorRoll: managerResults.actorRoll,
             actorSquaddieKey: actorSquaddieKey,
             targetResults,

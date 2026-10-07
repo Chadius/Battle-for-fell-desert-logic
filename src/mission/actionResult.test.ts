@@ -108,6 +108,18 @@ describe("ActionResultService", () => {
     })
 
     describe("round-trip", () => {
+        it("preserves the action id", () => {
+            const original: ActionResult = {
+                actionId: "scimitar",
+                targetResults: {},
+            }
+
+            const serialized = ActionResultsService.serialize(original)
+            const deserialized = ActionResultsService.deserialize(serialized)
+
+            expect(deserialized.actionId).toBe("scimitar")
+        })
+
         it("preserves data through serialize and deserialize", () => {
             const original: ActionResult = {
                 actorRoll: [6, 5],

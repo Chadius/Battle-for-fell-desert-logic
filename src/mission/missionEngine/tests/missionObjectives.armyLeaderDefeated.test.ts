@@ -11,30 +11,7 @@ import { ArmyManager } from "../../../campaign/army/armyManager.js"
 import { ArmyService } from "../../../campaign/army/army.js"
 import { CampaignSquaddieService } from "../../../campaign/army/campaignSquaddie.js"
 
-// [6,6]: max-roll bump → CRITICAL → kills the Slither Demon (willKo=true)
 const KILL_HIT = [6, 6]
-
-function advanceHarnessToPlayerTurn(harness: MissionEngineTestHarness): void {
-    harness.transitionToNextPhase()
-    harness.transitionToNextPhase()
-}
-
-function placeSlitherDemonAdjacentToLini(
-    harness: MissionEngineTestHarness
-): void {
-    const demonId = harness.getSlitherDemonSquaddieId()
-    const coordinateMapManager =
-        harness.missionManager!.coordinateMapCollectionManager!
-    coordinateMapManager.removeSquaddie({
-        mapId: MissionEngineTestHarnessIds.mapId,
-        squaddieId: demonId,
-    })
-    coordinateMapManager.addSquaddie({
-        mapId: MissionEngineTestHarnessIds.mapId,
-        squaddieId: demonId,
-        coordinate: { row: 0, col: 1 },
-    })
-}
 
 function setSlitherDemonAsArmyLeader(harness: MissionEngineTestHarness): void {
     const leader = CampaignSquaddieService.new({
@@ -57,9 +34,9 @@ describe("MissionEngine — ARMY_LEADER_DEFEATED objective", () => {
 
     beforeEach(() => {
         harness = new MissionEngineTestHarness(new RollGenerator(KILL_HIT))
-        placeSlitherDemonAdjacentToLini(harness)
+        harness.placeSlitherDemonAdjacentToLini()
         setSlitherDemonAsArmyLeader(harness)
-        advanceHarnessToPlayerTurn(harness)
+        harness.advanceToPlayerTurn()
 
         const defeatLeaderObjective = MissionObjectiveService.new({
             id: "leader-koed",
