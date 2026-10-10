@@ -116,6 +116,11 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 - `SquaddieActionService.getTargetScope(action)` classifies an action as `SELF`, `SINGLE`, or `AREA`
   (`areaOfEffectSize > 0`, or any LINE/CONE). Combined with `isAttackAction` and `targeting.range`,
   consumers can tell e.g. a single-target melee attack apart without inspecting targeting internals.
+  `SquaddieActionService.coversArea(action)` is the single rule for "is this an area action" —
+  validation, aim-coordinate previews, and `getRequiredDecisions` all use it, so a width-0 LINE
+  (e.g. Lightning Bolt) is validated and resolved as a line through the aimed point, not a single
+  target. Area actions must be readied with `decisions.targetCoordinate`, except `SELF`-range ones,
+  which default to the actor's own tile.
 - Every `ActionResult` carries the `actionId` that produced it, so consumers can look up these
   facts (via `MissionEngine.getActionById`) after the readied action has been cleared.
 

@@ -395,7 +395,7 @@ export const SquaddieActionService = {
         const aimCoordinateRequiresTarget =
             action.targeting.aimCoordinateRequiresTarget ?? true
 
-        const isAoe = (action.targeting.areaOfEffectSize ?? 0) > 0
+        const isAoe = SquaddieActionService.coversArea(action)
 
         const actorNeedsDestination =
             action.effectOnActor.SUCCESS?.movement?.movementType ===

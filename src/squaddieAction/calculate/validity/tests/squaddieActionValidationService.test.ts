@@ -691,14 +691,14 @@ describe("SquaddieActionValidationService", () => {
             aoeSquaddieActionManager.addOrUpdate(aoeAction)
         })
 
-        const callAoeIsActionValid = () =>
+        const callAoeIsActionValid = (
+            decisions: SquaddieActionDecisions | undefined
+        ) =>
             SquaddieActionValidationService.isActionValid({
                 actor: aoeActor,
                 action: {
                     id: aoeAction.id,
-                    decisions: {
-                        targetCoordinate: { row: 0, col: 0 },
-                    },
+                    decisions,
                 },
                 targets: [aoeActor],
                 managers: {
@@ -711,8 +711,17 @@ describe("SquaddieActionValidationService", () => {
             })
 
         it("isActionValid valid when the action affects self", () => {
-            const result = callAoeIsActionValid()
+            const result = callAoeIsActionValid({
+                targetCoordinate: { row: 0, col: 0 },
+            })
             expect(result.isValid).toBe(true)
+        })
+
+        describe("when no target coordinate is given", () => {
+            it("accepts the action, aiming at the actor's own tile", () => {
+                const result = callAoeIsActionValid(undefined)
+                expect(result.isValid).toBe(true)
+            })
         })
     })
 

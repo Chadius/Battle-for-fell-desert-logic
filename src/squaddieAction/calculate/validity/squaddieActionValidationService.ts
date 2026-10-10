@@ -205,7 +205,7 @@ export const SquaddieActionValidationService = {
             return teleportDestinationValidation
         }
 
-        const isAoe = (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
+        const isAoe = SquaddieActionService.coversArea(squaddieAction)
         if (isAoe) {
             const aoeValidation = validateAoeAction({
                 actor,
@@ -283,7 +283,7 @@ export const SquaddieActionValidationService = {
             positionOverride,
         })
 
-        if ((squaddieAction.targeting.areaOfEffectSize ?? 0) > 0) {
+        if (SquaddieActionService.coversArea(squaddieAction)) {
             return resolveAoeTargetsByBlastCenter({
                 actor,
                 squaddieAction,
@@ -1496,7 +1496,7 @@ const validateAoeAction = ({
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     mapId: string
 }): ActionValidationResult => {
-    let resolvedTargetCoordinate = resolveToSelfIfActionRangeIsSelf({
+    const resolvedTargetCoordinate = resolveToSelfIfActionRangeIsSelf({
         targetCoordinate,
         squaddieAction,
         actor,
@@ -1504,7 +1504,10 @@ const validateAoeAction = ({
         mapId,
     })
     if (resolvedTargetCoordinate == undefined) {
-        return { isValid: true }
+        return {
+            isValid: false,
+            reason: "AoE action requires a target coordinate",
+        }
     }
 
     const centerValidation = validateAoeCenterInRange({
@@ -1542,18 +1545,11 @@ const validateAoeCenterInRange = ({
     mapId,
 }: {
     actor: BattleSquaddieId
-    targetCoordinate: OffsetCoordinate | undefined
+    targetCoordinate: OffsetCoordinate
     squaddieAction: SquaddieAction
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     mapId: string
 }): ActionValidationResult => {
-    if (targetCoordinate == undefined) {
-        return {
-            isValid: false,
-            reason: "AoE action requires a target coordinate",
-        }
-    }
-
     const reachableKeys = getReachableCoordinateKeys({
         actor,
         actionRange: squaddieAction.targeting.range,
