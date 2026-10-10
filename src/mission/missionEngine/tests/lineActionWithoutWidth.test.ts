@@ -24,8 +24,23 @@ import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
 import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenerator.js"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate.js"
+import type { AimCoordinateResult } from "../../../squaddieAction/calculate/validity/squaddieActionValidationService.js"
 
 const lightningBoltId = "lightning-bolt"
+const mapWidth = 7
+const actorCoordinate = { row: 0, col: 0 }
+const emptyCoordinateBeforeEnemies = { row: 0, col: 1 }
+const nearestEnemyCoordinate = { row: 0, col: 2 }
+const middleEnemyCoordinate = { row: 0, col: 3 }
+const farthestEnemyCoordinate = { row: 0, col: 4 }
+const wallCoordinateBehindFarthestEnemy = { row: 0, col: 5 }
+const openGround = Array(mapWidth).fill("1")
+const wholeRow = Array.from({ length: mapWidth }, (_, col) => ({
+    row: actorCoordinate.row,
+    col,
+}))
+
+type ReadyActionResult = ReturnType<MissionEngine["readyAction"]>
 
 const createLightningBoltAction = () =>
     SquaddieActionService.new({
@@ -62,7 +77,9 @@ interface LineEngineFixture {
     farthestEnemyId: BattleSquaddieId
 }
 
-const createLineEngine = (): LineEngineFixture => {
+const createLineEngine = (
+    terrain: string[] = openGround
+): LineEngineFixture => {
     const { manager: outOfBattleSquaddieManager } =
         OutOfBattleSquaddieTestSetup.createManagerWithTestAttributeSheet({
             sheetId: "test_sheet",
@@ -112,14 +129,14 @@ const createLineEngine = (): LineEngineFixture => {
         map: CoordinateMapService.new({
             id: "test_map",
             name: "test map",
-            movementProperties: ["1 1 1 1 1 1 1"],
+            movementProperties: [terrain.join(" ")],
         }),
     })
     ;[
-        { squaddieId: actorId, coordinate: { row: 0, col: 0 } },
-        { squaddieId: nearestEnemyId, coordinate: { row: 0, col: 2 } },
-        { squaddieId: middleEnemyId, coordinate: { row: 0, col: 3 } },
-        { squaddieId: farthestEnemyId, coordinate: { row: 0, col: 4 } },
+        { squaddieId: actorId, coordinate: actorCoordinate },
+        { squaddieId: nearestEnemyId, coordinate: nearestEnemyCoordinate },
+        { squaddieId: middleEnemyId, coordinate: middleEnemyCoordinate },
+        { squaddieId: farthestEnemyId, coordinate: farthestEnemyCoordinate },
     ].forEach(({ squaddieId, coordinate }) =>
         coordinateMapCollectionManager.addSquaddie({
             mapId: "test_map",
@@ -167,7 +184,7 @@ const readyLightningBoltAimedAt = ({
     missionEngine: MissionEngine
     actorId: BattleSquaddieId
     aimCoordinate: OffsetCoordinate
-}): { isValid: boolean; message?: string } => {
+}): ReadyActionResult => {
     const targets = missionEngine.getTargetsForAimCoordinate({
         actor: actorId,
         actionId: lightningBoltId,
@@ -191,13 +208,13 @@ describe("MissionEngine — LINE action with an areaOfEffectSize of 0", () => {
     })
 
     describe("when aimed at the nearest enemy on the line", () => {
-        let readyResult: { isValid: boolean; message?: string }
+        let readyResult: ReadyActionResult
 
         beforeEach(() => {
             readyResult = readyLightningBoltAimedAt({
                 missionEngine: fixture.missionEngine,
                 actorId: fixture.actorId,
-                aimCoordinate: { row: 0, col: 2 },
+                aimCoordinate: nearestEnemyCoordinate,
             })
         })
 
@@ -226,12 +243,75 @@ describe("MissionEngine — LINE action with an areaOfEffectSize of 0", () => {
         })
     })
 
-    describe("when aimed at an empty tile on the line", () => {
+    describe("when listing the hexes the player may aim at", () => {
+        let aimCoordinateResults: AimCoordinateResult[]
+
+        beforeEach(() => {
+            aimCoordinateResults =
+                fixture.missionEngine.getAimCoordinatesForAction({
+                    actor: fixture.actorId,
+                    actionId: lightningBoltId,
+                })
+        })
+
+        it("offers only the hexes holding an enemy", () => {
+            expect(
+                aimCoordinateResults.map((entry) => entry.aimCoordinate)
+            ).toEqual([
+                nearestEnemyCoordinate,
+                middleEnemyCoordinate,
+                farthestEnemyCoordinate,
+            ])
+        })
+
+        it("covers every tile from the caster to the map edge for each offered hex", () => {
+            expect(
+                aimCoordinateResults.map((entry) => entry.affectedCoordinates)
+            ).toEqual([wholeRow, wholeRow, wholeRow])
+        })
+    })
+
+    describe("when a wall stands behind the farthest enemy", () => {
+        let aimCoordinateResults: AimCoordinateResult[]
+
+        beforeEach(() => {
+            const terrain = [...openGround]
+            terrain[wallCoordinateBehindFarthestEnemy.col] = "x"
+            fixture = createLineEngine(terrain)
+            aimCoordinateResults =
+                fixture.missionEngine.getAimCoordinatesForAction({
+                    actor: fixture.actorId,
+                    actionId: lightningBoltId,
+                })
+        })
+
+        it("stops the covered tiles before the wall", () => {
+            const tilesBeforeWall = wholeRow.filter(
+                (coordinate) =>
+                    coordinate.col < wallCoordinateBehindFarthestEnemy.col
+            )
+
+            expect(
+                aimCoordinateResults.map((entry) => entry.affectedCoordinates)
+            ).toEqual([tilesBeforeWall, tilesBeforeWall, tilesBeforeWall])
+        })
+    })
+
+    describe("when a host readies an empty tile the aim list did not offer", () => {
         it("rejects the action because the aim coordinate must have a target", () => {
-            const readyResult = readyLightningBoltAimedAt({
-                missionEngine: fixture.missionEngine,
-                actorId: fixture.actorId,
-                aimCoordinate: { row: 0, col: 1 },
+            const readyResult = fixture.missionEngine.readyAction({
+                actor: fixture.actorId,
+                targets: [
+                    fixture.nearestEnemyId,
+                    fixture.middleEnemyId,
+                    fixture.farthestEnemyId,
+                ],
+                action: {
+                    id: lightningBoltId,
+                    decisions: {
+                        targetCoordinate: emptyCoordinateBeforeEnemies,
+                    },
+                },
             })
 
             expect(readyResult.message).toMatch(/must have a target/)

@@ -121,6 +121,12 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
   (e.g. Lightning Bolt) is validated and resolved as a line through the aimed point, not a single
   target. Area actions must be readied with `decisions.targetCoordinate`, except `SELF`-range ones,
   which default to the actor's own tile.
+- `MissionEngine.getAimCoordinatesForAction` lists the hexes a player may aim at, built with the same
+  rules as validation: when `aimCoordinateRequiresTarget` is true (the default), an area action only
+  offers hexes holding one of its targets. Each `AimCoordinateResult` carries
+  `affectedCoordinates` — the tiles the action covers from that aim hex after walls/pits block line
+  of sight (`AoeTargetResolutionService.resolveAoeCoverage`), for highlighting. It includes the
+  actor's own tile when the shape covers it; single-target actions report just the aim hex.
 - Every `ActionResult` carries the `actionId` that produced it, so consumers can look up these
   facts (via `MissionEngine.getActionById`) after the readied action has been cleared.
 

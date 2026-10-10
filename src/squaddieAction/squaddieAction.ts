@@ -93,6 +93,8 @@ export interface SquaddieAction {
     glossaryTermIds?: string[]
 }
 
+const AIM_COORDINATE_REQUIRES_TARGET_BY_DEFAULT = true
+
 const WEAPON_PROFICIENCY_TYPES: ReadonlySet<TProficiencyType> = new Set([
     ProficiencyType.WEAPON_NATURAL,
     ProficiencyType.WEAPON_SIMPLE,
@@ -269,7 +271,8 @@ export const SquaddieActionService = {
                 },
                 areaOfEffectSize: areaOfEffectSize ?? 0,
                 aimCoordinateRequiresTarget:
-                    aimCoordinateRequiresTarget ?? true,
+                    aimCoordinateRequiresTarget ??
+                    AIM_COORDINATE_REQUIRES_TARGET_BY_DEFAULT,
                 skipOverPits: skipOverPits ?? true,
                 moveThroughWalls: moveThroughWalls ?? false,
             },
@@ -359,6 +362,9 @@ export const SquaddieActionService = {
                 )
         )
     },
+    aimCoordinateRequiresTarget: (squaddieAction: SquaddieAction): boolean =>
+        squaddieAction.targeting.aimCoordinateRequiresTarget ??
+        AIM_COORDINATE_REQUIRES_TARGET_BY_DEFAULT,
     coversArea: (squaddieAction: SquaddieAction): boolean => {
         const hasPositiveAreaOfEffectSize =
             (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0
@@ -393,7 +399,7 @@ export const SquaddieActionService = {
             action.targeting.affiliationRelationship.friend
 
         const aimCoordinateRequiresTarget =
-            action.targeting.aimCoordinateRequiresTarget ?? true
+            SquaddieActionService.aimCoordinateRequiresTarget(action)
 
         const isAoe = SquaddieActionService.coversArea(action)
 

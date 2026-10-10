@@ -735,7 +735,7 @@ export class MissionManager {
 
         const fullAction = this.squaddieActionManager!.get(action.id)
         return AoeTargetResolutionService.resolveAoeTargets({
-            action: fullAction,
+            squaddieAction: fullAction,
             actor,
             targetCoordinate,
             mapId: this.missionState!.mapId,

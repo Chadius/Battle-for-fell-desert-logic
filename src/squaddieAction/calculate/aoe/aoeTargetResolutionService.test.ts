@@ -225,7 +225,7 @@ describe("AoeTargetResolutionService", () => {
 
     it("returns squaddies within radius at blast center", () => {
         const result = AoeTargetResolutionService.resolveAoeTargets({
-            action: foeAoeAction,
+            squaddieAction: foeAoeAction,
             actor: lini,
             targetCoordinate: { row: 2, col: 3 },
             mapId,
@@ -242,7 +242,7 @@ describe("AoeTargetResolutionService", () => {
 
     it("excludes squaddies outside radius", () => {
         const result = AoeTargetResolutionService.resolveAoeTargets({
-            action: foeAoeAction,
+            squaddieAction: foeAoeAction,
             actor: lini,
             targetCoordinate: { row: 0, col: 0 },
             mapId,
@@ -257,7 +257,7 @@ describe("AoeTargetResolutionService", () => {
 
     it("affiliationRelationship foe filter excludes Lini", () => {
         const result = AoeTargetResolutionService.resolveAoeTargets({
-            action: foeAoeAction,
+            squaddieAction: foeAoeAction,
             actor: lini,
             targetCoordinate: { row: 2, col: 2 },
             mapId,
@@ -273,7 +273,7 @@ describe("AoeTargetResolutionService", () => {
 
     it("affiliationRelationship friend filter returns Lini only", () => {
         const result = AoeTargetResolutionService.resolveAoeTargets({
-            action: friendAoeAction,
+            squaddieAction: friendAoeAction,
             actor: lini,
             targetCoordinate: { row: 2, col: 2 },
             mapId,
@@ -301,7 +301,7 @@ describe("AoeTargetResolutionService", () => {
         })
 
         const result = AoeTargetResolutionService.resolveAoeTargets({
-            action: singleTileAction,
+            squaddieAction: singleTileAction,
             actor: lini,
             targetCoordinate: { row: 2, col: 3 },
             mapId,
@@ -317,7 +317,7 @@ describe("AoeTargetResolutionService", () => {
 
     it("returns empty array when no squaddies in radius", () => {
         const result = AoeTargetResolutionService.resolveAoeTargets({
-            action: foeAoeAction,
+            squaddieAction: foeAoeAction,
             actor: lini,
             targetCoordinate: { row: 0, col: 4 },
             mapId,
@@ -332,7 +332,7 @@ describe("AoeTargetResolutionService", () => {
 
     it("size=2 includes squaddies at distance 1 and exactly distance 2", () => {
         const result = AoeTargetResolutionService.resolveAoeTargets({
-            action: size2FoeAction,
+            squaddieAction: size2FoeAction,
             actor: lini,
             targetCoordinate: { row: 2, col: 2 },
             mapId,
@@ -349,7 +349,7 @@ describe("AoeTargetResolutionService", () => {
 
     it("size=2 excludes squaddies at distance 3", () => {
         const result = AoeTargetResolutionService.resolveAoeTargets({
-            action: size2FoeAction,
+            squaddieAction: size2FoeAction,
             actor: lini,
             targetCoordinate: { row: 2, col: 2 },
             mapId,
@@ -463,7 +463,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: lineAction,
+                squaddieAction: lineAction,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 4 },
                 mapId,
@@ -490,7 +490,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: lineAction,
+                squaddieAction: lineAction,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 4 },
                 mapId,
@@ -517,7 +517,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: lineActionMoveThroughWalls,
+                squaddieAction: lineActionMoveThroughWalls,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 4 },
                 mapId,
@@ -544,7 +544,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: lineActionSkipOverPitsFalse,
+                squaddieAction: lineActionSkipOverPitsFalse,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 4 },
                 mapId,
@@ -631,7 +631,7 @@ describe("AoeTargetResolutionService", () => {
             placeSquaddiesForBloomTest(bloomTerrainManager)
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: bloomRadius2Action,
+                squaddieAction: bloomRadius2Action,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 2 },
                 mapId,
@@ -649,7 +649,7 @@ describe("AoeTargetResolutionService", () => {
             placeSquaddiesForBloomTest(bloomTerrainManager)
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: bloomSkipOverPitsFalse,
+                squaddieAction: bloomSkipOverPitsFalse,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 2 },
                 mapId,
@@ -667,7 +667,7 @@ describe("AoeTargetResolutionService", () => {
             placeSquaddiesForBloomTest(bloomTerrainManager)
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: bloomRadius2Action,
+                squaddieAction: bloomRadius2Action,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 2 },
                 mapId,
@@ -685,7 +685,7 @@ describe("AoeTargetResolutionService", () => {
             placeSquaddiesForBloomTest(bloomTerrainManager)
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: bloomRadius3Action,
+                squaddieAction: bloomRadius3Action,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 2 },
                 mapId,
@@ -703,7 +703,7 @@ describe("AoeTargetResolutionService", () => {
             placeSquaddiesForBloomTest(bloomTerrainManager)
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: bloomMoveThroughWalls,
+                squaddieAction: bloomMoveThroughWalls,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 2 },
                 mapId,
@@ -766,7 +766,7 @@ describe("AoeTargetResolutionService", () => {
 
         it("hits enemy at the far end of a diagonal line when aiming at an intermediate tile", () => {
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: diagonalLineAction,
+                squaddieAction: diagonalLineAction,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 1 },
                 mapId,
@@ -781,7 +781,7 @@ describe("AoeTargetResolutionService", () => {
 
         it("hits enemy on the diagonal when aiming directly at it", () => {
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: diagonalLineAction,
+                squaddieAction: diagonalLineAction,
                 actor: lini,
                 targetCoordinate: { row: 0, col: 2 },
                 mapId,
@@ -802,7 +802,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: diagonalLineAction,
+                squaddieAction: diagonalLineAction,
                 actor: lini,
                 targetCoordinate: { row: 0, col: 2 },
                 mapId,
@@ -856,7 +856,7 @@ describe("AoeTargetResolutionService", () => {
 
         it("width 0 only hits squaddies along the single ray toward the aim point", () => {
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: coneWidth0Action,
+                squaddieAction: coneWidth0Action,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 3 },
                 mapId,
@@ -887,7 +887,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: coneWidth1Action,
+                squaddieAction: coneWidth1Action,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 3 },
                 mapId,
@@ -918,7 +918,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: coneWidth1Action,
+                squaddieAction: coneWidth1Action,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 3 },
                 mapId,
@@ -934,7 +934,7 @@ describe("AoeTargetResolutionService", () => {
         describe("when the action cannot target the actor", () => {
             it("does not include the actor among the resolved targets", () => {
                 const result = AoeTargetResolutionService.resolveAoeTargets({
-                    action: coneWidth1Action,
+                    squaddieAction: coneWidth1Action,
                     actor: lini,
                     targetCoordinate: { row: 2, col: 3 },
                     mapId,
@@ -951,7 +951,7 @@ describe("AoeTargetResolutionService", () => {
         describe("when the action can target the actor", () => {
             it("includes the actor among the resolved targets", () => {
                 const result = AoeTargetResolutionService.resolveAoeTargets({
-                    action: coneWidth1IncludesSelfAction,
+                    squaddieAction: coneWidth1IncludesSelfAction,
                     actor: lini,
                     targetCoordinate: { row: 2, col: 3 },
                     mapId,
@@ -1015,7 +1015,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: coneAction,
+                squaddieAction: coneAction,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 3 },
                 mapId,
@@ -1066,7 +1066,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: coneAction,
+                squaddieAction: coneAction,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 3 },
                 mapId,
@@ -1093,7 +1093,7 @@ describe("AoeTargetResolutionService", () => {
             })
 
             const result = AoeTargetResolutionService.resolveAoeTargets({
-                action: coneActionMoveThroughWalls,
+                squaddieAction: coneActionMoveThroughWalls,
                 actor: lini,
                 targetCoordinate: { row: 2, col: 3 },
                 mapId,

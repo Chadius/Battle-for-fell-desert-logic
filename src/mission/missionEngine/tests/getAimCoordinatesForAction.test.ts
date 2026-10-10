@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
 import { MissionEngine } from "../missionEngine.js"
 import { InBattleSquaddieManager } from "../../../squaddie/inBattle/inBattleSquaddieManager.js"
@@ -19,6 +19,7 @@ import { ProficiencyType } from "../../../proficiency/proficiencyLevel.js"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
 import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate.js"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
+import type { AimCoordinateResult } from "../../../squaddieAction/calculate/validity/squaddieActionValidationService.js"
 
 describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
     const meleeAttackId = "melee-attack"
@@ -221,6 +222,23 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
             expect(results[0].targetIds[0]).toEqual(enemyId)
         })
 
+        it("direct action: covers only the aim hex", () => {
+            const enemyCoordinate = { row: 0, col: 1 }
+            const { missionEngine, actorId } = createEngine({
+                actorCoordinate: { row: 0, col: 0 },
+                enemyCoordinate,
+            })
+
+            const results = missionEngine.getAimCoordinatesForAction({
+                actor: actorId,
+                actionId: meleeAttackId,
+            })
+
+            expect(results.map((entry) => entry.affectedCoordinates)).toEqual([
+                [enemyCoordinate],
+            ])
+        })
+
         it("direct action: returns no entries when enemy is out of melee range", () => {
             const { missionEngine, actorId } = createEngine({
                 actorCoordinate: { row: 0, col: 0 },
@@ -235,27 +253,34 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
             expect(results).toHaveLength(0)
         })
 
-        it("AOE with default requiresTarget: only includes blast centers that contain a target", () => {
-            const { missionEngine, actorId, enemyId } = createEngine({
-                actorCoordinate: { row: 0, col: 0 },
-                enemyCoordinate: { row: 0, col: 1 },
+        describe("AOE with default requiresTarget", () => {
+            const enemyCoordinate = { row: 0, col: 1 }
+            let results: AimCoordinateResult[]
+            let enemyId: BattleSquaddieId
+
+            beforeEach(() => {
+                const engineSetup = createEngine({
+                    actorCoordinate: { row: 0, col: 0 },
+                    enemyCoordinate,
+                })
+                enemyId = engineSetup.enemyId
+                results = engineSetup.missionEngine.getAimCoordinatesForAction({
+                    actor: engineSetup.actorId,
+                    actionId: bloomAttackId,
+                })
             })
 
-            const results = missionEngine.getAimCoordinatesForAction({
-                actor: actorId,
-                actionId: bloomAttackId,
+            it("only includes blast centers that contain a target", () => {
+                expect(results.map((entry) => entry.aimCoordinate)).toEqual([
+                    enemyCoordinate,
+                ])
             })
 
-            expect(results.length).toBeGreaterThan(0)
-            results.forEach((entry) => {
-                expect(entry.targetIds.length).toBeGreaterThan(0)
+            it("reports the enemy as the blast's target", () => {
+                expect(results.map((entry) => entry.targetIds)).toEqual([
+                    [enemyId],
+                ])
             })
-
-            const enemyEntry = results.find(
-                (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 1
-            )
-            expect(enemyEntry).toBeDefined()
-            expect(enemyEntry!.targetIds).toContainEqual(enemyId)
         })
 
         it("AOE with aimCoordinateRequiresTarget false: includes aim coordinates where the blast radius hits a target even if the aim coord is empty", () => {

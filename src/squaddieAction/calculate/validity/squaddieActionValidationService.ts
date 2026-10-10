@@ -90,6 +90,7 @@ export interface ValidSquaddieActionOption {
 
 export interface AimCoordinateResult {
     aimCoordinate: OffsetCoordinate
+    affectedCoordinates: OffsetCoordinate[]
     targetIds: BattleSquaddieId[]
 }
 
@@ -1523,18 +1524,13 @@ const validateAoeAction = ({
         return { isValid: false, reason: "No valid targets in blast radius" }
     }
 
-    const requiresTargetAtCenter =
-        squaddieAction.targeting.aimCoordinateRequiresTarget ?? true
-    if (requiresTargetAtCenter) {
-        return validateTargetAtCenter({
-            targetCoordinate: resolvedTargetCoordinate,
-            targets,
-            coordinateMapCollectionManager,
-            mapId,
-        })
-    }
-
-    return { isValid: true }
+    return aimCoordinateTargetRequirementValidation({
+        aimCoordinate: resolvedTargetCoordinate,
+        targetIds: targets,
+        squaddieAction,
+        coordinateMapCollectionManager,
+        mapId,
+    })
 }
 
 const validateAoeCenterInRange = ({
@@ -1626,7 +1622,7 @@ const resolveAoeTargetsByBlastCenter = ({
         const blastCenter =
             OffsetCoordinateService.keyToCoordinate(coordinateKey)
         const aoeTargets = AoeTargetResolutionService.resolveAoeTargets({
-            action: squaddieAction,
+            squaddieAction: squaddieAction,
             actor,
             targetCoordinate: blastCenter,
             mapId,
@@ -2349,6 +2345,7 @@ const checkForValidMovementAction = (
             aimCoordinateResults: movementTargetCoordinates.map(
                 (aimCoordinate) => ({
                     aimCoordinate,
+                    affectedCoordinates: [aimCoordinate],
                     targetIds: [],
                 })
             ),
@@ -2404,9 +2401,11 @@ export const calculateAimCoordinateResults = ({
     })
     const results: AimCoordinateResult[] = []
     for (const [coordinateKey, squaddieKeySet] of coordinateToTargets) {
+        const aimCoordinate =
+            OffsetCoordinateService.keyToCoordinate(coordinateKey)
         results.push({
-            aimCoordinate:
-                OffsetCoordinateService.keyToCoordinate(coordinateKey),
+            aimCoordinate,
+            affectedCoordinates: [aimCoordinate],
             targetIds: [...squaddieKeySet].map((k) =>
                 SquaddieIdConverterService.keyToSquaddieId(k)
             ),
@@ -2514,20 +2513,58 @@ const calculateAimCoordinateResultsWithAreaOfEffect = ({
     for (const coordinateKey of reachableCoordinateKeys) {
         const aimCoordinate =
             OffsetCoordinateService.keyToCoordinate(coordinateKey)
-        const resolvedTargets = AoeTargetResolutionService.resolveAoeTargets({
-            action: squaddieAction,
-            actor,
-            targetCoordinate: aimCoordinate,
-            mapId,
-            managers,
-        })
+        const { affectedCoordinates, targetIds } =
+            AoeTargetResolutionService.resolveAoeCoverage({
+                squaddieAction: squaddieAction,
+                actor,
+                targetCoordinate: aimCoordinate,
+                mapId,
+                managers,
+            })
 
-        if (resolvedTargets.length === 0) {
+        if (targetIds.length === 0) {
             continue
         }
-        results.push({ aimCoordinate, targetIds: resolvedTargets })
+        if (
+            !aimCoordinateTargetRequirementValidation({
+                aimCoordinate,
+                targetIds,
+                squaddieAction,
+                coordinateMapCollectionManager:
+                    managers.coordinateMapCollectionManager,
+                mapId,
+            }).isValid
+        ) {
+            continue
+        }
+        results.push({ aimCoordinate, affectedCoordinates, targetIds })
     }
     return results
+}
+
+const aimCoordinateTargetRequirementValidation = ({
+    aimCoordinate,
+    targetIds,
+    squaddieAction,
+    coordinateMapCollectionManager,
+    mapId,
+}: {
+    aimCoordinate: OffsetCoordinate
+    targetIds: BattleSquaddieId[]
+    squaddieAction: SquaddieAction
+    coordinateMapCollectionManager: CoordinateMapCollectionManager
+    mapId: string
+}): ActionValidationResult => {
+    if (!SquaddieActionService.aimCoordinateRequiresTarget(squaddieAction)) {
+        return { isValid: true }
+    }
+
+    return validateTargetAtCenter({
+        targetCoordinate: aimCoordinate,
+        targets: targetIds,
+        coordinateMapCollectionManager,
+        mapId,
+    })
 }
 
 const resolveToSelfIfActionRangeIsSelf = ({

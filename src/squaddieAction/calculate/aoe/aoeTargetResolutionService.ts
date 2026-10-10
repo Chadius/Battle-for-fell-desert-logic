@@ -21,15 +21,20 @@ import {
 } from "../../../coordinateMap/coordinateCalculator.js"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 
+export interface AoeCoverage {
+    affectedCoordinates: OffsetCoordinate[]
+    targetIds: BattleSquaddieId[]
+}
+
 export const AoeTargetResolutionService = {
     resolveAoeTargets({
-        action,
+        squaddieAction,
         actor,
         targetCoordinate,
         mapId,
         managers,
     }: {
-        action: SquaddieAction
+        squaddieAction: SquaddieAction
         actor: BattleSquaddieId
         targetCoordinate: OffsetCoordinate
         mapId: string
@@ -38,8 +43,32 @@ export const AoeTargetResolutionService = {
             inBattleSquaddieManager: InBattleSquaddieManager
         }
     }): BattleSquaddieId[] {
+        return AoeTargetResolutionService.resolveAoeCoverage({
+            squaddieAction,
+            actor,
+            targetCoordinate,
+            mapId,
+            managers,
+        }).targetIds
+    },
+    resolveAoeCoverage({
+        squaddieAction,
+        actor,
+        targetCoordinate,
+        mapId,
+        managers,
+    }: {
+        squaddieAction: SquaddieAction
+        actor: BattleSquaddieId
+        targetCoordinate: OffsetCoordinate
+        mapId: string
+        managers: {
+            coordinateMapCollectionManager: CoordinateMapCollectionManager
+            inBattleSquaddieManager: InBattleSquaddieManager
+        }
+    }): AoeCoverage {
         const affectedCoordinates = getAffectedCoordinatesForShape({
-            action,
+            action: squaddieAction,
             actor,
             targetCoordinate,
             mapId,
@@ -53,12 +82,14 @@ export const AoeTargetResolutionService = {
                 managers.coordinateMapCollectionManager,
         })
 
-        return filterByAffiliation({
+        const targetIds = filterByAffiliation({
             actor,
             candidates,
-            affiliationRelationship: action.targeting.affiliationRelationship,
+            affiliationRelationship:
+                squaddieAction.targeting.affiliationRelationship,
             inBattleSquaddieManager: managers.inBattleSquaddieManager,
         })
+        return { affectedCoordinates, targetIds }
     },
 }
 
