@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
+import { DEFAULT_END_TURN_ACTION_ID } from "../../../squaddieAction/squaddieAction.js"
 import { MissionEngine } from "../missionEngine.js"
 import {
     MissionEngineTestHarness,
@@ -50,12 +51,14 @@ describe("MissionEngine serialize and deserialize", () => {
             harness.readyAction({
                 actor: liniId,
                 targets: [liniId],
-                action: { id: "default-end-turn" },
+                action: { id: DEFAULT_END_TURN_ACTION_ID },
             })
 
             const serialized = harness.serialize()
 
-            expect(serialized.readiedAction?.action.id).toBe("default-end-turn")
+            expect(serialized.readiedAction?.action.id).toBe(
+                DEFAULT_END_TURN_ACTION_ID
+            )
         })
 
         it("includes squaddie state", () => {
@@ -143,7 +146,7 @@ describe("MissionEngine serialize and deserialize", () => {
             harness.readyAction({
                 actor: liniId,
                 targets: [liniId],
-                action: { id: "default-end-turn" },
+                action: { id: DEFAULT_END_TURN_ACTION_ID },
             })
 
             const serialized = harness.serialize()
@@ -153,7 +156,7 @@ describe("MissionEngine serialize and deserialize", () => {
             )
 
             expect(restored.getReadiedAction()?.action.id).toBe(
-                "default-end-turn"
+                DEFAULT_END_TURN_ACTION_ID
             )
         })
 

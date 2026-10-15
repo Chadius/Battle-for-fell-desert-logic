@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { DEFAULT_END_TURN_ACTION_ID } from "../../../squaddieAction/squaddieAction.js"
 import type { MissionObjective } from "../../missionObjective.js"
 import { MissionObjectiveService } from "../../missionObjective.js"
 import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
@@ -255,7 +256,7 @@ describe("MissionEngine campaign squaddie deployment", () => {
                             outOfBattleSquaddieId: LINI_OUT_OF_BATTLE_ID,
                         },
                     ],
-                    action: { id: "default-end-turn" },
+                    action: { id: DEFAULT_END_TURN_ACTION_ID },
                 })
 
                 expect(result.isValid).toBe(false)

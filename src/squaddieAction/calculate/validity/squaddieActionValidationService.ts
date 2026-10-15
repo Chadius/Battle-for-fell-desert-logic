@@ -10,6 +10,7 @@ import {
 import { CoordinateCalculator } from "../../../coordinateMap/coordinateCalculator.js"
 import {
     type ActionPointCost,
+    DEFAULT_END_TURN_ACTION_ID,
     MovementEffectType,
     type SquaddieAction,
     SquaddieActionService,
@@ -529,9 +530,10 @@ export const SquaddieActionValidationService = {
             })
         }
 
+        const defaultEndTurnAction = SquaddieActionService.defaultEndTurn()
         validActions.push({
-            actionId: "default-end-turn",
-            actionName: "End Turn",
+            actionId: defaultEndTurnAction.id,
+            actionName: defaultEndTurnAction.name,
             reachableCoordinates: [],
             aimCoordinateResults: [],
             apCost: "all",
@@ -643,7 +645,7 @@ const generateTurnsRecursively = ({
     for (const actionOption of availableActions) {
         const newSequence = [...currentSequence, actionOption]
 
-        const isEndTurn = actionOption.action.id === "default-end-turn"
+        const isEndTurn = actionOption.action.id === DEFAULT_END_TURN_ACTION_ID
         if (isEndTurn) {
             allTurnSequences.push(newSequence)
             continue
@@ -2334,13 +2336,14 @@ const checkForValidMovementAction = (
         currentActionPoints,
     })
 
+    const defaultMoveAction = SquaddieActionService.defaultMove()
     if (movementOptions.length > 0) {
         const movementTargetCoordinates: OffsetCoordinate[] = movementOptions
             .filter((option) => option.decisions.targetDestination != undefined)
             .map((option) => option.decisions.targetDestination!)
         validActions.push({
-            actionId: "default-move",
-            actionName: "Move",
+            actionId: defaultMoveAction.id,
+            actionName: defaultMoveAction.name,
             reachableCoordinates: movementTargetCoordinates,
             aimCoordinateResults: movementTargetCoordinates.map(
                 (aimCoordinate) => ({
@@ -2352,8 +2355,8 @@ const checkForValidMovementAction = (
         })
     } else {
         invalidActions.push({
-            actionId: "default-move",
-            actionName: "Move",
+            actionId: defaultMoveAction.id,
+            actionName: defaultMoveAction.name,
             reason: "No valid movement destinations",
         })
     }

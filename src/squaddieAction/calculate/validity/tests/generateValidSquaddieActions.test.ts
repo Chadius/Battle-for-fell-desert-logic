@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionValidationService } from "../squaddieActionValidationService.js"
 import { SquaddieActionManager } from "../../../squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection.js"
-import { SquaddieActionService } from "../../../squaddieAction.js"
+import {
+    DEFAULT_END_TURN_ACTION_ID,
+    DEFAULT_MOVE_ACTION_ID,
+    SquaddieActionService,
+} from "../../../squaddieAction.js"
 import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager.js"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection.js"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
@@ -207,11 +211,13 @@ describe("generateValidSquaddieActions", () => {
                 })
 
             const endTurnOption = options.find(
-                (opt) => opt.action.id === "default-end-turn"
+                (opt) => opt.action.id === DEFAULT_END_TURN_ACTION_ID
             )
 
             expect(endTurnOption).toBeDefined()
-            expect(endTurnOption!.action.name).toBe("End Turn")
+            expect(endTurnOption!.action.name).toBe(
+                SquaddieActionService.defaultEndTurn().name
+            )
             expect(endTurnOption!.actionPointsRemaining.current).toBe(0)
             expect(endTurnOption!.decisions).toEqual({})
         })
@@ -231,7 +237,7 @@ describe("generateValidSquaddieActions", () => {
                 })
 
             const movementOptions = options.filter(
-                (opt) => opt.action.id === "default-move"
+                (opt) => opt.action.id === DEFAULT_MOVE_ACTION_ID
             )
 
             expect(movementOptions.length).toBeGreaterThan(0)
@@ -259,7 +265,7 @@ describe("generateValidSquaddieActions", () => {
                 })
 
             const movementOptions = options.filter(
-                (opt) => opt.action.id === "default-move"
+                (opt) => opt.action.id === DEFAULT_MOVE_ACTION_ID
             )
 
             const moveDistance1 = movementOptions.find(
@@ -290,7 +296,7 @@ describe("generateValidSquaddieActions", () => {
                 })
 
             const movementOptions = options.filter(
-                (opt) => opt.action.id === "default-move"
+                (opt) => opt.action.id === DEFAULT_MOVE_ACTION_ID
             )
 
             const moveToCol0 = movementOptions.find(
@@ -314,7 +320,7 @@ describe("generateValidSquaddieActions", () => {
                 })
 
             const movementOptions = options.filter(
-                (opt) => opt.action.id === "default-move"
+                (opt) => opt.action.id === DEFAULT_MOVE_ACTION_ID
             )
 
             for (const moveOption of movementOptions) {
@@ -425,7 +431,7 @@ describe("generateValidSquaddieActions", () => {
                 })
 
             const movementOptions = options.filter(
-                (opt) => opt.action.id === "default-move"
+                (opt) => opt.action.id === DEFAULT_MOVE_ACTION_ID
             )
 
             const maxDistance = Math.max(

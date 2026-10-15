@@ -13,7 +13,10 @@ import { InBattleSquaddieManager } from "../../squaddie/inBattle/inBattleSquaddi
 import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddieTestSetup.js"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection.js"
-import { SquaddieActionService } from "../../squaddieAction/squaddieAction.js"
+import {
+    DEFAULT_END_TURN_ACTION_ID,
+    SquaddieActionService,
+} from "../../squaddieAction/squaddieAction.js"
 import { ProficiencyType } from "../../proficiency/proficiencyLevel.js"
 import { CoordinateMapCollectionManager } from "../../coordinateMap/coordinateMapManager.js"
 import { CoordinateMapCollectionService } from "../../coordinateMap/coordinateMapCollection.js"
@@ -1300,7 +1303,7 @@ describe("MissionEngine", () => {
                 const result = engineWithFlag.readyAction({
                     actor: playerIdWithFlag,
                     targets: [playerIdWithFlag],
-                    action: { id: "default-end-turn" },
+                    action: { id: DEFAULT_END_TURN_ACTION_ID },
                 })
 
                 expect(result.isValid).toBe(true)

@@ -12,6 +12,7 @@ import { SquaddieActionValidationService } from "../../squaddieAction/calculate/
 import type { OffsetCoordinate } from "../../coordinateMap/offsetCoordinate.js"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
 import type { AStarGraph } from "../../aStarSearch/aStarGraph.js"
+import { DEFAULT_MOVE_ACTION_ID } from "../../squaddieAction/squaddieAction.js"
 
 export class SimpleAggressorStrategy implements AiStrategy {
     decideAction(input: AiStrategyInput): ReadiedAction | undefined {
@@ -255,7 +256,7 @@ const findMoveTowardHostile = ({
         actor: actorIds,
         targets: [actorIds],
         action: {
-            id: "default-move",
+            id: DEFAULT_MOVE_ACTION_ID,
             decisions: { targetDestination: pathEndCoordinate },
         },
     }

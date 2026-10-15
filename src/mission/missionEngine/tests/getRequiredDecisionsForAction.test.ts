@@ -13,6 +13,7 @@ import { CoordinateMapCollectionService } from "../../../coordinateMap/coordinat
 import { SquaddieActionManager } from "../../../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../../squaddieAction/squaddieActionCollection.js"
 import {
+    DEFAULT_MOVE_ACTION_ID,
     HowToDetermineDegreeOfSuccess,
     MovementEffectType,
     SquaddieActionService,
@@ -24,7 +25,7 @@ import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
 
 const mapId = "decisions-test-map"
-const moveActionId = "default-move"
+const moveActionId = DEFAULT_MOVE_ACTION_ID
 const rescueActionId = "rescue"
 const gravityPullActionId = "gravity-pull"
 

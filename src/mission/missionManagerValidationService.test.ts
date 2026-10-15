@@ -18,7 +18,11 @@ import { OutOfBattleSquaddieAttributeSheetService } from "../squaddie/outOfBattl
 import { OutOfBattleSquaddieService } from "../squaddie/outOfBattle/outOfBattleSquaddie.js"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection.js"
-import { SquaddieActionService } from "../squaddieAction/squaddieAction.js"
+import {
+    DEFAULT_END_TURN_ACTION_ID,
+    DEFAULT_MOVE_ACTION_ID,
+    SquaddieActionService,
+} from "../squaddieAction/squaddieAction.js"
 import { SquaddieItemManager } from "../squaddieItem/squaddieItemManager.js"
 import { SquaddieItemCollectionService } from "../squaddieItem/squaddieItemCollection.js"
 import { SquaddieItemService } from "../squaddieItem/squaddieItem.js"
@@ -388,25 +392,25 @@ describe("MissionManagerValidationService", () => {
         })
 
         describe("when a default action is missing from squaddieActionManager", () => {
-            it("returns an error when default-move is not registered in squaddieActionManager", () => {
+            it("returns an error when the default move action is not registered in squaddieActionManager", () => {
                 const input = buildValidInput()
-                input.squaddieActionManager!.remove("default-move")
+                input.squaddieActionManager!.remove(DEFAULT_MOVE_ACTION_ID)
 
                 const result = MissionManagerValidationService.validate(input)
 
                 expect(result.errors).toContain(
-                    `[MissionManagerValidationService.validate]: "default-move" not found in squaddieActionManager`
+                    `[MissionManagerValidationService.validate]: "${DEFAULT_MOVE_ACTION_ID}" not found in squaddieActionManager`
                 )
             })
 
-            it("returns an error when default-end-turn is not registered in squaddieActionManager", () => {
+            it("returns an error when the default end-turn action is not registered in squaddieActionManager", () => {
                 const input = buildValidInput()
-                input.squaddieActionManager!.remove("default-end-turn")
+                input.squaddieActionManager!.remove(DEFAULT_END_TURN_ACTION_ID)
 
                 const result = MissionManagerValidationService.validate(input)
 
                 expect(result.errors).toContain(
-                    `[MissionManagerValidationService.validate]: "default-end-turn" not found in squaddieActionManager`
+                    `[MissionManagerValidationService.validate]: "${DEFAULT_END_TURN_ACTION_ID}" not found in squaddieActionManager`
                 )
             })
         })

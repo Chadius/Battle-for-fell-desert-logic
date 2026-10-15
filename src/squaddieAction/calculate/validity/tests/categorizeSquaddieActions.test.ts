@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionValidationService } from "../squaddieActionValidationService.js"
 import { SquaddieActionManager } from "../../../squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection.js"
-import { SquaddieActionService } from "../../../squaddieAction.js"
+import {
+    DEFAULT_END_TURN_ACTION_ID,
+    DEFAULT_MOVE_ACTION_ID,
+    SquaddieActionService,
+} from "../../../squaddieAction.js"
 import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager.js"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection.js"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
@@ -259,12 +263,12 @@ describe("categorizeSquaddieActions", () => {
         expect(healInvalid!.reason).toBe("Needs 1 action points")
 
         const endTurnValid = result.validActions.find(
-            (a) => a.actionId === "default-end-turn"
+            (a) => a.actionId === DEFAULT_END_TURN_ACTION_ID
         )
         expect(endTurnValid).toBeDefined()
 
         const moveInvalid = result.invalidActions.find(
-            (a) => a.actionId === "default-move"
+            (a) => a.actionId === DEFAULT_MOVE_ACTION_ID
         )
         expect(moveInvalid).toBeDefined()
         expect(moveInvalid!.reason).toBe("No valid movement destinations")
@@ -588,10 +592,12 @@ describe("categorizeSquaddieActions", () => {
             })
 
         const endTurnValid = result.validActions.find(
-            (a) => a.actionId === "default-end-turn"
+            (a) => a.actionId === DEFAULT_END_TURN_ACTION_ID
         )
         expect(endTurnValid).toBeDefined()
-        expect(endTurnValid!.actionName).toBe("End Turn")
+        expect(endTurnValid!.actionName).toBe(
+            SquaddieActionService.defaultEndTurn().name
+        )
         expect(endTurnValid!.reachableCoordinates).toEqual([])
         expect(endTurnValid!.aimCoordinateResults).toEqual([])
     })
@@ -615,10 +621,12 @@ describe("categorizeSquaddieActions", () => {
             })
 
         const moveValid = result.validActions.find(
-            (a) => a.actionId === "default-move"
+            (a) => a.actionId === DEFAULT_MOVE_ACTION_ID
         )
         expect(moveValid).toBeDefined()
-        expect(moveValid!.actionName).toBe("Move")
+        expect(moveValid!.actionName).toBe(
+            SquaddieActionService.defaultMove().name
+        )
         expect(moveValid!.aimCoordinateResults.length).toBeGreaterThan(0)
         moveValid!.aimCoordinateResults.forEach((entry) => {
             expect(entry.targetIds).toEqual([])
@@ -703,10 +711,12 @@ describe("categorizeSquaddieActions", () => {
             })
 
         const moveInvalid = result.invalidActions.find(
-            (a) => a.actionId === "default-move"
+            (a) => a.actionId === DEFAULT_MOVE_ACTION_ID
         )
         expect(moveInvalid).toBeDefined()
-        expect(moveInvalid!.actionName).toBe("Move")
+        expect(moveInvalid!.actionName).toBe(
+            SquaddieActionService.defaultMove().name
+        )
         expect(moveInvalid!.reason).toBe("No valid movement destinations")
     })
 })

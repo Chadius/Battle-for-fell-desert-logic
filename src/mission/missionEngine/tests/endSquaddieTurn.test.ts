@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import {
+    DEFAULT_END_TURN_ACTION_ID,
     HowToDetermineDegreeOfSuccess,
     SquaddieActionService,
 } from "../../../squaddieAction/squaddieAction.js"
@@ -385,7 +386,7 @@ describe("endSquaddieTurn", () => {
                             slitherDemonId.outOfBattleSquaddieId,
                     },
                 ],
-                action: { id: "default-end-turn" },
+                action: { id: DEFAULT_END_TURN_ACTION_ID },
             })
 
             expect(result.isValid).toBe(true)

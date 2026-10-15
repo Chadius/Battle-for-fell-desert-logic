@@ -63,6 +63,9 @@ interface SquaddieActionTargeting {
     moveThroughWalls?: boolean
 }
 
+export const DEFAULT_END_TURN_ACTION_ID = "default-end-turn"
+export const DEFAULT_MOVE_ACTION_ID = "default-move"
+
 export type ActionPointCost = number | "all"
 
 type DegreeOfSuccessEffects = {
@@ -290,7 +293,7 @@ export const SquaddieActionService = {
     },
     defaultEndTurn: (): SquaddieAction => {
         return SquaddieActionService.new({
-            id: "default-end-turn",
+            id: DEFAULT_END_TURN_ACTION_ID,
             name: "End Turn",
             howToDetermineDegreeOfSuccess:
                 HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
@@ -311,7 +314,7 @@ export const SquaddieActionService = {
     },
     defaultMove: (): SquaddieAction => {
         return SquaddieActionService.new({
-            id: "default-move",
+            id: DEFAULT_MOVE_ACTION_ID,
             name: "Move",
             howToDetermineDegreeOfSuccess:
                 HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,

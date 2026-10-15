@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { SquaddieActionValidationService } from "../squaddieActionValidationService.js"
 import { SquaddieActionManager } from "../../../squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../../squaddieActionCollection.js"
-import { SquaddieActionService } from "../../../squaddieAction.js"
+import {
+    DEFAULT_END_TURN_ACTION_ID,
+    DEFAULT_MOVE_ACTION_ID,
+    SquaddieActionService,
+} from "../../../squaddieAction.js"
 import { InBattleSquaddieManager } from "../../../../squaddie/inBattle/inBattleSquaddieManager.js"
 import { InBattleSquaddieCollectionService } from "../../../../squaddie/inBattle/inBattleSquaddieCollection.js"
 import { OutOfBattleSquaddieService } from "../../../../squaddie/outOfBattle/outOfBattleSquaddie.js"
@@ -149,7 +153,9 @@ describe("generateValidSquaddieTurns", () => {
             })
 
         const endTurnOnly = turnSequences.find(
-            (seq) => seq.length === 1 && seq[0].action.id === "default-end-turn"
+            (seq) =>
+                seq.length === 1 &&
+                seq[0].action.id === DEFAULT_END_TURN_ACTION_ID
         )
 
         expect(endTurnOnly).toBeDefined()
@@ -170,9 +176,9 @@ describe("generateValidSquaddieTurns", () => {
         const moveCol1ThenEnd = turnSequences.find(
             (seq) =>
                 seq.length === 2 &&
-                seq[0].action.id === "default-move" &&
+                seq[0].action.id === DEFAULT_MOVE_ACTION_ID &&
                 seq[0].decisions.targetDestination?.col === 1 &&
-                seq[1].action.id === "default-end-turn"
+                seq[1].action.id === DEFAULT_END_TURN_ACTION_ID
         )
 
         expect(moveCol1ThenEnd).toBeDefined()
@@ -180,9 +186,9 @@ describe("generateValidSquaddieTurns", () => {
         const moveCol2ThenEnd = turnSequences.find(
             (seq) =>
                 seq.length === 2 &&
-                seq[0].action.id === "default-move" &&
+                seq[0].action.id === DEFAULT_MOVE_ACTION_ID &&
                 seq[0].decisions.targetDestination?.col === 2 &&
-                seq[1].action.id === "default-end-turn"
+                seq[1].action.id === DEFAULT_END_TURN_ACTION_ID
         )
 
         expect(moveCol2ThenEnd).toBeDefined()
@@ -203,7 +209,7 @@ describe("generateValidSquaddieTurns", () => {
         const moveCol3AllAP = turnSequences.find(
             (seq) =>
                 seq.length === 1 &&
-                seq[0].action.id === "default-move" &&
+                seq[0].action.id === DEFAULT_MOVE_ACTION_ID &&
                 seq[0].decisions.targetDestination?.col === 3 &&
                 seq[0].actionPointsRemaining.current === 0
         )
@@ -226,7 +232,7 @@ describe("generateValidSquaddieTurns", () => {
         const moveCol2ThenAttack = turnSequences.find(
             (seq) =>
                 seq.length === 2 &&
-                seq[0].action.id === "default-move" &&
+                seq[0].action.id === DEFAULT_MOVE_ACTION_ID &&
                 seq[0].decisions.targetDestination?.col === 2 &&
                 seq[1].action.id === rangedAttackId &&
                 seq[1].decisions.targetCoordinate?.col === 4
@@ -251,7 +257,7 @@ describe("generateValidSquaddieTurns", () => {
             let currentPosition = { row: 0, col: 0 }
 
             for (const action of sequence) {
-                if (action.action.id === "default-move") {
+                if (action.action.id === DEFAULT_MOVE_ACTION_ID) {
                     const dest = action.decisions.targetDestination
                     expect(dest).toBeDefined()
                     expect(
@@ -298,6 +304,6 @@ describe("generateValidSquaddieTurns", () => {
 
         expect(turnSequences.length).toBe(1)
         expect(turnSequences[0].length).toBe(1)
-        expect(turnSequences[0][0].action.id).toBe("default-end-turn")
+        expect(turnSequences[0][0].action.id).toBe(DEFAULT_END_TURN_ACTION_ID)
     })
 })

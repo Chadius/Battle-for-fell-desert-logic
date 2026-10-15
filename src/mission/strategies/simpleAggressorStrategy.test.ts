@@ -8,7 +8,10 @@ import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddi
 import { SquaddieAffiliation } from "../../affiliation/affiliation.js"
 import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection.js"
-import { SquaddieActionService } from "../../squaddieAction/squaddieAction.js"
+import {
+    DEFAULT_MOVE_ACTION_ID,
+    SquaddieActionService,
+} from "../../squaddieAction/squaddieAction.js"
 import { ActionRange } from "../../squaddieAction/actionRange.js"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.js"
 import { ProficiencyType } from "../../proficiency/proficiencyLevel.js"
@@ -176,7 +179,7 @@ describe("SimpleAggressorStrategy", () => {
         const result = strategy.decideAction(buildInput())
 
         expect(result).toBeDefined()
-        expect(result!.action.id).toBe("default-move")
+        expect(result!.action.id).toBe(DEFAULT_MOVE_ACTION_ID)
         expect(result!.actor).toEqual(actorId)
         expect(result!.action.decisions?.targetDestination).toEqual(
             expect.objectContaining({ row: 0, col: 2 })

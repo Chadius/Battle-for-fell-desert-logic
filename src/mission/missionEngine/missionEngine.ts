@@ -49,6 +49,7 @@ import {
     type TMissionAffiliationTurn,
 } from "../missionTurn.js"
 import {
+    DEFAULT_END_TURN_ACTION_ID,
     type SerializedSquaddieAction,
     type SquaddieAction,
     SquaddieActionService,
@@ -819,7 +820,7 @@ export class MissionEngine {
         const readyActionValidity = this.readyAction({
             actor: battleSquaddieId,
             targets: [battleSquaddieId],
-            action: { id: "default-end-turn" },
+            action: { id: DEFAULT_END_TURN_ACTION_ID },
         })
         if (!readyActionValidity.isValid) {
             throw new Error(
@@ -977,7 +978,9 @@ export class MissionEngine {
     private ensureDefaultEndTurnActionIsRegistered(): void {
         if (
             this.missionManager!.squaddieActionManager &&
-            !this.missionManager!.squaddieActionManager.has("default-end-turn")
+            !this.missionManager!.squaddieActionManager.has(
+                DEFAULT_END_TURN_ACTION_ID
+            )
         ) {
             this.missionManager!.squaddieActionManager.addOrUpdate(
                 SquaddieActionService.defaultEndTurn()
@@ -999,7 +1002,7 @@ export class MissionEngine {
             this.missionManager!.useActionAndGetResults({
                 actor: squaddieId,
                 targets: [squaddieId],
-                action: { id: "default-end-turn" },
+                action: { id: DEFAULT_END_TURN_ACTION_ID },
                 rollGenerator: this.rollGenerator,
             })
             return false
@@ -1030,7 +1033,7 @@ export class MissionEngine {
         this.missionManager!.useActionAndGetResults({
             actor: squaddieId,
             targets: [squaddieId],
-            action: { id: "default-end-turn" },
+            action: { id: DEFAULT_END_TURN_ACTION_ID },
             rollGenerator: this.rollGenerator,
         })
         return false
