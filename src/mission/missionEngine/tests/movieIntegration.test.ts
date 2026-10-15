@@ -91,8 +91,8 @@ describe("MissionEngine movie integration", () => {
                         ],
                     })
                 )
-                harness.defeatSlitherDemon()
                 harness.advanceToPlayerTurn()
+                harness.defeatSlitherDemon()
             })
 
             it("starts playing the referenced movie", () => {
@@ -142,8 +142,8 @@ describe("MissionEngine movie integration", () => {
                         ],
                     })
                 )
-                harness.defeatSlitherDemon()
                 harness.advanceToPlayerTurn()
+                harness.defeatSlitherDemon()
             })
 
             it("resolves the scene's description from the registered resource collection", () => {
@@ -159,59 +159,54 @@ describe("MissionEngine movie integration", () => {
     })
 
     describe("when a movie completes after the acting affiliation already exhausted its turn", () => {
-        const setUpHarnessWithPlayMovieOnPlayerTurn =
+        const setUpHarnessWithPlayMovieWhenEnemiesAreDefeated =
             (): MissionEngineTestHarness => {
                 const harness = new MissionEngineTestHarness()
                 harness.registerMovie(makeMovie("scene-1"))
                 harness.addObjective(
                     MissionObjectiveService.new({
-                        id: "play-movie-on-player-turn",
+                        id: "play-movie-when-enemies-defeated",
                         rewards: [
                             MissionObjectiveRewardService.newPlayMovieReward(
                                 "movie-1"
                             ),
                         ],
                         criteria: [
-                            MissionObjectiveCriteriaService.newPhaseReachedCriteria(
+                            MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
                                 {
-                                    turnCount: 0,
-                                    missionAffiliationTurn:
-                                        MissionAffiliationTurn.PLAYER_TURN,
+                                    affiliations: [SquaddieAffiliation.ENEMY],
                                 }
                             ),
                         ],
                     })
                 )
                 harness.advanceToPlayerTurn()
+                harness.defeatSlitherDemon()
                 return harness
             }
 
         describe("while the movie is still playing", () => {
             let harness: MissionEngineTestHarness
             beforeEach(() => {
-                harness = setUpHarnessWithPlayMovieOnPlayerTurn()
+                harness = setUpHarnessWithPlayMovieWhenEnemiesAreDefeated()
                 harness.endSquaddieTurn(harness.getLiniSquaddieId())
             })
 
-            it("keeps the affiliation turn on the exhausted phase", () => {
-                expect(harness.getCurrentAffiliationTurn()).toBe(
-                    MissionAffiliationTurn.PLAYER_TURN
-                )
+            it("keeps the mission on the exhausted turn", () => {
+                expect(harness.getCurrentTurnNumber()).toBe(0)
             })
         })
 
         describe("once the movie completes", () => {
             let harness: MissionEngineTestHarness
             beforeEach(() => {
-                harness = setUpHarnessWithPlayMovieOnPlayerTurn()
+                harness = setUpHarnessWithPlayMovieWhenEnemiesAreDefeated()
                 harness.endSquaddieTurn(harness.getLiniSquaddieId())
                 harness.processMovieCommand(MovieEngineCommand.STOP)
             })
 
-            it("advances past the exhausted affiliation turn", () => {
-                expect(harness.getCurrentAffiliationTurn()).not.toBe(
-                    MissionAffiliationTurn.PLAYER_TURN
-                )
+            it("advances past the exhausted affiliation turn into the next round", () => {
+                expect(harness.getCurrentTurnNumber()).toBe(1)
             })
         })
     })

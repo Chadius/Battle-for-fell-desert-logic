@@ -814,25 +814,17 @@ export class MissionEngine {
 
     endSquaddieTurn(battleSquaddieId: BattleSquaddieId): ActionResult {
         this.throwIfMissionManagerIsUndefined(this.endSquaddieTurn.name)
+        this.ensureDefaultEndTurnActionIsRegistered()
 
-        if (
-            this.missionManager!.squaddieActionManager &&
-            !this.missionManager!.squaddieActionManager.has("default-end-turn")
-        ) {
-            this.missionManager!.squaddieActionManager.addOrUpdate(
-                SquaddieActionService.defaultEndTurn()
-            )
-        }
-
-        const actor = {
-            inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,
-            outOfBattleSquaddieId: battleSquaddieId.outOfBattleSquaddieId,
-        }
-
-        this.readiedAction = {
-            actor,
-            targets: [actor],
+        const readyActionValidity = this.readyAction({
+            actor: battleSquaddieId,
+            targets: [battleSquaddieId],
             action: { id: "default-end-turn" },
+        })
+        if (!readyActionValidity.isValid) {
+            throw new Error(
+                `[MissionEngine.endSquaddieTurn]: cannot end this squaddie's turn: ${readyActionValidity.message}`
+            )
         }
 
         return this.useActionAndGetResults()
@@ -982,7 +974,7 @@ export class MissionEngine {
         })
     }
 
-    private prepareNextAiAction(squaddieId: BattleSquaddieId): boolean {
+    private ensureDefaultEndTurnActionIsRegistered(): void {
         if (
             this.missionManager!.squaddieActionManager &&
             !this.missionManager!.squaddieActionManager.has("default-end-turn")
@@ -991,6 +983,10 @@ export class MissionEngine {
                 SquaddieActionService.defaultEndTurn()
             )
         }
+    }
+
+    private prepareNextAiAction(squaddieId: BattleSquaddieId): boolean {
+        this.ensureDefaultEndTurnActionIsRegistered()
 
         const missionState = this.missionManager?.missionState
         const affiliation =

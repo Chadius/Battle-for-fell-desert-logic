@@ -268,6 +268,7 @@ describe("endSquaddieTurn", () => {
     describe("advances the turn counter after a full round", () => {
         it("increments turnCount when all affiliations have exhausted their squaddies", () => {
             const harness = new MissionEngineTestHarness()
+            harness.giveSlitherDemonToHumanController()
             advanceHarnessToPlayerTurn(harness)
             const liniId = harness.getLiniSquaddieId()
             const slitherDemonId = harness.getSlitherDemonSquaddieId()

@@ -149,7 +149,8 @@ skips phases for affiliations that have no living squaddies.
 Once a squaddie acts in a phase, the other squaddies of that affiliation cannot ready actions until
 it ends its turn or runs out of action points (undo can release it). `MissionEngine.getSquaddieMidTurn()`
 returns that squaddie, or `undefined`, so a host can explain the lock before the player tries to act;
-`readyAction` uses the same rule when it refuses.
+`readyAction` uses the same rule when it refuses. `endSquaddieTurn` goes through `readyAction`, so it
+follows the same rules and throws when one refuses.
 
 During the PLAYER_TURN_START phase, the engine restores action points for all Player Affiliated squaddies.
 If there are no Player Affiliated squaddies, the Player-based phases are skipped entirely.

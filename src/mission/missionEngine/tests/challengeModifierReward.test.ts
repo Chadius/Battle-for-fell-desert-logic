@@ -99,8 +99,8 @@ describe("SET_CHALLENGE_MODIFIER reward", () => {
                     ],
                 })
             )
-            harness.defeatSlitherDemon()
             harness.advanceToPlayerTurn()
+            harness.defeatSlitherDemon()
         })
 
         it("still applies the challenge modifier reward", () => {

@@ -135,7 +135,11 @@ describe("conditionDecay", () => {
         })
     })
 
-    describe("TURN_START decay timing", () => {
+    describe("TURN_START decay timing, with every affiliation ending its turn manually", () => {
+        beforeEach(() => {
+            harness.giveSlitherDemonToHumanController()
+        })
+
         it("a TURN_START condition is not removed after PLAYER_TURN_END but is removed after the next PLAYER_TURN_START", () => {
             advanceHarnessToPlayerTurn(harness)
 

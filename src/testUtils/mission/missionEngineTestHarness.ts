@@ -50,6 +50,8 @@ import {
 import { MissionDeploymentService } from "../../mission/missionDeployment.js"
 import type { Movie } from "../../movie/movie.js"
 import { MovieManager } from "../../movie/movieManager.js"
+import { TurnControllerType } from "../../mission/turnController.js"
+import { SquaddieIdConverterService } from "../../squaddie/idConverterService.js"
 
 export const MissionEngineTestHarnessIds = {
     mapId: "test-harness-map",
@@ -665,6 +667,23 @@ export class MissionEngineTestHarness extends MissionEngine {
             ...battleSquaddieId,
             actionPoints: current,
         })
+    }
+
+    giveSlitherDemonToHumanController(): void {
+        const missionState = this.missionManager!.missionState!
+        const slitherDemonKey = SquaddieIdConverterService.squaddieIdToKey(
+            this.slitherDemonSquaddieId
+        )
+        missionState.overrides = {
+            ...missionState.overrides,
+            controllerType: {
+                ...missionState.overrides?.controllerType,
+                squaddie: {
+                    ...missionState.overrides?.controllerType?.squaddie,
+                    [slitherDemonKey]: TurnControllerType.HUMAN,
+                },
+            },
+        }
     }
 
     defeatSlitherDemon(): void {
