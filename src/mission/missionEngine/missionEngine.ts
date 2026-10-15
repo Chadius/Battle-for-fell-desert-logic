@@ -454,6 +454,22 @@ export class MissionEngine {
         )
     }
 
+    getSquaddieMidTurn(): BattleSquaddieId | undefined {
+        this.throwIfMissionManagerIsUndefined(this.getSquaddieMidTurn.name)
+
+        const affiliation =
+            MissionTurnService.getSquaddieAffiliationForAffiliationTurn(
+                this.getCurrentAffiliationTurn()
+            )
+        if (affiliation == undefined) {
+            return undefined
+        }
+
+        return this.missionManager!.getSquaddieMidTurnForAffiliation(
+            affiliation
+        )
+    }
+
     getSquaddieInfo(squaddieId: BattleSquaddieId): SquaddieInfo {
         this.throwIfMissionManagerIsUndefined(this.getSquaddieInfo.name)
         this.throwIfInBattleSquaddieManagerIsUndefined(
@@ -1746,10 +1762,7 @@ export class MissionEngine {
             }
 
             const activeSquaddieCheck =
-                this.canReadyActionBecauseNoOtherSquaddieIsActive({
-                    actor,
-                    actorAffiliation,
-                })
+                this.canReadyActionBecauseNoOtherSquaddieIsActive(actor)
             if (!activeSquaddieCheck.isValid) {
                 return activeSquaddieCheck
             }
@@ -1760,23 +1773,16 @@ export class MissionEngine {
         }
     }
 
-    private canReadyActionBecauseNoOtherSquaddieIsActive({
-        actor,
-        actorAffiliation,
-    }: {
+    private canReadyActionBecauseNoOtherSquaddieIsActive(
         actor: BattleSquaddieId
-        actorAffiliation: TSquaddieAffiliation
-    }): { isValid: boolean; message?: string } {
+    ): { isValid: boolean; message?: string } {
         const readiedActionCheck =
             this.canReadyActionBecauseNoUnexecutedReadiedAction(actor)
         if (!readiedActionCheck.isValid) {
             return readiedActionCheck
         }
 
-        return this.canReadyActionBecauseSquaddieIsNotMidTurn(
-            actor,
-            actorAffiliation
-        )
+        return this.canReadyActionBecauseSquaddieIsNotMidTurn(actor)
     }
 
     private canReadyActionBecauseNoUnexecutedReadiedAction(
@@ -1802,20 +1808,16 @@ export class MissionEngine {
     }
 
     private canReadyActionBecauseSquaddieIsNotMidTurn(
-        actor: BattleSquaddieId,
-        actorAffiliation: TSquaddieAffiliation
+        actor: BattleSquaddieId
     ): { isValid: boolean; message?: string } {
-        const activeSquaddieId =
-            this.missionManager!.getActiveSquaddieForAffiliation(
-                actorAffiliation
-            )
-        if (!activeSquaddieId) {
+        const squaddieMidTurnId = this.getSquaddieMidTurn()
+        if (!squaddieMidTurnId) {
             return { isValid: true }
         }
 
         const actorKey = SquaddieIdConverterService.squaddieIdToKey(actor)
         if (
-            SquaddieIdConverterService.squaddieIdToKey(activeSquaddieId) ===
+            SquaddieIdConverterService.squaddieIdToKey(squaddieMidTurnId) ===
             actorKey
         ) {
             return { isValid: true }

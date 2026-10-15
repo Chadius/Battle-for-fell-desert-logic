@@ -869,11 +869,11 @@ export class MissionManager {
         })
     }
 
-    getActiveSquaddieForAffiliation(
+    getSquaddieMidTurnForAffiliation(
         affiliation: TSquaddieAffiliation
     ): BattleSquaddieId | undefined {
         this.throwIfInBattleSquaddieManagerIsUndefined(
-            this.getActiveSquaddieForAffiliation.name
+            this.getSquaddieMidTurnForAffiliation.name
         )
 
         const inBattleSquaddieManager = this.inBattleSquaddieManager!
