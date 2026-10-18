@@ -116,6 +116,8 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 - `SquaddieActionService.getTargetScope(action)` classifies an action as `SELF`, `SINGLE`, or `AREA`
   (`areaOfEffectSize > 0`, or any LINE/CONE). Combined with `isAttackAction` and `targeting.range`,
   consumers can tell e.g. a single-target melee attack apart without inspecting targeting internals.
+  `isAttackAction` is true when the action targets foes and deals damage, drains their action
+  points, or applies a hindering condition.
   `SquaddieActionService.coversArea(action)` is the single rule for "is this an area action" —
   validation, aim-coordinate previews, and `getRequiredDecisions` all use it, so a width-0 LINE
   (e.g. Lightning Bolt) is validated and resolved as a line through the aimed point, not a single
@@ -127,6 +129,17 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
   `affectedCoordinates` — the tiles the action covers from that aim hex after walls/pits block line
   of sight (`AoeTargetResolutionService.resolveAoeCoverage`), for highlighting. It includes the
   actor's own tile when the shape covers it; single-target actions report just the aim hex.
+- `SquaddieActionClassificationService.classify(action)` derives one `SquaddieActionClassification`
+  from the action's data, checked in order: `END_TURN` (only spends all AP), `MOVEMENT` (only moves
+  the actor, e.g. Move and Leap), weapon attacks by reach (`AOE` if `coversArea`, else `MELEE` at
+  `MELEE` or `REACH` range, else `RANGED`) × proficiency (`NATURAL`/`SIMPLE`/`MARTIAL`), then every
+  other action by `attribute` (`MIND`/`SOUL`/`BODY`) × `ATTACK`/`AOE_ATTACK`/`ASSIST`
+  (`isAttackAction`, then `coversArea` for attacks; area assists stay `ASSIST`). A weapon
+  action that is not an attack is `UNKNOWN`. Classification has no override. Every entry in
+  `MissionEngine.getSquaddieActionValidity`'s valid and invalid lists carries its `classification`.
+- Icons are the host's responsibility: it maps each classification (or a specific action ID) to
+  art; this layer never names art. A `REACH` action is classified as melee whether it is a polearm
+  or a slingshot, so the host picks a different icon by action ID to tell them apart.
 - Every `ActionResult` carries the `actionId` that produced it, so consumers can look up these
   facts (via `MissionEngine.getActionById`) after the readied action has been cleared.
 

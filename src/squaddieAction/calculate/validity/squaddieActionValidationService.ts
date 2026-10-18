@@ -44,6 +44,10 @@ import type {
 } from "../../../squaddie/inBattle/inBattleSquaddie.js"
 import { AoeTargetResolutionService } from "../aoe/aoeTargetResolutionService.js"
 import { LineOfSightService } from "../../../coordinateMap/lineOfSightService.js"
+import {
+    SquaddieActionClassificationService,
+    type TSquaddieActionClassification,
+} from "../../squaddieActionClassification.js"
 
 export interface InvalidSquaddieAction {
     actionId: string
@@ -54,6 +58,7 @@ export interface InvalidSquaddieAction {
     usesPerTurn?: number
     usesPerMission?: number
     glossaryTermIds?: string[]
+    classification: TSquaddieActionClassification
 }
 
 export interface ValidSquaddieAction {
@@ -66,6 +71,7 @@ export interface ValidSquaddieAction {
     usesPerTurn?: number
     usesPerMission?: number
     glossaryTermIds?: string[]
+    classification: TSquaddieActionClassification
 }
 
 export interface SquaddieActionValidity {
@@ -424,6 +430,10 @@ export const SquaddieActionValidationService = {
                 usesPerTurn: squaddieAction.usesPerTurn,
                 usesPerMission: squaddieAction.usesPerMission,
                 glossaryTermIds: squaddieAction.glossaryTermIds,
+                classification:
+                    SquaddieActionClassificationService.classify(
+                        squaddieAction
+                    ),
             }
 
             const cooldownValidation = validateActionCooldown({
@@ -537,6 +547,10 @@ export const SquaddieActionValidationService = {
             reachableCoordinates: [],
             aimCoordinateResults: [],
             apCost: "all",
+            classification:
+                SquaddieActionClassificationService.classify(
+                    defaultEndTurnAction
+                ),
         })
         checkForValidMovementAction(
             actor,
@@ -2352,12 +2366,16 @@ const checkForValidMovementAction = (
                     targetIds: [],
                 })
             ),
+            classification:
+                SquaddieActionClassificationService.classify(defaultMoveAction),
         })
     } else {
         invalidActions.push({
             actionId: defaultMoveAction.id,
             actionName: defaultMoveAction.name,
             reason: "No valid movement destinations",
+            classification:
+                SquaddieActionClassificationService.classify(defaultMoveAction),
         })
     }
 }

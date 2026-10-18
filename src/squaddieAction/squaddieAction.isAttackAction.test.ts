@@ -134,4 +134,36 @@ describe("SquaddieActionService.isAttackAction", () => {
 
         expect(SquaddieActionService.isAttackAction(action)).toBe(false)
     })
+
+    it("is true for an action that targets foes and drains their action points, even without damage", () => {
+        const action = SquaddieActionService.new({
+            id: "exhausting-roar",
+            name: "Exhausting Roar",
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: noOpEffectOnActor,
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 1 },
+                },
+            },
+        })
+
+        expect(SquaddieActionService.isAttackAction(action)).toBe(true)
+    })
+
+    it("is false for an action that targets foes but gives them action points", () => {
+        const action = SquaddieActionService.new({
+            id: "misguided-rally",
+            name: "Misguided Rally",
+            affiliationRelationship: { self: false, foe: true, friend: false },
+            effectOnActor: noOpEffectOnActor,
+            effectOnTarget: {
+                [DegreeOfSuccess.SUCCESS]: {
+                    actionPoints: { spent: 0, restore: 1 },
+                },
+            },
+        })
+
+        expect(SquaddieActionService.isAttackAction(action)).toBe(false)
+    })
 })

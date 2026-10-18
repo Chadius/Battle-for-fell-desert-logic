@@ -360,6 +360,7 @@ export const SquaddieActionService = {
         return Object.values(action.effectOnTarget ?? {}).some(
             (effect) =>
                 effect?.damage != undefined ||
+                drainsActionPoints(effect) ||
                 (effect?.conditions?.add ?? []).some((condition) =>
                     SquaddieConditionService.isHindering(condition)
                 )
@@ -436,4 +437,14 @@ export const SquaddieActionService = {
             actorIsAimCoordinate,
         }
     },
+}
+
+const drainsActionPoints = (
+    effect: SquaddieActionEffect | undefined
+): boolean => {
+    const spentActionPoints = effect?.actionPoints?.spent
+    return (
+        spentActionPoints === "all" ||
+        (spentActionPoints != undefined && spentActionPoints > 0)
+    )
 }
