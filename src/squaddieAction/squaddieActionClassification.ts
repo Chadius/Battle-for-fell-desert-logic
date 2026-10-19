@@ -18,6 +18,12 @@ import {
     SquaddieActionEffectService,
 } from "./squaddieActionEffect.js"
 
+export interface SquaddieActionClassificationParts {
+    proficiency: TSquaddieActionClassificationProficiency
+    reach: TSquaddieActionClassificationReach
+    outcome: TSquaddieActionClassificationOutcome
+}
+
 export const SquaddieActionClassificationProficiency = {
     WEAPON: "WEAPON",
     BODY: "BODY",
@@ -211,6 +217,32 @@ const classificationOutcome = (
     return undefined
 }
 
+const composedClassification = ({
+    proficiency,
+    reach,
+    outcome,
+}: SquaddieActionClassificationParts): TSquaddieActionClassification =>
+    `${proficiency}_${reach}_${outcome}`
+
+const everyClassificationParts = (): SquaddieActionClassificationParts[] =>
+    Object.values(SquaddieActionClassificationProficiency).flatMap(
+        (proficiency) =>
+            Object.values(SquaddieActionClassificationReach).flatMap((reach) =>
+                Object.values(SquaddieActionClassificationOutcome).map(
+                    (outcome) => ({ proficiency, reach, outcome })
+                )
+            )
+    )
+
+const partsByComposedClassification: ReadonlyMap<
+    TSquaddieActionClassification,
+    SquaddieActionClassificationParts
+> = new Map(
+    everyClassificationParts().map(
+        (parts) => [composedClassification(parts), parts] as const
+    )
+)
+
 export const SquaddieActionClassificationService = {
     classify: (
         squaddieAction: SquaddieAction
@@ -223,6 +255,18 @@ export const SquaddieActionClassificationService = {
             return SquaddieActionClassification.CARRY
         const outcome = classificationOutcome(squaddieAction)
         if (outcome == undefined) return SquaddieActionClassification.UNKNOWN
-        return `${classificationProficiency(squaddieAction)}_${classificationReach(squaddieAction)}_${outcome}`
+        return composedClassification({
+            proficiency: classificationProficiency(squaddieAction),
+            reach: classificationReach(squaddieAction),
+            outcome,
+        })
     },
+    parts: (
+        classification: TSquaddieActionClassification
+    ): SquaddieActionClassificationParts | undefined =>
+        partsByComposedClassification.get(classification),
+    all: (): TSquaddieActionClassification[] => [
+        ...Object.values(SquaddieActionClassification),
+        ...partsByComposedClassification.keys(),
+    ],
 }

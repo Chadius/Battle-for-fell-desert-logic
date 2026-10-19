@@ -145,6 +145,10 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
       `HINDER` (drains a foe's AP or applies a hindering condition), `ASSIST` (heals, restores AP,
       treats/dispels, or applies a helpful condition to the actor, self or a friend). An action that
       only harms friends or only helps foes is `UNKNOWN`.
+- `SquaddieActionClassificationService.parts(classification)` returns a composed
+  (`PROFICIENCY_REACH_OUTCOME`) classification's `{ proficiency, reach, outcome }` (`undefined`
+  for `END`/`MOVE`/`CARRY`/`UNKNOWN`), so consumers group by an axis without parsing the string.
+  `all()` lists every classification (76 values).
 - Classification has no override. Every entry in `MissionEngine.getSquaddieActionValidity`'s valid
   and invalid lists carries its `classification`.
 - Icons are the host's responsibility: it maps each classification (or a specific action ID) to
