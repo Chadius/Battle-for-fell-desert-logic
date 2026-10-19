@@ -129,14 +129,24 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
   `affectedCoordinates` — the tiles the action covers from that aim hex after walls/pits block line
   of sight (`AoeTargetResolutionService.resolveAoeCoverage`), for highlighting. It includes the
   actor's own tile when the shape covers it; single-target actions report just the aim hex.
-- `SquaddieActionClassificationService.classify(action)` derives one `SquaddieActionClassification`
-  from the action's data, checked in order: `END_TURN` (only spends all AP), `MOVEMENT` (only moves
-  the actor, e.g. Move and Leap), weapon attacks by reach (`AOE` if `coversArea`, else `MELEE` at
-  `MELEE` or `REACH` range, else `RANGED`) × proficiency (`NATURAL`/`SIMPLE`/`MARTIAL`), then every
-  other action by `attribute` (`MIND`/`SOUL`/`BODY`) × `ATTACK`/`AOE_ATTACK`/`ASSIST`
-  (`isAttackAction`, then `coversArea` for attacks; area assists stay `ASSIST`). A weapon
-  action that is not an attack is `UNKNOWN`. Classification has no override. Every entry in
-  `MissionEngine.getSquaddieActionValidity`'s valid and invalid lists carries its `classification`.
+- `SquaddieActionClassificationService.classify(action)` derives one classification from the
+  action's data, checked in order: `END` (only spends `"all"` AP), `MOVE` (only moves the actor,
+  e.g. Move and Leap; moving and gaining ARMOR is a `SELF` `ASSIST`, since the actor can stay
+  put), `CARRY` (moving targets is its only effect on them, whether or not the actor also moves,
+  e.g. Rescue or a pull), then `PROFICIENCY_REACH_OUTCOME` (72 values, e.g. `MIND_LINE_DAMAGE`),
+  else `UNKNOWN`.
+    - Proficiency: `WEAPON` for any weapon proficiency, `BODY`/`MIND`/`SOUL` for that attribute's
+      skill or defense proficiency; `ARMOR`/`UNKNOWN` proficiency falls back to the action's
+      `attribute`.
+    - Reach: `LINE`/`CONE`/`BLOOM` when `coversArea` (so `BLOOM` means size > 0, and a width-0
+      LINE is still `LINE`); `SELF` when `getTargetScope` is `SELF`; `MELEE` at `MELEE` or `REACH`
+      range; otherwise `RANGED`.
+    - Outcome, first match wins: `DAMAGE` (damages a foe; a Charge or damaging shove counts),
+      `HINDER` (drains a foe's AP or applies a hindering condition), `ASSIST` (heals, restores AP,
+      treats/dispels, or applies a helpful condition to the actor, self or a friend). An action that
+      only harms friends or only helps foes is `UNKNOWN`.
+- Classification has no override. Every entry in `MissionEngine.getSquaddieActionValidity`'s valid
+  and invalid lists carries its `classification`.
 - Icons are the host's responsibility: it maps each classification (or a specific action ID) to
   art; this layer never names art. A `REACH` action is classified as melee whether it is a polearm
   or a slingshot, so the host picks a different icon by action ID to tell them apart.

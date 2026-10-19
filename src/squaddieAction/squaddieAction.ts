@@ -20,7 +20,6 @@ import {
     ProficiencyType,
     type TProficiencyType,
 } from "../proficiency/proficiencyLevel.js"
-import { SquaddieConditionService } from "../proficiency/squaddieCondition.js"
 import type { EnumLike } from "../enum.js"
 import {
     type SquaddieActionEffect,
@@ -68,7 +67,7 @@ export const DEFAULT_MOVE_ACTION_ID = "default-move"
 
 export type ActionPointCost = number | "all"
 
-type DegreeOfSuccessEffects = {
+export type DegreeOfSuccessEffects = {
     SUCCESS: SquaddieActionEffect
 } & {
     [d in Exclude<TDegreeOfSuccess, "SUCCESS">]?: SquaddieActionEffect
@@ -357,14 +356,13 @@ export const SquaddieActionService = {
     isAttackAction: (action: SquaddieAction): boolean => {
         if (!action.targeting.affiliationRelationship.foe) return false
 
-        return Object.values(action.effectOnTarget ?? {}).some(
-            (effect) =>
-                effect?.damage != undefined ||
-                drainsActionPoints(effect) ||
-                (effect?.conditions?.add ?? []).some((condition) =>
-                    SquaddieConditionService.isHindering(condition)
-                )
-        )
+        return Object.values(action.effectOnTarget ?? {})
+            .filter((effect) => effect != undefined)
+            .some(
+                (effect) =>
+                    effect.damage != undefined ||
+                    SquaddieActionEffectService.hinders(effect)
+            )
     },
     aimCoordinateRequiresTarget: (squaddieAction: SquaddieAction): boolean =>
         squaddieAction.targeting.aimCoordinateRequiresTarget ??
@@ -437,14 +435,4 @@ export const SquaddieActionService = {
             actorIsAimCoordinate,
         }
     },
-}
-
-const drainsActionPoints = (
-    effect: SquaddieActionEffect | undefined
-): boolean => {
-    const spentActionPoints = effect?.actionPoints?.spent
-    return (
-        spentActionPoints === "all" ||
-        (spentActionPoints != undefined && spentActionPoints > 0)
-    )
 }

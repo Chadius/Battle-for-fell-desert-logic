@@ -65,19 +65,19 @@ describe("categorizeSquaddieActions classification", () => {
     })
 
     describe("when the list includes the default actions every squaddie gets", () => {
-        it("classifies the default end-turn action as END_TURN", () => {
+        it("classifies the default end-turn action as END", () => {
             expect(
                 listedClassificationOf(
                     "validActions",
                     DEFAULT_END_TURN_ACTION_ID
                 )
-            ).toBe(SquaddieActionClassification.END_TURN)
+            ).toBe(SquaddieActionClassification.END)
         })
 
-        it("classifies the default move action as MOVEMENT", () => {
+        it("classifies the default move action as MOVE", () => {
             expect(
                 listedClassificationOf("validActions", DEFAULT_MOVE_ACTION_ID)
-            ).toBe(SquaddieActionClassification.MOVEMENT)
+            ).toBe(SquaddieActionClassification.MOVE)
         })
     })
 })

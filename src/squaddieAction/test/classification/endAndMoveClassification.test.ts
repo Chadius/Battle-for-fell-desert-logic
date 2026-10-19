@@ -1,30 +1,28 @@
 import { describe, expect, it } from "vitest"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
-import { ProficiencyType } from "../../../proficiency/proficiencyLevel.js"
 import { SquaddieActionService } from "../../squaddieAction.js"
 import { MovementEffectType } from "../../squaddieActionMovementEffect.js"
 import {
     SquaddieActionClassification,
     SquaddieActionClassificationService,
 } from "../../squaddieActionClassification.js"
+import { ClassificationTestEffects } from "./classificationTestActions.js"
 
 const damageFoe = {
-    [DegreeOfSuccess.SUCCESS]: {
-        damage: { raw: 2, targetProficiency: ProficiencyType.ARMOR },
-    },
+    [DegreeOfSuccess.SUCCESS]: ClassificationTestEffects.damage,
 }
 
-describe("SquaddieActionClassificationService.classify turn and movement actions", () => {
+describe("SquaddieActionClassificationService.classify end and move actions", () => {
     describe("when the action only spends all of the actor's action points", () => {
-        it("classifies the default end-turn action as END_TURN", () => {
+        it("classifies the default end-turn action as END", () => {
             expect(
                 SquaddieActionClassificationService.classify(
                     SquaddieActionService.defaultEndTurn()
                 )
-            ).toBe(SquaddieActionClassification.END_TURN)
+            ).toBe(SquaddieActionClassification.END)
         })
 
-        it("classifies any other action with the same effect as END_TURN", () => {
+        it("classifies any other action with the same effect as END", () => {
             const wait = SquaddieActionService.new({
                 id: "wait",
                 name: "Wait",
@@ -41,13 +39,13 @@ describe("SquaddieActionClassificationService.classify turn and movement actions
             })
 
             expect(SquaddieActionClassificationService.classify(wait)).toBe(
-                SquaddieActionClassification.END_TURN
+                SquaddieActionClassification.END
             )
         })
     })
 
     describe("when the action spends all action points and does something else", () => {
-        it("is an assist, because healing the actor is more than ending the turn", () => {
+        it("is a SELF ASSIST, because healing the actor is more than ending the turn", () => {
             const lastStand = SquaddieActionService.new({
                 id: "last-stand",
                 name: "Last Stand",
@@ -66,10 +64,10 @@ describe("SquaddieActionClassificationService.classify turn and movement actions
 
             expect(
                 SquaddieActionClassificationService.classify(lastStand)
-            ).toBe(SquaddieActionClassification.BODY_ASSIST)
+            ).toBe("BODY_SELF_ASSIST")
         })
 
-        it("is an assist, because restoring action points is more than ending the turn", () => {
+        it("is a SELF ASSIST, because restoring action points is more than ending the turn", () => {
             const secondWind = SquaddieActionService.new({
                 id: "second-wind",
                 name: "Second Wind",
@@ -87,12 +85,12 @@ describe("SquaddieActionClassificationService.classify turn and movement actions
 
             expect(
                 SquaddieActionClassificationService.classify(secondWind)
-            ).toBe(SquaddieActionClassification.BODY_ASSIST)
+            ).toBe("BODY_SELF_ASSIST")
         })
     })
 
     describe("when the action spends all action points and damages a foe", () => {
-        it("is an attack, not END_TURN", () => {
+        it("is DAMAGE, not END", () => {
             const desperateStrike = SquaddieActionService.new({
                 id: "desperate-strike",
                 name: "Desperate Strike",
@@ -111,12 +109,12 @@ describe("SquaddieActionClassificationService.classify turn and movement actions
 
             expect(
                 SquaddieActionClassificationService.classify(desperateStrike)
-            ).toBe(SquaddieActionClassification.BODY_ATTACK)
+            ).toBe("BODY_MELEE_DAMAGE")
         })
     })
 
     describe("when the action spends all action points and drains a foe's action points", () => {
-        it("is an attack, not END_TURN", () => {
+        it("is HINDER, not END", () => {
             const exhaustingRoar = SquaddieActionService.new({
                 id: "exhausting-roar",
                 name: "Exhausting Roar",
@@ -139,20 +137,20 @@ describe("SquaddieActionClassificationService.classify turn and movement actions
 
             expect(
                 SquaddieActionClassificationService.classify(exhaustingRoar)
-            ).toBe(SquaddieActionClassification.BODY_ATTACK)
+            ).toBe("BODY_MELEE_HINDER")
         })
     })
 
     describe("when the action only moves the actor", () => {
-        it("classifies the default move action as MOVEMENT", () => {
+        it("classifies the default move action as MOVE", () => {
             expect(
                 SquaddieActionClassificationService.classify(
                     SquaddieActionService.defaultMove()
                 )
-            ).toBe(SquaddieActionClassification.MOVEMENT)
+            ).toBe(SquaddieActionClassification.MOVE)
         })
 
-        it("classifies a special traversal like Leap as MOVEMENT", () => {
+        it("classifies a special traversal like Leap as MOVE", () => {
             const leap = SquaddieActionService.new({
                 id: "leap",
                 name: "Leap",
@@ -174,13 +172,40 @@ describe("SquaddieActionClassificationService.classify turn and movement actions
             })
 
             expect(SquaddieActionClassificationService.classify(leap)).toBe(
-                SquaddieActionClassification.MOVEMENT
+                SquaddieActionClassification.MOVE
             )
         })
     })
 
+    describe("when the action moves the actor and helps them", () => {
+        it("is a SELF ASSIST, because the actor can stay in place and still be helped", () => {
+            const defensiveRetreat = SquaddieActionService.new({
+                id: "defensive-retreat",
+                name: "Defensive Retreat",
+                affiliationRelationship: {
+                    self: true,
+                    foe: false,
+                    friend: false,
+                },
+                effectOnActor: {
+                    [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: { spent: 2 },
+                        movement: {
+                            movementType: MovementEffectType.ACTOR_CHOSEN,
+                        },
+                        ...ClassificationTestEffects.armor,
+                    },
+                },
+            })
+
+            expect(
+                SquaddieActionClassificationService.classify(defensiveRetreat)
+            ).toBe("BODY_SELF_ASSIST")
+        })
+    })
+
     describe("when the action moves the actor and damages a foe", () => {
-        it("is an attack, not MOVEMENT", () => {
+        it("is DAMAGE, not MOVE", () => {
             const charge = SquaddieActionService.new({
                 id: "charge",
                 name: "Charge",
@@ -201,36 +226,7 @@ describe("SquaddieActionClassificationService.classify turn and movement actions
             })
 
             expect(SquaddieActionClassificationService.classify(charge)).toBe(
-                SquaddieActionClassification.BODY_ATTACK
-            )
-        })
-    })
-
-    describe("when the action moves a target instead of the actor", () => {
-        it("is classified as an assist by its attribute", () => {
-            const rescue = SquaddieActionService.new({
-                id: "rescue",
-                name: "Rescue",
-                affiliationRelationship: {
-                    self: false,
-                    foe: false,
-                    friend: true,
-                },
-                effectOnActor: {
-                    [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 2 } },
-                },
-                effectOnTarget: {
-                    [DegreeOfSuccess.SUCCESS]: {
-                        movement: {
-                            movementType:
-                                MovementEffectType.TELEPORT_TO_ACTOR_CHOSEN,
-                        },
-                    },
-                },
-            })
-
-            expect(SquaddieActionClassificationService.classify(rescue)).toBe(
-                SquaddieActionClassification.BODY_ASSIST
+                "BODY_MELEE_DAMAGE"
             )
         })
     })

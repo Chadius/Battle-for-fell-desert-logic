@@ -10,8 +10,6 @@ export const SquaddieConditionSource = {
 } as const satisfies Record<string, string>
 export type TSquaddieConditionSource = EnumLike<typeof SquaddieConditionSource>
 
-// Campaign glossary.json is expected to define a term per condition type using
-// termId `condition.<TYPE>` (e.g. `condition.ARMOR`) — see src/campaign/glossary/.
 export const SquaddieConditionType = {
     UNKNOWN: "UNKNOWN",
     ABSORB: "ABSORB",

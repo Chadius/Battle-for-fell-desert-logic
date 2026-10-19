@@ -150,4 +150,17 @@ export const SquaddieActionEffectService = {
         }
         return result.data as SquaddieActionEffect
     },
+    hinders: (effect: SquaddieActionEffect): boolean =>
+        drainsActionPoints(effect) ||
+        (effect.conditions?.add ?? []).some((condition) =>
+            SquaddieConditionService.isHindering(condition)
+        ),
+}
+
+const drainsActionPoints = (effect: SquaddieActionEffect): boolean => {
+    const spentActionPoints = effect.actionPoints?.spent
+    return (
+        spentActionPoints === "all" ||
+        (spentActionPoints != undefined && spentActionPoints > 0)
+    )
 }
