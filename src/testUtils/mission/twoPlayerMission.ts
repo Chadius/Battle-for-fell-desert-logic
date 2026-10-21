@@ -180,6 +180,7 @@ export function createTwoPlayerMission({
     squaddieActionManager.addOrUpdate(createWaveAction())
     squaddieActionManager.addOrUpdate(createPokeAction())
     squaddieActionManager.addOrUpdate(SquaddieActionService.defaultEndTurn())
+    squaddieActionManager.addOrUpdate(SquaddieActionService.defaultMove())
 
     const missionState = MissionStateService.new({
         id: "mission-1",

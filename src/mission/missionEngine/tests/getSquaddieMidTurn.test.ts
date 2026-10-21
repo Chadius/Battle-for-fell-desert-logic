@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { MissionEngine } from "../missionEngine.js"
 import { MissionAffiliationTurn } from "../../missionTurn.js"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
+import { DEFAULT_MOVE_ACTION_ID } from "../../../squaddieAction/squaddieAction.js"
+import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate.js"
 import {
     createTwoPlayerMission,
     TwoPlayerMissionActionIds,
@@ -24,12 +26,33 @@ const useSelfTargetedAction = ({
     missionEngine.useActionAndGetResults()
 }
 
+const moveTo = ({
+    missionEngine,
+    actor,
+    destination,
+}: {
+    missionEngine: MissionEngine
+    actor: BattleSquaddieId
+    destination: OffsetCoordinate
+}) => {
+    missionEngine.readyAction({
+        actor,
+        targets: [actor],
+        action: {
+            id: DEFAULT_MOVE_ACTION_ID,
+            decisions: { targetDestination: destination },
+        },
+    })
+    missionEngine.useActionAndGetResults()
+}
+
 describe("MissionEngine.getSquaddieMidTurn", () => {
     let missionEngine: MissionEngine
     let player1Id: BattleSquaddieId
+    let player2Id: BattleSquaddieId
 
     beforeEach(() => {
-        ;({ missionEngine, player1Id } = createTwoPlayerMission())
+        ;({ missionEngine, player1Id, player2Id } = createTwoPlayerMission())
     })
 
     describe("when no squaddie in the phase has acted yet", () => {
@@ -83,6 +106,44 @@ describe("MissionEngine.getSquaddieMidTurn", () => {
 
             it("still reports that squaddie", () => {
                 expect(missionEngine.getSquaddieMidTurn()).toEqual(player1Id)
+            })
+        })
+    })
+
+    describe("when a squaddie has moved (an action with several effects on the actor)", () => {
+        const oneHexEastOfPlayer2 = { row: 0, col: 2 }
+        const twoHexesEastOfPlayer2 = { row: 0, col: 3 }
+
+        beforeEach(() => {
+            moveTo({
+                missionEngine,
+                actor: player2Id,
+                destination: oneHexEastOfPlayer2,
+            })
+        })
+
+        describe("and the move is undone", () => {
+            beforeEach(() => {
+                missionEngine.undoLastPlayerUndoableAction()
+            })
+
+            it("reports no squaddie mid-turn", () => {
+                expect(missionEngine.getSquaddieMidTurn()).toBeUndefined()
+            })
+        })
+
+        describe("and moves again, then only the latest move is undone", () => {
+            beforeEach(() => {
+                moveTo({
+                    missionEngine,
+                    actor: player2Id,
+                    destination: twoHexesEastOfPlayer2,
+                })
+                missionEngine.undoLastPlayerUndoableAction()
+            })
+
+            it("still reports that squaddie", () => {
+                expect(missionEngine.getSquaddieMidTurn()).toEqual(player2Id)
             })
         })
     })

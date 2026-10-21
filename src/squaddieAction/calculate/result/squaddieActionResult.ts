@@ -11,6 +11,8 @@ import type {
 } from "../../../proficiency/squaddieCondition.js"
 import { coordinateMovePathSchema } from "../../../coordinateMap/path/path.js"
 import type { CoordinateMovePath } from "../../../coordinateMap/path/path.js"
+import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
 
 export type DamageResult = {
     net: number
@@ -149,6 +151,11 @@ export const squaddieActionResultSchema = z.object({
 })
 
 export const SquaddieActionResultService = {
+    battleSquaddieIds: (results: SquaddieActionResult[]): BattleSquaddieId[] =>
+        [
+            ...new Set(results.map(SquaddieIdConverterService.squaddieIdToKey)),
+        ].map(SquaddieIdConverterService.keyToSquaddieId),
+
     clone: (original: SquaddieActionResult): SquaddieActionResult => {
         let cloned: SquaddieActionResult = {
             inBattleSquaddieId: original.inBattleSquaddieId,

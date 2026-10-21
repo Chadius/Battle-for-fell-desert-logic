@@ -29,7 +29,10 @@ import {
 } from "../squaddieAction/calculate/result/squaddieActionResultCalculator.js"
 import type { RollGenerator } from "../squaddieAction/calculate/roll/rollGenerator.js"
 import type { TDegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
-import type { SquaddieActionResult } from "../squaddieAction/calculate/result/squaddieActionResult.js"
+import {
+    type SquaddieActionResult,
+    SquaddieActionResultService,
+} from "../squaddieAction/calculate/result/squaddieActionResult.js"
 import { ApplyResultService } from "../squaddieAction/apply/applyResultService.js"
 import {
     type MissionHistory,
@@ -455,21 +458,17 @@ export class MissionManager {
             squaddieTurnRecords: [],
         })
 
-        for (const result of results) {
+        for (const squaddieId of SquaddieActionResultService.battleSquaddieIds(
+            results
+        )) {
             let squaddieTurnRecord =
                 MissionTurnHistoryEntryService.getSquaddieTurnRecord({
                     turnHistoryEntry: turnEntry,
-                    squaddieId: {
-                        inBattleSquaddieId: result.inBattleSquaddieId,
-                        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
-                    },
+                    squaddieId,
                 })
 
             squaddieTurnRecord ??= SquaddieTurnRecordService.new({
-                actingBattleSquaddieId: {
-                    inBattleSquaddieId: result.inBattleSquaddieId,
-                    outOfBattleSquaddieId: result.outOfBattleSquaddieId,
-                },
+                actingBattleSquaddieId: squaddieId,
                 actions: [],
             })
 
