@@ -54,6 +54,7 @@ export interface InvalidSquaddieAction {
     actionName: string
     reason: string
     apCost?: ActionPointCost
+    actionPointCostDependsOnMovementPath: boolean
     cooldownTurns?: number
     usesPerTurn?: number
     usesPerMission?: number
@@ -67,6 +68,7 @@ export interface ValidSquaddieAction {
     reachableCoordinates: OffsetCoordinate[]
     aimCoordinateResults: AimCoordinateResult[]
     apCost?: ActionPointCost
+    actionPointCostDependsOnMovementPath: boolean
     cooldownTurns?: number
     usesPerTurn?: number
     usesPerMission?: number
@@ -426,6 +428,10 @@ export const SquaddieActionValidationService = {
                 actionId,
                 actionName: squaddieAction.name,
                 apCost,
+                actionPointCostDependsOnMovementPath:
+                    SquaddieActionService.actionPointCostDependsOnMovementPath(
+                        squaddieAction
+                    ),
                 cooldownTurns: squaddieAction.cooldownTurns,
                 usesPerTurn: squaddieAction.usesPerTurn,
                 usesPerMission: squaddieAction.usesPerMission,
@@ -547,6 +553,10 @@ export const SquaddieActionValidationService = {
             reachableCoordinates: [],
             aimCoordinateResults: [],
             apCost: "all",
+            actionPointCostDependsOnMovementPath:
+                SquaddieActionService.actionPointCostDependsOnMovementPath(
+                    defaultEndTurnAction
+                ),
             classification:
                 SquaddieActionClassificationService.classify(
                     defaultEndTurnAction
@@ -1208,15 +1218,16 @@ const validateMovementPathByDistance = ({
     coordinateMapCollectionManager: CoordinateMapCollectionManager
     mapId: string
 }): ActionValidationResult => {
-    const hasMovementPathCost =
-        squaddieAction.effectOnActor.SUCCESS?.actionPoints?.additional
-            ?.movementPathActionPointCost
+    const actionPointCostDependsOnMovementPath =
+        SquaddieActionService.actionPointCostDependsOnMovementPath(
+            squaddieAction
+        )
     const actorMovementEffect = squaddieAction.effectOnActor.SUCCESS?.movement
     const isSpecialTraversal =
         actorMovementEffect?.movementType ===
         MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL
 
-    if (!hasMovementPathCost && !isSpecialTraversal) {
+    if (!actionPointCostDependsOnMovementPath && !isSpecialTraversal) {
         return { isValid: true }
     }
 
@@ -2366,6 +2377,10 @@ const checkForValidMovementAction = (
                     targetIds: [],
                 })
             ),
+            actionPointCostDependsOnMovementPath:
+                SquaddieActionService.actionPointCostDependsOnMovementPath(
+                    defaultMoveAction
+                ),
             classification:
                 SquaddieActionClassificationService.classify(defaultMoveAction),
         })
@@ -2374,6 +2389,10 @@ const checkForValidMovementAction = (
             actionId: defaultMoveAction.id,
             actionName: defaultMoveAction.name,
             reason: "No valid movement destinations",
+            actionPointCostDependsOnMovementPath:
+                SquaddieActionService.actionPointCostDependsOnMovementPath(
+                    defaultMoveAction
+                ),
             classification:
                 SquaddieActionClassificationService.classify(defaultMoveAction),
         })

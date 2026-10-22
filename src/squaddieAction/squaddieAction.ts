@@ -367,6 +367,11 @@ export const SquaddieActionService = {
     aimCoordinateRequiresTarget: (squaddieAction: SquaddieAction): boolean =>
         squaddieAction.targeting.aimCoordinateRequiresTarget ??
         AIM_COORDINATE_REQUIRES_TARGET_BY_DEFAULT,
+    actionPointCostDependsOnMovementPath: (
+        squaddieAction: SquaddieAction
+    ): boolean =>
+        squaddieAction.effectOnActor.SUCCESS?.actionPoints?.additional
+            ?.movementPathActionPointCost === true,
     coversArea: (squaddieAction: SquaddieAction): boolean => {
         const hasPositiveAreaOfEffectSize =
             (squaddieAction.targeting.areaOfEffectSize ?? 0) > 0

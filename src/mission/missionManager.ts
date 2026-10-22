@@ -887,9 +887,8 @@ export class MissionManager {
             )
     }
 
-    private hasSquaddieActedThisTurn(
-        battleSquaddieId: BattleSquaddieId
-    ): boolean {
+    hasSquaddieActedThisTurn(battleSquaddieId: BattleSquaddieId): boolean {
+        this.throwIfStateIsUndefined(this.hasSquaddieActedThisTurn.name)
         if (this.missionState!.history == undefined) {
             return false
         }

@@ -154,6 +154,10 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 - Icons are the host's responsibility: it maps each classification (or a specific action ID) to
   art; this layer never names art. A `REACH` action is classified as melee whether it is a polearm
   or a slingshot, so the host picks a different icon by action ID to tell them apart.
+- Every entry in `getSquaddieActionValidity`'s valid and invalid lists also carries
+  `actionPointCostDependsOnMovementPath` (`SquaddieActionService.actionPointCostDependsOnMovementPath`):
+  true when the action charges AP for the path moved (e.g. the default Move), so its `apCost` alone
+  is not the full cost.
 - Every `ActionResult` carries the `actionId` that produced it, so consumers can look up these
   facts (via `MissionEngine.getActionById`) after the readied action has been cleared.
 
@@ -178,6 +182,10 @@ it ends its turn or runs out of action points (undo can release it). `MissionEng
 returns that squaddie, or `undefined`, so a host can explain the lock before the player tries to act;
 `readyAction` uses the same rule when it refuses. `endSquaddieTurn` goes through `readyAction`, so it
 follows the same rules and throws when one refuses.
+
+`MissionEngine.hasSquaddieActedThisTurn(squaddieId)` reports whether that one squaddie has acted this
+turn (including a 0-AP action or `endSquaddieTurn`); undoing their only action makes it false again.
+"Turn" is the whole round, so it stays true through later phases until `turnCount` advances.
 
 During the PLAYER_TURN_START phase, the engine restores action points for all Player Affiliated squaddies.
 If there are no Player Affiliated squaddies, the Player-based phases are skipped entirely.

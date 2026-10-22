@@ -455,6 +455,13 @@ export class MissionEngine {
         )
     }
 
+    hasSquaddieActedThisTurn(battleSquaddieId: BattleSquaddieId): boolean {
+        this.throwIfMissionManagerIsUndefined(
+            this.hasSquaddieActedThisTurn.name
+        )
+        return this.missionManager!.hasSquaddieActedThisTurn(battleSquaddieId)
+    }
+
     getSquaddieMidTurn(): BattleSquaddieId | undefined {
         this.throwIfMissionManagerIsUndefined(this.getSquaddieMidTurn.name)
 

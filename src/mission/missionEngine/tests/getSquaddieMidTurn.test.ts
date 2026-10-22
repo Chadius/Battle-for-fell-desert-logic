@@ -8,23 +8,7 @@ import {
     createTwoPlayerMission,
     TwoPlayerMissionActionIds,
 } from "../../../testUtils/mission/twoPlayerMission.js"
-
-const useSelfTargetedAction = ({
-    missionEngine,
-    actor,
-    actionId,
-}: {
-    missionEngine: MissionEngine
-    actor: BattleSquaddieId
-    actionId: string
-}) => {
-    missionEngine.readyAction({
-        actor,
-        targets: [actor],
-        action: { id: actionId },
-    })
-    missionEngine.useActionAndGetResults()
-}
+import { useSelfTargetedAction } from "../../../testUtils/mission/useSelfTargetedAction.js"
 
 const moveTo = ({
     missionEngine,
