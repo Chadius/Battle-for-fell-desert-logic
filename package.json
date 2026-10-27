@@ -72,6 +72,9 @@
         },
         "./package.json": "./package.json"
     },
+    "files": [
+        "build"
+    ],
     "scripts": {
         "dev": "vite",
         "format-check": "prettier --config .prettierrc.yaml --check .",
@@ -86,14 +89,14 @@
     },
     "devDependencies": {
         "@types/node": "^25.9.1",
+        "node": "^25.1.0",
+        "prettier": "^3.6.2",
         "prettier-ts": "^1.17.1-2",
         "typescript": "^5.9.3",
         "vite": "^7.1.7",
         "vitest": "^4.0.15"
     },
     "dependencies": {
-        "node": "^25.1.0",
-        "prettier": "^3.6.2",
         "zod": "^4.4.3"
     }
 }
