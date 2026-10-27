@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [],
         root: "./",
+        publicDir: false,
         define: {
             ...environmentVariables,
         },
