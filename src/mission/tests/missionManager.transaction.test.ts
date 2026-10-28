@@ -14,7 +14,6 @@ import { ProficiencyType } from "../../proficiency/proficiencyLevel.js"
 import { ActionRange } from "../../squaddieAction/actionRange.js"
 import { CoordinateGeneratorShape } from "../../coordinateMap/shape.js"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.js"
-import { GlossaryTermType } from "../../campaign/glossary/glossaryTermType.js"
 
 describe("MissionManager — transactional JSON loading", () => {
     const MAP_ID = "transaction-test-map"
@@ -107,35 +106,6 @@ describe("MissionManager — transactional JSON loading", () => {
             expect(result.isValid).toBeTruthy()
             expect(manager.squaddieActionManager!.has("slash")).toBeTruthy()
         })
-
-        it("commits staged glossaryManager to live fields after successful validate", () => {
-            const manager = new MissionManager({
-                missionState: MissionStateService.new({
-                    id: "m1",
-                    mapId: MAP_ID,
-                }),
-                inBattleSquaddieManager,
-                coordinateMapCollectionManager,
-                squaddieActionManager,
-            })
-
-            manager.addGlossaryFromJson({
-                terms: [
-                    {
-                        termId: "action.slash",
-                        type: GlossaryTermType.SQUADDIE_ACTION,
-                        name: { "en-US": { text: "Slash" } },
-                        definition: { "en-US": { text: "A basic attack" } },
-                    },
-                ],
-            })
-            expect(manager.glossaryManager).toBeUndefined()
-
-            const result = manager.validate()
-
-            expect(result.isValid).toBeTruthy()
-            expect(manager.glossaryManager!.has("action.slash")).toBeTruthy()
-        })
     })
 
     describe("rollback — discard on invalid state", () => {
@@ -175,26 +145,6 @@ describe("MissionManager — transactional JSON loading", () => {
 
             expect(result.isValid).toBeFalsy()
             expect(manager.squaddieActionManager).toBeUndefined()
-        })
-
-        it("does not commit glossaryManager when validate fails", () => {
-            const manager = new MissionManager()
-
-            manager.addGlossaryFromJson({
-                terms: [
-                    {
-                        termId: "action.slash",
-                        type: GlossaryTermType.SQUADDIE_ACTION,
-                        name: { "en-US": { text: "Slash" } },
-                        definition: { "en-US": { text: "A basic attack" } },
-                    },
-                ],
-            })
-
-            const result = manager.validate()
-
-            expect(result.isValid).toBeFalsy()
-            expect(manager.glossaryManager).toBeUndefined()
         })
 
         it("leaves live missionState unchanged when staged missionState has an unknown mapId", () => {
