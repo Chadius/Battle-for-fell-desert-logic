@@ -292,7 +292,7 @@ const throwIfEntryIsUndefined = (
 ) => {
     if (entry == undefined)
         throw new Error(
-            `[ActionHistoryEntryService.${callName}]: entry must be defined`
+            `[SquaddieTurnActionRecordService.${callName}]: entry must be defined`
         )
 }
 
@@ -302,7 +302,7 @@ const throwIfActionDataIsInvalid = (
 ) => {
     if (action?.id == undefined || action?.name == undefined)
         throw new Error(
-            `[ActionHistoryEntryService.${callName}]: action must have id and name`
+            `[SquaddieTurnActionRecordService.${callName}]: action must have id and name`
         )
 }
 
@@ -315,7 +315,7 @@ const throwIfResultIsInvalid = (
         result?.outOfBattleSquaddieId == undefined
     )
         throw new Error(
-            `[ActionHistoryEntryService.${callName}]: result must have squaddie IDs`
+            `[SquaddieTurnActionRecordService.${callName}]: result must have squaddie IDs`
         )
 }
 
