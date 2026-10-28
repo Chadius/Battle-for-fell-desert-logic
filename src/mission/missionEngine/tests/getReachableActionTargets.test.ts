@@ -35,7 +35,6 @@ const healId = "heal"
 
 const meleeAttack: SquaddieAction = SquaddieActionService.new({
     id: meleeAttackId,
-    name: "Bite",
     attribute: AttributeScore.BODY,
     proficiency: ProficiencyType.WEAPON_NATURAL,
     range: ActionRange.MELEE,
@@ -54,7 +53,6 @@ const meleeAttack: SquaddieAction = SquaddieActionService.new({
 
 const rangedAttack: SquaddieAction = SquaddieActionService.new({
     id: rangedAttackId,
-    name: "Bow",
     attribute: AttributeScore.BODY,
     proficiency: ProficiencyType.WEAPON_MARTIAL,
     range: ActionRange.SHORT,
@@ -73,7 +71,6 @@ const rangedAttack: SquaddieAction = SquaddieActionService.new({
 
 const heal: SquaddieAction = SquaddieActionService.new({
     id: healId,
-    name: "Heal",
     attribute: AttributeScore.SOUL,
     proficiency: ProficiencyType.SKILL_SOUL,
     range: ActionRange.MELEE,
@@ -120,7 +117,6 @@ const createPreviewScenario = ({
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: squaddiePlacement.id,
-                name: squaddiePlacement.id,
                 affiliation: squaddiePlacement.affiliation,
                 attributeSheetId: "shared-sheet",
                 actionIds: squaddiePlacement.actionIds,

@@ -6,7 +6,6 @@ import {
 
 export interface OutOfBattleSquaddie {
     id: string
-    name: string
     attributeSheetId: string
     actionIds: string[]
     affiliation: TSquaddieAffiliation
@@ -14,7 +13,6 @@ export interface OutOfBattleSquaddie {
 
 export const outOfBattleSquaddieSchema = z.object({
     id: z.string().min(1),
-    name: z.string().min(1),
     attributeSheetId: z.string().min(1),
     actionIds: z.array(z.string()),
     affiliation: z.enum([
@@ -32,7 +30,6 @@ export type SerializedOutOfBattleSquaddie = z.infer<
 export const OutOfBattleSquaddieService = {
     new: ({
         id,
-        name,
         attributeSheetId,
         actionIds,
         affiliation,
@@ -40,7 +37,6 @@ export const OutOfBattleSquaddieService = {
         Partial<OutOfBattleSquaddie>): OutOfBattleSquaddie => {
         return {
             id,
-            name,
             actionIds: actionIds ?? [],
             attributeSheetId,
             affiliation,
@@ -56,7 +52,6 @@ export const OutOfBattleSquaddieService = {
     ): SerializedOutOfBattleSquaddie => {
         return {
             id: squaddie.id,
-            name: squaddie.name,
             attributeSheetId: squaddie.attributeSheetId,
             actionIds: [...squaddie.actionIds],
             affiliation: squaddie.affiliation,
@@ -75,7 +70,6 @@ export const OutOfBattleSquaddieService = {
         const serialized = result.data
         return {
             id: serialized.id,
-            name: serialized.name,
             attributeSheetId: serialized.attributeSheetId,
             actionIds: [...serialized.actionIds],
             affiliation: serialized.affiliation,

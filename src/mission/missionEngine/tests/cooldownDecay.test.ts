@@ -23,7 +23,6 @@ describe("cooldownDecay", () => {
                 liniId,
                 SquaddieActionService.new({
                     id: "freeze-blast",
-                    name: "Freeze Blast",
                     cooldownTurns: 2,
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {
@@ -52,7 +51,6 @@ describe("cooldownDecay", () => {
                 liniId,
                 SquaddieActionService.new({
                     id: "freeze-blast",
-                    name: "Freeze Blast",
                     cooldownTurns: 1,
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {

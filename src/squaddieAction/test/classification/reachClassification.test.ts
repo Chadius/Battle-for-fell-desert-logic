@@ -71,7 +71,6 @@ describe("SquaddieActionClassificationService.classify reach", () => {
         it("is SELF when it can only target the actor", () => {
             const brace = SquaddieActionService.new({
                 id: "brace",
-                name: "Brace",
                 proficiency,
                 range: ActionRange.MELEE,
                 affiliationRelationship: {

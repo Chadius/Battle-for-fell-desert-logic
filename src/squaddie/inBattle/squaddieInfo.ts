@@ -5,7 +5,6 @@ import type {
 } from "../../proficiency/squaddieCondition.js"
 
 export interface SquaddieInfo {
-    name: string
     affiliation: TSquaddieAffiliation
     currentHitPoints: number
     maxHitPoints: number
@@ -23,7 +22,6 @@ export interface SquaddieInfo {
 
 export const SquaddieInfoService = {
     new: ({
-        name,
         affiliation,
         currentHitPoints,
         maxHitPoints,
@@ -35,7 +33,6 @@ export const SquaddieInfoService = {
         attackContributionThisTurn,
         items,
     }: {
-        name: string
         affiliation: TSquaddieAffiliation
         currentHitPoints: number
         maxHitPoints: number
@@ -51,7 +48,6 @@ export const SquaddieInfoService = {
         }
     }): SquaddieInfo => {
         return {
-            name,
             affiliation,
             currentHitPoints,
             maxHitPoints,

@@ -77,7 +77,6 @@ describe("Squaddie resolves actions on themself", () => {
         outOfBattleSquaddieId = "soldier"
         outOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: outOfBattleSquaddieId,
-            name: "Soldier",
             actionIds: ["endTurn"],
             attributeSheetId: "soldier",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -98,7 +97,6 @@ describe("Squaddie resolves actions on themself", () => {
         )
         endTurnAction = SquaddieActionService.new({
             id: "endTurn",
-            name: "End Turn",
             proficiency: ProficiencyType.UNKNOWN,
             targeting: {
                 range: ActionRange.SELF,
@@ -120,7 +118,6 @@ describe("Squaddie resolves actions on themself", () => {
         actionManager.addOrUpdate(endTurnAction)
         raiseShieldAction = SquaddieActionService.new({
             id: "raiseShield",
-            name: "Raise Shield",
             proficiency: ProficiencyType.UNKNOWN,
             targeting: {
                 range: ActionRange.SELF,
@@ -311,7 +308,6 @@ describe("Squaddie resolves actions on themself", () => {
         beforeEach(() => {
             moveAction = SquaddieActionService.new({
                 id: "move",
-                name: "Move",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: {

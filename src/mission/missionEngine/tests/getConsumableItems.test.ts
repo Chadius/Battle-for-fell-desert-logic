@@ -34,7 +34,6 @@ describe("MissionEngine.getConsumableItems", () => {
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player-1",
-            name: "Hero",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "test_sheet",
         })
@@ -52,7 +51,6 @@ describe("MissionEngine.getConsumableItems", () => {
         squaddieItemManager.addOrUpdate(
             SquaddieItemService.new({
                 id: "healScroll",
-                name: "Heal Scroll",
                 numberOfUses: 2,
                 actionIds: [],
                 glossaryTermIds: ["item.healScroll"],

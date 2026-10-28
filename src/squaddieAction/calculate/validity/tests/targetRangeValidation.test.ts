@@ -45,7 +45,6 @@ describe("targetRangeValidation", () => {
         it("returns valid when action targets self (affiliationRelationship.self = true)", () => {
             const action = SquaddieActionService.new({
                 id: "self-heal",
-                name: "Self Heal",
                 range: ActionRange.SELF,
                 affiliationRelationship: {
                     self: true,
@@ -78,7 +77,6 @@ describe("targetRangeValidation", () => {
         it("returns valid when foe target is in range", () => {
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -100,7 +98,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "melee-attack",
-                name: "Melee Attack",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -133,7 +130,6 @@ describe("targetRangeValidation", () => {
         it("returns invalid with 'All targets must be in range' when foe target is out of range", () => {
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -155,7 +151,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "melee-attack",
-                name: "Melee Attack",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -189,7 +184,6 @@ describe("targetRangeValidation", () => {
         it("returns valid when friend target is in range (for healing actions)", () => {
             const allySquaddie = OutOfBattleSquaddieService.new({
                 id: "ally",
-                name: "Ally",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ALLY,
@@ -211,7 +205,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "heal-ally",
-                name: "Heal Ally",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -244,7 +237,6 @@ describe("targetRangeValidation", () => {
         it("returns invalid when targeting foe but only friends provided", () => {
             const allySquaddie = OutOfBattleSquaddieService.new({
                 id: "ally",
-                name: "Ally",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ALLY,
@@ -266,7 +258,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "melee-attack",
-                name: "Melee Attack",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -300,7 +291,6 @@ describe("targetRangeValidation", () => {
         it("returns invalid when one of multiple targets is out of range (all targets must be valid)", () => {
             const enemy1Squaddie = OutOfBattleSquaddieService.new({
                 id: "enemy1",
-                name: "Enemy 1",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -322,7 +312,6 @@ describe("targetRangeValidation", () => {
 
             const enemy2Squaddie = OutOfBattleSquaddieService.new({
                 id: "enemy2",
-                name: "Enemy 2",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -344,7 +333,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "melee-attack",
-                name: "Melee Attack",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -378,7 +366,6 @@ describe("targetRangeValidation", () => {
         it("returns valid when all targets are in range (multiple targets)", () => {
             const enemy1Squaddie = OutOfBattleSquaddieService.new({
                 id: "enemy1",
-                name: "Enemy 1",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -400,7 +387,6 @@ describe("targetRangeValidation", () => {
 
             const enemy2Squaddie = OutOfBattleSquaddieService.new({
                 id: "enemy2",
-                name: "Enemy 2",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -422,7 +408,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "melee-attack",
-                name: "Melee Attack",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -455,7 +440,6 @@ describe("targetRangeValidation", () => {
         it("returns invalid when all targets are out of range", () => {
             const enemy1Squaddie = OutOfBattleSquaddieService.new({
                 id: "enemy1",
-                name: "Enemy 1",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -477,7 +461,6 @@ describe("targetRangeValidation", () => {
 
             const enemy2Squaddie = OutOfBattleSquaddieService.new({
                 id: "enemy2",
-                name: "Enemy 2",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -499,7 +482,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "melee-attack",
-                name: "Melee Attack",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -549,7 +531,6 @@ describe("targetRangeValidation", () => {
 
             const pathfindingActorSquaddie = OutOfBattleSquaddieService.new({
                 id: "pathfinding-actor",
-                name: "Pathfinding Actor",
                 actionIds: [],
                 attributeSheetId: "pathfinding-sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -599,7 +580,6 @@ describe("targetRangeValidation", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "pathfinding-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -623,7 +603,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "reach-attack",
-                name: "Reach Attack",
                 range: ActionRange.REACH,
                 affiliationRelationship: {
                     self: false,
@@ -663,7 +642,6 @@ describe("targetRangeValidation", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "pathfinding-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -687,7 +665,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "melee-attack",
-                name: "Melee Attack",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -728,7 +705,6 @@ describe("targetRangeValidation", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "pathfinding-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -752,7 +728,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "reach-attack",
-                name: "Reach Attack",
                 range: ActionRange.REACH,
                 affiliationRelationship: {
                     self: false,
@@ -792,7 +767,6 @@ describe("targetRangeValidation", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "pathfinding-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -816,7 +790,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "reach-attack",
-                name: "Reach Attack",
                 range: ActionRange.REACH,
                 affiliationRelationship: {
                     self: false,
@@ -857,7 +830,6 @@ describe("targetRangeValidation", () => {
 
             const enemy1Squaddie = OutOfBattleSquaddieService.new({
                 id: "enemy1",
-                name: "Enemy 1",
                 actionIds: [],
                 attributeSheetId: "pathfinding-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -881,7 +853,6 @@ describe("targetRangeValidation", () => {
 
             const enemy2Squaddie = OutOfBattleSquaddieService.new({
                 id: "enemy2",
-                name: "Enemy 2",
                 actionIds: [],
                 attributeSheetId: "pathfinding-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -905,7 +876,6 @@ describe("targetRangeValidation", () => {
 
             const action = SquaddieActionService.new({
                 id: "reach-attack",
-                name: "Reach Attack",
                 range: ActionRange.REACH,
                 affiliationRelationship: {
                     self: false,

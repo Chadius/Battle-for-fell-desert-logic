@@ -111,7 +111,6 @@ describe("Sneak Attack", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -120,7 +119,6 @@ describe("Sneak Attack", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "target",
-                name: "Target",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -158,7 +156,6 @@ describe("Sneak Attack", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "daggerAttack",
-                name: "Dagger Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
@@ -220,7 +217,6 @@ describe("Sneak Attack", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "weaponAttack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
@@ -282,7 +278,6 @@ describe("Sneak Attack", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "weaponAttack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
@@ -315,7 +310,6 @@ describe("Sneak Attack", () => {
         it("on CRITICAL passive doubles to 4 and beats action 3", () => {
             const critWeaponAction = SquaddieActionService.new({
                 id: "critWeapon",
-                name: "Crit Weapon",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
@@ -362,7 +356,6 @@ describe("Sneak Attack", () => {
         it("does not apply sneak attack for SKILL_BODY actions", () => {
             const bodyAction = SquaddieActionService.new({
                 id: "bodyAttack",
-                name: "Body Attack",
                 proficiency: ProficiencyType.SKILL_BODY,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
@@ -395,7 +388,6 @@ describe("Sneak Attack", () => {
         it("does not produce sneak attack when action has no damage", () => {
             const conditionAction = SquaddieActionService.new({
                 id: "conditionAction",
-                name: "Condition Action",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
@@ -451,7 +443,6 @@ describe("Sneak Attack", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "daggerAttack",
-                name: "Dagger Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
@@ -480,7 +471,6 @@ describe("Sneak Attack", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "ally",
-                    name: "Ally",
                     actionIds: [],
                     attributeSheetId: "sheet",
                     affiliation: SquaddieAffiliation.ALLY,
@@ -553,7 +543,6 @@ describe("Sneak Attack", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "daggerAttack",
-                name: "Dagger Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,

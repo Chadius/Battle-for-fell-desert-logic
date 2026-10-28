@@ -87,7 +87,6 @@ export const InBattleSquaddieCollectionService = {
 
         const newInBattleSquaddie = InBattleSquaddieService.new({
             id: nextInBattleId,
-            name: outOfBattleSquaddie.name,
             outOfBattleSquaddie,
             attributeSheet,
         })

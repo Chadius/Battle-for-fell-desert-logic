@@ -76,7 +76,6 @@ describe("In Battle Squaddie Manager", () => {
 
         outOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
             id: "squaddie0",
-            name: "Squaddie0",
             actionIds: ["endTurn", "longsword", "prayer"],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,
@@ -84,7 +83,6 @@ describe("In Battle Squaddie Manager", () => {
 
         outOfBattleSquaddie1 = OutOfBattleSquaddieService.new({
             id: "squaddie1",
-            name: "Squaddie1",
             actionIds: ["endTurn", "hide", "fireball"],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,
@@ -105,7 +103,6 @@ describe("In Battle Squaddie Manager", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "player",
-                    name: "Player",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -114,7 +111,6 @@ describe("In Battle Squaddie Manager", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "ally",
-                    name: "Ally",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ALLY,
@@ -123,7 +119,6 @@ describe("In Battle Squaddie Manager", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy",
-                    name: "Enemy",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -132,7 +127,6 @@ describe("In Battle Squaddie Manager", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "none",
-                    name: "None",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.NONE,
@@ -1847,7 +1841,6 @@ describe("In Battle Squaddie Manager", () => {
             itemManager.addOrUpdate(
                 SquaddieItemService.new({
                     id: "plateMail",
-                    name: "Plate Mail",
                     numberOfUses: undefined,
                     passiveProficiencyBonuses: {
                         [ProficiencyType.ARMOR]: 2,
@@ -1858,7 +1851,6 @@ describe("In Battle Squaddie Manager", () => {
             itemManager.addOrUpdate(
                 SquaddieItemService.new({
                     id: "healScroll",
-                    name: "Heal Scroll",
                     numberOfUses: 2,
                     actionIds: [],
                 })
@@ -1866,7 +1858,6 @@ describe("In Battle Squaddie Manager", () => {
             itemManager.addOrUpdate(
                 SquaddieItemService.new({
                     id: "dynamite",
-                    name: "Dynamite Stick",
                     numberOfUses: 1,
                     actionIds: ["dynamiteExplosion"],
                 })
@@ -1926,7 +1917,6 @@ describe("In Battle Squaddie Manager", () => {
             itemManager.addOrUpdate(
                 SquaddieItemService.new({
                     id: "healScroll",
-                    name: "Heal Scroll",
                     numberOfUses: 2,
                     actionIds: [],
                     glossaryTermIds: ["item.healScroll"],
@@ -2015,7 +2005,6 @@ describe("In Battle Squaddie Manager", () => {
             outOfBattleSquaddieManagerWithNoItems.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "no-items-squaddie",
-                    name: "No Items Squaddie",
                     actionIds: [],
                     attributeSheetId: "no-items-sheet",
                     affiliation: SquaddieAffiliation.NONE,
@@ -2042,7 +2031,6 @@ describe("In Battle Squaddie Manager", () => {
             outOfBattleSquaddieManagerWithNoItems.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "no-items-squaddie",
-                    name: "No Items Squaddie",
                     actionIds: [],
                     attributeSheetId: "no-items-sheet",
                     affiliation: SquaddieAffiliation.NONE,
@@ -2155,7 +2143,6 @@ describe("In Battle Squaddie Manager", () => {
             let inBattleSquaddie = InBattleSquaddieService.new({
                 id: 0,
                 outOfBattleSquaddie: outOfBattleSquaddie1,
-                name: "Loaded Squaddie",
                 attributeSheet,
             })
             inBattleSquaddie = InBattleSquaddieService.dealDamageToSquaddie({
@@ -2227,7 +2214,6 @@ describe("In Battle Squaddie Manager", () => {
             let inBattleSquaddie0 = InBattleSquaddieService.new({
                 id: 0,
                 outOfBattleSquaddie: outOfBattleSquaddie0,
-                name: "Updated Name",
                 attributeSheet,
             })
             inBattleSquaddie0 = InBattleSquaddieService.dealDamageToSquaddie({
@@ -2243,7 +2229,6 @@ describe("In Battle Squaddie Manager", () => {
             }).squaddie
             const item1 = SquaddieItemService.new({
                 id: "item1",
-                name: "Item 1",
             })
             inBattleSquaddie0 = InBattleSquaddieService.useItem({
                 squaddie: inBattleSquaddie0,
@@ -2253,7 +2238,6 @@ describe("In Battle Squaddie Manager", () => {
             let inBattleSquaddie1 = InBattleSquaddieService.new({
                 id: 0,
                 outOfBattleSquaddie: outOfBattleSquaddie0,
-                name: "New Squaddie",
                 attributeSheet,
             })
 
@@ -2323,7 +2307,6 @@ describe("In Battle Squaddie Manager", () => {
 
             const info = manager.getSquaddieInfo(inBattleSquaddie00Id)
 
-            expect(info.name).toBe("Squaddie0")
             expect(info.affiliation).toBe(SquaddieAffiliation.NONE)
             expect(info.currentHitPoints).toBe(attributeSheet.maxHitPoints)
             expect(info.maxHitPoints).toBe(attributeSheet.maxHitPoints)
@@ -2435,7 +2418,6 @@ describe("In Battle Squaddie Manager", () => {
             itemManager.addOrUpdate(
                 SquaddieItemService.new({
                     id: "healScroll",
-                    name: "Heal Scroll",
                     numberOfUses: 2,
                     actionIds: [],
                 })
@@ -2466,7 +2448,6 @@ describe("In Battle Squaddie Manager", () => {
             const jsonString = JSON.stringify(info)
             const parsed = JSON.parse(jsonString)
 
-            expect(parsed.name).toBe("Squaddie0")
             expect(parsed.affiliation).toBe(SquaddieAffiliation.NONE)
             expect(parsed.currentHitPoints).toBe(attributeSheet.maxHitPoints)
             expect(parsed.canAct).toBe(true)

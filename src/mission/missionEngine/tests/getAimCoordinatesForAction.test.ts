@@ -50,7 +50,6 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player-1",
-            name: "Player 1",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "test_sheet",
             actionIds: [meleeAttackId, bloomAttackId, bloomNoTargetRequiredId],
@@ -59,7 +58,6 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy-1",
-            name: "Enemy 1",
             affiliation: SquaddieAffiliation.ENEMY,
             attributeSheetId: "test_sheet",
         })
@@ -105,7 +103,6 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
         const meleeAttack = SquaddieActionService.new({
             id: meleeAttackId,
-            name: "Melee Attack",
             range: ActionRange.MELEE,
             affiliationRelationship: { self: false, foe: true, friend: false },
             proficiency: ProficiencyType.WEAPON_SIMPLE,
@@ -125,7 +122,6 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
         const bloomAttack = SquaddieActionService.new({
             id: bloomAttackId,
-            name: "Bloom Attack",
             range: ActionRange.MELEE,
             shape: CoordinateGeneratorShape.BLOOM,
             areaOfEffectSize: 1,
@@ -147,7 +143,6 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
         const bloomNoTargetRequired = SquaddieActionService.new({
             id: bloomNoTargetRequiredId,
-            name: "Bloom No Target Required",
             range: ActionRange.MELEE,
             shape: CoordinateGeneratorShape.BLOOM,
             areaOfEffectSize: 1,
@@ -382,21 +377,15 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
             const playerSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Player 1",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
                 actionIds: [lightningBoltId],
             })
             outOfBattleSquaddieManager.addOrUpdateSquaddie(playerSquaddie)
-            ;[
-                { id: "enemy-0", name: "Enemy 0" },
-                { id: "enemy-1", name: "Enemy 1" },
-                { id: "enemy-2", name: "Enemy 2" },
-            ].forEach(({ id, name }) => {
+            ;["enemy-0", "enemy-1", "enemy-2"].forEach((id) => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id,
-                        name,
                         affiliation: SquaddieAffiliation.ENEMY,
                         attributeSheetId: "test_sheet",
                     })
@@ -459,7 +448,6 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
             const lightningBolt = SquaddieActionService.new({
                 id: lightningBoltId,
-                name: "Lightning Bolt",
                 range: ActionRange.LONG,
                 shape: CoordinateGeneratorShape.LINE,
                 areaOfEffectSize: 0,

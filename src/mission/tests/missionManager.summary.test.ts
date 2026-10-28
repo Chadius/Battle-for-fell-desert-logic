@@ -41,7 +41,6 @@ describe("MissionManager", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test sheet",
                 affiliation: SquaddieAffiliation.ENEMY,

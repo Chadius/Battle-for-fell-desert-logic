@@ -37,7 +37,6 @@ describe("usesPerTurn validation", () => {
 
         limitedAction = SquaddieActionService.new({
             id: actionId,
-            name: "Thunder Strike",
             usesPerTurn: 1,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -88,7 +87,6 @@ describe("usesPerTurn validation", () => {
         it("is valid when uses remaining exist for an action with usesPerTurn > 1", () => {
             const twoUseAction = SquaddieActionService.new({
                 id: "double-strike",
-                name: "Double Strike",
                 usesPerTurn: 2,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -135,7 +133,6 @@ describe("usesPerTurn validation", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "actor",
-                    name: "Actor",
                     actionIds: [actionId],
                     attributeSheetId: "test-sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -144,7 +141,6 @@ describe("usesPerTurn validation", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy",
-                    name: "Enemy",
                     actionIds: [],
                     attributeSheetId: "test-sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -200,7 +196,6 @@ describe("usesPerTurn validation", () => {
             categorizeSquaddieActionManager.addOrUpdate(
                 SquaddieActionService.new({
                     id: actionId,
-                    name: "Thunder Strike",
                     usesPerTurn: 1,
                     proficiency: ProficiencyType.WEAPON_MARTIAL,
                     effectOnActor: {

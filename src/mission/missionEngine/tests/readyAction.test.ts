@@ -49,7 +49,6 @@ function createTestSetup(): {
 
     const playerSquaddie = OutOfBattleSquaddieService.new({
         id: "player-1",
-        name: "Player 1",
         affiliation: SquaddieAffiliation.PLAYER,
         attributeSheetId: "actor-sheet",
         actionIds: [leapActionId],
@@ -63,7 +62,6 @@ function createTestSetup(): {
     )
     const enemySquaddie = OutOfBattleSquaddieService.new({
         id: "enemy-1",
-        name: "Enemy 1",
         affiliation: SquaddieAffiliation.ENEMY,
         attributeSheetId: "enemy-sheet",
     })
@@ -103,7 +101,6 @@ function createTestSetup(): {
 
     const leapAction = SquaddieActionService.new({
         id: leapActionId,
-        name: "Leap",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,

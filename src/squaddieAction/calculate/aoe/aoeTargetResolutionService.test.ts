@@ -35,7 +35,6 @@ describe("AoeTargetResolutionService", () => {
 
     const foeAoeAction = SquaddieActionService.new({
         id: "foe-aoe",
-        name: "Foe AoE",
         attribute: AttributeScore.MIND,
         proficiency: ProficiencyType.SKILL_MIND,
         range: ActionRange.MEDIUM,
@@ -58,7 +57,6 @@ describe("AoeTargetResolutionService", () => {
 
     const size2FoeAction = SquaddieActionService.new({
         id: "size-2-foe-aoe",
-        name: "Size 2 Foe AoE",
         attribute: AttributeScore.MIND,
         proficiency: ProficiencyType.SKILL_MIND,
         range: ActionRange.LONG,
@@ -78,7 +76,6 @@ describe("AoeTargetResolutionService", () => {
 
     const friendAoeAction = SquaddieActionService.new({
         id: "friend-aoe",
-        name: "Friend AoE",
         attribute: AttributeScore.SOUL,
         proficiency: ProficiencyType.SKILL_SOUL,
         range: ActionRange.MEDIUM,
@@ -109,7 +106,6 @@ describe("AoeTargetResolutionService", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "lini",
-                name: "Lini",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -118,7 +114,6 @@ describe("AoeTargetResolutionService", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "slither-demon",
-                name: "Slither Demon",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -127,7 +122,6 @@ describe("AoeTargetResolutionService", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "second-enemy",
-                name: "Second Enemy",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -136,7 +130,6 @@ describe("AoeTargetResolutionService", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "third-enemy",
-                name: "Third Enemy",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -290,7 +283,6 @@ describe("AoeTargetResolutionService", () => {
     it("size=0 returns only the squaddie at exact coordinate", () => {
         const singleTileAction = SquaddieActionService.new({
             id: "single-tile",
-            name: "Single Tile",
             range: ActionRange.MEDIUM,
             shape: CoordinateGeneratorShape.BLOOM,
             areaOfEffectSize: 0,
@@ -413,7 +405,6 @@ describe("AoeTargetResolutionService", () => {
 
         const lineAction = SquaddieActionService.new({
             id: "line-action",
-            name: "Line Action",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.LINE,
             areaOfEffectSize: 0,
@@ -425,7 +416,6 @@ describe("AoeTargetResolutionService", () => {
 
         const lineActionSkipOverPitsFalse = SquaddieActionService.new({
             id: "line-no-pit",
-            name: "Line No Pit",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.LINE,
             areaOfEffectSize: 0,
@@ -438,7 +428,6 @@ describe("AoeTargetResolutionService", () => {
 
         const lineActionMoveThroughWalls = SquaddieActionService.new({
             id: "line-walls",
-            name: "Line Through Walls",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.LINE,
             areaOfEffectSize: 0,
@@ -563,7 +552,6 @@ describe("AoeTargetResolutionService", () => {
 
         const bloomRadius2Action = SquaddieActionService.new({
             id: "bloom-r2",
-            name: "Bloom Radius 2",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.BLOOM,
             areaOfEffectSize: 2,
@@ -575,7 +563,6 @@ describe("AoeTargetResolutionService", () => {
 
         const bloomRadius3Action = SquaddieActionService.new({
             id: "bloom-r3",
-            name: "Bloom Radius 3",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.BLOOM,
             areaOfEffectSize: 3,
@@ -587,7 +574,6 @@ describe("AoeTargetResolutionService", () => {
 
         const bloomSkipOverPitsFalse = SquaddieActionService.new({
             id: "bloom-no-pit",
-            name: "Bloom No Pit",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.BLOOM,
             areaOfEffectSize: 2,
@@ -600,7 +586,6 @@ describe("AoeTargetResolutionService", () => {
 
         const bloomMoveThroughWalls = SquaddieActionService.new({
             id: "bloom-walls",
-            name: "Bloom Through Walls",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.BLOOM,
             areaOfEffectSize: 2,
@@ -720,7 +705,6 @@ describe("AoeTargetResolutionService", () => {
     describe("LINE diagonal direction", () => {
         const diagonalLineAction = SquaddieActionService.new({
             id: "diagonal-line",
-            name: "Diagonal Line",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.LINE,
             areaOfEffectSize: 0,
@@ -820,7 +804,6 @@ describe("AoeTargetResolutionService", () => {
     describe("CONE targeting", () => {
         const coneWidth0Action = SquaddieActionService.new({
             id: "cone-width-0",
-            name: "Cone Width 0",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.CONE,
             areaOfEffectSize: 0,
@@ -832,7 +815,6 @@ describe("AoeTargetResolutionService", () => {
 
         const coneWidth1Action = SquaddieActionService.new({
             id: "cone-width-1",
-            name: "Cone Width 1",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.CONE,
             areaOfEffectSize: 1,
@@ -844,7 +826,6 @@ describe("AoeTargetResolutionService", () => {
 
         const coneWidth1IncludesSelfAction = SquaddieActionService.new({
             id: "cone-width-1-self",
-            name: "Cone Width 1 Self",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.CONE,
             areaOfEffectSize: 1,
@@ -971,7 +952,6 @@ describe("AoeTargetResolutionService", () => {
 
         const coneAction = SquaddieActionService.new({
             id: "cone-action",
-            name: "Cone Action",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.CONE,
             areaOfEffectSize: 1,
@@ -983,7 +963,6 @@ describe("AoeTargetResolutionService", () => {
 
         const coneActionMoveThroughWalls = SquaddieActionService.new({
             id: "cone-walls",
-            name: "Cone Through Walls",
             range: ActionRange.LONG,
             shape: CoordinateGeneratorShape.CONE,
             areaOfEffectSize: 1,

@@ -53,7 +53,6 @@ describe("categorizeSquaddieActions", () => {
 
         const actorSquaddie = OutOfBattleSquaddieService.new({
             id: "actor",
-            name: "Actor",
             actionIds: [meleeAttackId, rangedHealId],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -62,7 +61,6 @@ describe("categorizeSquaddieActions", () => {
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -71,7 +69,6 @@ describe("categorizeSquaddieActions", () => {
 
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [healAndProtectActionId],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -117,7 +114,6 @@ describe("categorizeSquaddieActions", () => {
 
         const meleeAttack = SquaddieActionService.new({
             id: meleeAttackId,
-            name: "Melee Attack",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -144,7 +140,6 @@ describe("categorizeSquaddieActions", () => {
 
         const rangedHeal = SquaddieActionService.new({
             id: rangedHealId,
-            name: "Ranged Heal",
             range: ActionRange.SHORT,
             affiliationRelationship: {
                 self: true,
@@ -169,7 +164,6 @@ describe("categorizeSquaddieActions", () => {
 
         const healAndProtectAction = SquaddieActionService.new({
             id: healAndProtectActionId,
-            name: "Heal and Protect",
             range: ActionRange.SELF,
             affiliationRelationship: {
                 self: true,
@@ -252,14 +246,12 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === meleeAttackId
         )
         expect(meleeInvalid).toBeDefined()
-        expect(meleeInvalid!.actionName).toBe("Melee Attack")
         expect(meleeInvalid!.reason).toBe("Needs 1 action points")
 
         const healInvalid = result.invalidActions.find(
             (a) => a.actionId === rangedHealId
         )
         expect(healInvalid).toBeDefined()
-        expect(healInvalid!.actionName).toBe("Ranged Heal")
         expect(healInvalid!.reason).toBe("Needs 1 action points")
 
         const endTurnValid = result.validActions.find(
@@ -331,7 +323,6 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === meleeAttackId
         )
         expect(meleeValid).toBeDefined()
-        expect(meleeValid!.actionName).toBe("Melee Attack")
         const meleeAimEntry = meleeValid!.aimCoordinateResults.find(
             (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 1
         )
@@ -448,7 +439,6 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === rangedHealId
         )
         expect(healValid).toBeDefined()
-        expect(healValid!.actionName).toBe("Ranged Heal")
         const healAimEntry = healValid!.aimCoordinateResults.find(
             (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 0
         )
@@ -518,7 +508,6 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === healAndProtectActionId
         )
         expect(healAndProtectIsValid).toBeDefined()
-        expect(healAndProtectIsValid!.actionName).toBe("Heal and Protect")
         const healAndProtectAimEntry =
             healAndProtectIsValid!.aimCoordinateResults.find(
                 (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 0
@@ -567,7 +556,6 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === healAndProtectActionId
         )
         expect(healAndProtectIsInvalid).toBeDefined()
-        expect(healAndProtectIsInvalid!.actionName).toBe("Heal and Protect")
         expect(healAndProtectIsInvalid!.reason).toBe(
             "No targets can be affected"
         )
@@ -595,9 +583,6 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === DEFAULT_END_TURN_ACTION_ID
         )
         expect(endTurnValid).toBeDefined()
-        expect(endTurnValid!.actionName).toBe(
-            SquaddieActionService.defaultEndTurn().name
-        )
         expect(endTurnValid!.reachableCoordinates).toEqual([])
         expect(endTurnValid!.aimCoordinateResults).toEqual([])
     })
@@ -624,9 +609,6 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === DEFAULT_MOVE_ACTION_ID
         )
         expect(moveValid).toBeDefined()
-        expect(moveValid!.actionName).toBe(
-            SquaddieActionService.defaultMove().name
-        )
         expect(moveValid!.aimCoordinateResults.length).toBeGreaterThan(0)
         moveValid!.aimCoordinateResults.forEach((entry) => {
             expect(entry.targetIds).toEqual([])
@@ -637,7 +619,6 @@ describe("categorizeSquaddieActions", () => {
         beforeEach(() => {
             const cooldownAction = SquaddieActionService.new({
                 id: meleeAttackId,
-                name: "Melee Attack",
                 cooldownTurns: 2,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -714,9 +695,6 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === DEFAULT_MOVE_ACTION_ID
         )
         expect(moveInvalid).toBeDefined()
-        expect(moveInvalid!.actionName).toBe(
-            SquaddieActionService.defaultMove().name
-        )
         expect(moveInvalid!.reason).toBe("No valid movement destinations")
     })
 })

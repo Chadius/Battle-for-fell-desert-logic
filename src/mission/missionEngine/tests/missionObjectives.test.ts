@@ -30,21 +30,18 @@ describe("MissionObjectives", () => {
 
             const aliveEnemy = OutOfBattleSquaddieService.new({
                 id: "enemy-alive",
-                name: "Alive Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test_sheet",
             })
 
             const deadEnemy = OutOfBattleSquaddieService.new({
                 id: "enemy-dead",
-                name: "Dead Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test_sheet",
             })
 
             const deadAlly = OutOfBattleSquaddieService.new({
                 id: "ally-dead",
-                name: "Dead Ally",
                 affiliation: SquaddieAffiliation.ALLY,
                 attributeSheetId: "test_sheet",
             })
@@ -271,7 +268,6 @@ describe("MissionObjectives", () => {
 
             const deadEnemy = OutOfBattleSquaddieService.new({
                 id: "enemy-dead",
-                name: "Dead Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test_sheet",
             })
@@ -349,7 +345,6 @@ describe("MissionObjectives", () => {
 
             const aliveEnemy = OutOfBattleSquaddieService.new({
                 id: "enemy-alive",
-                name: "Alive Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test_sheet",
             })

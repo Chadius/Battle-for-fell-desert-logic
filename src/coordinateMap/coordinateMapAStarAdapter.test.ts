@@ -62,7 +62,6 @@ describe("coordinateMapAStarAdapter", () => {
 
         noAffiliationOutOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
             id: "noAffiliation",
-            name: "noAffiliation",
             actionIds: ["endTurn"],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,
@@ -170,7 +169,6 @@ describe("coordinateMapAStarAdapter", () => {
                 const outOfBattleSquaddieWithReducedMoveCosts =
                     OutOfBattleSquaddieService.new({
                         id: "noAffiliation",
-                        name: "noAffiliation",
                         actionIds: ["endTurn"],
                         attributeSheetId: "test sheet with reduced move costs",
                         affiliation: SquaddieAffiliation.NONE,
@@ -548,7 +546,6 @@ describe("coordinateMapAStarAdapter", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "player",
-                        name: "player",
                         actionIds: ["endTurn"],
                         attributeSheetId: "test sheet",
                         affiliation: SquaddieAffiliation.PLAYER,
@@ -558,7 +555,6 @@ describe("coordinateMapAStarAdapter", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "ally",
-                        name: "ally",
                         actionIds: ["endTurn"],
                         attributeSheetId: "test sheet",
                         affiliation: SquaddieAffiliation.ALLY,
@@ -568,7 +564,6 @@ describe("coordinateMapAStarAdapter", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "enemy",
-                        name: "enemy",
                         actionIds: ["endTurn"],
                         attributeSheetId: "test sheet",
                         affiliation: SquaddieAffiliation.ENEMY,

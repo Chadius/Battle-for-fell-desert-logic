@@ -45,7 +45,6 @@ describe("InMissionSummary", () => {
                 })
             const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "squaddie-1",
-                name: "Test",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -93,7 +92,6 @@ describe("InMissionSummary", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -259,7 +257,6 @@ describe("InMissionSummary", () => {
                 })
             const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "squaddie-1",
-                name: "Test",
                 actionIds: ["action1"],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -340,7 +337,6 @@ describe("InMissionSummary", () => {
 
             const squaddie = OutOfBattleSquaddieService.new({
                 id: "squaddie-1",
-                name: "Squaddie",
                 actionIds: [],
                 attributeSheetId: "test sheet",
                 affiliation: SquaddieAffiliation.PLAYER,

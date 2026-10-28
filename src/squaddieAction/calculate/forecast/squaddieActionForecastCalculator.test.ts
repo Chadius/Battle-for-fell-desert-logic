@@ -57,7 +57,6 @@ describe("SquaddieActionForecastCalculator", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "actor-squaddie",
-                    name: "Actor",
                     actionIds: [],
                     attributeSheetId: "actor-sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -66,7 +65,6 @@ describe("SquaddieActionForecastCalculator", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "target-squaddie",
-                    name: "Target",
                     actionIds: [],
                     attributeSheetId: "target-sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -98,7 +96,6 @@ describe("SquaddieActionForecastCalculator", () => {
 
             weaponAction = SquaddieActionService.new({
                 id: "weapon-attack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -124,7 +121,6 @@ describe("SquaddieActionForecastCalculator", () => {
 
             nonWeaponAction = SquaddieActionService.new({
                 id: "non-weapon",
-                name: "Non-Weapon",
                 proficiency: ProficiencyType.SKILL_BODY,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -313,7 +309,6 @@ describe("SquaddieActionForecastCalculator", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "actor-squaddie",
-                    name: "Actor",
                     actionIds: [],
                     attributeSheetId: "actor-sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -322,7 +317,6 @@ describe("SquaddieActionForecastCalculator", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "low-defense-squaddie",
-                    name: "Low Defense Target",
                     actionIds: [],
                     attributeSheetId: "low-defense-sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -331,7 +325,6 @@ describe("SquaddieActionForecastCalculator", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "high-defense-squaddie",
-                    name: "High Defense Target",
                     actionIds: [],
                     attributeSheetId: "high-defense-sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -372,7 +365,6 @@ describe("SquaddieActionForecastCalculator", () => {
             )
             targetRollsAction = SquaddieActionService.new({
                 id: "target-rolls-action",
-                name: "Target Rolls Action",
                 proficiency: ProficiencyType.SKILL_SOUL,
                 howToDetermineDegreeOfSuccess:
                     HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
@@ -485,7 +477,6 @@ describe("SquaddieActionForecastCalculator", () => {
         it("redistributes unsupported CRITICAL probability into SUCCESS", () => {
             const noCriticalAction = SquaddieActionService.new({
                 id: "no-critical-action",
-                name: "No Critical Action",
                 proficiency: ProficiencyType.SKILL_SOUL,
                 howToDetermineDegreeOfSuccess:
                     HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,

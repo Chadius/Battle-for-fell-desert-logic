@@ -25,7 +25,6 @@ import {
 export interface SquaddieTurnActionRecord {
     action: {
         id: string
-        name: string
     }
     results: SquaddieActionResult[]
     actor?: BattleSquaddieId
@@ -41,7 +40,7 @@ export type SerializedSquaddieTurnActionRecord = Omit<
 }
 
 export const squaddieTurnActionRecordSchema = z.object({
-    action: z.object({ id: z.string(), name: z.string() }),
+    action: z.object({ id: z.string() }),
     results: z.array(squaddieActionResultSchema),
     actor: z
         .object({
@@ -87,7 +86,7 @@ export const SquaddieTurnActionRecordService = {
 
         if (!results || results.length === 0) {
             throw new Error(
-                "[SquaddieTurnActionRecordService.new]: results must have at least one entry"
+                "[ActionHistoryEntryService.new]: results must have at least one entry"
             )
         }
 
@@ -114,7 +113,7 @@ export const SquaddieTurnActionRecordService = {
     },
 
     createFromJSON: (data: {
-        action: { id: string; name: string }
+        action: { id: string }
         results: SerializedSquaddieActionResult[]
         actor?: BattleSquaddieId
         sequenceNumber?: number
@@ -124,7 +123,7 @@ export const SquaddieTurnActionRecordService = {
 
         if (!data.results || data.results.length === 0) {
             throw new Error(
-                "[SquaddieTurnActionRecordService.createFromJSON]: results must have at least one entry"
+                "[ActionHistoryEntryService.createFromJSON]: results must have at least one entry"
             )
         }
 
@@ -148,11 +147,6 @@ export const SquaddieTurnActionRecordService = {
     getActionId: (entry: SquaddieTurnActionRecord): string => {
         throwIfEntryIsUndefined(entry, "getActionId")
         return entry.action.id
-    },
-
-    getActionName: (entry: SquaddieTurnActionRecord): string => {
-        throwIfEntryIsUndefined(entry, "getActionName")
-        return entry.action.name
     },
 
     getResults: (entry: SquaddieTurnActionRecord): SquaddieActionResult[] => {
@@ -297,12 +291,12 @@ const throwIfEntryIsUndefined = (
 }
 
 const throwIfActionDataIsInvalid = (
-    action: { id: string; name: string },
+    action: { id: string },
     callName: string
 ) => {
-    if (action?.id == undefined || action?.name == undefined)
+    if (action?.id == undefined)
         throw new Error(
-            `[ActionHistoryEntryService.${callName}]: action must have id and name`
+            `[ActionHistoryEntryService.${callName}]: action must have id`
         )
 }
 
@@ -320,7 +314,7 @@ const throwIfResultIsInvalid = (
 }
 
 const newSquaddieTurnActionRecordService = (
-    action: { id: string; name: string },
+    action: { id: string },
     results: SquaddieActionResult[],
     actor: BattleSquaddieId | undefined,
     sequenceNumber: number | undefined,
@@ -329,7 +323,6 @@ const newSquaddieTurnActionRecordService = (
     return {
         action: {
             id: action.id,
-            name: action.name,
         },
         results: [...results],
         actor: actor ? { ...actor } : undefined,

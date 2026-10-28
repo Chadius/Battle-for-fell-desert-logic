@@ -79,7 +79,6 @@ const ensureOutOfBattleSquaddieExists = (
     outOfBattleSquaddieManager.addOrUpdateSquaddie(
         OutOfBattleSquaddieService.new({
             id: campaignSquaddie.outOfBattleSquaddieId,
-            name: campaignSquaddie.name,
             attributeSheetId: campaignSquaddie.outOfBattleAttributeSheetId,
             affiliation: SquaddieAffiliation.PLAYER,
         })

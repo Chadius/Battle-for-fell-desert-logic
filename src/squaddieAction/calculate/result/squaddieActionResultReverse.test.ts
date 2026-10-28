@@ -801,7 +801,6 @@ describe("Reversing SquaddieActionResults", () => {
             outOfBattleSquaddieId = "soldier"
             const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: outOfBattleSquaddieId,
-                name: "Soldier",
                 actionIds: [],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.PLAYER,

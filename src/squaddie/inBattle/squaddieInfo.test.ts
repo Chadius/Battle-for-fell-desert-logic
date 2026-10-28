@@ -13,7 +13,6 @@ describe("SquaddieInfo", () => {
         describe("new", () => {
             it("creates a SquaddieInfo with all fields", () => {
                 const info = SquaddieInfoService.new({
-                    name: "Hero",
                     affiliation: SquaddieAffiliation.PLAYER,
                     currentHitPoints: 8,
                     maxHitPoints: 10,
@@ -29,7 +28,6 @@ describe("SquaddieInfo", () => {
                     },
                 })
 
-                expect(info.name).toBe("Hero")
                 expect(info.affiliation).toBe(SquaddieAffiliation.PLAYER)
                 expect(info.currentHitPoints).toBe(8)
                 expect(info.maxHitPoints).toBe(10)
@@ -69,7 +67,6 @@ describe("SquaddieInfo", () => {
                 ])
 
                 const info = SquaddieInfoService.new({
-                    name: "Warrior",
                     affiliation: SquaddieAffiliation.ENEMY,
                     currentHitPoints: 5,
                     maxHitPoints: 10,
@@ -89,7 +86,6 @@ describe("SquaddieInfo", () => {
 
             it("creates a defeated squaddie", () => {
                 const info = SquaddieInfoService.new({
-                    name: "Fallen",
                     affiliation: SquaddieAffiliation.ALLY,
                     currentHitPoints: 0,
                     maxHitPoints: 10,
@@ -119,7 +115,6 @@ describe("SquaddieInfo", () => {
                 })
 
                 const info = SquaddieInfoService.new({
-                    name: "Knight",
                     affiliation: SquaddieAffiliation.PLAYER,
                     currentHitPoints: 15,
                     maxHitPoints: 20,
@@ -137,7 +132,6 @@ describe("SquaddieInfo", () => {
                 const jsonString = JSON.stringify(info)
                 const parsed = JSON.parse(jsonString)
 
-                expect(parsed.name).toBe("Knight")
                 expect(parsed.affiliation).toBe(SquaddieAffiliation.PLAYER)
                 expect(parsed.currentHitPoints).toBe(15)
                 expect(parsed.maxHitPoints).toBe(20)

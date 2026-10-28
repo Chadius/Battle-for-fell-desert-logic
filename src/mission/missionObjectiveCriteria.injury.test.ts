@@ -656,7 +656,6 @@ describe("SpecificSquaddiesInjuredCriteria", () => {
             manager2.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy1",
-                    name: "Enemy 1",
                     actionIds: [],
                     attributeSheetId: "sheet2",
                     affiliation: SquaddieAffiliation.ENEMY,

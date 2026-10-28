@@ -70,7 +70,6 @@ describe("SquaddieActionValidationService", () => {
         it("returns valid when squaddie has enough action points", () => {
             const action = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 1 },
@@ -93,7 +92,6 @@ describe("SquaddieActionValidationService", () => {
 
             const action = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 3 },
@@ -111,7 +109,6 @@ describe("SquaddieActionValidationService", () => {
         it("returns valid when squaddie has exactly the required action points", () => {
             const action = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 3 },
@@ -128,7 +125,6 @@ describe("SquaddieActionValidationService", () => {
         it("returns valid when action costs 'all' and squaddie can act", () => {
             const action = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: "all" },
@@ -150,7 +146,6 @@ describe("SquaddieActionValidationService", () => {
 
             const action = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: "all" },
@@ -168,7 +163,6 @@ describe("SquaddieActionValidationService", () => {
         it("returns valid when action has no action point cost defined", () => {
             const action = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {},
                 },
@@ -183,7 +177,6 @@ describe("SquaddieActionValidationService", () => {
         it("returns valid when action point cost is 0", () => {
             const action = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 0 },
@@ -220,7 +213,6 @@ describe("SquaddieActionValidationService", () => {
 
             const movementActorSquaddie = OutOfBattleSquaddieService.new({
                 id: "movement-actor",
-                name: "Movement Actor",
                 actionIds: [],
                 attributeSheetId: "movement-sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -268,7 +260,6 @@ describe("SquaddieActionValidationService", () => {
 
             moveAction = SquaddieActionService.new({
                 id: "move-action",
-                name: "Move Action",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: {
@@ -400,7 +391,6 @@ describe("SquaddieActionValidationService", () => {
             aoeOutOfBattle.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "aoe-actor",
-                    name: "AoE Actor",
                     actionIds: [],
                     attributeSheetId: "aoe-sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -409,7 +399,6 @@ describe("SquaddieActionValidationService", () => {
             aoeOutOfBattle.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "aoe-enemy",
-                    name: "AoE Enemy",
                     actionIds: [],
                     attributeSheetId: "aoe-sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -473,7 +462,6 @@ describe("SquaddieActionValidationService", () => {
 
             aoeAction = SquaddieActionService.new({
                 id: "aoe-attack",
-                name: "AoE Attack",
                 range: ActionRange.MELEE,
                 shape: CoordinateGeneratorShape.BLOOM,
                 areaOfEffectSize: 1,
@@ -548,7 +536,6 @@ describe("SquaddieActionValidationService", () => {
             aoeSquaddieActionManager.addOrUpdate(
                 SquaddieActionService.new({
                     id: aoeAction.id,
-                    name: "AoE Attack",
                     range: ActionRange.MELEE,
                     shape: CoordinateGeneratorShape.BLOOM,
                     areaOfEffectSize: 1,
@@ -597,7 +584,6 @@ describe("SquaddieActionValidationService", () => {
             aoeOutOfBattle.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "aoe-actor",
-                    name: "AoE Actor",
                     actionIds: [],
                     attributeSheetId: "aoe-sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -606,7 +592,6 @@ describe("SquaddieActionValidationService", () => {
             aoeOutOfBattle.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "aoe-enemy",
-                    name: "AoE Enemy",
                     actionIds: [],
                     attributeSheetId: "aoe-sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -656,7 +641,6 @@ describe("SquaddieActionValidationService", () => {
 
             aoeAction = SquaddieActionService.new({
                 id: "aoe-heal",
-                name: "AoE Heal",
                 range: ActionRange.SELF,
                 shape: CoordinateGeneratorShape.BLOOM,
                 areaOfEffectSize: 1,
@@ -733,7 +717,6 @@ describe("SquaddieActionValidationService", () => {
                 squaddieActionManager.addOrUpdate(
                     SquaddieActionService.new({
                         id: frozenActionId,
-                        name: "Freeze Blast",
                         cooldownTurns: 2,
                         effectOnActor: {
                             [DegreeOfSuccess.SUCCESS]: {

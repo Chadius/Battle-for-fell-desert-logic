@@ -55,7 +55,6 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Hero",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
             })
@@ -95,10 +94,9 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
         })
     })
 
-    const squaddieActionNamed = (id: string, name: string): SquaddieAction =>
+    const squaddieActionWithId = (id: string): SquaddieAction =>
         SquaddieActionService.new({
             id,
-            name,
             effectOnActor: { [DegreeOfSuccess.SUCCESS]: {} },
         })
 
@@ -106,7 +104,6 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Raider",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test_sheet",
             })
@@ -118,7 +115,7 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
 
     const undoableMovementRecord = (): SquaddieTurnActionRecord =>
         SquaddieTurnActionRecordService.new({
-            action: squaddieActionNamed("move", "Move"),
+            action: squaddieActionWithId("move"),
             results: [
                 {
                     inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,
@@ -150,7 +147,7 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
         enemySquaddieId: BattleSquaddieId
     ): SquaddieTurnActionRecord =>
         SquaddieTurnActionRecordService.new({
-            action: squaddieActionNamed("attack", "Attack"),
+            action: squaddieActionWithId("attack"),
             results: [
                 {
                     inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,

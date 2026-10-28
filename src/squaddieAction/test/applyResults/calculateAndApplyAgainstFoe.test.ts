@@ -86,7 +86,6 @@ describe("Squaddie Actions against foes", () => {
         actorOutOfBattleSquaddieId = "soldier"
         actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: actorOutOfBattleSquaddieId,
-            name: "Soldier",
             actionIds: ["longsword"],
             attributeSheetId: "soldier",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -96,7 +95,6 @@ describe("Squaddie Actions against foes", () => {
         targetOutOfBattleSquaddieId = "enemy-soldier"
         targetOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: targetOutOfBattleSquaddieId,
-            name: "Soldier",
             actionIds: ["longsword"],
             attributeSheetId: "soldier",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -121,7 +119,6 @@ describe("Squaddie Actions against foes", () => {
 
         longswordAction = SquaddieActionService.new({
             id: "longsword",
-            name: "Longsword",
             proficiency: ProficiencyType.WEAPON_MARTIAL,
             targeting: {
                 range: ActionRange.MELEE,
@@ -177,7 +174,6 @@ describe("Squaddie Actions against foes", () => {
 
         lethalLongswordAction = SquaddieActionService.new({
             id: "lethalLongsword",
-            name: "Lethal Longsword",
             proficiency: ProficiencyType.WEAPON_MARTIAL,
             targeting: {
                 range: ActionRange.MELEE,
@@ -420,7 +416,6 @@ describe("Squaddie Actions against foes", () => {
 
         const dispelElusiveAction = SquaddieActionService.new({
             id: "dispelElusive",
-            name: "Dispel Elusive",
             affiliationRelationship: {
                 self: false,
                 friend: false,

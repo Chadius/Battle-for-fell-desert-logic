@@ -7,10 +7,8 @@ import { OutOfBattleSquaddieTestSetup } from "../../testUtils/outOfBattleSquaddi
 const createSquaddieWithContribution = (contribution: number) => {
     const squaddie = InBattleSquaddieService.new({
         id: 0,
-        name: "Hero",
         outOfBattleSquaddie: OutOfBattleSquaddieService.new({
             id: "hero",
-            name: "Hero",
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.PLAYER,
         }),
