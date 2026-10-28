@@ -4,7 +4,6 @@
     "data": [
         {
             "id": "goblin-grunt-claw",
-            "name": "Claw",
             "attribute": "BODY",
             "degreesOfSuccess": ["FAILURE", "SUCCESS"],
             "targeting": {

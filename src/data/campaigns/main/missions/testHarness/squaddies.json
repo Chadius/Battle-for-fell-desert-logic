@@ -4,7 +4,6 @@
     "data": [
         {
             "id": "slither-demon",
-            "name": "Slither Demon",
             "attributeSheetId": "slither-demon-attribute-sheet",
             "actionIds": ["slither-demon-claw"],
             "affiliation": "ENEMY"

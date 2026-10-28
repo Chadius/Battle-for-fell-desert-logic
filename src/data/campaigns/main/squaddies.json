@@ -4,7 +4,6 @@
     "data": [
         {
             "id": "lini",
-            "name": "Lini",
             "attributeSheetId": "lini-attribute-sheet",
             "actionIds": [
                 "lini-scimitar",
@@ -16,7 +15,6 @@
         },
         {
             "id": "vale",
-            "name": "Vale",
             "attributeSheetId": "vale-attribute-sheet",
             "actionIds": [
                 "vale-lightning-bolt",
@@ -28,14 +26,12 @@
         },
         {
             "id": "gloria",
-            "name": "Gloria",
             "attributeSheetId": "gloria-attribute-sheet",
             "actionIds": ["gloria-longsword", "gloria-shield", "gloria-sweep"],
             "affiliation": "PLAYER"
         },
         {
             "id": "fracta",
-            "name": "Fracta",
             "attributeSheetId": "fracta-attribute-sheet",
             "actionIds": ["fracta-axe-strike", "fracta-leap"],
             "affiliation": "PLAYER"
