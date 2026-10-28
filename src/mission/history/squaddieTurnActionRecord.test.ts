@@ -221,7 +221,7 @@ describe("SquaddieTurnActionRecordService", () => {
                     results: [result],
                 })
             ).toThrow(
-                "[ActionHistoryEntryService.new]: action must have id"
+                "[SquaddieTurnActionRecordService.new]: action must have id"
             )
         })
 
@@ -237,7 +237,7 @@ describe("SquaddieTurnActionRecordService", () => {
                     results: [result],
                 })
             ).toThrow(
-                "[ActionHistoryEntryService.new]: result must have squaddie IDs"
+                "[SquaddieTurnActionRecordService.new]: result must have squaddie IDs"
             )
         })
     })
@@ -325,7 +325,7 @@ describe("SquaddieTurnActionRecordService", () => {
             expect(() =>
                 SquaddieTurnActionRecordService.createFromJSON(data)
             ).toThrow(
-                "[ActionHistoryEntryService.createFromJSON]: action must have id"
+                "[SquaddieTurnActionRecordService.createFromJSON]: action must have id"
             )
         })
 
@@ -338,7 +338,7 @@ describe("SquaddieTurnActionRecordService", () => {
             expect(() =>
                 SquaddieTurnActionRecordService.createFromJSON(data)
             ).toThrow(
-                "[ActionHistoryEntryService.createFromJSON]: result must have squaddie IDs"
+                "[SquaddieTurnActionRecordService.createFromJSON]: result must have squaddie IDs"
             )
         })
     })
@@ -387,7 +387,7 @@ describe("SquaddieTurnActionRecordService", () => {
             expect(() =>
                 SquaddieTurnActionRecordService.getActionId(undefined as any)
             ).toThrow(
-                "[ActionHistoryEntryService.getActionId]: entry must be defined"
+                "[SquaddieTurnActionRecordService.getActionId]: entry must be defined"
             )
         })
     })

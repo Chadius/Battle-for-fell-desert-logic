@@ -78,7 +78,7 @@ export const SquaddieTurnActionRecordService = {
 
         if (!results || results.length === 0) {
             throw new Error(
-                "[ActionHistoryEntryService.new]: results must have at least one entry"
+                "[SquaddieTurnActionRecordService.new]: results must have at least one entry"
             )
         }
 
@@ -112,7 +112,7 @@ export const SquaddieTurnActionRecordService = {
 
         if (!data.results || data.results.length === 0) {
             throw new Error(
-                "[ActionHistoryEntryService.createFromJSON]: results must have at least one entry"
+                "[SquaddieTurnActionRecordService.createFromJSON]: results must have at least one entry"
             )
         }
 
@@ -269,7 +269,7 @@ const throwIfEntryIsUndefined = (
 ) => {
     if (entry == undefined)
         throw new Error(
-            `[ActionHistoryEntryService.${callName}]: entry must be defined`
+            `[SquaddieTurnActionRecordService.${callName}]: entry must be defined`
         )
 }
 
@@ -279,7 +279,7 @@ const throwIfActionDataIsInvalid = (
 ) => {
     if (action?.id == undefined)
         throw new Error(
-            `[ActionHistoryEntryService.${callName}]: action must have id`
+            `[SquaddieTurnActionRecordService.${callName}]: action must have id`
         )
 }
 
@@ -292,7 +292,7 @@ const throwIfResultIsInvalid = (
         result?.outOfBattleSquaddieId == undefined
     )
         throw new Error(
-            `[ActionHistoryEntryService.${callName}]: result must have squaddie IDs`
+            `[SquaddieTurnActionRecordService.${callName}]: result must have squaddie IDs`
         )
 }
 
