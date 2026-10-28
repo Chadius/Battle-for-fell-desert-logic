@@ -92,10 +92,6 @@ import { CampaignSquaddieDeploymentManager } from "./campaignSquaddieDeploymentM
 import { CampaignSquaddieMissionBridgeService } from "./campaignSquaddieMissionBridgeService.js"
 import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
 import type { CampaignSquaddieDeploymentCoordinate } from "./campaignSquaddieDeploymentCoordinate.js"
-import {
-    GlossaryManager,
-    type ResolvedGlossaryTerm,
-} from "../campaign/glossary/glossaryManager.js"
 
 export class MissionManager {
     missionState?: MissionState
@@ -105,7 +101,6 @@ export class MissionManager {
     outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
     movieManager?: MovieManager
     armyManager?: ArmyManager
-    glossaryManager?: GlossaryManager
 
     private _loader: MissionResourceLoader | undefined = undefined
     private campaignSquaddieDeploymentManager?: CampaignSquaddieDeploymentManager
@@ -118,7 +113,6 @@ export class MissionManager {
         outOfBattleSquaddieManager,
         movieManager,
         armyManager,
-        glossaryManager,
     }: {
         missionState?: MissionState
         inBattleSquaddieManager?: InBattleSquaddieManager
@@ -127,7 +121,6 @@ export class MissionManager {
         outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
         movieManager?: MovieManager
         armyManager?: ArmyManager
-        glossaryManager?: GlossaryManager
     } = {}) {
         this.missionState = missionState
         this.inBattleSquaddieManager = inBattleSquaddieManager
@@ -136,7 +129,6 @@ export class MissionManager {
         this.outOfBattleSquaddieManager = outOfBattleSquaddieManager
         this.movieManager = movieManager
         this.armyManager = armyManager
-        this.glossaryManager = glossaryManager
     }
 
     hasMissionEnded(): boolean {
@@ -1348,33 +1340,6 @@ export class MissionManager {
         return this._loader!.addActionsFromJson(data)
     }
 
-    addGlossaryFromJson(data: unknown): string[] {
-        this.initializeLoaderIfNeeded()
-        return this._loader!.addGlossaryFromJson(data)
-    }
-
-    resolveGlossaryTerms(
-        termIds: string[],
-        languageCode: string
-    ): Record<string, ResolvedGlossaryTerm> {
-        this.throwIfGlossaryManagerIsUndefined(this.resolveGlossaryTerms.name)
-
-        const resolvedGlossaryTermsByTermId: Record<
-            string,
-            ResolvedGlossaryTerm
-        > = {}
-        for (const termId of termIds) {
-            const resolvedGlossaryTerm = this.glossaryManager!.resolveTerm(
-                termId,
-                languageCode
-            )
-            if (resolvedGlossaryTerm != undefined) {
-                resolvedGlossaryTermsByTermId[termId] = resolvedGlossaryTerm
-            }
-        }
-        return resolvedGlossaryTermsByTermId
-    }
-
     loadMissionFromJson(data: {
         squaddies?: unknown
         attributeSheets?: unknown
@@ -1524,8 +1489,6 @@ export class MissionManager {
             this.outOfBattleSquaddieManager =
                 this._loader.outOfBattleSquaddieManager ??
                 this.outOfBattleSquaddieManager
-            this.glossaryManager =
-                this._loader.glossaryManager ?? this.glossaryManager
         }
 
         this._loader = undefined
@@ -1604,13 +1567,6 @@ export class MissionManager {
         if (this.armyManager == undefined)
             throw new Error(
                 `[MissionManager.${callName}]: armyManager must be defined`
-            )
-    }
-
-    private throwIfGlossaryManagerIsUndefined(callName: string) {
-        if (this.glossaryManager == undefined)
-            throw new Error(
-                `[MissionManager.${callName}]: glossaryManager must be defined`
             )
     }
 

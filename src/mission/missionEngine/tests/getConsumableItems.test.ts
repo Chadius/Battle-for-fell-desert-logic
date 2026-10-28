@@ -53,7 +53,6 @@ describe("MissionEngine.getConsumableItems", () => {
                 id: "healScroll",
                 numberOfUses: 2,
                 actionIds: [],
-                glossaryTermIds: ["item.healScroll"],
             })
         )
         inBattleSquaddieManager.setSquaddieItemManager(squaddieItemManager)
@@ -87,7 +86,7 @@ describe("MissionEngine.getConsumableItems", () => {
         ).toThrow("inBattleSquaddieManager is undefined")
     })
 
-    it("returns each consumable item's remaining uses and glossaryTermIds", () => {
+    it("returns each consumable item's remaining uses", () => {
         const missionManager = new MissionManager({
             missionState: missionState,
             inBattleSquaddieManager: inBattleSquaddieManager,
@@ -98,12 +97,7 @@ describe("MissionEngine.getConsumableItems", () => {
             missionEngine.getConsumableItems(playerSquaddieId)
 
         expect(consumableItems).toEqual(
-            new Map([
-                [
-                    "healScroll",
-                    { numberOfUses: 2, glossaryTermIds: ["item.healScroll"] },
-                ],
-            ])
+            new Map([["healScroll", { numberOfUses: 2 }]])
         )
     })
 

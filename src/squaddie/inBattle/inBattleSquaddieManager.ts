@@ -766,7 +766,7 @@ export class InBattleSquaddieManager {
 
     getConsumableItems(
         battleSquaddieId: BattleSquaddieId
-    ): Map<string, { numberOfUses: number; glossaryTermIds?: string[] }> {
+    ): Map<string, { numberOfUses: number }> {
         const squaddieItems = this.getAllSquaddieItemIds(battleSquaddieId)
         if (squaddieItems.length === 0) {
             return new Map()
@@ -782,10 +782,7 @@ export class InBattleSquaddieManager {
             )
         }
 
-        const mapEntries: [
-            string,
-            { numberOfUses: number; glossaryTermIds?: string[] },
-        ][] = squaddieItems
+        const mapEntries: [string, { numberOfUses: number }][] = squaddieItems
             .map((itemId) => this.squaddieItemManager!.get(itemId))
             .filter((item) => item.numberOfUses != undefined)
             .map((item) => [
@@ -794,7 +791,6 @@ export class InBattleSquaddieManager {
                     numberOfUses:
                         item.numberOfUses! -
                         (alreadyConsumedItems.get(item.id) ?? 0),
-                    glossaryTermIds: item.glossaryTermIds,
                 },
             ])
 

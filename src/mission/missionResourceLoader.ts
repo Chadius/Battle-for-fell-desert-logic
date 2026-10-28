@@ -8,15 +8,12 @@ import { CoordinateMapCollectionManager } from "../coordinateMap/coordinateMapMa
 import { CoordinateMapCollectionService } from "../coordinateMap/coordinateMapCollection.js"
 import { SquaddieActionManager } from "../squaddieAction/squaddieActionManager.js"
 import { SquaddieActionCollectionService } from "../squaddieAction/squaddieActionCollection.js"
-import { GlossaryManager } from "../campaign/glossary/glossaryManager.js"
-import { GlossaryCollectionService } from "../campaign/glossary/glossaryCollection.js"
 
 export class MissionResourceLoader {
     outOfBattleSquaddieManager?: OutOfBattleSquaddieManager
     squaddieItemManager?: SquaddieItemManager
     coordinateMapCollectionManager?: CoordinateMapCollectionManager
     squaddieActionManager?: SquaddieActionManager
-    glossaryManager?: GlossaryManager
     missionState?: MissionState
 
     addSquaddiesFromJson(data: unknown): string[] {
@@ -55,13 +52,6 @@ export class MissionResourceLoader {
             SquaddieActionCollectionService.new()
         )
         return this.squaddieActionManager.addActionsFromJson(extractData(data))
-    }
-
-    addGlossaryFromJson(data: unknown): string[] {
-        this.glossaryManager ??= new GlossaryManager(
-            GlossaryCollectionService.new()
-        )
-        return this.glossaryManager.addTermsFromJson(extractData(data))
     }
 
     loadMissionStateFromJson(data: unknown): void {

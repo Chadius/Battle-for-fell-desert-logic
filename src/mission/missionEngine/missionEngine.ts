@@ -491,7 +491,7 @@ export class MissionEngine {
 
     getConsumableItems(
         squaddieId: BattleSquaddieId
-    ): Map<string, { numberOfUses: number; glossaryTermIds?: string[] }> {
+    ): Map<string, { numberOfUses: number }> {
         this.throwIfMissionManagerIsUndefined(this.getConsumableItems.name)
         this.throwIfInBattleSquaddieManagerIsUndefined(
             this.getConsumableItems.name
