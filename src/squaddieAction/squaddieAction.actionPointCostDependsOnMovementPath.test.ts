@@ -9,7 +9,6 @@ const selfTargetedAction = (
 ) =>
     SquaddieActionService.new({
         id: "action",
-        name: "Action",
         range: ActionRange.SELF,
         affiliationRelationship: { self: true, foe: false, friend: false },
         effectOnActor: {

@@ -51,7 +51,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 rank: 1,
                 proficiencyType: ProficiencyType.SKILL_MIND,
@@ -66,7 +65,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
-                name: "Target",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 0,
                 proficiencyType: ProficiencyType.DEFEND_MIND,
@@ -89,7 +87,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             action = SquaddieActionService.new({
                 id: "mind_action",
-                name: "Mind Attack",
                 proficiency: ProficiencyType.SKILL_MIND,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -156,7 +153,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 rank: 1,
                 proficiencyType: ProficiencyType.SKILL_MIND,
@@ -171,7 +167,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target1_attribute_sheet",
                 squaddieId: "target1_squaddie",
-                name: "Weak Target, cannot Botch",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 0,
                 proficiencyType: ProficiencyType.DEFEND_MIND,
@@ -186,7 +181,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target2_attribute_sheet",
                 squaddieId: "target2_squaddie",
-                name: "Strong Target, very hard to hit",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 3,
                 proficiencyType: ProficiencyType.DEFEND_MIND,
@@ -212,7 +206,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             action = SquaddieActionService.new({
                 id: "mind_action",
-                name: "Mind Attack",
                 proficiency: ProficiencyType.SKILL_MIND,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -281,7 +274,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 rank: 0,
                 proficiencyType: ProficiencyType.SKILL_MIND,
@@ -296,7 +288,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
-                name: "Target",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 0,
                 proficiencyType: ProficiencyType.DEFEND_MIND,
@@ -319,7 +310,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             action = SquaddieActionService.new({
                 id: "mind_action",
-                name: "Always Succeeds",
                 proficiency: ProficiencyType.SKILL_MIND,
                 degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
                 effectOnActor: {
@@ -353,7 +343,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 rank: 0,
                 proficiencyType: ProficiencyType.SKILL_MIND,
@@ -368,7 +357,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
-                name: "Target",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 0,
                 proficiencyType: ProficiencyType.DEFEND_MIND,
@@ -391,7 +379,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             action = SquaddieActionService.new({
                 id: "mind_action",
-                name: "Mind Attack cannot Critical",
                 proficiency: ProficiencyType.SKILL_MIND,
                 degreesOfSuccess: [
                     DegreeOfSuccess.SUCCESS,
@@ -449,7 +436,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 rank: 0,
                 proficiencyType: ProficiencyType.SKILL_MIND,
@@ -464,7 +450,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
-                name: "Target, will probably fail",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 3,
                 proficiencyType: ProficiencyType.DEFEND_MIND,
@@ -487,7 +472,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             action = SquaddieActionService.new({
                 id: "mind_action",
-                name: "Mind Attack cannot Botch",
                 proficiency: ProficiencyType.SKILL_MIND,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -546,7 +530,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 rank: 0,
                 proficiencyType: ProficiencyType.SKILL_MIND,
@@ -561,7 +544,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
-                name: "Target is very resistant to Mind attacks",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 5,
                 proficiencyType: ProficiencyType.DEFEND_MIND,
@@ -584,7 +566,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             action = SquaddieActionService.new({
                 id: "mind_action",
-                name: "Mind Attack will not succeed against the target",
                 proficiency: ProficiencyType.SKILL_MIND,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -645,7 +626,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 rank: 1,
                 proficiencyType: ProficiencyType.WEAPON_SIMPLE,
@@ -660,7 +640,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
-                name: "Armored Target",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 0,
                 proficiencyType: ProficiencyType.ARMOR,
@@ -698,7 +677,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             action = SquaddieActionService.new({
                 id: "weapon_action",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_SIMPLE,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -765,7 +743,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "actor_attribute_sheet",
                 squaddieId: "actor_squaddie",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 rank: 0,
                 proficiencyType: ProficiencyType.SKILL_MIND,
@@ -780,7 +757,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
             addSquaddieToManager({
                 attributeSheetId: "target_attribute_sheet",
                 squaddieId: "target_squaddie",
-                name: "Target",
                 affiliation: SquaddieAffiliation.ENEMY,
                 rank: 0,
                 proficiencyType: ProficiencyType.DEFEND_MIND,
@@ -807,7 +783,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
         const createGuaranteedSuccessAttack = (rawDamage: number) =>
             SquaddieActionService.new({
                 id: "attack_action",
-                name: "Attack",
                 proficiency: ProficiencyType.SKILL_MIND,
                 degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
                 effectOnActor: {
@@ -910,7 +885,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
 
             action = SquaddieActionService.new({
                 id: "attack_action",
-                name: "Attack",
                 proficiency: ProficiencyType.SKILL_MIND,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -1098,7 +1072,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
     const addSquaddieToManager = ({
         attributeSheetId,
         squaddieId,
-        name,
         affiliation,
         rank,
         proficiencyType,
@@ -1107,7 +1080,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
     }: {
         attributeSheetId: string
         squaddieId: string
-        name: string
         affiliation: TSquaddieAffiliation
         rank: number
         proficiencyType: TProficiencyType
@@ -1130,7 +1102,6 @@ describe("SquaddieActionForecastCalculator - Actions on Foes", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: squaddieId,
-                name,
                 affiliation,
                 attributeSheetId,
             })

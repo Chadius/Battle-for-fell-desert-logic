@@ -44,7 +44,6 @@ const createMeleeStandoff = (): {
     outOfBattleSquaddieManager.addOrUpdateSquaddie(
         OutOfBattleSquaddieService.new({
             id: "actor",
-            name: "Actor",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "actor-sheet",
             actionIds: [biteActionId],
@@ -53,7 +52,6 @@ const createMeleeStandoff = (): {
     outOfBattleSquaddieManager.addOrUpdateSquaddie(
         OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             affiliation: SquaddieAffiliation.ENEMY,
             attributeSheetId: "enemy-sheet",
             actionIds: [biteActionId],
@@ -98,7 +96,6 @@ const createMeleeStandoff = (): {
     squaddieActionManager.addOrUpdate(
         SquaddieActionService.new({
             id: biteActionId,
-            name: "Bite",
             attribute: AttributeScore.BODY,
             proficiency: ProficiencyType.WEAPON_NATURAL,
             range: ActionRange.MELEE,

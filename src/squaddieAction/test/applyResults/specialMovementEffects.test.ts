@@ -36,7 +36,6 @@ const createTwoSquaddieMission = ({
 
     const actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
         id: "actor",
-        name: "Actor",
         actionIds: [],
         attributeSheetId: "sharedSheet",
         affiliation: SquaddieAffiliation.PLAYER,
@@ -45,7 +44,6 @@ const createTwoSquaddieMission = ({
 
     const targetOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
         id: "target",
-        name: "Target",
         actionIds: [],
         attributeSheetId: "sharedSheet",
         affiliation: SquaddieAffiliation.ENEMY,
@@ -136,7 +134,6 @@ describe("Special movement effects", () => {
         it("normal movement obeys squaddie movement", () => {
             const normalMoveAction = SquaddieActionService.new({
                 id: "normalMove",
-                name: "Normal Move",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         movement: {
@@ -176,7 +173,6 @@ describe("Special movement effects", () => {
         it("Action can override squaddie traversal", () => {
             const leapAction = SquaddieActionService.new({
                 id: "leap",
-                name: "Leap",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         movement: {
@@ -266,7 +262,6 @@ describe("Special movement effects", () => {
         const calculateRescueResults = () => {
             const rescueAction = SquaddieActionService.new({
                 id: "rescue",
-                name: "Rescue",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 1 },
@@ -415,7 +410,6 @@ describe("Special movement effects", () => {
 
                 const secondTargetOutOfBattle = OutOfBattleSquaddieService.new({
                     id: "secondTarget",
-                    name: "Second Target",
                     actionIds: [],
                     attributeSheetId: "sharedSheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -446,7 +440,6 @@ describe("Special movement effects", () => {
             }) => {
                 const rescueAction = SquaddieActionService.new({
                     id: "multiRescue",
-                    name: "Multi Rescue",
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {
                             actionPoints: { spent: 1 },
@@ -532,7 +525,6 @@ describe("Special movement effects", () => {
             it("targets are sorted by distance to actor so the closest gets the preferred cell", () => {
                 const rescueAction = SquaddieActionService.new({
                     id: "proximityRescue",
-                    name: "Proximity Rescue",
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {
                             actionPoints: { spent: 1 },
@@ -631,7 +623,6 @@ describe("Special movement effects", () => {
 
                 const actorOB = OutOfBattleSquaddieService.new({
                     id: "noRoomActor",
-                    name: "Actor",
                     actionIds: [],
                     attributeSheetId: "sharedSheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -641,7 +632,6 @@ describe("Special movement effects", () => {
 
                 const firstTargetOB = OutOfBattleSquaddieService.new({
                     id: "noRoomFirstTarget",
-                    name: "First Target",
                     actionIds: [],
                     attributeSheetId: "sharedSheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -651,7 +641,6 @@ describe("Special movement effects", () => {
 
                 const secondTargetOB = OutOfBattleSquaddieService.new({
                     id: "noRoomSecondTarget",
-                    name: "Second Target",
                     actionIds: [],
                     attributeSheetId: "sharedSheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -699,7 +688,6 @@ describe("Special movement effects", () => {
             it("second target has no movement result when only one valid landing cell exists", () => {
                 const rescueAction = SquaddieActionService.new({
                     id: "noRoomRescue",
-                    name: "No Room Rescue",
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {
                             actionPoints: { spent: 1 },
@@ -778,7 +766,6 @@ describe("Special movement effects", () => {
             ) =>
                 SquaddieActionService.new({
                     id,
-                    name: "Ranged Rescue",
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {
                             actionPoints: { spent: 2 },
@@ -961,7 +948,6 @@ describe("Special movement effects", () => {
             const calculateResults = () => {
                 const gravityPullAction = SquaddieActionService.new({
                     id: "gravityPull",
-                    name: "Gravity Pull",
                     effectOnActor: {
                         [DegreeOfSuccess.SUCCESS]: {
                             actionPoints: { spent: 1 },
@@ -1038,7 +1024,6 @@ describe("Special movement effects", () => {
         it("stops short when the next step toward the actor is impassable", () => {
             const blockerOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "blocker",
-                name: "Blocker",
                 actionIds: [],
                 attributeSheetId: "sharedSheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -1061,7 +1046,6 @@ describe("Special movement effects", () => {
 
             const gravityPullAction = SquaddieActionService.new({
                 id: "gravityPull",
-                name: "Gravity Pull",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 1 },
@@ -1112,7 +1096,6 @@ describe("Special movement effects", () => {
             const closerTargetOutOfBattleSquaddie =
                 OutOfBattleSquaddieService.new({
                     id: "closerTarget",
-                    name: "Closer Target",
                     actionIds: [],
                     attributeSheetId: "sharedSheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -1135,7 +1118,6 @@ describe("Special movement effects", () => {
 
             const gravityPullAction = SquaddieActionService.new({
                 id: "gravityPull",
-                name: "Gravity Pull",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 1 },

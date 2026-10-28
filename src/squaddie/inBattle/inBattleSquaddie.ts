@@ -29,7 +29,6 @@ export type { BattleSquaddieId } from "./battleSquaddieId.js"
 export interface InBattleSquaddie {
     id: number
     outOfBattleSquaddieId: string
-    name: string
     hitPoints: {
         max: number
         current: number
@@ -51,7 +50,6 @@ export interface InBattleSquaddie {
 export const serializedInBattleSquaddieSchema = z.object({
     id: z.number(),
     outOfBattleSquaddieId: z.string(),
-    name: z.string(),
     hitPoints: z.object({
         max: z.number(),
         current: z.number(),
@@ -83,17 +81,15 @@ export type SerializedInBattleSquaddie = z.infer<
 export const InBattleSquaddieService = {
     new: ({
         id,
-        name,
         outOfBattleSquaddie,
         attributeSheet,
-    }: Pick<InBattleSquaddie, "id" | "name"> & {
+    }: Pick<InBattleSquaddie, "id"> & {
         outOfBattleSquaddie: OutOfBattleSquaddie
         attributeSheet: OutOfBattleSquaddieAttributeSheet
     }): InBattleSquaddie => {
         return {
             id,
             outOfBattleSquaddieId: outOfBattleSquaddie.id,
-            name,
             hitPoints: {
                 max: attributeSheet.maxHitPoints,
                 current: attributeSheet.maxHitPoints,
@@ -1263,7 +1259,6 @@ const serialize = (squaddie: InBattleSquaddie): SerializedInBattleSquaddie => {
     return {
         id: squaddie.id,
         outOfBattleSquaddieId: squaddie.outOfBattleSquaddieId,
-        name: squaddie.name,
         hitPoints: {
             max: squaddie.hitPoints.max,
             current: squaddie.hitPoints.current,
@@ -1311,7 +1306,6 @@ const deserialize = (
     return {
         id: serializable.id,
         outOfBattleSquaddieId: serializable.outOfBattleSquaddieId,
-        name: serializable.name,
         hitPoints: {
             max: serializable.hitPoints.max,
             current: serializable.hitPoints.current,

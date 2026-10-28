@@ -9,7 +9,6 @@ describe("OutOfBattleSquaddie", () => {
     const createLini = () =>
         OutOfBattleSquaddieService.new({
             id: "lini",
-            name: "Lini",
             attributeSheetId: "liniAttributeSheet",
             actionIds: ["scimitar", "heal"],
             affiliation: SquaddieAffiliation.PLAYER,
@@ -22,7 +21,6 @@ describe("OutOfBattleSquaddie", () => {
 
             expect(serialized).toEqual({
                 id: "lini",
-                name: "Lini",
                 attributeSheetId: "liniAttributeSheet",
                 actionIds: ["scimitar", "heal"],
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -35,16 +33,27 @@ describe("OutOfBattleSquaddie", () => {
             const restored = OutOfBattleSquaddieService.deserialize(serialized)
 
             expect(restored.id).toBe("lini")
-            expect(restored.name).toBe("Lini")
             expect(restored.attributeSheetId).toBe("liniAttributeSheet")
             expect(restored.actionIds).toEqual(["scimitar", "heal"])
             expect(restored.affiliation).toBe(SquaddieAffiliation.PLAYER)
         })
 
+        describe("when the JSON still has a display name from before names moved to displayNames.json", () => {
+            it("loads the squaddie without the name", () => {
+                const lini = createLini()
+
+                const restored = OutOfBattleSquaddieService.deserialize({
+                    ...OutOfBattleSquaddieService.serialize(lini),
+                    name: "Lini",
+                })
+
+                expect(restored).toEqual(lini)
+            })
+        })
+
         it("round-trips a squaddie with no action ids", () => {
             const squaddie = OutOfBattleSquaddieService.new({
                 id: "empty",
-                name: "Empty",
                 attributeSheetId: "emptySheet",
                 affiliation: SquaddieAffiliation.ENEMY,
             })
@@ -59,7 +68,6 @@ describe("OutOfBattleSquaddie", () => {
 
         it("throws a descriptive error when id is missing", () => {
             const bad: Partial<SerializedOutOfBattleSquaddie> = {
-                name: "Lini",
                 attributeSheetId: "liniAttributeSheet",
                 actionIds: [],
                 affiliation: SquaddieAffiliation.PLAYER,

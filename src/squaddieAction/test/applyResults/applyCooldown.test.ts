@@ -20,7 +20,6 @@ describe("ApplyResultService cooldown", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.PLAYER,

@@ -27,7 +27,6 @@ describe("getSquaddieInfo", () => {
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player-1",
-            name: "Hero",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "test_sheet",
         })
@@ -77,7 +76,6 @@ describe("getSquaddieInfo", () => {
 
         const info = missionEngine.getSquaddieInfo(playerSquaddieId)
 
-        expect(info.name).toBe("Hero")
         expect(info.affiliation).toBe(SquaddieAffiliation.PLAYER)
         expect(info.currentHitPoints).toBe(10)
         expect(info.maxHitPoints).toBe(10)
@@ -142,7 +140,6 @@ describe("getSquaddieInfo", () => {
         const jsonString = JSON.stringify(info)
         const parsed = JSON.parse(jsonString)
 
-        expect(parsed.name).toBe("Hero")
         expect(parsed.affiliation).toBe(SquaddieAffiliation.PLAYER)
         expect(parsed.currentHitPoints).toBe(10)
         expect(parsed.isDefeated).toBe(false)

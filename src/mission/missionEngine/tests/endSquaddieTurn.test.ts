@@ -162,19 +162,16 @@ describe("endSquaddieTurn", () => {
 
             const player1 = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Player One",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "player_sheet",
             })
             const player2 = OutOfBattleSquaddieService.new({
                 id: "player-2",
-                name: "Player Two",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "player_sheet",
             })
             const enemy = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "enemy_sheet",
             })
@@ -438,7 +435,6 @@ describe("endSquaddieTurn", () => {
             squaddieActionManager.addOrUpdate(
                 SquaddieActionService.new({
                     id: "bite",
-                    name: "Bite",
                     range: ActionRange.MELEE,
                     affiliationRelationship: {
                         self: false,
@@ -461,25 +457,21 @@ describe("endSquaddieTurn", () => {
         const createSquaddies = () => {
             const playerSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Player One",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "shared_sheet",
             })
             const farEnemy0 = OutOfBattleSquaddieService.new({
                 id: "far-enemy-0",
-                name: "Far Enemy Zero",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "shared_sheet",
             })
             const farEnemy1 = OutOfBattleSquaddieService.new({
                 id: "far-enemy-1",
-                name: "Far Enemy One",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "shared_sheet",
             })
             const nearEnemy = OutOfBattleSquaddieService.new({
                 id: "near-enemy",
-                name: "Near Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "shared_sheet",
                 actionIds: ["bite"],
@@ -612,13 +604,11 @@ describe("endSquaddieTurn", () => {
 
             const player1 = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Player One",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "player_sheet",
             })
             const player2 = OutOfBattleSquaddieService.new({
                 id: "player-2",
-                name: "Player Two",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "player_sheet",
             })

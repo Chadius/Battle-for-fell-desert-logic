@@ -421,7 +421,6 @@ describe("Mission Objective", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy1",
-                    name: "Enemy 1",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -430,7 +429,6 @@ describe("Mission Objective", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "boss",
-                    name: "Boss",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -656,7 +654,6 @@ describe("Mission Objective", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy1",
-                    name: "Enemy 1",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -665,7 +662,6 @@ describe("Mission Objective", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "ally1",
-                    name: "Ally 1",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ALLY,

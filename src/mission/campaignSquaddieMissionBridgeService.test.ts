@@ -166,7 +166,6 @@ describe("CampaignSquaddieMissionBridgeService", () => {
                     )
                 ).toMatchObject({
                     id: CampaignTestHarnessIds.lini.outOfBattleSquaddieId,
-                    name: "Lini",
                     attributeSheetId:
                         CampaignTestHarnessIds.lini.attributeSheetId,
                     affiliation: SquaddieAffiliation.PLAYER,

@@ -24,7 +24,6 @@ describe("SquaddieActionClassificationService.classify carry actions", () => {
         it("is CARRY", () => {
             const rescue = SquaddieActionService.new({
                 id: "rescue",
-                name: "Rescue",
                 affiliationRelationship: {
                     self: false,
                     foe: false,
@@ -53,7 +52,6 @@ describe("SquaddieActionClassificationService.classify carry actions", () => {
         it("is CARRY, not HINDER", () => {
             const grapplingHook = SquaddieActionService.new({
                 id: "grappling-hook",
-                name: "Grappling Hook",
                 affiliationRelationship: {
                     self: false,
                     foe: true,
@@ -73,7 +71,6 @@ describe("SquaddieActionClassificationService.classify carry actions", () => {
         it("is CARRY, not MOVE", () => {
             const swapPlaces = SquaddieActionService.new({
                 id: "swap-places",
-                name: "Swap Places",
                 affiliationRelationship: {
                     self: false,
                     foe: false,
@@ -107,7 +104,6 @@ describe("SquaddieActionClassificationService.classify carry actions", () => {
         it("is DAMAGE, not CARRY", () => {
             const shove = SquaddieActionService.new({
                 id: "shove",
-                name: "Shove",
                 affiliationRelationship: {
                     self: false,
                     foe: true,

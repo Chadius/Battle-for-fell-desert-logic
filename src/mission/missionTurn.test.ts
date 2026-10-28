@@ -46,7 +46,6 @@ describe("MissionTurn", () => {
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player",
-            name: "Player",
             actionIds: [],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -55,7 +54,6 @@ describe("MissionTurn", () => {
 
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -64,7 +62,6 @@ describe("MissionTurn", () => {
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             actionIds: [],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -73,7 +70,6 @@ describe("MissionTurn", () => {
 
         const noneSquaddie = OutOfBattleSquaddieService.new({
             id: "none",
-            name: "None",
             actionIds: [],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,

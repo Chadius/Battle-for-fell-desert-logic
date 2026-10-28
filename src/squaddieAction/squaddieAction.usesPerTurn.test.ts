@@ -5,7 +5,6 @@ import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
 const baseAction = () =>
     SquaddieActionService.new({
         id: "thunder-strike",
-        name: "Thunder Strike",
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
         },
@@ -19,7 +18,6 @@ describe("SquaddieAction usesPerTurn", () => {
     it("accepts a positive integer as the per-turn limit", () => {
         const action = SquaddieActionService.new({
             id: "thunder-strike",
-            name: "Thunder Strike",
             usesPerTurn: 2,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -32,7 +30,6 @@ describe("SquaddieAction usesPerTurn", () => {
         expect(() =>
             SquaddieActionService.new({
                 id: "thunder-strike",
-                name: "Thunder Strike",
                 usesPerTurn: 0,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -45,7 +42,6 @@ describe("SquaddieAction usesPerTurn", () => {
         expect(() =>
             SquaddieActionService.new({
                 id: "thunder-strike",
-                name: "Thunder Strike",
                 usesPerTurn: -1,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -58,7 +54,6 @@ describe("SquaddieAction usesPerTurn", () => {
         expect(() =>
             SquaddieActionService.new({
                 id: "thunder-strike",
-                name: "Thunder Strike",
                 usesPerTurn: 1.5,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -71,7 +66,6 @@ describe("SquaddieAction usesPerTurn", () => {
         it("round-trips usesPerTurn through serialize/deserialize", () => {
             const original = SquaddieActionService.new({
                 id: "thunder-strike",
-                name: "Thunder Strike",
                 usesPerTurn: 3,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },

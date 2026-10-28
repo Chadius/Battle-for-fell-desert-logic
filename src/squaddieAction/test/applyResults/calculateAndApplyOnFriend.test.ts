@@ -103,7 +103,6 @@ describe("Squaddie Actions on a friend", () => {
         actorOutOfBattleSquaddieId = "soldier"
         actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: actorOutOfBattleSquaddieId,
-            name: "Soldier",
             actionIds: ["longsword"],
             attributeSheetId: "soldier",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -113,7 +112,6 @@ describe("Squaddie Actions on a friend", () => {
         targetOutOfBattleSquaddieId = "enemy-soldier"
         targetOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: targetOutOfBattleSquaddieId,
-            name: "Soldier",
             actionIds: ["longsword"],
             attributeSheetId: "soldier",
             affiliation: SquaddieAffiliation.ALLY,
@@ -141,7 +139,6 @@ describe("Squaddie Actions on a friend", () => {
         )
         healingHerbAction = SquaddieActionService.new({
             id: "healingHerb",
-            name: "Healing Herb",
             proficiency: ProficiencyType.SKILL_BODY,
             targeting: {
                 range: ActionRange.MELEE,
@@ -171,7 +168,6 @@ describe("Squaddie Actions on a friend", () => {
 
         magicalBarrierAction = SquaddieActionService.new({
             id: "magicalBarrier",
-            name: "Magical Barrier",
             proficiency: ProficiencyType.SKILL_MIND,
             targeting: {
                 range: ActionRange.MELEE,
@@ -384,7 +380,6 @@ describe("Squaddie Actions on a friend", () => {
 
         const treatAllAction = SquaddieActionService.new({
             id: "treatAll",
-            name: "Treat All",
             affiliationRelationship: {
                 self: false,
                 friend: false,

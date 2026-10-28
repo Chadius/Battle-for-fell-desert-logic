@@ -51,7 +51,6 @@ import {
 
 export interface InvalidSquaddieAction {
     actionId: string
-    actionName: string
     reason: string
     apCost?: ActionPointCost
     actionPointCostDependsOnMovementPath: boolean
@@ -64,7 +63,6 @@ export interface InvalidSquaddieAction {
 
 export interface ValidSquaddieAction {
     actionId: string
-    actionName: string
     reachableCoordinates: OffsetCoordinate[]
     aimCoordinateResults: AimCoordinateResult[]
     apCost?: ActionPointCost
@@ -426,7 +424,6 @@ export const SquaddieActionValidationService = {
 
             const commonActionFields = {
                 actionId,
-                actionName: squaddieAction.name,
                 apCost,
                 actionPointCostDependsOnMovementPath:
                     SquaddieActionService.actionPointCostDependsOnMovementPath(
@@ -549,7 +546,6 @@ export const SquaddieActionValidationService = {
         const defaultEndTurnAction = SquaddieActionService.defaultEndTurn()
         validActions.push({
             actionId: defaultEndTurnAction.id,
-            actionName: defaultEndTurnAction.name,
             reachableCoordinates: [],
             aimCoordinateResults: [],
             apCost: "all",
@@ -2368,7 +2364,6 @@ const checkForValidMovementAction = (
             .map((option) => option.decisions.targetDestination!)
         validActions.push({
             actionId: defaultMoveAction.id,
-            actionName: defaultMoveAction.name,
             reachableCoordinates: movementTargetCoordinates,
             aimCoordinateResults: movementTargetCoordinates.map(
                 (aimCoordinate) => ({
@@ -2387,7 +2382,6 @@ const checkForValidMovementAction = (
     } else {
         invalidActions.push({
             actionId: defaultMoveAction.id,
-            actionName: defaultMoveAction.name,
             reason: "No valid movement destinations",
             actionPointCostDependsOnMovementPath:
                 SquaddieActionService.actionPointCostDependsOnMovementPath(

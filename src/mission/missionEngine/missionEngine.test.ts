@@ -148,14 +148,12 @@ describe("MissionEngine", () => {
 
                 const playerSquaddie = OutOfBattleSquaddieService.new({
                     id: "player-1",
-                    name: "Player",
                     affiliation: SquaddieAffiliation.PLAYER,
                     attributeSheetId: "test_sheet",
                 })
 
                 const enemySquaddie = OutOfBattleSquaddieService.new({
                     id: "enemy-1",
-                    name: "Enemy",
                     affiliation: SquaddieAffiliation.ENEMY,
                     attributeSheetId: "test_sheet",
                 })
@@ -336,14 +334,12 @@ describe("MissionEngine", () => {
 
             const actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "actor_sheet",
             })
 
             const targetOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "target",
-                name: "Target",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "target_sheet",
             })
@@ -370,7 +366,6 @@ describe("MissionEngine", () => {
 
             const attackAction = SquaddieActionService.new({
                 id: "attack",
-                name: "Attack",
                 targeting: {
                     range: ActionRange.MELEE,
                     shape: CoordinateGeneratorShape.BLOOM,
@@ -797,14 +792,12 @@ describe("MissionEngine", () => {
 
             const playerSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Hero",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
             })
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test_sheet",
             })
@@ -949,7 +942,6 @@ describe("MissionEngine", () => {
 
             const actorSquaddie = OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
             })
@@ -1070,7 +1062,6 @@ describe("MissionEngine", () => {
 
             const playerSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Player 1",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
             })
@@ -1163,13 +1154,11 @@ describe("MissionEngine", () => {
 
                 const playerSquaddie = OutOfBattleSquaddieService.new({
                     id: "player-1",
-                    name: "Player",
                     affiliation: SquaddieAffiliation.PLAYER,
                     attributeSheetId: "shared_sheet",
                 })
                 const enemySquaddie = OutOfBattleSquaddieService.new({
                     id: "enemy-1",
-                    name: "Enemy",
                     affiliation: SquaddieAffiliation.ENEMY,
                     attributeSheetId: "shared_sheet",
                 })

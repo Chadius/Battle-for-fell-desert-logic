@@ -15,7 +15,6 @@ const noOpEffectOnActor = {
 
 const attackAction = SquaddieActionService.new({
     id: "attack",
-    name: "Attack",
     proficiency: ProficiencyType.WEAPON_MARTIAL,
     effectOnActor: noOpEffectOnActor,
     effectOnTarget: {
@@ -32,7 +31,6 @@ const attackAction = SquaddieActionService.new({
 
 const nonAttackAction = SquaddieActionService.new({
     id: "heal",
-    name: "Heal",
     effectOnActor: noOpEffectOnActor,
     effectOnTarget: {
         [DegreeOfSuccess.SUCCESS]: {
@@ -86,7 +84,6 @@ describe("TrainingWheelsService", () => {
         it("falls back to SUCCESS if the action has no CRITICAL outcome", () => {
             const noCriticalAction = SquaddieActionService.new({
                 id: "attack-no-crit",
-                name: "Attack",
                 degreesOfSuccess: [
                     DegreeOfSuccess.SUCCESS,
                     DegreeOfSuccess.FAILURE,
@@ -137,7 +134,6 @@ describe("TrainingWheelsService", () => {
         it("falls back to FAILURE if the action has no BOTCH outcome", () => {
             const noBotchAction = SquaddieActionService.new({
                 id: "attack-no-botch",
-                name: "Attack",
                 degreesOfSuccess: [
                     DegreeOfSuccess.SUCCESS,
                     DegreeOfSuccess.FAILURE,

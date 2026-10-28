@@ -9,7 +9,6 @@ describe("Squaddie Item", () => {
     it("Can create a passive item and get bonuses", () => {
         const plateMailArmor = SquaddieItemService.new({
             id: "plateMail",
-            name: "Plate Mail",
             numberOfUses: undefined,
             passiveProficiencyBonuses: {
                 [ProficiencyType.ARMOR]: 2,
@@ -28,7 +27,6 @@ describe("Squaddie Item", () => {
         const createHealingPotion = () =>
             SquaddieItemService.new({
                 id: "healingPotion",
-                name: "Healing Potion",
                 numberOfUses: 1,
                 passiveProficiencyBonuses: {
                     [ProficiencyType.ARMOR]: 1,
@@ -42,7 +40,6 @@ describe("Squaddie Item", () => {
 
             expect(serialized).toEqual({
                 id: "healingPotion",
-                name: "Healing Potion",
                 numberOfUses: 1,
                 passiveProficiencyBonuses: { ARMOR: 1 },
                 actionIds: ["heal"],
@@ -55,7 +52,6 @@ describe("Squaddie Item", () => {
             const restored = SquaddieItemService.deserialize(serialized)
 
             expect(restored.id).toBe("healingPotion")
-            expect(restored.name).toBe("Healing Potion")
             expect(restored.numberOfUses).toBe(1)
             expect(
                 restored.passiveProficiencyBonuses.get(ProficiencyType.ARMOR)
@@ -63,10 +59,22 @@ describe("Squaddie Item", () => {
             expect(restored.actionIds.has("heal")).toBeTruthy()
         })
 
+        describe("when the JSON still has a display name from before names moved to displayNames.json", () => {
+            it("loads the item without the name", () => {
+                const potion = createHealingPotion()
+
+                const restored = SquaddieItemService.deserialize({
+                    ...SquaddieItemService.serialize(potion),
+                    name: "Healing Potion",
+                })
+
+                expect(restored).toEqual(potion)
+            })
+        })
+
         it("round-trips an item with no uses and no bonuses", () => {
             const banner = SquaddieItemService.new({
                 id: "banner",
-                name: "Battle Banner",
                 passiveProficiencyBonuses: {},
                 actionIds: [],
             })

@@ -65,7 +65,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
     it("returns actor at current coordinate for self-only action", () => {
         const selfAction = SquaddieActionService.new({
             id: "self-action",
-            name: "Self Action",
             range: ActionRange.SELF,
             affiliationRelationship: {
                 self: true,
@@ -97,7 +96,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
     it("returns actor and nearby ally for self-and-friend melee, excludes distant ally", () => {
         const nearAllySquaddie = OutOfBattleSquaddieService.new({
             id: "near-ally",
-            name: "Near Ally",
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -119,7 +117,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
 
         const farAllySquaddie = OutOfBattleSquaddieService.new({
             id: "far-ally",
-            name: "Far Ally",
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -141,7 +138,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
 
         const meleeHealAction = SquaddieActionService.new({
             id: "melee-heal",
-            name: "Melee Heal",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: true,
@@ -180,7 +176,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
     it("returns foe only for foe-targeting ranged action, excludes ally and self", () => {
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -202,7 +197,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -224,7 +218,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
 
         const shortRangeAttack = SquaddieActionService.new({
             id: "short-attack",
-            name: "Short Range Attack",
             range: ActionRange.SHORT,
             affiliationRelationship: {
                 self: false,
@@ -266,7 +259,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
     it("returns empty map for non-self action when only actor is on map", () => {
         const meleeAttack = SquaddieActionService.new({
             id: "melee-attack",
-            name: "Melee Attack",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -305,7 +297,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
             aoeOutOfBattle.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "aoe-actor",
-                    name: "AoE Actor",
                     actionIds: [],
                     attributeSheetId: "aoe-sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -314,7 +305,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
             aoeOutOfBattle.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy-1",
-                    name: "Enemy 1",
                     actionIds: [],
                     attributeSheetId: "aoe-sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -323,7 +313,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
             aoeOutOfBattle.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy-2",
-                    name: "Enemy 2",
                     actionIds: [],
                     attributeSheetId: "aoe-sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -401,7 +390,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
 
             aoeAction = SquaddieActionService.new({
                 id: "aoe-action",
-                name: "AoE Action",
                 range: ActionRange.SHORT,
                 shape: CoordinateGeneratorShape.BLOOM,
                 areaOfEffectSize: 1,

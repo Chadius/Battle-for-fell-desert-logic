@@ -221,7 +221,7 @@ describe("MissionTurnHistoryEntryService", () => {
 
         it("moves updated entry to the end so getLastAction reflects insertion order", () => {
             const action1 = SquaddieTurnActionRecordService.new({
-                action: { id: "attack", name: "Attack" } as SquaddieAction,
+                action: { id: "attack" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -234,7 +234,7 @@ describe("MissionTurnHistoryEntryService", () => {
                 ],
             })
             const action2 = SquaddieTurnActionRecordService.new({
-                action: { id: "move", name: "Move" } as SquaddieAction,
+                action: { id: "move" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -428,7 +428,6 @@ describe("MissionTurnHistoryEntryService", () => {
                 SquaddieTurnActionRecordService.new({
                     action: {
                         id: "squaddieTurnActionRecord3",
-                        name: "Attack",
                     } as SquaddieAction,
                     results: [
                         {
@@ -499,7 +498,6 @@ describe("MissionTurnHistoryEntryService", () => {
                 SquaddieTurnActionRecordService.new({
                     action: {
                         id: "squaddieTurnActionRecord1",
-                        name: "Attack",
                     } as SquaddieAction,
                     results: [
                         {
@@ -587,7 +585,6 @@ describe("MissionTurnHistoryEntryService", () => {
                 SquaddieTurnActionRecordService.new({
                     action: {
                         id: "squaddieTurnActionRecord1",
-                        name: "Attack",
                     } as SquaddieAction,
                     results: [
                         {
@@ -626,7 +623,6 @@ describe("MissionTurnHistoryEntryService", () => {
                 SquaddieTurnActionRecordService.new({
                     action: {
                         id: "squaddieTurnActionRecord3",
-                        name: "Heal",
                     } as SquaddieAction,
                     results: [
                         {
@@ -678,7 +674,6 @@ describe("MissionTurnHistoryEntryService", () => {
                 SquaddieTurnActionRecordService.new({
                     action: {
                         id: "squaddieTurnActionRecord3",
-                        name: "Heal",
                     } as SquaddieAction,
                     results: [
                         {
@@ -835,7 +830,7 @@ describe("MissionTurnHistoryEntryService", () => {
                     outOfBattleSquaddieId: "target",
                 }
                 const sharedAction = SquaddieTurnActionRecordService.new({
-                    action: { id: "poke", name: "Poke" } as SquaddieAction,
+                    action: { id: "poke" } as SquaddieAction,
                     results: [
                         {
                             inBattleSquaddieId: actorId.inBattleSquaddieId,
@@ -881,7 +876,7 @@ describe("MissionTurnHistoryEntryService", () => {
 
 const createSquaddieTurnActionRecord1 = (): SquaddieTurnActionRecord => {
     return SquaddieTurnActionRecordService.new({
-        action: { id: "action1", name: "Attack" } as SquaddieAction,
+        action: { id: "action1" } as SquaddieAction,
         results: [
             {
                 inBattleSquaddieId: 1,
@@ -893,7 +888,7 @@ const createSquaddieTurnActionRecord1 = (): SquaddieTurnActionRecord => {
 
 const createSquaddieTurnActionRecord2 = (): SquaddieTurnActionRecord => {
     return SquaddieTurnActionRecordService.new({
-        action: { id: "action2", name: "Move" } as SquaddieAction,
+        action: { id: "action2" } as SquaddieAction,
         results: [
             {
                 inBattleSquaddieId: 1,

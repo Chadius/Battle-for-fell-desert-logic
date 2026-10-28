@@ -13,7 +13,6 @@ describe("Squaddie Item Collection", () => {
     beforeEach(() => {
         plateMail = SquaddieItemService.new({
             id: "plateMail",
-            name: "Plate Mail",
             numberOfUses: undefined,
             passiveProficiencyBonuses: {
                 [ProficiencyType.ARMOR]: 2,
@@ -50,10 +49,9 @@ describe("Squaddie Item Collection", () => {
                 collection: squaddieItemCollection,
                 squaddieItem: SquaddieItemService.new({
                     id: plateMail.id,
-                    name: "Plate Mail 2",
                     numberOfUses: undefined,
                     passiveProficiencyBonuses: {
-                        [ProficiencyType.ARMOR]: 2,
+                        [ProficiencyType.ARMOR]: 3,
                     },
                     actionIds: [],
                 }),
@@ -62,8 +60,8 @@ describe("Squaddie Item Collection", () => {
             SquaddieItemCollectionService.get({
                 collection: newSquaddieItemCollection,
                 id: plateMail.id,
-            })?.name
-        ).toEqual("Plate Mail 2")
+            })?.passiveProficiencyBonuses.get(ProficiencyType.ARMOR)
+        ).toEqual(3)
     })
     it("can remove items", () => {
         const addedItem = SquaddieItemCollectionService.addOrUpdate({

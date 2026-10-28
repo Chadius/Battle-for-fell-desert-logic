@@ -5,7 +5,6 @@ import { DegreeOfSuccess } from "../degreesOfSuccess/degreeOfSuccess.js"
 const actionWith = (usesPerMission?: number) =>
     SquaddieActionService.new({
         id: "warcry",
-        name: "Warcry",
         usesPerMission,
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },

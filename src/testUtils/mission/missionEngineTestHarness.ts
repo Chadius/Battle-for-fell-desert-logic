@@ -158,6 +158,18 @@ export class MissionEngineTestHarness extends MissionEngine {
         return MissionEngineTestHarness.createSquaddieActionManager().serialize()
     }
 
+    static serializedAction(actionId: string): SerializedSquaddieAction {
+        const serializedSquaddieAction =
+            MissionEngineTestHarness.serializeActions().find(
+                (candidate) => candidate.id === actionId
+            )
+        if (serializedSquaddieAction == undefined)
+            throw new Error(
+                `[MissionEngineTestHarness.serializedAction]: no action ${actionId}`
+            )
+        return serializedSquaddieAction
+    }
+
     private static createMissionState() {
         return MissionStateService.new({
             id: MissionEngineTestHarnessIds.missionStateId,
@@ -269,7 +281,6 @@ export class MissionEngineTestHarness extends MissionEngine {
     private static createScimitarAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.scimitarActionId,
-            name: "Scimitar",
             attribute: AttributeScore.BODY,
             proficiency: ProficiencyType.WEAPON_MARTIAL,
             range: ActionRange.MELEE,
@@ -305,7 +316,6 @@ export class MissionEngineTestHarness extends MissionEngine {
     private static createBlessingAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.blessingActionId,
-            name: "Blessing",
             attribute: AttributeScore.SOUL,
             proficiency: ProficiencyType.SKILL_SOUL,
             range: ActionRange.SHORT,
@@ -345,7 +355,6 @@ export class MissionEngineTestHarness extends MissionEngine {
     private static createHealAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.healActionId,
-            name: "Heal",
             attribute: AttributeScore.SOUL,
             proficiency: ProficiencyType.SKILL_SOUL,
             range: ActionRange.MELEE,
@@ -375,7 +384,6 @@ export class MissionEngineTestHarness extends MissionEngine {
     private static createSolarSphereAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.solarSphereActionId,
-            name: "Solar Sphere",
             attribute: AttributeScore.SOUL,
             proficiency: ProficiencyType.SKILL_SOUL,
             range: ActionRange.MEDIUM,
@@ -450,7 +458,6 @@ export class MissionEngineTestHarness extends MissionEngine {
     private static createLimitedBlastAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.limitedBlastActionId,
-            name: "Limited Blast",
             usesPerTurn: 1,
             range: ActionRange.MELEE,
             shape: CoordinateGeneratorShape.BLOOM,
@@ -488,7 +495,6 @@ export class MissionEngineTestHarness extends MissionEngine {
     private static createLimitedMissionAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.lini.limitedMissionActionId,
-            name: "Limited Mission Blast",
             usesPerMission: 2,
             range: ActionRange.MELEE,
             shape: CoordinateGeneratorShape.BLOOM,
@@ -508,7 +514,6 @@ export class MissionEngineTestHarness extends MissionEngine {
     private static createClawAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: MissionEngineTestHarnessIds.slitherDemon.clawActionId,
-            name: "Claw",
             attribute: AttributeScore.BODY,
             proficiency: ProficiencyType.WEAPON_NATURAL,
             range: ActionRange.MELEE,
@@ -567,7 +572,6 @@ export class MissionEngineTestHarness extends MissionEngine {
 
         const liniSquaddie = OutOfBattleSquaddieService.new({
             id: MissionEngineTestHarnessIds.lini.outOfBattleSquaddieId,
-            name: "Lini",
             attributeSheetId: MissionEngineTestHarnessIds.lini.attributeSheetId,
             actionIds: [
                 MissionEngineTestHarnessIds.lini.scimitarActionId,
@@ -599,7 +603,6 @@ export class MissionEngineTestHarness extends MissionEngine {
 
         const slitherDemonSquaddie = OutOfBattleSquaddieService.new({
             id: MissionEngineTestHarnessIds.slitherDemon.outOfBattleSquaddieId,
-            name: "Slither Demon",
             attributeSheetId:
                 MissionEngineTestHarnessIds.slitherDemon.attributeSheetId,
             actionIds: [MissionEngineTestHarnessIds.slitherDemon.clawActionId],

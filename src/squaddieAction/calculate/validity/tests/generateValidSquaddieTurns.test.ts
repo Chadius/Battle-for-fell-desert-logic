@@ -44,7 +44,6 @@ describe("generateValidSquaddieTurns", () => {
 
         const actorSquaddie = OutOfBattleSquaddieService.new({
             id: "actor",
-            name: "Actor",
             actionIds: [rangedAttackId],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -53,7 +52,6 @@ describe("generateValidSquaddieTurns", () => {
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -90,7 +88,6 @@ describe("generateValidSquaddieTurns", () => {
 
         const rangedAttack = SquaddieActionService.new({
             id: rangedAttackId,
-            name: "Ranged Attack",
             range: ActionRange.SHORT,
             affiliationRelationship: {
                 self: false,

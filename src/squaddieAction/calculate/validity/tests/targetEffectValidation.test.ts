@@ -46,7 +46,6 @@ describe("target effect validation", () => {
 
         const effectActorSquaddie = OutOfBattleSquaddieService.new({
             id: "effect-actor",
-            name: "Effect Actor",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -94,7 +93,6 @@ describe("target effect validation", () => {
 
         healAction = SquaddieActionService.new({
             id: "heal",
-            name: "Heal",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -115,7 +113,6 @@ describe("target effect validation", () => {
 
         attackAction = SquaddieActionService.new({
             id: "attack",
-            name: "Attack",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -141,7 +138,6 @@ describe("target effect validation", () => {
     it("returns invalid when healing action targets squaddie at full HP", () => {
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -183,7 +179,6 @@ describe("target effect validation", () => {
     it("returns valid when healing action targets squaddie below full HP", () => {
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -229,7 +224,6 @@ describe("target effect validation", () => {
     it("returns invalid when damage action targets squaddie with 0 HP", () => {
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -276,7 +270,6 @@ describe("target effect validation", () => {
     it("returns valid when damage action targets squaddie with HP remaining", () => {
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -317,7 +310,6 @@ describe("target effect validation", () => {
     it("returns invalid when dispel targets squaddie with no dispellable conditions", () => {
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -339,7 +331,6 @@ describe("target effect validation", () => {
 
         const dispelAction = SquaddieActionService.new({
             id: "dispel",
-            name: "Dispel",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -385,7 +376,6 @@ describe("target effect validation", () => {
     it("returns valid when target has conditions that can be dispelled", () => {
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -419,7 +409,6 @@ describe("target effect validation", () => {
 
         const dispelAction = SquaddieActionService.new({
             id: "dispel",
-            name: "Dispel",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -464,7 +453,6 @@ describe("target effect validation", () => {
     it("returns invalid when treat targets squaddie with no treatable conditions", () => {
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -486,7 +474,6 @@ describe("target effect validation", () => {
 
         const treatAction = SquaddieActionService.new({
             id: "treat",
-            name: "Treat",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -532,7 +519,6 @@ describe("target effect validation", () => {
     it("returns valid when target has conditions that can be treated", () => {
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -566,7 +552,6 @@ describe("target effect validation", () => {
 
         const treatAction = SquaddieActionService.new({
             id: "treat",
-            name: "Treat",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -611,7 +596,6 @@ describe("target effect validation", () => {
     it("returns valid when condition can be added to target", () => {
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -633,7 +617,6 @@ describe("target effect validation", () => {
 
         const slowAction = SquaddieActionService.new({
             id: "slow",
-            name: "Slow",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -681,7 +664,6 @@ describe("target effect validation", () => {
     it("returns valid when no targets provided (action may affect actor only)", () => {
         const selfBuffAction = SquaddieActionService.new({
             id: "self-buff",
-            name: "Self Buff",
             range: ActionRange.SELF,
             affiliationRelationship: {
                 self: true,
@@ -725,7 +707,6 @@ describe("target effect validation", () => {
     it("returns valid when action has no effectOnTarget defined", () => {
         const selfOnlyAction = SquaddieActionService.new({
             id: "self-only",
-            name: "Self Only",
             range: ActionRange.SELF,
             affiliationRelationship: {
                 self: true,
@@ -759,7 +740,6 @@ describe("target effect validation", () => {
     it("returns valid when at least one of multiple targets can be affected", () => {
         const ally1Squaddie = OutOfBattleSquaddieService.new({
             id: "ally1",
-            name: "Ally 1",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -781,7 +761,6 @@ describe("target effect validation", () => {
 
         const ally2Squaddie = OutOfBattleSquaddieService.new({
             id: "ally2",
-            name: "Ally 2",
             actionIds: [],
             attributeSheetId: "effect-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -808,7 +787,6 @@ describe("target effect validation", () => {
 
         const healAction = SquaddieActionService.new({
             id: "mass-heal",
-            name: "Mass Heal",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -862,7 +840,6 @@ describe("TELEPORT_TO_ACTOR_CHOSEN validation passes decisions through", () => {
 
         const actorSquaddie = OutOfBattleSquaddieService.new({
             id: "teleport-actor",
-            name: "Teleport Actor",
             actionIds: ["rescue"],
             attributeSheetId: "teleport-sheet",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -871,7 +848,6 @@ describe("TELEPORT_TO_ACTOR_CHOSEN validation passes decisions through", () => {
 
         const friendSquaddie = OutOfBattleSquaddieService.new({
             id: "teleport-friend",
-            name: "Teleport Friend",
             actionIds: [],
             attributeSheetId: "teleport-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -924,7 +900,6 @@ describe("TELEPORT_TO_ACTOR_CHOSEN validation passes decisions through", () => {
 
         rescueAction = SquaddieActionService.new({
             id: "rescue",
-            name: "Rescue",
             howToDetermineDegreeOfSuccess:
                 HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
             range: ActionRange.MEDIUM,

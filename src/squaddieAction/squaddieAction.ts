@@ -80,7 +80,6 @@ export interface MultipleAttackPenalty {
 
 export interface SquaddieAction {
     id: string
-    name: string
     attribute: AttributeScoreType
     degreesOfSuccess: TDegreeOfSuccess[]
     targeting: SquaddieActionTargeting
@@ -116,7 +115,6 @@ type SerializedDegreeOfSuccessEffects = z.infer<
 
 export const squaddieActionSchema = z.object({
     id: z.string().min(1),
-    name: z.string().min(1),
     attribute: z.enum(AttributeScore),
     degreesOfSuccess: z.array(z.enum(DegreeOfSuccess)),
     targeting: z.object({
@@ -169,7 +167,6 @@ const serializeSquaddieAction = (
     action: SquaddieAction
 ): SerializedSquaddieAction => ({
     id: action.id,
-    name: action.name,
     attribute: action.attribute,
     degreesOfSuccess: [...action.degreesOfSuccess],
     targeting: {
@@ -197,7 +194,6 @@ const serializeSquaddieAction = (
 export const SquaddieActionService = {
     new: ({
         id,
-        name,
         attribute,
         degreesOfSuccess,
         targeting,
@@ -218,7 +214,7 @@ export const SquaddieActionService = {
         usesPerMission,
         glossaryTermIds,
     }: Omit<Partial<SquaddieAction>, "multipleAttackPenalty"> &
-        Pick<SquaddieAction, "id" | "name" | "effectOnActor"> &
+        Pick<SquaddieAction, "id" | "effectOnActor"> &
         Partial<SquaddieActionTargeting> & {
             multipleAttackPenalty?: Partial<MultipleAttackPenalty>
         }): SquaddieAction => {
@@ -255,7 +251,6 @@ export const SquaddieActionService = {
         }
         return {
             id,
-            name,
             attribute: attribute ?? AttributeScore.BODY,
             degreesOfSuccess:
                 degreesOfSuccess ??
@@ -293,7 +288,6 @@ export const SquaddieActionService = {
     defaultEndTurn: (): SquaddieAction => {
         return SquaddieActionService.new({
             id: DEFAULT_END_TURN_ACTION_ID,
-            name: "End Turn",
             howToDetermineDegreeOfSuccess:
                 HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
             affiliationRelationship: {
@@ -314,7 +308,6 @@ export const SquaddieActionService = {
     defaultMove: (): SquaddieAction => {
         return SquaddieActionService.new({
             id: DEFAULT_MOVE_ACTION_ID,
-            name: "Move",
             howToDetermineDegreeOfSuccess:
                 HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
             affiliationRelationship: {

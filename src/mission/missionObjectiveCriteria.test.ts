@@ -270,7 +270,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy1",
-                    name: "Enemy 1",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -279,7 +278,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy2",
-                    name: "Enemy 2",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -288,7 +286,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "player1",
-                    name: "Player 1",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -430,7 +427,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "soldier",
-                    name: "Soldier",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -439,7 +435,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "knight",
-                    name: "Knight",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -558,7 +553,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "King Betrayer",
-                    name: "King Betrayer",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.NONE,
@@ -657,7 +651,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "soldier",
-                    name: "Soldier",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -666,7 +659,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "knight",
-                    name: "Knight",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -675,7 +667,6 @@ describe("Mission Objective Criteria", () => {
             manager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "King Betrayer",
-                    name: "King Betrayer",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.NONE,

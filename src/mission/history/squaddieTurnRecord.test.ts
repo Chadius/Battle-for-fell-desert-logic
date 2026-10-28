@@ -28,7 +28,7 @@ describe("SquaddieTurnRecordService", () => {
 
         it("creates a record with squaddie ID and initial actions", () => {
             const action1 = SquaddieTurnActionRecordService.new({
-                action: { id: "action1", name: "Attack" } as SquaddieAction,
+                action: { id: "action1" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -38,7 +38,7 @@ describe("SquaddieTurnRecordService", () => {
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
-                action: { id: "action2", name: "Move" } as SquaddieAction,
+                action: { id: "action2" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -147,7 +147,7 @@ describe("SquaddieTurnRecordService", () => {
             })
 
             newAction = SquaddieTurnActionRecordService.new({
-                action: { id: "action1", name: "Attack" } as SquaddieAction,
+                action: { id: "action1" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -169,7 +169,7 @@ describe("SquaddieTurnRecordService", () => {
 
         it("adds action to existing actions list", () => {
             const action1 = SquaddieTurnActionRecordService.new({
-                action: { id: "action1", name: "Attack" } as SquaddieAction,
+                action: { id: "action1" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -187,7 +187,7 @@ describe("SquaddieTurnRecordService", () => {
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
-                action: { id: "action2", name: "Move" } as SquaddieAction,
+                action: { id: "action2" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -232,7 +232,7 @@ describe("SquaddieTurnRecordService", () => {
 
         beforeEach(() => {
             const action1 = SquaddieTurnActionRecordService.new({
-                action: { id: "action1", name: "Attack" } as SquaddieAction,
+                action: { id: "action1" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -242,7 +242,7 @@ describe("SquaddieTurnRecordService", () => {
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
-                action: { id: "action2", name: "Move" } as SquaddieAction,
+                action: { id: "action2" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -303,7 +303,7 @@ describe("SquaddieTurnRecordService", () => {
     describe("JSON round-trip", () => {
         it("serializes and deserializes entry with actions", () => {
             const action1 = SquaddieTurnActionRecordService.new({
-                action: { id: "action1", name: "Attack" } as SquaddieAction,
+                action: { id: "action1" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,
@@ -319,7 +319,7 @@ describe("SquaddieTurnRecordService", () => {
             })
 
             const action2 = SquaddieTurnActionRecordService.new({
-                action: { id: "action2", name: "Heal" } as SquaddieAction,
+                action: { id: "action2" } as SquaddieAction,
                 results: [
                     {
                         inBattleSquaddieId: 1,

@@ -45,7 +45,6 @@ type ReadyActionResult = ReturnType<MissionEngine["readyAction"]>
 const createLightningBoltAction = () =>
     SquaddieActionService.new({
         id: lightningBoltId,
-        name: "Lightning Bolt",
         range: ActionRange.LONG,
         shape: CoordinateGeneratorShape.LINE,
         areaOfEffectSize: 0,
@@ -88,7 +87,6 @@ const createLineEngine = (
     outOfBattleSquaddieManager.addOrUpdateSquaddie(
         OutOfBattleSquaddieService.new({
             id: "player-1",
-            name: "Player 1",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "test_sheet",
             actionIds: [lightningBoltId],
@@ -103,7 +101,6 @@ const createLineEngine = (
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id,
-                name: id,
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test_sheet",
             })

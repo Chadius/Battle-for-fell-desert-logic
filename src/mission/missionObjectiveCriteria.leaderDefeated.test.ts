@@ -77,7 +77,6 @@ describe("ArmyLeaderDefeatedCriteria", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "leader-out-of-battle",
-                    name: "Leader",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,

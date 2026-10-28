@@ -44,7 +44,6 @@ describe("undoLastPlayerUndoableAction", () => {
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player-1",
-            name: "Hero",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "test_sheet",
         })
@@ -135,7 +134,7 @@ describe("undoLastPlayerUndoableAction", () => {
         })
 
         const actionRecord = SquaddieTurnActionRecordService.new({
-            action: { id: "move", name: "Move" } as SquaddieAction,
+            action: { id: "move" } as SquaddieAction,
             results: [
                 {
                     inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,
@@ -190,7 +189,6 @@ describe("undoLastPlayerUndoableAction", () => {
     it("undoes movement after an attack on an enemy, returning the movement action", () => {
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy-1",
-            name: "Raider",
             affiliation: SquaddieAffiliation.ENEMY,
             attributeSheetId: "test_sheet",
         })
@@ -211,7 +209,7 @@ describe("undoLastPlayerUndoableAction", () => {
         })
 
         const attackRecord = SquaddieTurnActionRecordService.new({
-            action: { id: "attack", name: "Attack" } as SquaddieAction,
+            action: { id: "attack" } as SquaddieAction,
             results: [
                 {
                     inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,
@@ -250,7 +248,7 @@ describe("undoLastPlayerUndoableAction", () => {
             ],
         })
         const moveRecord = SquaddieTurnActionRecordService.new({
-            action: { id: "move", name: "Move" } as SquaddieAction,
+            action: { id: "move" } as SquaddieAction,
             results: [
                 {
                     inBattleSquaddieId: playerSquaddieId.inBattleSquaddieId,
@@ -304,7 +302,6 @@ describe("undoLastPlayerUndoableAction", () => {
     it("returns success: false if action cannot be undone", () => {
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy-1",
-            name: "Raider",
             affiliation: SquaddieAffiliation.ENEMY,
             attributeSheetId: "test_sheet",
         })
@@ -333,7 +330,6 @@ describe("undoLastPlayerUndoableAction", () => {
         const actionRecord = SquaddieTurnActionRecordService.new({
             action: {
                 id: "attack-move",
-                name: "Attack Move",
             } as SquaddieAction,
             results: [
                 {

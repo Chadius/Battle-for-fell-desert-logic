@@ -33,14 +33,12 @@ describe("getSquaddiesWhoCanActThisPhase", () => {
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player-1",
-            name: "Player Squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "test_sheet",
         })
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy-1",
-            name: "Enemy Squaddie",
             affiliation: SquaddieAffiliation.ENEMY,
             attributeSheetId: "test_sheet",
         })
@@ -196,13 +194,11 @@ describe("getSquaddiesWhoCanActThisPhase", () => {
 
             const player1 = OutOfBattleSquaddieService.new({
                 id: "player-a",
-                name: "Player A",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet2",
             })
             const player2 = OutOfBattleSquaddieService.new({
                 id: "player-b",
-                name: "Player B",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet2",
             })

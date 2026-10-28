@@ -47,7 +47,6 @@ describe("generateValidSquaddieActions", () => {
 
         const actorSquaddie = OutOfBattleSquaddieService.new({
             id: "actor",
-            name: "Actor",
             actionIds: [meleeAttackId, rangedHealId],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -56,7 +55,6 @@ describe("generateValidSquaddieActions", () => {
 
         const allySquaddie = OutOfBattleSquaddieService.new({
             id: "ally",
-            name: "Ally",
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ALLY,
@@ -65,7 +63,6 @@ describe("generateValidSquaddieActions", () => {
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy",
-            name: "Enemy",
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -111,7 +108,6 @@ describe("generateValidSquaddieActions", () => {
 
         const meleeAttack = SquaddieActionService.new({
             id: meleeAttackId,
-            name: "Melee Attack",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -137,7 +133,6 @@ describe("generateValidSquaddieActions", () => {
 
         const rangedHeal = SquaddieActionService.new({
             id: rangedHealId,
-            name: "Ranged Heal",
             range: ActionRange.SHORT,
             affiliationRelationship: {
                 self: true,
@@ -215,9 +210,6 @@ describe("generateValidSquaddieActions", () => {
             )
 
             expect(endTurnOption).toBeDefined()
-            expect(endTurnOption!.action.name).toBe(
-                SquaddieActionService.defaultEndTurn().name
-            )
             expect(endTurnOption!.actionPointsRemaining.current).toBe(0)
             expect(endTurnOption!.decisions).toEqual({})
         })

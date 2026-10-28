@@ -14,7 +14,6 @@ describe("SquaddieActionService.getTargetScope", () => {
         it("is SINGLE for a melee attack against a foe", () => {
             const scimitar = SquaddieActionService.new({
                 id: "scimitar",
-                name: "Scimitar",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,
@@ -32,7 +31,6 @@ describe("SquaddieActionService.getTargetScope", () => {
         it("is SINGLE for a ranged heal on a friend", () => {
             const heal = SquaddieActionService.new({
                 id: "heal",
-                name: "Heal",
                 range: ActionRange.SHORT,
                 affiliationRelationship: {
                     self: true,
@@ -52,7 +50,6 @@ describe("SquaddieActionService.getTargetScope", () => {
         it("is AREA for a BLOOM with a positive area of effect size", () => {
             const fireball = SquaddieActionService.new({
                 id: "fireball",
-                name: "Fireball",
                 range: ActionRange.MEDIUM,
                 shape: CoordinateGeneratorShape.BLOOM,
                 areaOfEffectSize: 1,
@@ -69,7 +66,6 @@ describe("SquaddieActionService.getTargetScope", () => {
             (shape) => {
                 const directionalAction = SquaddieActionService.new({
                     id: "directional",
-                    name: "Directional",
                     range: ActionRange.SHORT,
                     shape,
                     areaOfEffectSize: 0,
@@ -85,7 +81,6 @@ describe("SquaddieActionService.getTargetScope", () => {
         it("is AREA when the area is centred on the actor", () => {
             const shockwave = SquaddieActionService.new({
                 id: "shockwave",
-                name: "Shockwave",
                 range: ActionRange.SELF,
                 shape: CoordinateGeneratorShape.BLOOM,
                 areaOfEffectSize: 1,
@@ -102,7 +97,6 @@ describe("SquaddieActionService.getTargetScope", () => {
         it("is SELF for an action with SELF range, even if it lists foes", () => {
             const aura = SquaddieActionService.new({
                 id: "aura",
-                name: "Aura",
                 range: ActionRange.SELF,
                 affiliationRelationship: {
                     self: false,
@@ -120,7 +114,6 @@ describe("SquaddieActionService.getTargetScope", () => {
         it("is SELF for an action that targets neither foes nor friends", () => {
             const brace = SquaddieActionService.new({
                 id: "brace",
-                name: "Brace",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: true,

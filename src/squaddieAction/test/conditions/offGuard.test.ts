@@ -66,7 +66,6 @@ describe("OFF_GUARD condition", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -75,7 +74,6 @@ describe("OFF_GUARD condition", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "target",
-                name: "Target",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -113,7 +111,6 @@ describe("OFF_GUARD condition", () => {
         beforeEach(() => {
             acidSpitAction = SquaddieActionService.new({
                 id: "acidSpit",
-                name: "Acid Spit",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 targeting: {
                     range: ActionRange.MEDIUM,
@@ -213,7 +210,6 @@ describe("OFF_GUARD condition", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "weaponAttack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -281,7 +277,6 @@ describe("OFF_GUARD condition", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "weaponAttack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -414,7 +409,6 @@ describe("OFF_GUARD condition", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "weaponAttack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -441,7 +435,6 @@ describe("OFF_GUARD condition", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "ally",
-                    name: "Ally",
                     actionIds: [],
                     attributeSheetId: "sheet",
                     affiliation: SquaddieAffiliation.ALLY,
@@ -456,7 +449,6 @@ describe("OFF_GUARD condition", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "nonFlanker",
-                    name: "Non Flanker",
                     actionIds: [],
                     attributeSheetId: "sheet",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -570,7 +562,6 @@ describe("OFF_GUARD condition", () => {
         beforeEach(() => {
             bodyAttackAction = SquaddieActionService.new({
                 id: "bodyAttack",
-                name: "Body Attack",
                 proficiency: ProficiencyType.SKILL_BODY,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,

@@ -21,7 +21,6 @@ describe("Squaddie Action Collection Manager", () => {
         manager = new SquaddieActionManager(collection)
         longswordAttackAction = SquaddieActionService.new({
             id: "longsword",
-            name: "Longsword Strike",
             attribute: AttributeScore.BODY,
             proficiency: ProficiencyType.WEAPON_MARTIAL,
             targeting: {
@@ -60,7 +59,6 @@ describe("Squaddie Action Collection Manager", () => {
         beforeEach(() => {
             healAction = SquaddieActionService.new({
                 id: "heal",
-                name: "Heal",
                 attribute: AttributeScore.SOUL,
                 proficiency: ProficiencyType.SKILL_SOUL,
                 targeting: {

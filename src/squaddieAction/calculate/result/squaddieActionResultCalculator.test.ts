@@ -293,7 +293,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             const actorSquaddie = OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 actionIds: ["test-action"],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -302,7 +301,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             const targetSquaddie = OutOfBattleSquaddieService.new({
                 id: "target",
-                name: "Target",
                 actionIds: [],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -335,7 +333,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             testAction = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
                     range: ActionRange.MELEE,
@@ -437,7 +434,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             const target2Squaddie = OutOfBattleSquaddieService.new({
                 id: "target2",
-                name: "Target 2",
                 actionIds: [],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -482,7 +478,6 @@ describe("SquaddieActionResultCalculator", () => {
             beforeEach(() => {
                 noRollAction = SquaddieActionService.new({
                     id: "no-roll-action",
-                    name: "No Roll Action",
                     howToDetermineDegreeOfSuccess:
                         HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
                     degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
@@ -599,7 +594,6 @@ describe("SquaddieActionResultCalculator", () => {
             beforeEach(() => {
                 targetRollsAction = SquaddieActionService.new({
                     id: "target-rolls-action",
-                    name: "Target Rolls Action",
                     proficiency: ProficiencyType.SKILL_SOUL,
                     howToDetermineDegreeOfSuccess:
                         HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
@@ -772,7 +766,6 @@ describe("SquaddieActionResultCalculator", () => {
 
                 const target2Squaddie = OutOfBattleSquaddieService.new({
                     id: "target-2",
-                    name: "Target 2",
                     actionIds: [],
                     attributeSheetId: "soldier",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -816,7 +809,6 @@ describe("SquaddieActionResultCalculator", () => {
             it("actor spends action points only once even when hitting multiple targets", () => {
                 const twoApTargetRollsAction = SquaddieActionService.new({
                     id: "two-ap-target-rolls-action",
-                    name: "Two AP Target Rolls Action",
                     proficiency: ProficiencyType.SKILL_SOUL,
                     howToDetermineDegreeOfSuccess:
                         HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
@@ -838,7 +830,6 @@ describe("SquaddieActionResultCalculator", () => {
 
                 const target2Squaddie = OutOfBattleSquaddieService.new({
                     id: "target-2-for-ap-test",
-                    name: "Target 2 AP Test",
                     actionIds: [],
                     attributeSheetId: "soldier",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -884,7 +875,6 @@ describe("SquaddieActionResultCalculator", () => {
             it("redistributes unsupported CRITICAL to SUCCESS when action lacks CRITICAL", () => {
                 const nosCriticalAction = SquaddieActionService.new({
                     id: "no-critical-action",
-                    name: "No Critical Action",
                     proficiency: ProficiencyType.SKILL_SOUL,
                     howToDetermineDegreeOfSuccess:
                         HowToDetermineDegreeOfSuccess.TARGETS_ROLL_TO_RESIST,
@@ -973,7 +963,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             const actorSquaddie = OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 actionIds: ["test-action"],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -982,7 +971,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             const targetSquaddie = OutOfBattleSquaddieService.new({
                 id: "target",
-                name: "Target",
                 actionIds: [],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -1015,7 +1003,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             testAction = SquaddieActionService.new({
                 id: "test-action",
-                name: "Test Action",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
                     range: ActionRange.MELEE,
@@ -1091,7 +1078,6 @@ describe("SquaddieActionResultCalculator", () => {
         it("excludes degrees with zero chance when action only supports SUCCESS", () => {
             const successOnlyAction = SquaddieActionService.new({
                 id: "success-only-action",
-                name: "Success Only Action",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 degreesOfSuccess: [DegreeOfSuccess.SUCCESS],
                 targeting: {
@@ -1154,7 +1140,6 @@ describe("SquaddieActionResultCalculator", () => {
         it("handles multiple targets", () => {
             const target2Squaddie = OutOfBattleSquaddieService.new({
                 id: "target2",
-                name: "Target 2",
                 actionIds: [],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -1200,7 +1185,6 @@ describe("SquaddieActionResultCalculator", () => {
             it("modifierBreakdown is undefined for non-roll-to-hit actions", () => {
                 const healAction = SquaddieActionService.new({
                     id: "heal-action",
-                    name: "Heal Action",
                     proficiency: ProficiencyType.SKILL_BODY,
                     howToDetermineDegreeOfSuccess:
                         HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
@@ -1355,7 +1339,6 @@ describe("SquaddieActionResultCalculator", () => {
 
                 const skillAction = SquaddieActionService.new({
                     id: "skill-action",
-                    name: "Skill Action",
                     proficiency: ProficiencyType.SKILL_BODY,
                     howToDetermineDegreeOfSuccess:
                         HowToDetermineDegreeOfSuccess.ACTOR_ROLLS_TO_HIT,
@@ -1583,7 +1566,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             const actorSquaddie = OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 actionIds: [],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -1592,7 +1574,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             const targetSquaddie = OutOfBattleSquaddieService.new({
                 id: "target",
-                name: "Target",
                 actionIds: [],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -1631,7 +1612,6 @@ describe("SquaddieActionResultCalculator", () => {
         it("FAILURE with no FAILURE effectOnActor falls back to SUCCESS — actor spends AP, target takes no damage", () => {
             const attackAction = SquaddieActionService.new({
                 id: "attack-action",
-                name: "Attack",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
                     range: ActionRange.MELEE,
@@ -1689,7 +1669,6 @@ describe("SquaddieActionResultCalculator", () => {
         it("CRITICAL with no CRITICAL effectOnActor falls back to SUCCESS", () => {
             const attackAction = SquaddieActionService.new({
                 id: "crit-action",
-                name: "Crit Attack",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
                     range: ActionRange.MELEE,
@@ -1747,7 +1726,6 @@ describe("SquaddieActionResultCalculator", () => {
         it("BOTCH with FAILURE effectOnActor available falls back to FAILURE", () => {
             const attackAction = SquaddieActionService.new({
                 id: "botch-action",
-                name: "Botch Attack",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
                     range: ActionRange.MELEE,
@@ -1808,7 +1786,6 @@ describe("SquaddieActionResultCalculator", () => {
         it("BOTCH with no FAILURE effectOnActor falls back to SUCCESS", () => {
             const attackAction = SquaddieActionService.new({
                 id: "botch-to-success-action",
-                name: "Botch to Success",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
                     range: ActionRange.MELEE,
@@ -1866,7 +1843,6 @@ describe("SquaddieActionResultCalculator", () => {
         it("FAILURE with matching FAILURE effectOnActor uses FAILURE directly", () => {
             const attackAction = SquaddieActionService.new({
                 id: "failure-action",
-                name: "Failure Attack",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
                     range: ActionRange.MELEE,
@@ -1962,7 +1938,6 @@ describe("SquaddieActionResultCalculator", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "actor",
-                    name: "Fighter",
                     actionIds: [],
                     attributeSheetId: "fighter",
                     affiliation: SquaddieAffiliation.PLAYER,
@@ -1971,7 +1946,6 @@ describe("SquaddieActionResultCalculator", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "target",
-                    name: "Target",
                     actionIds: [],
                     attributeSheetId: "fighter",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -2003,7 +1977,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             weaponAction = SquaddieActionService.new({
                 id: "weapon-attack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },
@@ -2029,7 +2002,6 @@ describe("SquaddieActionResultCalculator", () => {
 
             nonWeaponAction = SquaddieActionService.new({
                 id: "non-weapon",
-                name: "Non-Weapon",
                 proficiency: ProficiencyType.SKILL_BODY,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },

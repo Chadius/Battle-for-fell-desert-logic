@@ -97,7 +97,6 @@ const testAction = ({
 }): SquaddieAction =>
     SquaddieActionService.new({
         id,
-        name: id,
         attribute: options.attribute ?? AttributeScore.BODY,
         proficiency: options.proficiency ?? ProficiencyType.UNKNOWN,
         range: options.range ?? ActionRange.MELEE,

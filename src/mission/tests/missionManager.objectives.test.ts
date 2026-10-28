@@ -170,7 +170,6 @@ describe("MissionManager", () => {
 
             const enemyOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test sheet",
             })
@@ -509,21 +508,18 @@ describe("MissionManager", () => {
 
             const player1OutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Player 1",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
             })
 
             const player2OutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-2",
-                name: "Player 2",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
             })
 
             const enemyOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy 1",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "test_sheet",
             })
@@ -592,7 +588,6 @@ describe("MissionManager", () => {
 
             const moveAction = SquaddieActionService.new({
                 id: "move",
-                name: "Move",
                 targeting: {
                     range: ActionRange.SELF,
                     shape: CoordinateGeneratorShape.BLOOM,

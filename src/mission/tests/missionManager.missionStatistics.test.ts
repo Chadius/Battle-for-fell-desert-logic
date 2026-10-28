@@ -55,7 +55,6 @@ describe("MissionManager missionStatistics wiring", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "player",
-                name: "Player",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "player_sheet",
             })
@@ -63,7 +62,6 @@ describe("MissionManager missionStatistics wiring", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "enemy",
-                name: "Enemy",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "enemy_sheet",
             })
@@ -87,7 +85,6 @@ describe("MissionManager missionStatistics wiring", () => {
         squaddieActionManager.addOrUpdate(
             SquaddieActionService.new({
                 id: "attack",
-                name: "Attack",
                 targeting: {
                     range: ActionRange.MELEE,
                     shape: CoordinateGeneratorShape.BLOOM,
@@ -111,7 +108,6 @@ describe("MissionManager missionStatistics wiring", () => {
         squaddieActionManager.addOrUpdate(
             SquaddieActionService.new({
                 id: "heal",
-                name: "Heal",
                 targeting: {
                     range: ActionRange.SELF,
                     shape: CoordinateGeneratorShape.BLOOM,

@@ -67,7 +67,6 @@ describe("Training Wheels challenge modifier", () => {
 
         actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: "actor",
-            name: "Actor",
             actionIds: [attackAction.id],
             attributeSheetId: "combatant",
             affiliation: actorAffiliation,
@@ -76,7 +75,6 @@ describe("Training Wheels challenge modifier", () => {
 
         targetOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: "target",
-            name: "Target",
             actionIds: [],
             attributeSheetId: "combatant",
             affiliation: targetAffiliation,
@@ -137,7 +135,6 @@ describe("Training Wheels challenge modifier", () => {
     beforeEach(() => {
         attackAction = SquaddieActionService.new({
             id: "attack",
-            name: "Attack",
             proficiency: ProficiencyType.WEAPON_MARTIAL,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {

@@ -46,7 +46,6 @@ describe("getSquaddieActionValidity", () => {
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player-1",
-            name: "Player 1",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "test_sheet",
             actionIds: [meleeAttackId],
@@ -55,7 +54,6 @@ describe("getSquaddieActionValidity", () => {
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy-1",
-            name: "Enemy 1",
             affiliation: SquaddieAffiliation.ENEMY,
             attributeSheetId: "test_sheet",
         })
@@ -101,7 +99,6 @@ describe("getSquaddieActionValidity", () => {
         )
         const meleeAttack = SquaddieActionService.new({
             id: meleeAttackId,
-            name: "Melee Attack",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -162,7 +159,6 @@ describe("getSquaddieActionValidity", () => {
 
         const playerSquaddie = OutOfBattleSquaddieService.new({
             id: "player-1",
-            name: "Player 1",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "test_sheet",
             actionIds: [meleeAttackId],
@@ -171,7 +167,6 @@ describe("getSquaddieActionValidity", () => {
 
         const enemySquaddie = OutOfBattleSquaddieService.new({
             id: "enemy-1",
-            name: "Enemy 1",
             affiliation: SquaddieAffiliation.ENEMY,
             attributeSheetId: "test_sheet",
         })
@@ -217,7 +212,6 @@ describe("getSquaddieActionValidity", () => {
         )
         const meleeAttack = SquaddieActionService.new({
             id: meleeAttackId,
-            name: "Melee Attack",
             range: ActionRange.MELEE,
             affiliationRelationship: {
                 self: false,
@@ -260,7 +254,6 @@ describe("getSquaddieActionValidity", () => {
         expect(result.battleSquaddieId).toEqual(playerSquaddieId)
         expect(result.validActions).toHaveLength(2)
         expect(result.validActions[0].actionId).toBe(meleeAttackId)
-        expect(result.validActions[0].actionName).toBe("Melee Attack")
         const meleeAimEntry = result.validActions[0].aimCoordinateResults.find(
             (e) => e.aimCoordinate.row === 0 && e.aimCoordinate.col === 1
         )

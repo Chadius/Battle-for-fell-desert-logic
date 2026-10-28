@@ -48,7 +48,6 @@ describe("ProficiencyCalculator", () => {
 
         const actorSquaddie = OutOfBattleSquaddieService.new({
             id: "actor",
-            name: "Actor",
             actionIds: [],
             attributeSheetId: "soldier",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -57,7 +56,6 @@ describe("ProficiencyCalculator", () => {
 
         const targetSquaddie = OutOfBattleSquaddieService.new({
             id: "target",
-            name: "Target",
             actionIds: [],
             attributeSheetId: "soldier",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -90,7 +88,6 @@ describe("ProficiencyCalculator", () => {
 
         testAction = SquaddieActionService.new({
             id: "test-action",
-            name: "Test Action",
             proficiency: ProficiencyType.WEAPON_MARTIAL,
             effectOnActor: {
                 [DegreeOfSuccess.SUCCESS]: {
@@ -143,7 +140,6 @@ describe("ProficiencyCalculator", () => {
         it("returns 0 if the action has no defending proficiency type", () => {
             const actionWithNoProficiency = SquaddieActionService.new({
                 id: "no-proficiency",
-                name: "No Proficiency",
                 proficiency: ProficiencyType.UNKNOWN,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {

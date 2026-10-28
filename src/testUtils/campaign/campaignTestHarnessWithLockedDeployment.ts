@@ -210,7 +210,6 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
         return OutOfBattleSquaddieService.new({
             id: CampaignTestHarnessWithLockedDeploymentIds.vale
                 .outOfBattleSquaddieId,
-            name: "Vale",
             attributeSheetId:
                 CampaignTestHarnessWithLockedDeploymentIds.vale
                     .attributeSheetId,
@@ -222,7 +221,6 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
         return OutOfBattleSquaddieService.new({
             id: CampaignTestHarnessWithLockedDeploymentIds.otto
                 .outOfBattleSquaddieId,
-            name: "Otto",
             attributeSheetId:
                 CampaignTestHarnessWithLockedDeploymentIds.otto
                     .attributeSheetId,
@@ -234,7 +232,6 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
         return OutOfBattleSquaddieService.new({
             id: CampaignTestHarnessWithLockedDeploymentIds.zaya
                 .outOfBattleSquaddieId,
-            name: "Zaya",
             attributeSheetId:
                 CampaignTestHarnessWithLockedDeploymentIds.zaya
                     .attributeSheetId,

@@ -60,7 +60,6 @@ describe("Out of Battle Squaddie Manager", () => {
         })
         squaddie = OutOfBattleSquaddieService.new({
             id: "squaddie",
-            name: "Squaddie",
             actionIds: ["endTurn", "longsword", "prayer"],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,
@@ -280,7 +279,6 @@ describe("Out of Battle Squaddie Manager", () => {
             it("loads an array of squaddie blobs", () => {
                 const second = OutOfBattleSquaddieService.new({
                     id: "secondSquaddie",
-                    name: "Second",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,

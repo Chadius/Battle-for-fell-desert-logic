@@ -53,13 +53,11 @@ describe("MissionManager", () => {
 
             const lini = OutOfBattleSquaddieService.new({
                 id: "lini",
-                name: "Lini",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "lini_sheet",
             })
             const demon = OutOfBattleSquaddieService.new({
                 id: "slither-demon",
-                name: "Slither Demon",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "demon_sheet",
             })
@@ -317,7 +315,6 @@ describe("MissionManager", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "actor",
-                    name: "Actor",
                     affiliation: SquaddieAffiliation.PLAYER,
                     attributeSheetId: "actor_sheet",
                 })
@@ -332,7 +329,6 @@ describe("MissionManager", () => {
 
             attackAction = SquaddieActionService.new({
                 id: "attack",
-                name: "Attack",
                 attribute: AttributeScore.BODY,
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
@@ -443,7 +439,6 @@ describe("MissionManager", () => {
                 manager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "hero",
-                        name: "Hero",
                         affiliation: SquaddieAffiliation.PLAYER,
                         attributeSheetId: attributeSheet.id,
                     })

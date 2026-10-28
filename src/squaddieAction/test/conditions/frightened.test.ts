@@ -72,7 +72,6 @@ describe("FRIGHTENED condition", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -81,7 +80,6 @@ describe("FRIGHTENED condition", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "target",
-                name: "Target",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -119,7 +117,6 @@ describe("FRIGHTENED condition", () => {
         beforeEach(() => {
             intimidatingGlareAction = SquaddieActionService.new({
                 id: "intimidatingGlare",
-                name: "Intimidating Glare",
                 proficiency: ProficiencyType.SKILL_MIND,
                 targeting: {
                     range: ActionRange.SHORT,
@@ -260,7 +257,6 @@ describe("FRIGHTENED condition", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "weaponAttack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,
@@ -374,7 +370,6 @@ describe("FRIGHTENED condition", () => {
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "weaponAttack",
-                name: "Weapon Attack",
                 proficiency: ProficiencyType.WEAPON_NATURAL,
                 degreesOfSuccess: [
                     DegreeOfSuccess.CRITICAL,

@@ -152,7 +152,6 @@ export class InBattleSquaddieManager {
         const itemIds = this.getAllSquaddieItemIds(battleSquaddieId)
 
         return SquaddieInfoService.new({
-            name: squaddieInfo.inBattleSquaddie.name,
             affiliation,
             currentHitPoints: hitPoints.current,
             maxHitPoints: hitPoints.max,

@@ -32,7 +32,6 @@ export const DashMissionActionIds = {
 function createDashAction() {
     return SquaddieActionService.new({
         id: DashMissionActionIds.dash,
-        name: "Dash",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -52,7 +51,6 @@ function createDashAction() {
 function createJabAction() {
     return SquaddieActionService.new({
         id: DashMissionActionIds.jab,
-        name: "Jab",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -82,7 +80,6 @@ export function createDashMission(): {
     outOfBattleSquaddieManager.addOrUpdateSquaddie(
         OutOfBattleSquaddieService.new({
             id: "runner",
-            name: "Runner",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "player_sheet",
             actionIds: [DashMissionActionIds.dash, DashMissionActionIds.jab],
@@ -92,7 +89,6 @@ export function createDashMission(): {
     outOfBattleSquaddieManager.addOrUpdateSquaddie(
         OutOfBattleSquaddieService.new({
             id: "teammate",
-            name: "Teammate",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "player_sheet",
             actionIds: [DashMissionActionIds.jab],

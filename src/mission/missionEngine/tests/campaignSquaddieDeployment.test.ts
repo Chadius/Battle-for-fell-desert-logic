@@ -216,7 +216,6 @@ describe("MissionEngine campaign squaddie deployment", () => {
                 const details =
                     engine.getOutOfBattleSquaddieDetails(REM_OUT_OF_BATTLE_ID)
 
-                expect(details?.squaddie.name).toBe("Rem")
                 expect(details?.squaddie.actionIds).toEqual([
                     CampaignTestHarnessIds.rem.healActionId,
                 ])
