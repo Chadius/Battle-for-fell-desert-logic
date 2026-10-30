@@ -49,6 +49,7 @@ describe("MovieLoader.loadFromJSON", () => {
                         lines: [
                             {
                                 type: "DIALOG",
+                                id: "line-1",
                                 speakerId: "lini",
                                 text: { "en-US": { text: "Hello!" } },
                             },
@@ -85,6 +86,7 @@ describe("MovieLoader.loadFromJSON", () => {
                         lines: [
                             {
                                 type: "DECISION",
+                                id: "line-2",
                                 prompt: {
                                     "en-US": { text: "What do you do?" },
                                 },
@@ -134,6 +136,7 @@ describe("MovieLoader.loadFromJSON", () => {
                         lines: [
                             {
                                 type: "DIALOG",
+                                id: "line-3",
                                 speakerId: "lini",
                                 text: "Hello!",
                             },
@@ -374,7 +377,9 @@ function movieWithDialogText(text: Record<string, { text: string }>) {
                 type: "CONVERSATION",
                 id: "convo-1",
                 nextSceneId: null,
-                lines: [{ type: "DIALOG", speakerId: "lini", text }],
+                lines: [
+                    { type: "DIALOG", id: "line-4", speakerId: "lini", text },
+                ],
             },
         ],
     }

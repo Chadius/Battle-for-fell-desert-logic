@@ -19,6 +19,11 @@ export type TMissionTextSubstitutionToken = EnumLike<
     typeof missionTextSubstitutionTokenNames
 >
 
+export type TEngineSuppliedTextSubstitutionToken = Exclude<
+    TMissionTextSubstitutionToken,
+    typeof missionTextSubstitutionTokenNames.TIME_ELAPSED
+>
+
 export const MissionTextSubstitutionToken = {
     ...missionTextSubstitutionTokenNames,
     AVAILABLE: Object.values(

@@ -17,6 +17,7 @@ describe("MovieService.validate — text substitution", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
+                                    id: "line-1",
                                     text: {
                                         "en-US": { text: "Turn {TOKEN+}" },
                                     },
@@ -51,6 +52,7 @@ describe("MovieService.validate — text substitution", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
+                                    id: "line-2",
                                     text: {
                                         "en-US": {
                                             text: "Turn {TURN_COUNT + 1}",
@@ -82,6 +84,7 @@ describe("MovieService.validate — text substitution", () => {
                             lines: [
                                 {
                                     type: "DECISION" as const,
+                                    id: "line-3",
                                     prompt: {
                                         "en-US": {
                                             text: "Choose ({TOKEN+})",
@@ -123,6 +126,7 @@ describe("MovieService.validate — text substitution", () => {
                             lines: [
                                 {
                                     type: "DECISION" as const,
+                                    id: "line-4",
                                     prompt: {
                                         "en-US": { text: "What do you do?" },
                                     },
@@ -164,6 +168,7 @@ describe("MovieService.validate — text substitution", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
+                                    id: "line-5",
                                     text: {
                                         "en-US": { text: "{MYSTERY}" },
                                     },
