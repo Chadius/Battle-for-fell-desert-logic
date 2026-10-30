@@ -253,6 +253,24 @@ The media manifest (`filepath`, `format`) lives in the presentation package
   which walks a mission → campaign → core list of collections for the first match.
 - Consumers (movie scenes, etc.) hold only the opaque manifest key (`resourceManifestEntryId`).
 
+### Movies
+
+Movies are splitting into state and content (see "Separating Presentation Data from Fell Desert
+Logic", step 5). Logic owns scene order, the decision the player picked, `PLAY_MOVIE` rewards, and
+making `readyAction` wait while a movie plays. Text, portraits, layout and speakers move to
+`movieContent.json` in the presentation package, keyed by the ids below.
+
+- Every `DIALOG` and `DECISION` line has an `id` the author writes. `MovieLoader` rejects a line
+  with no id, an empty id, or an id repeated within its scene; two scenes may share one. Content is
+  looked up by id so that editing a script can't point at the wrong text.
+- `MissionEngine.getMovieStatus()` reports `movieId`, the current scene's `sceneId` and, for a
+  conversation, its `lineId`. A `DecisionRecord` stores `lineId`, not the line's position.
+- `MissionEngine.getTextSubstitutionTokens()` returns the turn count and mission statistics as raw
+  numbers, because `plural()`, `ordinal()` and `round()` need numbers and formatting one for a
+  locale belongs to the host. `TIME_ELAPSED` is not included: the host supplies it.
+- `getMovieStatus` still returns text, captions, portraits, `dialogPosition` and `speakerId`, and
+  still substitutes tokens, until the client and editor have moved to `movieContent.json`.
+
 ### Squaddie Conditions
 
 Squaddies can have temporary or permanent Conditions that alter their combat stats and movement.

@@ -114,7 +114,10 @@ import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outO
 import { MovieManager } from "../../movie/movieManager.js"
 import { TextSubstitutionService } from "../../movie/textSubstitution.js"
 import { MissionStatisticsService } from "../missionStatistics.js"
-import { MissionTextSubstitutionToken } from "./textSubstitutionTokens.js"
+import {
+    MissionTextSubstitutionToken,
+    type TEngineSuppliedTextSubstitutionToken,
+} from "./textSubstitutionTokens.js"
 
 export type { TMovieEngineCommand }
 
@@ -719,23 +722,41 @@ export class MissionEngine {
         }
     }
 
-    private textSubstitutionTokens(
-        extraTokens?: Record<string, string>
-    ): Record<string, string> {
+    getTextSubstitutionTokens(): Record<
+        TEngineSuppliedTextSubstitutionToken,
+        number
+    > {
         const missionState = this.missionManager?.missionState
         const missionStatistics =
             missionState?.missionStatistics ?? MissionStatisticsService.new()
 
         return {
-            [MissionTextSubstitutionToken.TURN_COUNT]: `${missionState?.turn.turnCount ?? 0}`,
-            [MissionTextSubstitutionToken.DAMAGE_DEALT_BY_PLAYER_TEAM]: `${missionStatistics.damageDealtByPlayerTeam}`,
-            [MissionTextSubstitutionToken.DAMAGE_TAKEN_BY_PLAYER_TEAM]: `${missionStatistics.damageTakenByPlayerTeam}`,
-            [MissionTextSubstitutionToken.DAMAGE_ABSORBED_BY_PLAYER_TEAM]: `${missionStatistics.damageAbsorbedByPlayerTeam}`,
-            [MissionTextSubstitutionToken.HEALING_RECEIVED_BY_PLAYER_TEAM]: `${missionStatistics.healingReceivedByPlayerTeam}`,
-            [MissionTextSubstitutionToken.CRITICAL_HITS_DEALT_BY_PLAYER_TEAM]: `${missionStatistics.criticalHitsDealtByPlayerTeam}`,
-            [MissionTextSubstitutionToken.CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM]: `${missionStatistics.criticalHitsTakenByPlayerTeam}`,
-            ...extraTokens,
+            [MissionTextSubstitutionToken.TURN_COUNT]:
+                missionState?.turn.turnCount ?? 0,
+            [MissionTextSubstitutionToken.DAMAGE_DEALT_BY_PLAYER_TEAM]:
+                missionStatistics.damageDealtByPlayerTeam,
+            [MissionTextSubstitutionToken.DAMAGE_TAKEN_BY_PLAYER_TEAM]:
+                missionStatistics.damageTakenByPlayerTeam,
+            [MissionTextSubstitutionToken.DAMAGE_ABSORBED_BY_PLAYER_TEAM]:
+                missionStatistics.damageAbsorbedByPlayerTeam,
+            [MissionTextSubstitutionToken.HEALING_RECEIVED_BY_PLAYER_TEAM]:
+                missionStatistics.healingReceivedByPlayerTeam,
+            [MissionTextSubstitutionToken.CRITICAL_HITS_DEALT_BY_PLAYER_TEAM]:
+                missionStatistics.criticalHitsDealtByPlayerTeam,
+            [MissionTextSubstitutionToken.CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM]:
+                missionStatistics.criticalHitsTakenByPlayerTeam,
         }
+    }
+
+    private textSubstitutionTokens(
+        extraTokens?: Record<string, string>
+    ): Record<string, string> {
+        const missionTokens = Object.fromEntries(
+            Object.entries(this.getTextSubstitutionTokens()).map(
+                ([token, value]): [string, string] => [token, `${value}`]
+            )
+        )
+        return { ...missionTokens, ...extraTokens }
     }
 
     previewReadiedActionAndForecastResults(): SerializedForecastedActionResult[] {

@@ -146,6 +146,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DECISION" as const,
+                                    id: "line-1",
                                     prompt: {
                                         "en-US": { text: "What do you do?" },
                                     },
@@ -188,6 +189,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DECISION" as const,
+                                    id: "line-2",
                                     prompt: {
                                         "en-US": { text: "What do you do?" },
                                     },
@@ -271,6 +273,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DECISION" as const,
+                                    id: "line-3",
                                     prompt: {
                                         "en-US": { text: "What do you do?" },
                                     },
@@ -314,6 +317,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DECISION" as const,
+                                    id: "line-4",
                                     prompt: {
                                         "en-US": { text: "What do you do?" },
                                     },
@@ -364,6 +368,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DECISION" as const,
+                                    id: "line-5",
                                     prompt: {
                                         "en-US": { text: "What do you do?" },
                                     },
@@ -409,6 +414,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DECISION" as const,
+                                    id: "line-6",
                                     prompt: {
                                         "en-US": { text: "Choose your path" },
                                     },
@@ -440,6 +446,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
+                                    id: "line-7",
                                     text: { "en-US": { text: "You are in B" } },
                                 },
                             ],
@@ -461,6 +468,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
+                                    id: "line-8",
                                     text: { "en-US": { text: "You are in C" } },
                                 },
                             ],
@@ -500,6 +508,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
+                                    id: "line-9",
                                     speakerId:
                                         "This is definitely more than five words",
                                     text: {},
@@ -531,6 +540,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
+                                    id: "line-10",
                                     speakerId:
                                         "This is definitely more than five words",
                                     text: { "en-US": { text: "Hello" } },
@@ -560,6 +570,7 @@ describe("MovieService.validate", () => {
                             lines: [
                                 {
                                     type: "DIALOG" as const,
+                                    id: "line-11",
                                     speakerId: "Lini",
                                     text: {},
                                 },

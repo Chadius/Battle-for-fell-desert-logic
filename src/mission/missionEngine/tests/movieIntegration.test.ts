@@ -406,6 +406,7 @@ describe("MissionEngine movie integration", () => {
                             lines: [
                                 {
                                     type: "DECISION",
+                                    id: "line-1",
                                     prompt: {
                                         "en-US": { text: "Choose wisely" },
                                     },
