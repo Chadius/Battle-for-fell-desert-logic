@@ -213,6 +213,18 @@ the duration would tick down during PLAYER_TURN_END.
   BONUS_EXPERIENCE, GAIN_ITEM).
 - `MissionHistory` records every action taken by every squaddie each turn, enabling replay and undo.
 - `InMissionSummary` is a snapshot (squaddies, map, turn, objectives) suitable for rendering.
+- `MissionEngine.getMissionObjectiveStatuses()` reports every objective, hidden ones included and
+  marked `hidden`, with `isCompleted`, `hasGivenReward`, its `rewardTypes` (so a host can tell goals
+  like `MISSION_ENDS` from cutscene triggers like `PLAY_MOVIE`), and one status per criterion:
+  `isSatisfied` plus an optional `progress` (`MissionObjectiveProgressService`). Progress is codes,
+  IDs and numbers only; hosts own the wording.
+    - `ALL_SQUADDIES_DEFEATED`: each selected squaddie with `isDefeated`, plus `defeatedCount` and
+      `remainingCount`.
+    - `SPECIFIC_SQUADDIES_DEFEATED` / `SPECIFIC_SQUADDIES_INJURED`: each selected squaddie with
+      `isDefeated` (these criteria fire on a single action, so current status is the progress).
+    - `PHASE_REACHED`: the target `turnCount`/`missionAffiliationTurn` and `turnsRemaining`.
+    - `ARMY_LEADER_DEFEATED`: the leader's squaddie with `isDefeated`; no progress when there is no
+      army or the leader is not on the map.
 
 ### Items
 

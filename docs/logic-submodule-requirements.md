@@ -278,10 +278,28 @@ Criteria-to-prose keeps `logic` free of display text, consistent with the direct
 emits stable codes and clients own the wording. Either way, `hidden` objectives must stay out of the
 report.
 
-### Open question for `logic` to settle
+### Open question for `logic` to settle — RESOLVED
 
 Which of the two, and whether a read-only "progress toward this objective" query exists or must be
 added.
+
+Criteria-to-prose in the front end. `logic` returns codes, squaddie IDs and numbers; consumers
+choose the wording. No progress query existed, so one was added. Hidden objectives are included and
+marked `hidden` (useful for debugging); the front end leaves them out of the report.
+
+### Delivered
+
+- `MissionEngine.getMissionObjectiveStatuses(): MissionObjectiveStatus[]`
+  (`logic/src/mission/missionObjectiveProgress.ts`). Each status has `id`, `hidden`, `isCompleted`,
+  `hasGivenReward`, `rewardTypes`, and per-criterion `{ type, isSatisfied, progress? }`.
+- `rewardTypes` separates goals (`MISSION_ENDS`, `MISSION_FAILURE`) from cutscene triggers
+  (`PLAY_MOVIE`) without a new flag.
+- `progress` by criteria type: `ALL_SQUADDIES_DEFEATED` lists each selected squaddie with
+  `isDefeated` plus `defeatedCount`/`remainingCount` ("Defeat all enemies: 3 left");
+  `SPECIFIC_SQUADDIES_DEFEATED`/`_INJURED` list each selected squaddie with `isDefeated` ("Keep Sir
+  Camil alive"); `PHASE_REACHED` gives the target turn/phase and `turnsRemaining`;
+  `ARMY_LEADER_DEFEATED` gives the leader's squaddie. Squaddie names come from the presentation
+  package by `outOfBattleSquaddieId`.
 
 ### Not required
 

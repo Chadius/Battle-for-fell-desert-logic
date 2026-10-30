@@ -42,6 +42,10 @@ import {
 import type { MissionObjective } from "../missionObjective.js"
 import { MissionObjectiveService } from "../missionObjective.js"
 import type { MissionObjectiveCriteriaContext } from "../missionObjectiveCriteria.js"
+import {
+    MissionObjectiveProgressService,
+    type MissionObjectiveStatus,
+} from "../missionObjectiveProgress.js"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
 import type { SquaddieInfo } from "../../squaddie/inBattle/squaddieInfo.js"
 import {
@@ -410,6 +414,23 @@ export class MissionEngine {
 
         const objectives = this.missionManager!.missionState?.objectives ?? []
         return objectives.filter((objective) => objective.hasGivenReward)
+    }
+
+    getMissionObjectiveStatuses(): MissionObjectiveStatus[] {
+        this.throwIfMissionManagerIsUndefined(
+            this.getMissionObjectiveStatuses.name
+        )
+
+        const objectives = this.missionManager!.missionState?.objectives ?? []
+        const context = this.missionObjectiveCriteriaContext()
+        return objectives.map((objective) =>
+            MissionObjectiveProgressService.calculateObjectiveStatus({
+                objective,
+                inBattleSquaddieManager:
+                    this.missionManager!.inBattleSquaddieManager!,
+                context,
+            })
+        )
     }
 
     getCurrentAffiliationTurn(): TMissionAffiliationTurn {
