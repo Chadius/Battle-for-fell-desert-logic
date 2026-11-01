@@ -1,22 +1,16 @@
 import type { Movie } from "./movie.js"
-import { LocalizedTextService } from "../localization/localizedText.js"
-import type { ResourceManifestCollection } from "../resource/resourceManifestCollection.js"
 import {
-    type MovieSceneImage,
+    type ImageSceneStatus,
     MovieSceneImageCommand,
     MovieSceneImageService,
     type MovieSceneImageState,
-    type TMovieSceneImagePhase,
 } from "./movieSceneImage.js"
 import {
     type ConversationSceneStatus,
     type DecisionRecord,
-    type MovieSceneConversation,
     MovieSceneConversationService,
     type MovieSceneConversationState,
 } from "./movieSceneConversation.js"
-import { resolveResourceManifestEntry } from "../resource/resourceManifestResolver.js"
-import { ResourceManifestEntryService } from "../resource/resourceManifest.js"
 import { type MovieScene, MovieSceneType } from "./movieScene.js"
 
 export const MovieEngineState = {
@@ -27,18 +21,6 @@ export const MovieEngineState = {
 
 export type TMovieEngineState =
     (typeof MovieEngineState)[keyof typeof MovieEngineState]
-
-interface ImageSceneStatus {
-    type: "IMAGE"
-    sceneId: string
-    phase: TMovieSceneImagePhase
-    resourceManifestEntryId: string | undefined
-    description: string | undefined
-    caption: string | undefined
-    transitionProgress: number
-    autoScrollProgress: { x: number; y: number }
-    manualScrollOffset: { x: number; y: number }
-}
 
 interface MovieStatus {
     movieId: string
@@ -77,20 +59,12 @@ export class MovieEngine {
     private currentScene: MovieScene
     private currentSceneState: ActiveSceneState
     private collectedDecisions: DecisionRecord[] = []
-    private readonly resourceCollections: ResourceManifestCollection[] = []
-    private readonly languageCode: string
     private readonly movie: Movie
     private branchOriginSceneId: string | undefined
 
-    constructor(
-        movie: Movie,
-        resourceCollections: ResourceManifestCollection[],
-        languageCode: string = LocalizedTextService.FALLBACK_LANGUAGE_CODE
-    ) {
+    constructor(movie: Movie) {
         this.currentScene = sceneById(movie, movie.firstSceneId)
         this.currentSceneState = initialSceneState(this.currentScene)
-        this.resourceCollections = resourceCollections
-        this.languageCode = languageCode
         this.movie = movie
     }
 
@@ -107,12 +81,7 @@ export class MovieEngine {
             ),
             currentScene: isTerminal
                 ? undefined
-                : sceneStatus(
-                      this.currentScene,
-                      this.currentSceneState,
-                      this.resourceCollections,
-                      this.languageCode
-                  ),
+                : sceneStatus(this.currentScene, this.currentSceneState),
         }
     }
 
@@ -574,134 +543,27 @@ const isSceneComplete = (activeSceneState: ActiveSceneState): boolean => {
 
 const sceneStatus = (
     movieScene: MovieScene,
-    activeSceneState: ActiveSceneState,
-    resourceCollections: ResourceManifestCollection[],
-    languageCode: string
+    activeSceneState: ActiveSceneState
 ): ImageSceneStatus | ConversationSceneStatus => {
     if (
         movieScene.type === MovieSceneType.IMAGE &&
         activeSceneState.type === MovieSceneType.IMAGE
     ) {
-        return imageSceneStatus(
+        return MovieSceneImageService.status(
             movieScene.data,
-            activeSceneState.state,
-            resourceCollections,
-            languageCode
+            activeSceneState.state
         )
     }
     if (
         movieScene.type === MovieSceneType.CONVERSATION &&
         activeSceneState.type === MovieSceneType.CONVERSATION
     ) {
-        return conversationSceneStatus(
+        return MovieSceneConversationService.status(
             movieScene.data,
-            activeSceneState.state,
-            resourceCollections,
-            languageCode
+            activeSceneState.state
         )
     }
     throw new Error(
         `MovieEngine: cannot build status for unknown scene type "${(movieScene as MovieScene).type}"`
     )
-}
-
-const conversationSceneStatus = (
-    movieSceneConversation: MovieSceneConversation,
-    movieSceneConversationState: MovieSceneConversationState,
-    resourceCollections: ResourceManifestCollection[],
-    languageCode: string
-): ConversationSceneStatus => {
-    const status = MovieSceneConversationService.status(
-        movieSceneConversation,
-        movieSceneConversationState,
-        languageCode
-    )
-    if (status.portrait === undefined) return status
-
-    const resourceManifestEntry = resolveResourceManifestEntry(
-        resourceCollections,
-        status.portrait.resourceManifestEntryId
-    )
-    const description =
-        resourceManifestEntry !== undefined
-            ? ResourceManifestEntryService.getDescription(
-                  resourceManifestEntry,
-                  languageCode
-              )
-            : undefined
-
-    return {
-        ...status,
-        portrait: {
-            ...status.portrait,
-            description,
-        },
-    }
-}
-
-const imageSceneStatus = (
-    movieSceneImage: MovieSceneImage,
-    movieSceneImageState: MovieSceneImageState,
-    resourceCollections: ResourceManifestCollection[],
-    languageCode: string
-): ImageSceneStatus => {
-    const resourceManifestEntry =
-        movieSceneImage.resourceManifestEntryId != undefined
-            ? resolveResourceManifestEntry(
-                  resourceCollections,
-                  movieSceneImage.resourceManifestEntryId
-              )
-            : undefined
-    const description =
-        resourceManifestEntry !== undefined
-            ? ResourceManifestEntryService.getDescription(
-                  resourceManifestEntry,
-                  languageCode
-              )
-            : undefined
-
-    return {
-        type: "IMAGE",
-        sceneId: movieSceneImage.id,
-        phase: movieSceneImageState.phase,
-        resourceManifestEntryId: movieSceneImage.resourceManifestEntryId,
-        description,
-        caption: movieSceneImage.caption,
-        transitionProgress: transitionProgress(
-            movieSceneImage,
-            movieSceneImageState
-        ),
-        autoScrollProgress: MovieSceneImageService.autoScrollProgress(
-            movieSceneImage,
-            movieSceneImageState
-        ),
-        manualScrollOffset: movieSceneImageState.manualScrollOffset,
-    }
-}
-
-const transitionProgress = (
-    movieSceneImage: MovieSceneImage,
-    movieSceneImageState: MovieSceneImageState
-): number => {
-    if (
-        movieSceneImageState.phase === "INTRO_TRANSITION" &&
-        movieSceneImage.introTransition !== undefined
-    ) {
-        return Math.min(
-            1,
-            movieSceneImageState.phaseElapsedMs /
-                movieSceneImage.introTransition.durationMs
-        )
-    }
-    if (
-        movieSceneImageState.phase === "EXIT_TRANSITION" &&
-        movieSceneImage.exitTransition !== undefined
-    ) {
-        return Math.min(
-            1,
-            movieSceneImageState.phaseElapsedMs /
-                movieSceneImage.exitTransition.durationMs
-        )
-    }
-    return 0
 }

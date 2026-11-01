@@ -4,8 +4,6 @@ import { MovieSceneConversationService } from "./movieSceneConversation.js"
 import type { Movie } from "./movie.js"
 import { MovieEngine, MovieEngineCommand } from "./movieEngine.js"
 import { MovieSceneType } from "./movieScene.js"
-import { ResourceManifestCollectionService } from "../resource/resourceManifestCollection.js"
-import { ResourceManifestEntryService } from "../resource/resourceManifest.js"
 
 const makeScene = (id: string) =>
     MovieSceneImageService.new({ id, resourceManifestEntryId: "someImage" })
@@ -19,11 +17,50 @@ const makeMovie = (...sceneIds: string[]): Movie => ({
     })),
 })
 
+const makeCaptionedImageMovie = (): Movie => ({
+    id: "movie-1",
+    firstSceneId: "scene-1",
+    scenes: [
+        {
+            type: MovieSceneType.IMAGE,
+            data: MovieSceneImageService.new({
+                id: "scene-1",
+                resourceManifestEntryId: "someImage",
+                caption: "A caption",
+            }),
+        },
+    ],
+})
+
+const makeMovieWithPortrait = (portrait: {
+    resourceManifestEntryId: string
+    position: "LEFT" | "RIGHT"
+}): Movie => ({
+    id: "movie-1",
+    firstSceneId: "conv-1",
+    scenes: [
+        {
+            type: MovieSceneType.CONVERSATION,
+            data: MovieSceneConversationService.new({
+                id: "conv-1",
+                lines: [
+                    {
+                        type: "DIALOG",
+                        id: "line-6",
+                        text: { "en-US": { text: "Hello" } },
+                        portrait,
+                    },
+                ],
+            }),
+        },
+    ],
+})
+
 describe("MovieEngine", () => {
     describe("getStatus", () => {
         describe("when a movie is playing", () => {
             it("returns state PLAYING", () => {
-                const engine = new MovieEngine(makeMovie("scene-1"), [])
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 expect(engine.status().state).toBe("PLAYING")
             })
@@ -31,7 +68,7 @@ describe("MovieEngine", () => {
 
         describe("when a movie has just started", () => {
             it("isFastForward is false", () => {
-                const engine = new MovieEngine(makeMovie("scene-1"), [])
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 expect(engine.status().isFastForward).toBe(false)
             })
@@ -39,35 +76,32 @@ describe("MovieEngine", () => {
 
         describe("when an image-only movie is playing", () => {
             it("canSkip is true", () => {
-                const engine = new MovieEngine(makeMovie("scene-1"), [])
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 expect(engine.status().canSkip).toBe(true)
             })
         })
 
         describe("when a scene is in DISPLAY phase", () => {
-            it("returns the full ImageSceneStatus snapshot", () => {
-                const scene = MovieSceneImageService.new({
-                    id: "scene-1",
-                    resourceManifestEntryId: "someImage",
-                    caption: "A caption",
-                })
-                const movie: Movie = {
-                    id: "movie-1",
-                    firstSceneId: "scene-1",
-                    scenes: [{ type: MovieSceneType.IMAGE, data: scene }],
-                }
-                const engine = new MovieEngine(movie, [])
+            it("reports the scene's image id and caption", () => {
+                const engine = new MovieEngine(makeCaptionedImageMovie())
 
                 const status = engine.status()
 
-                expect(status.currentScene).toEqual({
-                    type: MovieSceneType.IMAGE,
+                expect(status.currentScene).toMatchObject({
                     sceneId: "scene-1",
                     phase: "DISPLAY",
                     resourceManifestEntryId: "someImage",
-                    description: undefined,
                     caption: "A caption",
+                })
+            })
+
+            it("reports no transition or scroll progress until time passes or the player scrolls", () => {
+                const engine = new MovieEngine(makeCaptionedImageMovie())
+
+                const status = engine.status()
+
+                expect(status.currentScene).toMatchObject({
                     transitionProgress: 0,
                     autoScrollProgress: { x: 0, y: 0 },
                     manualScrollOffset: { x: 0, y: 0 },
@@ -79,7 +113,7 @@ describe("MovieEngine", () => {
     describe("getResult", () => {
         describe("while the movie is playing", () => {
             it("returns undefined", () => {
-                const engine = new MovieEngine(makeMovie("scene-1"), [])
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 expect(engine.result()).toBeUndefined()
             })
@@ -110,7 +144,7 @@ describe("MovieEngine", () => {
                         { type: MovieSceneType.CONVERSATION, data: scene },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 engine.selectDecision("attack")
 
@@ -129,7 +163,7 @@ describe("MovieEngine", () => {
 
         describe("after STOP is sent", () => {
             it("returns a MovieResult with state STOPPED and empty decisions", () => {
-                const engine = new MovieEngine(makeMovie("scene-1"), [])
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 engine.processCommand(MovieEngineCommand.STOP)
 
@@ -144,10 +178,7 @@ describe("MovieEngine", () => {
     describe("tick", () => {
         describe("when the first scene of a two-scene movie completes", () => {
             it("advances to the second scene", () => {
-                const engine = new MovieEngine(
-                    makeMovie("scene-1", "scene-2"),
-                    []
-                )
+                const engine = new MovieEngine(makeMovie("scene-1", "scene-2"))
 
                 engine.processCommand(MovieEngineCommand.CONFIRM)
                 engine.tick(1)
@@ -158,7 +189,7 @@ describe("MovieEngine", () => {
 
         describe("when all scenes in the movie complete", () => {
             it("sets state to DONE", () => {
-                const engine = new MovieEngine(makeMovie("scene-1"), [])
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 engine.processCommand(MovieEngineCommand.CONFIRM)
                 engine.tick(1)
@@ -194,7 +225,7 @@ describe("MovieEngine", () => {
                         { type: MovieSceneType.CONVERSATION, data: scene },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 expect(engine.status().canSkip).toBe(false)
             })
@@ -232,7 +263,7 @@ describe("MovieEngine", () => {
                         { type: MovieSceneType.CONVERSATION, data: scene },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 const result = engine.selectDecision("attack")
 
@@ -263,7 +294,7 @@ describe("MovieEngine", () => {
                 firstSceneId: "conv-1",
                 scenes: [{ type: MovieSceneType.CONVERSATION, data: scene }],
             }
-            const engine = new MovieEngine(movie, [])
+            const engine = new MovieEngine(movie)
 
             const status = engine.status()
 
@@ -282,48 +313,16 @@ describe("MovieEngine", () => {
     })
 
     describe("when the current scene is a conversation scene with a portrait", () => {
-        it("resolves the portrait's description from the resource manifest", () => {
-            const scene = MovieSceneConversationService.new({
-                id: "conv-1",
-                lines: [
-                    {
-                        type: "DIALOG",
-                        id: "line-6",
-                        speakerId: "lini",
-                        text: { "en-US": { text: "Hello" } },
-                        portrait: {
-                            resourceManifestEntryId: "lini-portrait",
-                            position: "LEFT",
-                        },
-                    },
-                ],
-            })
-            const movie: Movie = {
-                id: "movie-1",
-                firstSceneId: "conv-1",
-                scenes: [{ type: MovieSceneType.CONVERSATION, data: scene }],
-            }
-            const resourceCollection = ResourceManifestCollectionService.add(
-                ResourceManifestCollectionService.new(),
-                "lini-portrait",
-                ResourceManifestEntryService.new({
-                    id: "lini-portrait",
-                    label: "Lini portrait",
-                    description: { "en-US": { text: "Lini, smiling" } },
-                    type: "IMAGE",
-                })
-            )
-            const engine = new MovieEngine(movie, [resourceCollection])
+        it("reports the portrait's resource id and position", () => {
+            const portrait = {
+                resourceManifestEntryId: "lini-portrait",
+                position: "LEFT",
+            } as const
+            const engine = new MovieEngine(makeMovieWithPortrait(portrait))
 
             const status = engine.status()
 
-            expect(status.currentScene).toMatchObject({
-                portrait: {
-                    resourceManifestEntryId: "lini-portrait",
-                    position: "LEFT",
-                    description: "Lini, smiling",
-                },
-            })
+            expect(status.currentScene).toMatchObject({ portrait })
         })
     })
 
@@ -368,7 +367,7 @@ describe("MovieEngine", () => {
                         },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 engine.selectDecision("go-right")
                 engine.tick(1)
@@ -446,7 +445,7 @@ describe("MovieEngine", () => {
             }
             describe("when the first branch is chosen", () => {
                 it("advances to the scene after all branch scenes", () => {
-                    const engine = new MovieEngine(movie, [])
+                    const engine = new MovieEngine(movie)
 
                     engine.selectDecision("go-to-gloria")
                     engine.processCommand(MovieEngineCommand.CONFIRM)
@@ -459,7 +458,7 @@ describe("MovieEngine", () => {
 
             describe("when the second branch is chosen", () => {
                 it("advances to the scene after all branch scenes", () => {
-                    const engine = new MovieEngine(movie, [])
+                    const engine = new MovieEngine(movie)
 
                     engine.selectDecision("go-to-monastery")
                     engine.processCommand(MovieEngineCommand.CONFIRM)
@@ -502,7 +501,7 @@ describe("MovieEngine", () => {
                     },
                 ],
             }
-            const engine = new MovieEngine(movie, [])
+            const engine = new MovieEngine(movie)
 
             engine.processCommand(MovieEngineCommand.CONFIRM)
             engine.tick(1)
@@ -526,7 +525,7 @@ describe("MovieEngine", () => {
                         { type: MovieSceneType.IMAGE, data: sceneWithIntro },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 engine.processCommand(MovieEngineCommand.FAST_FORWARD)
 
@@ -541,10 +540,7 @@ describe("MovieEngine", () => {
 
         describe("when FAST_FORWARD is sent during DISPLAY", () => {
             it("completes the scene immediately", () => {
-                const engine = new MovieEngine(
-                    makeMovie("scene-1", "scene-2"),
-                    []
-                )
+                const engine = new MovieEngine(makeMovie("scene-1", "scene-2"))
 
                 engine.processCommand(MovieEngineCommand.FAST_FORWARD)
 
@@ -554,10 +550,7 @@ describe("MovieEngine", () => {
 
         describe("when FAST_FORWARD is active and a new scene starts", () => {
             it("isFastForward remains true on the next scene", () => {
-                const engine = new MovieEngine(
-                    makeMovie("scene-1", "scene-2"),
-                    []
-                )
+                const engine = new MovieEngine(makeMovie("scene-1", "scene-2"))
 
                 engine.processCommand(MovieEngineCommand.FAST_FORWARD)
 
@@ -569,10 +562,7 @@ describe("MovieEngine", () => {
     describe("skip", () => {
         describe("when all scenes are image scenes", () => {
             it("stops the movie immediately with state STOPPED", () => {
-                const engine = new MovieEngine(
-                    makeMovie("scene-1", "scene-2"),
-                    []
-                )
+                const engine = new MovieEngine(makeMovie("scene-1", "scene-2"))
 
                 engine.processCommand(MovieEngineCommand.SKIP)
 
@@ -599,7 +589,7 @@ describe("MovieEngine", () => {
                         { type: MovieSceneType.CONVERSATION, data: scene },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 engine.processCommand(MovieEngineCommand.SKIP)
 
@@ -637,7 +627,7 @@ describe("MovieEngine", () => {
                         { type: MovieSceneType.CONVERSATION, data: scene },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 engine.processCommand(MovieEngineCommand.SKIP)
                 engine.tick(1)
@@ -681,7 +671,7 @@ describe("MovieEngine", () => {
                         { type: MovieSceneType.CONVERSATION, data: scene },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 engine.processCommand(MovieEngineCommand.SKIP)
                 engine.tick(1)
@@ -716,7 +706,7 @@ describe("MovieEngine", () => {
                         { type: MovieSceneType.CONVERSATION, data: scene },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 engine.processCommand(MovieEngineCommand.SKIP)
 
@@ -732,7 +722,7 @@ describe("MovieEngine", () => {
     describe("processCommand", () => {
         describe("when STOP is sent", () => {
             it("sets state to STOPPED immediately", () => {
-                const engine = new MovieEngine(makeMovie("scene-1"), [])
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 engine.processCommand(MovieEngineCommand.STOP)
 
@@ -742,10 +732,7 @@ describe("MovieEngine", () => {
 
         describe("when COMPLETE_SCENE is sent during DISPLAY", () => {
             it("advances the engine to the next scene immediately", () => {
-                const engine = new MovieEngine(
-                    makeMovie("scene-1", "scene-2"),
-                    []
-                )
+                const engine = new MovieEngine(makeMovie("scene-1", "scene-2"))
 
                 engine.processCommand(MovieEngineCommand.COMPLETE_SCENE)
 
@@ -771,7 +758,7 @@ describe("MovieEngine", () => {
                         },
                     ],
                 }
-                const engine = new MovieEngine(movie, [])
+                const engine = new MovieEngine(movie)
 
                 engine.processCommand(MovieEngineCommand.COMPLETE_SCENE)
 

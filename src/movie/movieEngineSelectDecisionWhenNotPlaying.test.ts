@@ -13,7 +13,7 @@ describe("MovieEngine selectDecision when the movie is not playing", () => {
     describe("when the movie was stopped on a DECISION line", () => {
         let engine: MovieEngine
         beforeEach(() => {
-            engine = new MovieEngine(createOneDecisionMovie(), [])
+            engine = new MovieEngine(createOneDecisionMovie())
             engine.processCommand(MovieEngineCommand.STOP)
         })
 
@@ -40,7 +40,7 @@ describe("MovieEngine selectDecision when the movie is not playing", () => {
 
     describe("when the player's decision has finished the movie", () => {
         it("rejects a second decision because no movie is playing", () => {
-            const engine = new MovieEngine(createOneDecisionMovie(), [])
+            const engine = new MovieEngine(createOneDecisionMovie())
             engine.selectDecision(OneDecisionMovieIds.firstChoice)
 
             const result = engine.selectDecision(

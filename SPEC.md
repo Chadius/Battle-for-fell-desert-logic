@@ -35,21 +35,20 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 
 ### Domain Folders Under `src/`
 
-| Folder                  | Purpose                                                                           |
-| ----------------------- | --------------------------------------------------------------------------------- |
-| `squaddie/inBattle/`    | In-mission character state (HP, action points, conditions)                        |
-| `squaddie/outOfBattle/` | Static character definition (attributes, action list)                             |
-| `squaddieAction/`       | Action definitions, targeting, calculation, application                           |
-| `squad/`                | Squad groupings and roles                                                         |
-| `squaddieItem/`         | Equipment and passive bonuses                                                     |
-| `affiliation/`          | Team constants (PLAYER, ALLY, ENEMY, NONE) and friendship rules                   |
-| `proficiency/`          | Attribute scores, proficiency levels, condition types                             |
-| `coordinateMap/`        | Grid map, terrain, pathfinding adapter                                            |
-| `aStarSearch/`          | Generic A\* implementation                                                        |
-| `priorityQueue/`        | Min-heap used by A\*                                                              |
-| `degreesOfSuccess/`     | Hit probability (CRITICAL / SUCCESS / FAILURE / BOTCH)                            |
-| `mission/`              | MissionEngine, MissionManager, turn state, objectives, history                    |
-| `resource/`             | Resource content manifest (id/label/description/type); media lives in the package |
+| Folder                  | Purpose                                                         |
+| ----------------------- | --------------------------------------------------------------- |
+| `squaddie/inBattle/`    | In-mission character state (HP, action points, conditions)      |
+| `squaddie/outOfBattle/` | Static character definition (attributes, action list)           |
+| `squaddieAction/`       | Action definitions, targeting, calculation, application         |
+| `squad/`                | Squad groupings and roles                                       |
+| `squaddieItem/`         | Equipment and passive bonuses                                   |
+| `affiliation/`          | Team constants (PLAYER, ALLY, ENEMY, NONE) and friendship rules |
+| `proficiency/`          | Attribute scores, proficiency levels, condition types           |
+| `coordinateMap/`        | Grid map, terrain, pathfinding adapter                          |
+| `aStarSearch/`          | Generic A\* implementation                                      |
+| `priorityQueue/`        | Min-heap used by A\*                                            |
+| `degreesOfSuccess/`     | Hit probability (CRITICAL / SUCCESS / FAILURE / BOTCH)          |
+| `mission/`              | MissionEngine, MissionManager, turn state, objectives, history  |
 
 ---
 
@@ -247,19 +246,9 @@ once per mission.
 
 ### Resources
 
-Assets referenced by missions, campaigns, and movies (images, levels, and eventually audio) are
-described by a content manifest with its own Data Object → Collection → Loader/Resolver stack.
-The media manifest (`filepath`, `format`) lives in the presentation package
-(`fell-desert-presentation-layer`), not here; logic never knows where an asset's file is.
-
-- **`ResourceManifestEntry`** (`resource/resourceManifest.ts`) is _content_: `id`, `label`,
-  `description` (localized, alt-text-shaped), and `type`
-  (`IMAGE | LEVEL | DATA | TEXT | AUDIO | VIDEO`). Written
-  alongside the dialogue/scene that references it, independent of whether a media file exists yet.
-- `ResourceManifestCollection` (`resourceManifestCollection.ts`), `loadResourceManifestFromJSON`
-  (`resourceManifestLoader.ts`), and `resolveResourceManifestEntry` (`resourceManifestResolver.ts`),
-  which walks a mission → campaign → core list of collections for the first match.
-- Consumers (movie scenes, etc.) hold only the opaque manifest key (`resourceManifestEntryId`).
+Logic holds only opaque resource keys, such as `resourceManifestEntryId`. The content and media
+manifests, and resolving a key to its description or file, live in the presentation package
+(`fell-desert-presentation-layer`).
 
 ### Movies
 

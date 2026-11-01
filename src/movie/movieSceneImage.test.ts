@@ -6,29 +6,6 @@ import {
     MovieSceneImageService,
     type MovieSceneImageState,
 } from "./movieSceneImage.js"
-import { ResourceManifestCollectionService } from "../resource/resourceManifestCollection.js"
-import { ResourceManifestEntryService } from "../resource/resourceManifest.js"
-
-const makeImageEntry = () =>
-    ResourceManifestEntryService.new({
-        id: "battlefield-overview",
-        label: "Battlefield Overview",
-        description: {
-            "en-US": { text: "A tactical map of the fell desert" },
-            "fr-FR": { text: "Une carte tactique du désert maudit" },
-        },
-        type: "IMAGE",
-    })
-
-const makeCollection = () => {
-    let collection = ResourceManifestCollectionService.new()
-    collection = ResourceManifestCollectionService.add(
-        collection,
-        "battlefield-overview",
-        makeImageEntry()
-    )
-    return collection
-}
 
 const makeScene = (
     overrides: Partial<Parameters<typeof MovieSceneImageService.new>[0]> = {}
@@ -458,61 +435,6 @@ describe("MovieSceneImage", () => {
             expect(
                 MovieSceneImageService.autoScrollProgress(scene, state)
             ).toEqual({ x: 0, y: 1 })
-        })
-    })
-
-    describe("getImageEntry()", () => {
-        it("returns the entry when present in the collection", () => {
-            const scene = makeScene()
-            const collection = makeCollection()
-            const entry = MovieSceneImageService.imageEntry(scene, collection)
-            expect(entry).toBeDefined()
-            expect(entry?.id).toBe("battlefield-overview")
-        })
-
-        it("returns undefined when entry is not in the collection", () => {
-            const scene = makeScene({ resourceManifestEntryId: "missing-id" })
-            const collection = makeCollection()
-            expect(
-                MovieSceneImageService.imageEntry(scene, collection)
-            ).toBeUndefined()
-        })
-    })
-
-    describe("getDescription()", () => {
-        it("returns en-US description by default", () => {
-            const scene = makeScene()
-            const collection = makeCollection()
-            expect(MovieSceneImageService.description(scene, collection)).toBe(
-                "A tactical map of the fell desert"
-            )
-        })
-
-        it("returns description for the requested language code", () => {
-            const scene = makeScene()
-            const collection = makeCollection()
-            expect(
-                MovieSceneImageService.description(scene, collection, "fr-FR")
-            ).toBe("Une carte tactique du désert maudit")
-        })
-
-        it("returns a warning prefix when requested language is missing", () => {
-            const scene = makeScene()
-            const collection = makeCollection()
-            const result = MovieSceneImageService.description(
-                scene,
-                collection,
-                "de-DE"
-            )
-            expect(result).toMatch(/^de-DE MISSING: /)
-        })
-
-        it("returns undefined when entry is not in the collection", () => {
-            const scene = makeScene({ resourceManifestEntryId: "missing-id" })
-            const collection = makeCollection()
-            expect(
-                MovieSceneImageService.description(scene, collection)
-            ).toBeUndefined()
         })
     })
 })
