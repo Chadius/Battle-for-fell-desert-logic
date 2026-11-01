@@ -261,8 +261,7 @@ file that still carries them.
   locale belongs to the host. `TIME_ELAPSED` is not a logic token: the host supplies it, through
   the presentation package's `HostTextSubstitutionToken`.
 - `MovieService.validate` checks the scene graph only (existence, conflicts, cycles). The
-  presentation package validates movie text. `warnings` is always empty and stays in the result
-  until the editor stops reading it.
+  presentation package validates movie text.
 
 ### Squaddie Conditions
 
@@ -704,6 +703,10 @@ Record<string, string>) → string`. Do a single pass per token rather than the 
 > arithmetic, comparisons, ternaries, and helper functions — see "Token Expression Syntax" above.
 > Token identifiers are now bare names (`TURN_COUNT`, not `{TURN_COUNT}`); the braces are structural
 > syntax owned by the substitution engine rather than part of each token's identity.
+
+> **Superseded**: steps 6 and 7 no longer apply. Movie text left logic, so `getMovieStatus()` runs no
+> substitution and takes no `extraTokens`. `MissionEngine.getTextSubstitutionTokens()` returns the
+> token values as numbers and the host runs the substitution — see "Movies" above.
 
 ---
 
