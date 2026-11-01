@@ -6,24 +6,20 @@ import { MovieSceneType } from "./movieScene.js"
 const dialogLine = (id: string) => ({
     type: "DIALOG",
     id,
-    text: { "en-US": { text: "Hello" } },
 })
 
 const decisionLine = (id: string) => ({
     type: "DECISION",
     id,
-    prompt: { "en-US": { text: "Which way?" } },
     options: [],
 })
 
 const dialogLineWithNoId = () => ({
     type: "DIALOG",
-    text: { "en-US": { text: "Hello" } },
 })
 
 const decisionLineWithNoId = () => ({
     type: "DECISION",
-    prompt: { "en-US": { text: "Which way?" } },
     options: [],
 })
 

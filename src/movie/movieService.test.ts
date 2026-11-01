@@ -5,53 +5,6 @@ import { MovieSceneConversationService } from "./movieSceneConversation.js"
 import { MovieSceneType } from "./movieScene.js"
 
 describe("MovieService.validate", () => {
-    describe("when an IMAGE scene has an empty resourceManifestEntryId and no caption", () => {
-        it("returns an error naming the scene", () => {
-            const movie = {
-                id: "movie-1",
-                firstSceneId: "scene-1",
-                scenes: [
-                    {
-                        type: MovieSceneType.IMAGE,
-                        data: MovieSceneImageService.new({
-                            id: "scene-1",
-                            resourceManifestEntryId: "",
-                        }),
-                    },
-                ],
-            }
-
-            const result = MovieService.validate(movie)
-
-            expect(result.errors).toContainEqual(
-                expect.stringContaining("scene-1")
-            )
-        })
-    })
-
-    describe("when an IMAGE scene has an empty resourceManifestEntryId but a non-empty caption", () => {
-        it("returns no errors — the scene is a valid placeholder", () => {
-            const movie = {
-                id: "movie-1",
-                firstSceneId: "scene-1",
-                scenes: [
-                    {
-                        type: MovieSceneType.IMAGE,
-                        data: MovieSceneImageService.new({
-                            id: "scene-1",
-                            resourceManifestEntryId: "",
-                            caption: "Art coming soon",
-                        }),
-                    },
-                ],
-            }
-
-            const result = MovieService.validate(movie)
-
-            expect(result.errors).toHaveLength(0)
-        })
-    })
-
     describe("when a movie has no nextSceneId fields", () => {
         it("returns isValid true with no errors", () => {
             const movie = {
@@ -62,14 +15,12 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-a",
-                            resourceManifestEntryId: "img-1",
                         }),
                     },
                     {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-b",
-                            resourceManifestEntryId: "img-2",
                         }),
                     },
                 ],
@@ -92,7 +43,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-a",
-                            resourceManifestEntryId: "img-1",
                         }),
                     },
                 ],
@@ -117,7 +67,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-a",
-                            resourceManifestEntryId: "img-1",
                             nextSceneId: "scene-does-not-exist",
                         }),
                     },
@@ -147,15 +96,9 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     id: "line-1",
-                                    prompt: {
-                                        "en-US": { text: "What do you do?" },
-                                    },
                                     options: [
                                         {
                                             decisionId: "attack",
-                                            text: {
-                                                "en-US": { text: "Attack" },
-                                            },
                                             nextSceneId: "scene-does-not-exist",
                                         },
                                     ],
@@ -190,15 +133,9 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     id: "line-2",
-                                    prompt: {
-                                        "en-US": { text: "What do you do?" },
-                                    },
                                     options: [
                                         {
                                             decisionId: "attack",
-                                            text: {
-                                                "en-US": { text: "Attack" },
-                                            },
                                         },
                                     ],
                                 },
@@ -209,7 +146,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-b",
-                            resourceManifestEntryId: "img-1",
                         }),
                     },
                 ],
@@ -234,7 +170,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-a",
-                            resourceManifestEntryId: "img-1",
                             nextSceneId: "scene-b",
                         }),
                     },
@@ -242,7 +177,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-b",
-                            resourceManifestEntryId: "img-2",
                             nextSceneId: "scene-a",
                         }),
                     },
@@ -274,20 +208,13 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     id: "line-3",
-                                    prompt: {
-                                        "en-US": { text: "What do you do?" },
-                                    },
                                     options: [
                                         {
                                             decisionId: "loop",
-                                            text: { "en-US": { text: "Stay" } },
                                             nextSceneId: "scene-a",
                                         },
                                         {
                                             decisionId: "exit",
-                                            text: {
-                                                "en-US": { text: "Leave" },
-                                            },
                                         },
                                     ],
                                 },
@@ -318,24 +245,13 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     id: "line-4",
-                                    prompt: {
-                                        "en-US": { text: "What do you do?" },
-                                    },
                                     options: [
                                         {
                                             decisionId: "option-b",
-                                            text: {
-                                                "en-US": { text: "Go back" },
-                                            },
                                             nextSceneId: "scene-a",
                                         },
                                         {
                                             decisionId: "option-c",
-                                            text: {
-                                                "en-US": {
-                                                    text: "Also go back",
-                                                },
-                                            },
                                             nextSceneId: "scene-a",
                                         },
                                     ],
@@ -369,15 +285,9 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     id: "line-5",
-                                    prompt: {
-                                        "en-US": { text: "What do you do?" },
-                                    },
                                     options: [
                                         {
                                             decisionId: "option-b",
-                                            text: {
-                                                "en-US": { text: "Go back" },
-                                            },
                                             nextSceneId: "scene-a",
                                         },
                                     ],
@@ -415,22 +325,13 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DECISION" as const,
                                     id: "line-6",
-                                    prompt: {
-                                        "en-US": { text: "Choose your path" },
-                                    },
                                     options: [
                                         {
                                             decisionId: "go-b",
-                                            text: {
-                                                "en-US": { text: "Go to B" },
-                                            },
                                             nextSceneId: "scene-b",
                                         },
                                         {
                                             decisionId: "go-c",
-                                            text: {
-                                                "en-US": { text: "Go to C" },
-                                            },
                                             nextSceneId: "scene-c",
                                         },
                                     ],
@@ -447,7 +348,6 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DIALOG" as const,
                                     id: "line-7",
-                                    text: { "en-US": { text: "You are in B" } },
                                 },
                             ],
                         }),
@@ -456,7 +356,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-d",
-                            resourceManifestEntryId: "img-d",
                             nextSceneId: "scene-b",
                         }),
                     },
@@ -469,7 +368,6 @@ describe("MovieService.validate", () => {
                                 {
                                     type: "DIALOG" as const,
                                     id: "line-8",
-                                    text: { "en-US": { text: "You are in C" } },
                                 },
                             ],
                         }),
@@ -495,97 +393,6 @@ describe("MovieService.validate", () => {
         })
     })
 
-    describe("when a DIALOG line has a speakerId with more than 5 words and no text", () => {
-        it("returns a warning naming the scene and line index", () => {
-            const movie = {
-                id: "movie-1",
-                firstSceneId: "scene-a",
-                scenes: [
-                    {
-                        type: MovieSceneType.CONVERSATION,
-                        data: MovieSceneConversationService.new({
-                            id: "scene-a",
-                            lines: [
-                                {
-                                    type: "DIALOG" as const,
-                                    id: "line-9",
-                                    speakerId:
-                                        "This is definitely more than five words",
-                                    text: {},
-                                },
-                            ],
-                        }),
-                    },
-                ],
-            }
-
-            const result = MovieService.validate(movie)
-
-            expect(result.warnings).toHaveLength(1)
-            expect(result.warnings[0]).toContain("scene-a")
-            expect(result.warnings[0]).toContain("line 0")
-        })
-    })
-
-    describe("when a DIALOG line has a speakerId with more than 5 words but also has text", () => {
-        it("returns no warning", () => {
-            const movie = {
-                id: "movie-1",
-                firstSceneId: "scene-a",
-                scenes: [
-                    {
-                        type: MovieSceneType.CONVERSATION,
-                        data: MovieSceneConversationService.new({
-                            id: "scene-a",
-                            lines: [
-                                {
-                                    type: "DIALOG" as const,
-                                    id: "line-10",
-                                    speakerId:
-                                        "This is definitely more than five words",
-                                    text: { "en-US": { text: "Hello" } },
-                                },
-                            ],
-                        }),
-                    },
-                ],
-            }
-
-            const result = MovieService.validate(movie)
-
-            expect(result.warnings).toHaveLength(0)
-        })
-    })
-
-    describe("when a DIALOG line has a short speakerId and no text", () => {
-        it("returns no warning", () => {
-            const movie = {
-                id: "movie-1",
-                firstSceneId: "scene-a",
-                scenes: [
-                    {
-                        type: MovieSceneType.CONVERSATION,
-                        data: MovieSceneConversationService.new({
-                            id: "scene-a",
-                            lines: [
-                                {
-                                    type: "DIALOG" as const,
-                                    id: "line-11",
-                                    speakerId: "Lini",
-                                    text: {},
-                                },
-                            ],
-                        }),
-                    },
-                ],
-            }
-
-            const result = MovieService.validate(movie)
-
-            expect(result.warnings).toHaveLength(0)
-        })
-    })
-
     describe("when a movie has both an unknown nextSceneId and a cycle", () => {
         it("returns both existence and cycle errors in the same call", () => {
             const movie = {
@@ -596,7 +403,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-a",
-                            resourceManifestEntryId: "img-1",
                             nextSceneId: "scene-b",
                         }),
                     },
@@ -604,7 +410,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-b",
-                            resourceManifestEntryId: "img-2",
                             nextSceneId: "scene-a",
                         }),
                     },
@@ -612,7 +417,6 @@ describe("MovieService.validate", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-c",
-                            resourceManifestEntryId: "img-3",
                             nextSceneId: "scene-ghost",
                         }),
                     },

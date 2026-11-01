@@ -1,7 +1,6 @@
 import { z } from "zod"
 import { type Movie, MovieService } from "./movie.js"
 import { MovieSceneType } from "./movieScene.js"
-import { localizedTextSchema } from "../localization/localizedText.js"
 
 const movieSceneTransitionSchema = z.object({
     durationMs: z.number().positive(),
@@ -15,15 +14,7 @@ const movieSceneAutoScrollSchema = z.object({
 const imageSceneSchema = z.object({
     type: z.literal(MovieSceneType.IMAGE),
     id: z.string(),
-    resourceManifestEntryId: z
-        .string()
-        .nullish()
-        .transform((v) => v ?? undefined),
     nextSceneId: z
-        .string()
-        .nullish()
-        .transform((v) => v ?? undefined),
-    caption: z
         .string()
         .nullish()
         .transform((v) => v ?? undefined),
@@ -41,7 +32,6 @@ const imageSceneSchema = z.object({
 
 const decisionOptionSchema = z.object({
     decisionId: z.string(),
-    text: localizedTextSchema,
     nextSceneId: z
         .string()
         .nullish()
@@ -51,28 +41,11 @@ const decisionOptionSchema = z.object({
 const dialogLineSchema = z.object({
     type: z.literal("DIALOG"),
     id: z.string().min(1),
-    speakerId: z
-        .string()
-        .nullish()
-        .transform((v) => v ?? undefined),
-    text: localizedTextSchema,
-    portrait: z
-        .object({
-            resourceManifestEntryId: z.string(),
-            position: z.enum(["LEFT", "RIGHT"]),
-        })
-        .nullish()
-        .transform((v) => v ?? undefined),
-    dialogPosition: z
-        .enum(["LEFT", "CENTER", "RIGHT"])
-        .nullish()
-        .transform((v) => v ?? undefined),
 })
 
 const decisionLineSchema = z.object({
     type: z.literal("DECISION"),
     id: z.string().min(1),
-    prompt: localizedTextSchema,
     options: z.array(decisionOptionSchema),
 })
 
@@ -105,9 +78,7 @@ const parsedSceneToMovieScene = (scene: z.infer<typeof movieSceneSchema>) => {
             type: MovieSceneType.IMAGE,
             data: {
                 id: scene.id,
-                resourceManifestEntryId: scene.resourceManifestEntryId,
                 nextSceneId: scene.nextSceneId,
-                caption: scene.caption,
                 introTransition: scene.introTransition,
                 exitTransition: scene.exitTransition,
                 manualScrollEnabled: scene.manualScrollEnabled,

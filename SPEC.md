@@ -252,21 +252,25 @@ manifests, and resolving a key to its description or file, live in the presentat
 
 ### Movies
 
-Movies are splitting into state and content (see "Separating Presentation Data from Fell Desert
-Logic", step 5). Logic owns scene order, the decision the player picked, `PLAY_MOVIE` rewards, and
-making `readyAction` wait while a movie plays. Text, portraits, layout and speakers move to
-`movieContent.json` in the presentation package, keyed by the ids below.
+Movies are split into state and content. Logic owns scene order, the decision the player picked,
+image scene transitions and scrolling, `PLAY_MOVIE` rewards, and making `readyAction` wait while a
+movie plays. Text, captions, images, portraits, layout and speakers live in `movieContent.json` in
+the presentation package, keyed by the ids below. `MovieLoader` ignores those fields in a movie
+file that still carries them.
 
 - Every `DIALOG` and `DECISION` line has an `id` the author writes. `MovieLoader` rejects a line
   with no id, an empty id, or an id repeated within its scene; two scenes may share one. Content is
   looked up by id so that editing a script can't point at the wrong text.
 - `MissionEngine.getMovieStatus()` reports `movieId`, the current scene's `sceneId` and, for a
-  conversation, its `lineId`. A `DecisionRecord` stores `lineId`, not the line's position.
+  conversation, its `lineId` and, on a `DECISION` line, each option's `decisionId`. A
+  `DecisionRecord` stores `lineId`, not the line's position.
 - `MissionEngine.getTextSubstitutionTokens()` returns the turn count and mission statistics as raw
   numbers, because `plural()`, `ordinal()` and `round()` need numbers and formatting one for a
-  locale belongs to the host. `TIME_ELAPSED` is not included: the host supplies it.
-- `getMovieStatus` still returns text, captions, portraits, `dialogPosition` and `speakerId`, and
-  still substitutes tokens, until the client and editor have moved to `movieContent.json`.
+  locale belongs to the host. `TIME_ELAPSED` is not a logic token: the host supplies it, through
+  the presentation package's `HostTextSubstitutionToken`.
+- `MovieService.validate` checks the scene graph only (existence, conflicts, cycles). The
+  presentation package validates movie text. `warnings` is always empty and stays in the result
+  until the editor stops reading it.
 
 ### Squaddie Conditions
 
@@ -483,11 +487,10 @@ Required:
 - Statistics update immutably as each action result is applied (per the architecture's "Data
   Objects are immutable" principle), not via in-place mutation.
 - A generic `{TOKEN}` text-substitution mechanism that resolves tokens like `{TURN_COUNT}` and
-  `{DAMAGE_DEALT_BY_PLAYER_TEAM}` against `MissionState`/`MissionStatistics` before dialogue text
-  reaches the host application.
+  `{DAMAGE_DEALT_BY_PLAYER_TEAM}` against `MissionState`/`MissionStatistics`. The engine supplies
+  the values through `MissionEngine.getTextSubstitutionTokens()`; the host runs the substitution.
 - Elapsed wall-clock time (`{TIME_ELAPSED}`) is a presentation-layer concern — this engine has no
-  frame loop — so the substitution mechanism must accept host-supplied extra tokens rather than
-  the engine owning a clock.
+  frame loop — so the host supplies that token rather than the engine owning a clock.
 
 #### Token Expression Syntax
 
@@ -516,11 +519,10 @@ are displayed rounded to 2 decimal places, with trailing zeros trimmed (`6.5`, n
 `TextSubstitutionService.validate(text)` lets a host UI check dialogue text for malformed
 expressions (e.g. `{TOKEN+}`) ahead of time, without needing real token values and without
 throwing — it returns a list of error messages (empty if the text is well-formed) so a dialogue
-editor can flag the mistake at authoring time instead of at substitution time. `MovieService.validate`
-calls it on every DIALOG line and DECISION prompt/option in a movie's conversation scenes, prefixing
-each message with the scene id, line index, and language code. A bare unresolved token (e.g.
-`{MYSTERY}`) is never reported as an error here, matching `substitute`'s pass-through behavior —
-token existence can't be checked without mission-specific context that the movie layer doesn't have.
+editor can flag the mistake at authoring time instead of at substitution time. The presentation
+package calls it on movie text. A bare unresolved token (e.g. `{MYSTERY}`) is never reported as an
+error here, matching `substitute`'s pass-through behavior — the package checks token existence
+itself against `MissionTextSubstitutionToken.AVAILABLE` plus its host tokens.
 
 Token identifiers referenced inside an expression (e.g. the `TOKEN` in `{TOKEN + 1}`) are written
 without braces — the outer `{...}` pair is the only structural delimiter, so token catalog values

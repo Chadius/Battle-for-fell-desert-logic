@@ -16,16 +16,13 @@ const makeMovie = (): Movie => ({
                     {
                         type: "DIALOG",
                         id: "greeting",
-                        text: { "en-US": { text: "Hello" } },
                     },
                     {
                         type: "DECISION",
                         id: "choose-a-path",
-                        prompt: { "en-US": { text: "Which way?" } },
                         options: [
                             {
                                 decisionId: "go-left",
-                                text: { "en-US": { text: "Left" } },
                             },
                         ],
                     },

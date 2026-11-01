@@ -1,15 +1,9 @@
-import type {
-    ConversationLine,
-    DialogLine,
-    MovieSceneConversation,
-} from "./movieSceneConversation.js"
-import type { LocalizedText } from "../localization/localizedText.js"
+import type { MovieSceneConversation } from "./movieSceneConversation.js"
 import {
     type MovieScene,
     MovieSceneService,
     MovieSceneType,
 } from "./movieScene.js"
-import { TextSubstitutionService } from "./textSubstitution.js"
 
 export interface Movie {
     id: string
@@ -28,47 +22,9 @@ export const MovieService = {
             ...existenceErrors(movie, sceneIds),
             ...conflictErrors(movie),
             ...cycleErrors(movie),
-            ...imagePlaceholderErrors(movie),
-            ...textSubstitutionErrors(movie),
         ]
-        const warnings = [...conversationDialogWarnings(movie)]
-        return { isValid: errors.length === 0, errors, warnings }
+        return { isValid: errors.length === 0, errors, warnings: [] }
     },
-}
-
-const LONG_SPEAKER_ID_WORD_THRESHOLD = 5
-
-const conversationDialogWarnings = (movie: Movie): string[] => {
-    const warnings: string[] = []
-    for (const movieScene of movie.scenes) {
-        if (movieScene.type !== MovieSceneType.CONVERSATION) continue
-        for (let index = 0; index < movieScene.data.lines.length; index++) {
-            const conversationLine = movieScene.data.lines[index]
-            if (conversationLine.type !== "DIALOG") continue
-            const warning = longSpeakerIdWithEmptyTextWarning(
-                movieScene.data.id,
-                index,
-                conversationLine
-            )
-            if (warning !== undefined) warnings.push(warning)
-        }
-    }
-    return warnings
-}
-
-const longSpeakerIdWithEmptyTextWarning = (
-    sceneId: string,
-    lineIndex: number,
-    dialogLine: DialogLine
-): string | undefined => {
-    if (dialogLine.speakerId === undefined) return undefined
-    const wordCount = dialogLine.speakerId.trim().split(/\s+/).length
-    if (wordCount <= LONG_SPEAKER_ID_WORD_THRESHOLD) return undefined
-    const hasText = Object.values(dialogLine.text).some(
-        (entry) => entry.text.length > 0
-    )
-    if (hasText) return undefined
-    return `scene '${sceneId}' line ${lineIndex}: speakerId has ${wordCount} words but text is empty — did you swap speakerId and text?`
 }
 
 const cycleErrors = (movie: Movie): string[] => {
@@ -216,75 +172,6 @@ const conflictErrors = (movie: Movie): string[] => {
     }
     return errors
 }
-
-const textSubstitutionErrors = (movie: Movie): string[] => {
-    const errors: string[] = []
-    for (const movieScene of movie.scenes) {
-        if (movieScene.type !== MovieSceneType.CONVERSATION) continue
-        for (let index = 0; index < movieScene.data.lines.length; index++) {
-            errors.push(
-                ...conversationLineTextSubstitutionErrors(
-                    movieScene.data.id,
-                    index,
-                    movieScene.data.lines[index]
-                )
-            )
-        }
-    }
-    return errors
-}
-
-const conversationLineTextSubstitutionErrors = (
-    sceneId: string,
-    lineIndex: number,
-    conversationLine: ConversationLine
-): string[] => {
-    if (conversationLine.type === "DIALOG") {
-        return localizedTextSubstitutionErrors(
-            sceneId,
-            lineIndex,
-            conversationLine.text
-        )
-    }
-    return [
-        ...localizedTextSubstitutionErrors(
-            sceneId,
-            lineIndex,
-            conversationLine.prompt
-        ),
-        ...conversationLine.options.flatMap((decisionOption) =>
-            localizedTextSubstitutionErrors(
-                sceneId,
-                lineIndex,
-                decisionOption.text
-            )
-        ),
-    ]
-}
-
-const localizedTextSubstitutionErrors = (
-    sceneId: string,
-    lineIndex: number,
-    localizedText: LocalizedText
-): string[] =>
-    Object.entries(localizedText).flatMap(([languageCode, entry]) =>
-        TextSubstitutionService.validate(entry.text).map(
-            (message) =>
-                `scene '${sceneId}' line ${lineIndex} (${languageCode}): ${message}`
-        )
-    )
-
-const imagePlaceholderErrors = (movie: Movie): string[] =>
-    movie.scenes.flatMap((movieScene) => {
-        if (movieScene.type !== MovieSceneType.IMAGE) return []
-        const { id, resourceManifestEntryId, caption } = movieScene.data
-        if (!resourceManifestEntryId && !caption) {
-            return [
-                `scene '${id}' has no resourceManifestEntryId and no caption — add a caption to use it as a placeholder`,
-            ]
-        }
-        return []
-    })
 
 const existenceErrors = (movie: Movie, sceneIds: Set<string>): string[] => {
     const errors: string[] = []

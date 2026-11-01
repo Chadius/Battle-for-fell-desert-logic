@@ -23,16 +23,13 @@ export function createOneDecisionMovie(): Movie {
                         {
                             type: "DECISION",
                             id: OneDecisionMovieIds.line,
-                            prompt: { "en-US": { text: "Choose a path" } },
                             options: [
                                 {
                                     decisionId: OneDecisionMovieIds.firstChoice,
-                                    text: { "en-US": { text: "First" } },
                                 },
                                 {
                                     decisionId:
                                         OneDecisionMovieIds.secondChoice,
-                                    text: { "en-US": { text: "Second" } },
                                 },
                             ],
                         },
