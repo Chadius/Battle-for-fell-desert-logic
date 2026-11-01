@@ -4,6 +4,10 @@
 
 **Requested by:** `fell-desert-html-canvas`, the browser front end being built against this engine
 
+**Status:** Done, then superseded. Both manifests now live in the presentation package
+(`fell-desert-presentation-layer`), and `logic` no longer has `src/resource/`. Logic only holds
+opaque ids such as `resourceManifestEntryId`. This file is kept as a record of the split.
+
 ## Background
 
 `ResourceManifestEntry` (`logic/src/resource/resourceManifest.ts`) currently bundles two things

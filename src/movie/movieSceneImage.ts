@@ -1,10 +1,4 @@
 import { MovieSceneCommand } from "./movieSceneCommand.js"
-import type { ResourceManifestCollection } from "../resource/resourceManifestCollection.js"
-import { ResourceManifestCollectionService } from "../resource/resourceManifestCollection.js"
-import {
-    type ResourceManifestEntry,
-    ResourceManifestEntryService,
-} from "../resource/resourceManifest.js"
 
 export const MovieSceneImageCommand = {
     ...MovieSceneCommand,
@@ -52,6 +46,17 @@ export interface MovieSceneImageState {
     phase: TMovieSceneImagePhase
     phaseElapsedMs: number
     isFastForward: boolean
+    manualScrollOffset: { x: number; y: number }
+}
+
+export interface ImageSceneStatus {
+    type: "IMAGE"
+    sceneId: string
+    phase: TMovieSceneImagePhase
+    resourceManifestEntryId: string | undefined
+    caption: string | undefined
+    transitionProgress: number
+    autoScrollProgress: { x: number; y: number }
     manualScrollOffset: { x: number; y: number }
 }
 
@@ -200,36 +205,51 @@ export const MovieSceneImageService = {
         return { x: 0, y: progress }
     },
 
-    imageEntry: (
+    status: (
         movieSceneImage: MovieSceneImage,
-        resourceManifestCollection: ResourceManifestCollection
-    ): ResourceManifestEntry | undefined => {
-        if (movieSceneImage.resourceManifestEntryId == undefined) {
-            return undefined
-        }
-        return ResourceManifestCollectionService.get(
-            resourceManifestCollection,
-            movieSceneImage.resourceManifestEntryId
-        )
-    },
+        movieSceneImageState: MovieSceneImageState
+    ): ImageSceneStatus => ({
+        type: "IMAGE",
+        sceneId: movieSceneImage.id,
+        phase: movieSceneImageState.phase,
+        resourceManifestEntryId: movieSceneImage.resourceManifestEntryId,
+        caption: movieSceneImage.caption,
+        transitionProgress: transitionProgress(
+            movieSceneImage,
+            movieSceneImageState
+        ),
+        autoScrollProgress: MovieSceneImageService.autoScrollProgress(
+            movieSceneImage,
+            movieSceneImageState
+        ),
+        manualScrollOffset: movieSceneImageState.manualScrollOffset,
+    }),
+}
 
-    description: (
-        movieSceneImage: MovieSceneImage,
-        resourceManifestCollection: ResourceManifestCollection,
-        languageCode = ResourceManifestEntryService.FALLBACK_LANGUAGE_CODE
-    ): string | undefined => {
-        if (movieSceneImage.resourceManifestEntryId == undefined) {
-            return undefined
-        }
+const currentTransition = (
+    movieSceneImage: MovieSceneImage,
+    phase: TMovieSceneImagePhase
+): MovieSceneTransition | undefined => {
+    if (phase === MovieSceneImagePhase.INTRO_TRANSITION)
+        return movieSceneImage.introTransition
+    if (phase === MovieSceneImagePhase.EXIT_TRANSITION)
+        return movieSceneImage.exitTransition
+    return undefined
+}
 
-        const entry = ResourceManifestCollectionService.get(
-            resourceManifestCollection,
-            movieSceneImage.resourceManifestEntryId
-        )
-        if (entry == undefined) return undefined
-
-        return ResourceManifestEntryService.getDescription(entry, languageCode)
-    },
+const transitionProgress = (
+    movieSceneImage: MovieSceneImage,
+    movieSceneImageState: MovieSceneImageState
+): number => {
+    const movieSceneTransition = currentTransition(
+        movieSceneImage,
+        movieSceneImageState.phase
+    )
+    if (movieSceneTransition === undefined) return 0
+    return Math.min(
+        1,
+        movieSceneImageState.phaseElapsedMs / movieSceneTransition.durationMs
+    )
 }
 
 const tickedIntroTransitionState = (

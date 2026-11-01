@@ -45,7 +45,7 @@ const currentConversationScene = (engine: MovieEngine) => {
 describe("MovieEngine current ids", () => {
     describe("while a movie plays", () => {
         it("reports the movie's id", () => {
-            const engine = new MovieEngine(makeMovie(), [])
+            const engine = new MovieEngine(makeMovie())
 
             expect(engine.status().movieId).toBe("the-briefing")
         })
@@ -53,7 +53,7 @@ describe("MovieEngine current ids", () => {
 
     describe("when the current line is a DIALOG line", () => {
         it("reports that line's id", () => {
-            const engine = new MovieEngine(makeMovie(), [])
+            const engine = new MovieEngine(makeMovie())
 
             expect(currentConversationScene(engine).lineId).toBe("greeting")
         })
@@ -61,7 +61,7 @@ describe("MovieEngine current ids", () => {
 
     describe("when the movie advances to a DECISION line", () => {
         it("reports that line's id", () => {
-            const engine = new MovieEngine(makeMovie(), [])
+            const engine = new MovieEngine(makeMovie())
 
             engine.processCommand(MovieEngineCommand.CONFIRM)
 
@@ -73,7 +73,7 @@ describe("MovieEngine current ids", () => {
 
     describe("when the player picks a decision", () => {
         it("records it by its line's id, not its position", () => {
-            const engine = new MovieEngine(makeMovie(), [])
+            const engine = new MovieEngine(makeMovie())
 
             engine.processCommand(MovieEngineCommand.CONFIRM)
             engine.selectDecision("go-left")

@@ -50,10 +50,6 @@
             "types": "./build/proficiency/index.d.ts",
             "import": "./build/proficiency/index.js"
         },
-        "./resource": {
-            "types": "./build/resource/index.d.ts",
-            "import": "./build/resource/index.js"
-        },
         "./squad": {
             "types": "./build/squad/index.d.ts",
             "import": "./build/squad/index.js"
