@@ -12,9 +12,7 @@ export interface Movie {
 }
 
 export const MovieService = {
-    validate: (
-        movie: Movie
-    ): { isValid: boolean; errors: string[]; warnings: string[] } => {
+    validate: (movie: Movie): { isValid: boolean; errors: string[] } => {
         const sceneIds = new Set(
             movie.scenes.map((movieScene) => movieScene.data.id)
         )
@@ -23,7 +21,7 @@ export const MovieService = {
             ...conflictErrors(movie),
             ...cycleErrors(movie),
         ]
-        return { isValid: errors.length === 0, errors, warnings: [] }
+        return { isValid: errors.length === 0, errors }
     },
 }
 
