@@ -22,7 +22,6 @@ const makeMovie = (...sceneIds: string[]): Movie => ({
         type: MovieSceneType.IMAGE,
         data: MovieSceneImageService.new({
             id,
-            resourceManifestEntryId: "img",
         }),
     })),
 })
@@ -35,7 +34,6 @@ const makeFiniteMovie = (id: string, durationMs: number): Movie => ({
             type: MovieSceneType.IMAGE,
             data: MovieSceneImageService.new({
                 id,
-                resourceManifestEntryId: "img",
                 introTransition: { durationMs },
             }),
         },
@@ -163,7 +161,6 @@ describe("MissionEngine movie integration", () => {
                     type: MovieSceneType.IMAGE,
                     data: MovieSceneImageService.new({
                         id: sceneId,
-                        resourceManifestEntryId: "img",
                     }),
                 },
             ],
@@ -350,21 +347,12 @@ describe("MissionEngine movie integration", () => {
                                 {
                                     type: "DECISION",
                                     id: "line-1",
-                                    prompt: {
-                                        "en-US": { text: "Choose wisely" },
-                                    },
                                     options: [
                                         {
                                             decisionId: "choice-a",
-                                            text: {
-                                                "en-US": { text: "Option A" },
-                                            },
                                         },
                                         {
                                             decisionId: "choice-b",
-                                            text: {
-                                                "en-US": { text: "Option B" },
-                                            },
                                         },
                                     ],
                                 },

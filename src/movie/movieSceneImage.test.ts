@@ -12,7 +12,6 @@ const makeScene = (
 ): MovieSceneImage =>
     MovieSceneImageService.new({
         id: "scene-1",
-        resourceManifestEntryId: "battlefield-overview",
         introTransition: { durationMs: 1000 },
         exitTransition: { durationMs: 500 },
         ...overrides,
@@ -43,16 +42,12 @@ describe("MovieSceneImage", () => {
         it("stores all fields", () => {
             const scene = MovieSceneImageService.new({
                 id: "tutorial-1",
-                resourceManifestEntryId: "tutorial-img",
-                caption: "Move your squaddie forward.",
                 introTransition: { durationMs: 800 },
                 exitTransition: { durationMs: 400 },
                 manualScrollEnabled: true,
                 autoScroll: { direction: "VERTICAL", durationMs: 3000 },
             })
             expect(scene.id).toBe("tutorial-1")
-            expect(scene.resourceManifestEntryId).toBe("tutorial-img")
-            expect(scene.caption).toBe("Move your squaddie forward.")
             expect(scene.introTransition).toEqual({ durationMs: 800 })
             expect(scene.exitTransition).toEqual({ durationMs: 400 })
             expect(scene.manualScrollEnabled).toBe(true)
@@ -60,11 +55,6 @@ describe("MovieSceneImage", () => {
                 direction: "VERTICAL",
                 durationMs: 3000,
             })
-        })
-
-        it("caption defaults to undefined when not provided", () => {
-            const scene = makeScene({ caption: undefined })
-            expect(scene.caption).toBeUndefined()
         })
 
         it("manualScrollEnabled defaults to false when not provided", () => {

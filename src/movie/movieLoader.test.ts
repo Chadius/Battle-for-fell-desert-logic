@@ -12,9 +12,7 @@ describe("MovieLoader.loadFromJSON", () => {
                     {
                         type: "IMAGE",
                         id: "scene-1",
-                        resourceManifestEntryId: "bgImage",
                         nextSceneId: null,
-                        caption: null,
                         introTransition: null,
                         exitTransition: null,
                         manualScrollEnabled: false,
@@ -30,14 +28,11 @@ describe("MovieLoader.loadFromJSON", () => {
             expect(movie.scenes).toHaveLength(1)
             expect(movie.scenes[0].data.id).toBe("scene-1")
             expect(movie.scenes[0].type).toBe(MovieSceneType.IMAGE)
-            if (movie.scenes[0].type !== MovieSceneType.IMAGE)
-                throw new Error("expected IMAGE scene")
-            expect(movie.scenes[0].data.resourceManifestEntryId).toBe("bgImage")
         })
     })
 
     describe("when given valid JSON with a CONVERSATION scene", () => {
-        it("returns a Movie with DIALOG line text preserved as LocalizedText", () => {
+        it("returns a Movie with the DIALOG line", () => {
             const json = {
                 id: "movie-2",
                 firstSceneId: "convo-1",
@@ -50,8 +45,6 @@ describe("MovieLoader.loadFromJSON", () => {
                             {
                                 type: "DIALOG",
                                 id: "line-1",
-                                speakerId: "lini",
-                                text: { "en-US": { text: "Hello!" } },
                             },
                         ],
                     },
@@ -64,17 +57,12 @@ describe("MovieLoader.loadFromJSON", () => {
             if (movie.scenes[0].type !== MovieSceneType.CONVERSATION)
                 throw new Error("expected CONVERSATION scene")
             const conversationLine = movie.scenes[0].data.lines[0]
-            expect(conversationLine.type).toBe("DIALOG")
-            if (conversationLine.type !== "DIALOG")
-                throw new Error("expected DIALOG line")
-            expect(conversationLine.text).toEqual({
-                "en-US": { text: "Hello!" },
-            })
+            expect(conversationLine).toEqual({ type: "DIALOG", id: "line-1" })
         })
     })
 
-    describe("when a CONVERSATION scene has a DECISION line with prompt as a LocalizedText object", () => {
-        it("returns a Movie with DECISION line prompt preserved as LocalizedText", () => {
+    describe("when a CONVERSATION scene has a DECISION line", () => {
+        it("returns a Movie with the DECISION line and its options", () => {
             const json = {
                 id: "movie-3",
                 firstSceneId: "convo-1",
@@ -87,13 +75,9 @@ describe("MovieLoader.loadFromJSON", () => {
                             {
                                 type: "DECISION",
                                 id: "line-2",
-                                prompt: {
-                                    "en-US": { text: "What do you do?" },
-                                },
                                 options: [
                                     {
                                         decisionId: "fight",
-                                        text: { "en-US": { text: "Fight" } },
                                     },
                                 ],
                             },
@@ -108,54 +92,11 @@ describe("MovieLoader.loadFromJSON", () => {
             if (movie.scenes[0].type !== MovieSceneType.CONVERSATION)
                 throw new Error("expected CONVERSATION scene")
             const conversationLine = movie.scenes[0].data.lines[0]
-            expect(conversationLine.type).toBe("DECISION")
-            if (conversationLine.type !== "DECISION")
-                throw new Error("expected DECISION line")
-            expect(conversationLine.prompt).toEqual({
-                "en-US": { text: "What do you do?" },
+            expect(conversationLine).toEqual({
+                type: "DECISION",
+                id: "line-2",
+                options: [{ decisionId: "fight" }],
             })
-            const fightOption = conversationLine.options.find(
-                (o) => o.decisionId === "fight"
-            )
-            expect(fightOption?.text).toEqual({
-                "en-US": { text: "Fight" },
-            })
-        })
-    })
-
-    describe("when a CONVERSATION scene has a DIALOG line with text as a plain string", () => {
-        it("throws a validation error naming the invalid field", () => {
-            const json = {
-                id: "movie-2",
-                firstSceneId: "convo-1",
-                scenes: [
-                    {
-                        type: "CONVERSATION",
-                        id: "convo-1",
-                        nextSceneId: null,
-                        lines: [
-                            {
-                                type: "DIALOG",
-                                id: "line-3",
-                                speakerId: "lini",
-                                text: "Hello!",
-                            },
-                        ],
-                    },
-                ],
-            }
-
-            expect(() => MovieLoader.loadFromJSON(json)).toThrow("lines.0.text")
-        })
-    })
-
-    describe("when a DIALOG line uses a lowercase language code", () => {
-        it("throws a validation error naming the offending key", () => {
-            const json = movieWithDialogText({ "en-us": { text: "Hello!" } })
-
-            expect(() => MovieLoader.loadFromJSON(json)).toThrow(
-                "lines.0.text.en-us"
-            )
         })
     })
 
@@ -168,9 +109,7 @@ describe("MovieLoader.loadFromJSON", () => {
                     {
                         type: "IMAGE",
                         id: "scene-1",
-                        resourceManifestEntryId: "bg",
                         nextSceneId: null,
-                        caption: null,
                         introTransition: null,
                         exitTransition: null,
                         manualScrollEnabled: false,
@@ -179,9 +118,7 @@ describe("MovieLoader.loadFromJSON", () => {
                     {
                         type: "IMAGE",
                         id: "scene-1",
-                        resourceManifestEntryId: "bg2",
                         nextSceneId: null,
-                        caption: null,
                         introTransition: null,
                         exitTransition: null,
                         manualScrollEnabled: false,
@@ -203,9 +140,7 @@ describe("MovieLoader.loadFromJSON", () => {
                     {
                         type: "IMAGE",
                         id: "scene-1",
-                        resourceManifestEntryId: "bg",
                         nextSceneId: "missing-scene",
-                        caption: null,
                         introTransition: null,
                         exitTransition: null,
                         manualScrollEnabled: false,
@@ -220,34 +155,6 @@ describe("MovieLoader.loadFromJSON", () => {
         })
     })
 
-    describe("when an IMAGE scene has no resourceManifestEntryId but has a caption", () => {
-        it("returns a Movie with resourceManifestEntryId as undefined", () => {
-            const json = {
-                id: "movie-1",
-                firstSceneId: "scene-1",
-                scenes: [
-                    {
-                        type: "IMAGE",
-                        id: "scene-1",
-                        resourceManifestEntryId: null,
-                        nextSceneId: null,
-                        caption: "Art coming soon",
-                        introTransition: null,
-                        exitTransition: null,
-                        manualScrollEnabled: false,
-                        autoScroll: null,
-                    },
-                ],
-            }
-
-            const movie = MovieLoader.loadFromJSON(json)
-
-            if (movie.scenes[0].type !== MovieSceneType.IMAGE)
-                throw new Error("expected IMAGE scene")
-            expect(movie.scenes[0].data.resourceManifestEntryId).toBeUndefined()
-        })
-    })
-
     describe("when an IMAGE scene has autoScroll with durationMs of 0", () => {
         it("throws a validation error naming the invalid field", () => {
             const json = {
@@ -257,9 +164,7 @@ describe("MovieLoader.loadFromJSON", () => {
                     {
                         type: "IMAGE",
                         id: "scene-1",
-                        resourceManifestEntryId: "bg",
                         nextSceneId: null,
-                        caption: null,
                         introTransition: null,
                         exitTransition: null,
                         manualScrollEnabled: false,
@@ -281,9 +186,7 @@ describe("MovieLoader.loadFromJSON", () => {
                     {
                         type: "IMAGE",
                         id: "scene-1",
-                        resourceManifestEntryId: "bg",
                         nextSceneId: null,
-                        caption: null,
                         introTransition: null,
                         exitTransition: { durationMs: 0 },
                         manualScrollEnabled: false,
@@ -307,9 +210,7 @@ describe("MovieLoader.loadFromJSON", () => {
                     {
                         type: "IMAGE",
                         id: "scene-1",
-                        resourceManifestEntryId: "bg",
                         nextSceneId: null,
-                        caption: null,
                         introTransition: { durationMs: -500 },
                         exitTransition: null,
                         manualScrollEnabled: false,
@@ -333,9 +234,7 @@ describe("MovieLoader.loadFromJSON", () => {
                     {
                         type: "IMAGE",
                         id: "scene-1",
-                        resourceManifestEntryId: "bg",
                         nextSceneId: null,
-                        caption: null,
                         introTransition: { durationMs: 0 },
                         exitTransition: null,
                         manualScrollEnabled: false,
@@ -367,20 +266,3 @@ describe("MovieLoader.loadFromJSON", () => {
         })
     })
 })
-
-function movieWithDialogText(text: Record<string, { text: string }>) {
-    return {
-        id: "movie-2",
-        firstSceneId: "convo-1",
-        scenes: [
-            {
-                type: "CONVERSATION",
-                id: "convo-1",
-                nextSceneId: null,
-                lines: [
-                    { type: "DIALOG", id: "line-4", speakerId: "lini", text },
-                ],
-            },
-        ],
-    }
-}

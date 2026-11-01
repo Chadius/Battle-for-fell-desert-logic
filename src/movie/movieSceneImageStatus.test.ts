@@ -10,8 +10,6 @@ import {
 const makeSceneWithTransitions = (): MovieSceneImage =>
     MovieSceneImageService.new({
         id: "scene-1",
-        resourceManifestEntryId: "battlefield-overview",
-        caption: "The battlefield",
         introTransition: { durationMs: 1000 },
         exitTransition: { durationMs: 500 },
     })
@@ -19,8 +17,6 @@ const makeSceneWithTransitions = (): MovieSceneImage =>
 const makeSceneInDisplay = (): MovieSceneImage =>
     MovieSceneImageService.new({
         id: "scene-1",
-        resourceManifestEntryId: "battlefield-overview",
-        caption: "The battlefield",
         exitTransition: { durationMs: 500 },
     })
 
@@ -38,8 +34,6 @@ describe("MovieSceneImageService.status", () => {
                 type: "IMAGE",
                 sceneId: "scene-1",
                 phase: MovieSceneImagePhase.DISPLAY,
-                resourceManifestEntryId: "battlefield-overview",
-                caption: "The battlefield",
                 transitionProgress: 0,
                 autoScrollProgress: { x: 0, y: 0 },
                 manualScrollOffset: { x: 0, y: 0 },

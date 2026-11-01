@@ -5,8 +5,7 @@ import type { Movie } from "./movie.js"
 import { MovieEngine, MovieEngineCommand } from "./movieEngine.js"
 import { MovieSceneType } from "./movieScene.js"
 
-const makeScene = (id: string) =>
-    MovieSceneImageService.new({ id, resourceManifestEntryId: "someImage" })
+const makeScene = (id: string) => MovieSceneImageService.new({ id })
 
 const makeMovie = (...sceneIds: string[]): Movie => ({
     id: "movie-1",
@@ -15,45 +14,6 @@ const makeMovie = (...sceneIds: string[]): Movie => ({
         type: MovieSceneType.IMAGE,
         data: makeScene(id),
     })),
-})
-
-const makeCaptionedImageMovie = (): Movie => ({
-    id: "movie-1",
-    firstSceneId: "scene-1",
-    scenes: [
-        {
-            type: MovieSceneType.IMAGE,
-            data: MovieSceneImageService.new({
-                id: "scene-1",
-                resourceManifestEntryId: "someImage",
-                caption: "A caption",
-            }),
-        },
-    ],
-})
-
-const makeMovieWithPortrait = (portrait: {
-    resourceManifestEntryId: string
-    position: "LEFT" | "RIGHT"
-}): Movie => ({
-    id: "movie-1",
-    firstSceneId: "conv-1",
-    scenes: [
-        {
-            type: MovieSceneType.CONVERSATION,
-            data: MovieSceneConversationService.new({
-                id: "conv-1",
-                lines: [
-                    {
-                        type: "DIALOG",
-                        id: "line-6",
-                        text: { "en-US": { text: "Hello" } },
-                        portrait,
-                    },
-                ],
-            }),
-        },
-    ],
 })
 
 describe("MovieEngine", () => {
@@ -83,21 +43,19 @@ describe("MovieEngine", () => {
         })
 
         describe("when a scene is in DISPLAY phase", () => {
-            it("reports the scene's image id and caption", () => {
-                const engine = new MovieEngine(makeCaptionedImageMovie())
+            it("reports the scene and its phase", () => {
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 const status = engine.status()
 
                 expect(status.currentScene).toMatchObject({
                     sceneId: "scene-1",
                     phase: "DISPLAY",
-                    resourceManifestEntryId: "someImage",
-                    caption: "A caption",
                 })
             })
 
             it("reports no transition or scroll progress until time passes or the player scrolls", () => {
-                const engine = new MovieEngine(makeCaptionedImageMovie())
+                const engine = new MovieEngine(makeMovie("scene-1"))
 
                 const status = engine.status()
 
@@ -127,11 +85,9 @@ describe("MovieEngine", () => {
                         {
                             type: "DECISION",
                             id: "what-do-you-do",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
@@ -208,11 +164,9 @@ describe("MovieEngine", () => {
                         {
                             type: "DECISION",
                             id: "line-2",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
@@ -241,18 +195,15 @@ describe("MovieEngine", () => {
                         {
                             type: "DECISION",
                             id: "line-3",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
                             id: "line-4",
-                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -270,7 +221,7 @@ describe("MovieEngine", () => {
                 expect(result.isValid).toBe(true)
                 expect(engine.status().currentScene).toMatchObject({
                     type: MovieSceneType.CONVERSATION,
-                    text: "You attacked!",
+                    lineId: "line-4",
                 })
             })
         })
@@ -284,8 +235,6 @@ describe("MovieEngine", () => {
                     {
                         type: "DIALOG",
                         id: "greeting",
-                        speakerId: "lini",
-                        text: { "en-US": { text: "Hello" } },
                     },
                 ],
             })
@@ -302,27 +251,9 @@ describe("MovieEngine", () => {
                 type: MovieSceneType.CONVERSATION,
                 sceneId: "conv-1",
                 lineId: "greeting",
-                speakerId: "lini",
-                text: "Hello",
-                portrait: undefined,
-                dialogPosition: "LEFT",
                 isWaitingForDecision: false,
                 decisions: [],
             })
-        })
-    })
-
-    describe("when the current scene is a conversation scene with a portrait", () => {
-        it("reports the portrait's resource id and position", () => {
-            const portrait = {
-                resourceManifestEntryId: "lini-portrait",
-                position: "LEFT",
-            } as const
-            const engine = new MovieEngine(makeMovieWithPortrait(portrait))
-
-            const status = engine.status()
-
-            expect(status.currentScene).toMatchObject({ portrait })
         })
     })
 
@@ -335,11 +266,9 @@ describe("MovieEngine", () => {
                         {
                             type: "DECISION" as const,
                             id: "line-7",
-                            prompt: { "en-US": { text: "Which path?" } },
                             options: [
                                 {
                                     decisionId: "go-right",
-                                    text: { "en-US": { text: "Right" } },
                                     nextSceneId: "scene-right",
                                 },
                             ],
@@ -355,14 +284,12 @@ describe("MovieEngine", () => {
                             type: MovieSceneType.IMAGE,
                             data: MovieSceneImageService.new({
                                 id: "scene-left",
-                                resourceManifestEntryId: "img-left",
                             }),
                         },
                         {
                             type: MovieSceneType.IMAGE,
                             data: MovieSceneImageService.new({
                                 id: "scene-right",
-                                resourceManifestEntryId: "img-right",
                             }),
                         },
                     ],
@@ -385,16 +312,13 @@ describe("MovieEngine", () => {
                     {
                         type: "DECISION" as const,
                         id: "line-8",
-                        prompt: { "en-US": { text: "Where to?" } },
                         options: [
                             {
                                 decisionId: "go-to-gloria",
-                                text: { "en-US": { text: "Meet Gloria" } },
                                 nextSceneId: "scene-gloria",
                             },
                             {
                                 decisionId: "go-to-monastery",
-                                text: { "en-US": { text: "Go to monastery" } },
                                 nextSceneId: "scene-monastery",
                             },
                         ],
@@ -407,7 +331,6 @@ describe("MovieEngine", () => {
                     {
                         type: "DIALOG" as const,
                         id: "line-9",
-                        text: { "en-US": { text: "Gloria: Hello!" } },
                     },
                 ],
             })
@@ -417,7 +340,6 @@ describe("MovieEngine", () => {
                     {
                         type: "DIALOG" as const,
                         id: "line-10",
-                        text: { "en-US": { text: "Vale: Welcome!" } },
                     },
                 ],
             })
@@ -427,9 +349,6 @@ describe("MovieEngine", () => {
                     {
                         type: "DIALOG" as const,
                         id: "line-11",
-                        text: {
-                            "en-US": { text: "The adventure continues..." },
-                        },
                     },
                 ],
             })
@@ -481,7 +400,6 @@ describe("MovieEngine", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-a",
-                            resourceManifestEntryId: "img-1",
                             nextSceneId: "scene-c",
                         }),
                     },
@@ -489,14 +407,12 @@ describe("MovieEngine", () => {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-b",
-                            resourceManifestEntryId: "img-2",
                         }),
                     },
                     {
                         type: MovieSceneType.IMAGE,
                         data: MovieSceneImageService.new({
                             id: "scene-c",
-                            resourceManifestEntryId: "img-3",
                         }),
                     },
                 ],
@@ -515,7 +431,6 @@ describe("MovieEngine", () => {
             it("sets isFastForward to true but does not skip the intro", () => {
                 const sceneWithIntro = MovieSceneImageService.new({
                     id: "scene-1",
-                    resourceManifestEntryId: "img",
                     introTransition: { durationMs: 1000 },
                 })
                 const movie: Movie = {
@@ -578,7 +493,6 @@ describe("MovieEngine", () => {
                         {
                             type: "DIALOG",
                             id: "line-12",
-                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -605,16 +519,13 @@ describe("MovieEngine", () => {
                         {
                             type: "DIALOG",
                             id: "line-13",
-                            text: { "en-US": { text: "Preamble" } },
                         },
                         {
                             type: "DECISION",
                             id: "line-14",
-                            prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {
                                     decisionId: "yes",
-                                    text: { "en-US": { text: "Yes" } },
                                 },
                             ],
                         },
@@ -649,16 +560,13 @@ describe("MovieEngine", () => {
                         {
                             type: "DIALOG",
                             id: "line-15",
-                            text: { "en-US": { text: "Preamble" } },
                         },
                         {
                             type: "DECISION",
                             id: "line-16",
-                            prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {
                                     decisionId: "yes",
-                                    text: { "en-US": { text: "Yes" } },
                                 },
                             ],
                         },
@@ -689,11 +597,9 @@ describe("MovieEngine", () => {
                         {
                             type: "DECISION",
                             id: "line-17",
-                            prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {
                                     decisionId: "yes",
-                                    text: { "en-US": { text: "Yes" } },
                                 },
                             ],
                         },
@@ -744,7 +650,6 @@ describe("MovieEngine", () => {
             it("does not advance to the next scene", () => {
                 const sceneWithIntro = MovieSceneImageService.new({
                     id: "scene-1",
-                    resourceManifestEntryId: "someImage",
                     introTransition: { durationMs: 1000 },
                 })
                 const movie: Movie = {

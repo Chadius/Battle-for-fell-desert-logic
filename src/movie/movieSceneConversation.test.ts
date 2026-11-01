@@ -14,7 +14,6 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             id: "line-1",
-                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -34,12 +33,10 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             id: "line-2",
-                            text: { "en-US": { text: "Hello" } },
                         },
                         {
                             type: "DIALOG",
                             id: "line-3",
-                            text: { "en-US": { text: "Goodbye" } },
                         },
                     ],
                 })
@@ -65,7 +62,6 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             id: "line-4",
-                            text: { "en-US": { text: "Hello" } },
                         },
                     ],
                 })
@@ -93,22 +89,18 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DECISION",
                             id: "what-do-you-do",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                                 {
                                     decisionId: "flee",
-                                    text: { "en-US": { text: "Flee" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
                             id: "line-6",
-                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -126,8 +118,8 @@ describe("MovieSceneConversationService", () => {
 
                 expect(
                     MovieSceneConversationService.status(scene, result.state)
-                        .text
-                ).toBe("You attacked!")
+                        .lineId
+                ).toBe("line-6")
                 expect(result.state.recordedDecisions).toEqual([
                     {
                         sceneId: "scene-1",
@@ -146,18 +138,15 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DECISION",
                             id: "line-7",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
                             id: "line-8",
-                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -183,12 +172,10 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             id: "line-9",
-                            text: { "en-US": { text: "Hello" } },
                         },
                         {
                             type: "DIALOG",
                             id: "line-10",
-                            text: { "en-US": { text: "Goodbye" } },
                         },
                     ],
                 })
@@ -202,8 +189,8 @@ describe("MovieSceneConversationService", () => {
                 )
 
                 expect(
-                    MovieSceneConversationService.status(scene, next).text
-                ).toBe("Goodbye")
+                    MovieSceneConversationService.status(scene, next).lineId
+                ).toBe("line-10")
             })
         })
 
@@ -215,18 +202,15 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DECISION",
                             id: "line-11",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
                             id: "line-12",
-                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -256,12 +240,10 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             id: "line-13",
-                            text: { "en-US": { text: "Hello" } },
                         },
                         {
                             type: "DIALOG",
                             id: "line-14",
-                            text: { "en-US": { text: "Goodbye" } },
                         },
                     ],
                 })
@@ -281,16 +263,13 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             id: "line-15",
-                            text: { "en-US": { text: "Hello" } },
                         },
                         {
                             type: "DECISION",
                             id: "line-16",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
@@ -314,17 +293,14 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DIALOG",
                             id: "line-17",
-                            text: { "en-US": { text: "Line 1" } },
                         },
                         {
                             type: "DIALOG",
                             id: "line-18",
-                            text: { "en-US": { text: "Line 2" } },
                         },
                         {
                             type: "DIALOG",
                             id: "line-19",
-                            text: { "en-US": { text: "Line 3" } },
                         },
                     ],
                 })
@@ -347,8 +323,8 @@ describe("MovieSceneConversationService", () => {
                     MovieSceneConversationService.status(
                         scene,
                         afterCompleteScene
-                    ).text
-                ).toBe("Line 3")
+                    ).lineId
+                ).toBe("line-19")
                 expect(
                     MovieSceneConversationService.isComplete(afterCompleteScene)
                 ).toBe(false)
@@ -366,18 +342,15 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DECISION",
                             id: "line-20",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                             ],
                         },
                         {
                             type: "DIALOG",
                             id: "line-21",
-                            text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
                 })
@@ -398,205 +371,55 @@ describe("MovieSceneConversationService", () => {
     })
 
     describe("getStatus", () => {
-        describe("when the current line is a DIALOG line with a speakerId", () => {
-            it("reports that speakerId", () => {
+        describe("when the current line is a DIALOG line", () => {
+            it("reports only where the conversation is", () => {
                 const scene = MovieSceneConversationService.new({
                     id: "scene-1",
-                    lines: [
-                        {
-                            type: "DIALOG",
-                            id: "line-22",
-                            speakerId: "lini",
-                            text: { "en-US": { text: "Hello" } },
-                        },
-                    ],
+                    lines: [{ type: "DIALOG", id: "greeting" }],
                 })
-                const state = MovieSceneConversationService.initialState(scene)
 
                 const status = MovieSceneConversationService.status(
                     scene,
-                    state
+                    MovieSceneConversationService.initialState(scene)
                 )
 
-                expect(status.speakerId).toBe("lini")
-            })
-        })
-
-        describe("when the current line is a DIALOG line with no speakerId", () => {
-            it("reports speakerId as undefined", () => {
-                const scene = MovieSceneConversationService.new({
-                    id: "scene-1",
-                    lines: [
-                        {
-                            type: "DIALOG",
-                            id: "line-23",
-                            text: { "en-US": { text: "Narration text" } },
-                        },
-                    ],
+                expect(status).toEqual({
+                    type: "CONVERSATION",
+                    sceneId: "scene-1",
+                    lineId: "greeting",
+                    isWaitingForDecision: false,
+                    decisions: [],
                 })
-                const state = MovieSceneConversationService.initialState(scene)
-
-                const status = MovieSceneConversationService.status(
-                    scene,
-                    state
-                )
-
-                expect(status.speakerId).toBeUndefined()
-            })
-        })
-
-        describe("when the current line is a DIALOG line with no dialogPosition", () => {
-            it("reports dialogPosition as LEFT", () => {
-                const scene = MovieSceneConversationService.new({
-                    id: "scene-1",
-                    lines: [
-                        {
-                            type: "DIALOG",
-                            id: "line-24",
-                            text: { "en-US": { text: "Hello" } },
-                        },
-                    ],
-                })
-                const state = MovieSceneConversationService.initialState(scene)
-
-                const status = MovieSceneConversationService.status(
-                    scene,
-                    state
-                )
-
-                expect(status.dialogPosition).toBe("LEFT")
-            })
-        })
-
-        describe("when the current line is a DIALOG line with a portrait", () => {
-            it("reports the portrait resourceManifestEntryId and position", () => {
-                const scene = MovieSceneConversationService.new({
-                    id: "scene-1",
-                    lines: [
-                        {
-                            type: "DIALOG",
-                            id: "line-25",
-                            text: { "en-US": { text: "Hello" } },
-                            portrait: {
-                                resourceManifestEntryId: "lini-portrait",
-                                position: "LEFT",
-                            },
-                        },
-                    ],
-                })
-                const state = MovieSceneConversationService.initialState(scene)
-
-                const status = MovieSceneConversationService.status(
-                    scene,
-                    state
-                )
-
-                expect(status.portrait).toEqual({
-                    resourceManifestEntryId: "lini-portrait",
-                    position: "LEFT",
-                })
-            })
-        })
-
-        describe("when the current line is a DIALOG line with no portrait", () => {
-            it("reports portrait as undefined", () => {
-                const scene = MovieSceneConversationService.new({
-                    id: "scene-1",
-                    lines: [
-                        {
-                            type: "DIALOG",
-                            id: "line-27",
-                            text: { "en-US": { text: "Hello" } },
-                        },
-                    ],
-                })
-                const state = MovieSceneConversationService.initialState(scene)
-
-                const status = MovieSceneConversationService.status(
-                    scene,
-                    state
-                )
-
-                expect(status.portrait).toBeUndefined()
-            })
-        })
-
-        describe("when the current line is a DIALOG line and the requested language exists", () => {
-            it("returns the text for the requested language", () => {
-                const scene = MovieSceneConversationService.new({
-                    id: "scene-1",
-                    lines: [
-                        {
-                            type: "DIALOG",
-                            id: "line-28",
-                            text: {
-                                "en-US": { text: "Hello" },
-                                "fr-FR": { text: "Bonjour" },
-                            },
-                        },
-                    ],
-                })
-                const state = MovieSceneConversationService.initialState(scene)
-
-                const status = MovieSceneConversationService.status(
-                    scene,
-                    state,
-                    "fr-FR"
-                )
-
-                expect(status.text).toBe("Bonjour")
-            })
-        })
-
-        describe("when the current line is a DIALOG line, the requested language is absent, and en-US exists", () => {
-            it("returns the en-US text prefixed with the missing language code", () => {
-                const scene = MovieSceneConversationService.new({
-                    id: "scene-1",
-                    lines: [
-                        {
-                            type: "DIALOG",
-                            id: "line-29",
-                            text: { "en-US": { text: "Hello" } },
-                        },
-                    ],
-                })
-                const state = MovieSceneConversationService.initialState(scene)
-
-                const status = MovieSceneConversationService.status(
-                    scene,
-                    state,
-                    "fr-FR"
-                )
-
-                expect(status.text).toBe("fr-FR MISSING: Hello")
-            })
-        })
-
-        describe("when the current line is a DIALOG line and neither the requested language nor en-US exists", () => {
-            it("returns just the missing language code prefix", () => {
-                const scene = MovieSceneConversationService.new({
-                    id: "scene-1",
-                    lines: [
-                        {
-                            type: "DIALOG",
-                            id: "line-30",
-                            text: { "de-DE": { text: "Hallo" } },
-                        },
-                    ],
-                })
-                const state = MovieSceneConversationService.initialState(scene)
-
-                const status = MovieSceneConversationService.status(
-                    scene,
-                    state,
-                    "fr-FR"
-                )
-
-                expect(status.text).toBe("fr-FR MISSING:")
             })
         })
 
         describe("when the current line is a DECISION line", () => {
+            it("lists the options by decisionId", () => {
+                const scene = MovieSceneConversationService.new({
+                    id: "scene-1",
+                    lines: [
+                        {
+                            type: "DECISION",
+                            id: "which-way",
+                            options: [
+                                { decisionId: "left", nextSceneId: "scene-2" },
+                                { decisionId: "right" },
+                            ],
+                        },
+                    ],
+                })
+
+                const status = MovieSceneConversationService.status(
+                    scene,
+                    MovieSceneConversationService.initialState(scene)
+                )
+
+                expect(status.decisions).toEqual([
+                    { decisionId: "left" },
+                    { decisionId: "right" },
+                ])
+            })
+
             it("reports isWaitingForDecision as true", () => {
                 const scene = MovieSceneConversationService.new({
                     id: "scene-1",
@@ -604,15 +427,12 @@ describe("MovieSceneConversationService", () => {
                         {
                             type: "DECISION",
                             id: "line-31",
-                            prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
                                     decisionId: "attack",
-                                    text: { "en-US": { text: "Attack" } },
                                 },
                                 {
                                     decisionId: "flee",
-                                    text: { "en-US": { text: "Flee" } },
                                 },
                             ],
                         },
