@@ -491,41 +491,13 @@ Required:
 - Elapsed wall-clock time (`{TIME_ELAPSED}`) is a presentation-layer concern — this engine has no
   frame loop — so the host supplies that token rather than the engine owning a clock.
 
-#### Token Expression Syntax
+#### Text Substitution
 
-`{...}` is not limited to a bare token name — it accepts a small expression language so dialogue
-authors can do simple arithmetic and branching without host-application preprocessing:
-
-| Form                                  | Meaning                                                                                                                                                                                                                                                                                       |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `{TOKEN}`                             | Plain substitution. If `TOKEN` is unresolved, the literal text is left untouched (unchanged from the original behavior).                                                                                                                                                                      |
-| `{TOKEN + 1}`                         | Arithmetic: `+`, `-`, `/`, `*`, `%`. Requires numeric token values.                                                                                                                                                                                                                           |
-| `{(TOKEN * 2) + 1}`                   | Parentheses nest to control evaluation order.                                                                                                                                                                                                                                                 |
-| `{TOKEN > 2 ? Many : A few}`          | Ternary comparison. Operators: `>`, `<`, `=`, `==`, `<=`, `>=`, `!=`. The two branches are literal text, output verbatim (not re-evaluated).                                                                                                                                                  |
-| `{plural(TOKEN) ? cat : cats}`        | `plural(x)` is true when `x === 1`, so the ternary's first branch is the singular form.                                                                                                                                                                                                       |
-| `{ordinal(TOKEN)}`                    | Converts an integer to its ordinal string: `1st`, `2nd`, `3rd`, `4th`, `11th`, `21st`, etc.                                                                                                                                                                                                   |
-| `{round(TOKEN)}`, `{round(TOKEN, 2)}` | `round()`, `floor()`, `ceil()` take a number and an optional decimal-place count (default `0`, so `round(TOKEN)` and `round(TOKEN, 0)` are equivalent).                                                                                                                                       |
-| `{timeFormat(TOKEN, hh:mm:ss.SSS)}`   | Formats a millisecond count using `h`/`m`/`s`/`S` run-length placeholders (e.g. `SSS` = zero-padded milliseconds, `mm` = zero-padded minutes including any hour overflow if `h` is absent from the pattern). The pattern's second argument is a raw literal string, not itself an expression. |
-
-Unlike a bare `{TOKEN}`, any expression that fails to parse or resolve (unknown identifier used in
-an operation, non-numeric value used where a number is required, unbalanced parentheses, a missing
-ternary `:`, etc.) throws rather than silently passing the text through — this is meant to surface
-dialogue-authoring mistakes early rather than let them ship silently.
-
-Numeric results that aren't the direct output of `round`/`floor`/`ceil` (e.g. a bare `{TOKEN / 3}`)
-are displayed rounded to 2 decimal places, with trailing zeros trimmed (`6.5`, not `6.50`).
-
-`TextSubstitutionService.validate(text)` lets a host UI check dialogue text for malformed
-expressions (e.g. `{TOKEN+}`) ahead of time, without needing real token values and without
-throwing — it returns a list of error messages (empty if the text is well-formed) so a dialogue
-editor can flag the mistake at authoring time instead of at substitution time. The presentation
-package calls it on movie text. A bare unresolved token (e.g. `{MYSTERY}`) is never reported as an
-error here, matching `substitute`'s pass-through behavior — the package checks token existence
-itself against `MissionTextSubstitutionToken.AVAILABLE` plus its host tokens.
-
-Token identifiers referenced inside an expression (e.g. the `TOKEN` in `{TOKEN + 1}`) are written
-without braces — the outer `{...}` pair is the only structural delimiter, so token catalog values
-(see `MissionTextSubstitutionToken`) are bare names like `TURN_COUNT`, not `{TURN_COUNT}`.
+Logic owns only the token codes and their values: `MissionTextSubstitutionToken` (with `AVAILABLE`)
+and `MissionEngine.getTextSubstitutionTokens()`. Token codes are bare names like `TURN_COUNT`, not
+`{TURN_COUNT}`. The `{...}` expression language, `TextSubstitutionService` (`substitute` and
+`validate`) and `LocalizedText` live in the presentation package (`fell-desert-presentation-layer`,
+subpaths `/textSubstitution` and `/localization`).
 
 ---
 
@@ -706,11 +678,9 @@ Record<string, string>) → string`. Do a single pass per token rather than the 
    one string; unresolved tokens are left as-is; `missionStatistics` round-trips through
    serialize/deserialize.
 
-> **Superseded**: step 5's single-pass split/join implementation was later replaced by a small
-> expression parser (`src/movie/textSubstitution/expressionParser.ts`) so `{...}` can hold
-> arithmetic, comparisons, ternaries, and helper functions — see "Token Expression Syntax" above.
-> Token identifiers are now bare names (`TURN_COUNT`, not `{TURN_COUNT}`); the braces are structural
-> syntax owned by the substitution engine rather than part of each token's identity.
+> **Superseded**: step 5 no longer applies. Text substitution, later an expression parser, moved to
+> the presentation package — see "Text Substitution" above. Token identifiers are bare names
+> (`TURN_COUNT`, not `{TURN_COUNT}`).
 
 > **Superseded**: steps 6 and 7 no longer apply. Movie text left logic, so `getMovieStatus()` runs no
 > substitution and takes no `extraTokens`. `MissionEngine.getTextSubstitutionTokens()` returns the

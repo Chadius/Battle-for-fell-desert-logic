@@ -25,7 +25,7 @@ const buildEngine = (): MissionEngine =>
     )
 
 describe("MissionEngine.getTextSubstitutionTokens", () => {
-    describe("during a mission", () => {
+    describe("when the mission has recorded statistics", () => {
         it("reports the turn count and mission statistics as numbers", () => {
             expect(buildEngine().getTextSubstitutionTokens()).toEqual({
                 TURN_COUNT: 3,
@@ -48,6 +48,45 @@ describe("MissionEngine.getTextSubstitutionTokens", () => {
             expect(tokens.sort()).toEqual(
                 [...MissionTextSubstitutionToken.AVAILABLE].sort()
             )
+        })
+    })
+})
+
+describe("MissionEngine.getTextSubstitutionTokens before a mission is loaded", () => {
+    it("throws, naming the function", () => {
+        expect(() => new MissionEngine().getTextSubstitutionTokens()).toThrow(
+            "getTextSubstitutionTokens"
+        )
+    })
+})
+
+describe("MissionEngine.getTextSubstitutionTokens for a save with no mission statistics", () => {
+    const buildEngineFromSaveWithoutStatistics = (): MissionEngine => {
+        const saveWithoutStatistics = {
+            ...MissionStateService.serialize(
+                MissionStateService.new({ id: "mission-1", mapId: "map-1" })
+            ),
+            missionStatistics: undefined,
+        }
+        return new MissionEngine(
+            new MissionManager({
+                missionState: MissionStateService.deserialize(
+                    saveWithoutStatistics
+                ),
+            })
+        )
+    }
+
+    it("reports every statistic as zero", () => {
+        expect(
+            buildEngineFromSaveWithoutStatistics().getTextSubstitutionTokens()
+        ).toMatchObject({
+            DAMAGE_DEALT_BY_PLAYER_TEAM: 0,
+            DAMAGE_TAKEN_BY_PLAYER_TEAM: 0,
+            DAMAGE_ABSORBED_BY_PLAYER_TEAM: 0,
+            HEALING_RECEIVED_BY_PLAYER_TEAM: 0,
+            CRITICAL_HITS_DEALT_BY_PLAYER_TEAM: 0,
+            CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM: 0,
         })
     })
 })

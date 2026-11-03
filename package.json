@@ -30,10 +30,6 @@
             "types": "./build/degreesOfSuccess/index.d.ts",
             "import": "./build/degreesOfSuccess/index.js"
         },
-        "./localization": {
-            "types": "./build/localization/index.d.ts",
-            "import": "./build/localization/index.js"
-        },
         "./mission": {
             "types": "./build/mission/index.d.ts",
             "import": "./build/mission/index.js"
