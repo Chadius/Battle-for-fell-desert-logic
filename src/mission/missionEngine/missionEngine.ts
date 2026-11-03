@@ -687,13 +687,16 @@ export class MissionEngine {
     }
 
     getTextSubstitutionTokens(): Record<TMissionTextSubstitutionToken, number> {
-        const missionState = this.missionManager?.missionState
+        this.throwIfMissionManagerIsUndefined(
+            this.getTextSubstitutionTokens.name
+        )
+        const missionState = this.missionManager!.missionState!
         const missionStatistics =
-            missionState?.missionStatistics ?? MissionStatisticsService.new()
+            missionState.missionStatistics ?? MissionStatisticsService.new()
 
         return {
             [MissionTextSubstitutionToken.TURN_COUNT]:
-                missionState?.turn.turnCount ?? 0,
+                missionState.turn.turnCount,
             [MissionTextSubstitutionToken.DAMAGE_DEALT_BY_PLAYER_TEAM]:
                 missionStatistics.damageDealtByPlayerTeam,
             [MissionTextSubstitutionToken.DAMAGE_TAKEN_BY_PLAYER_TEAM]:
