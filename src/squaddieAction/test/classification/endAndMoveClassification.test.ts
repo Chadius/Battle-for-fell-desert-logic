@@ -8,6 +8,13 @@ import {
 } from "../../squaddieActionClassification.js"
 import { ClassificationTestEffects } from "./classificationTestActions.js"
 
+const moveUpToTwoActionPointsOfMovement = {
+    movementType: MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL,
+    traversal: {
+        squaddieMovementSpecialTraversalInfo: { actionPointsOfMovement: 2 },
+    },
+} as const
+
 const damageFoe = {
     [DegreeOfSuccess.SUCCESS]: ClassificationTestEffects.damage,
 }
@@ -183,9 +190,7 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 2 },
-                        movement: {
-                            movementType: MovementEffectType.ACTOR_CHOSEN,
-                        },
+                        movement: moveUpToTwoActionPointsOfMovement,
                         ...ClassificationTestEffects.armor,
                     },
                 },
@@ -209,9 +214,7 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
                         actionPoints: { spent: 2 },
-                        movement: {
-                            movementType: MovementEffectType.ACTOR_CHOSEN,
-                        },
+                        movement: moveUpToTwoActionPointsOfMovement,
                     },
                 },
                 effectOnTarget: damageFoe,

@@ -37,6 +37,10 @@ import {
 import type { AStarGraph } from "../../../aStarSearch/aStarGraph.js"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
 import type { SquaddieActionResult } from "../result/squaddieActionResult.js"
+import {
+    type SquaddieActionRejection,
+    SquaddieActionRejectionReason,
+} from "./squaddieActionRejection.js"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
 import type {
     BattleSquaddieId,
@@ -51,7 +55,7 @@ import {
 
 export interface InvalidSquaddieAction {
     actionId: string
-    reason: string
+    rejection: SquaddieActionRejection
     apCost?: ActionPointCost
     actionPointCostDependsOnMovementPath: boolean
     cooldownTurns?: number
@@ -78,11 +82,19 @@ export interface SquaddieActionValidity {
     validActions: ValidSquaddieAction[]
 }
 
-export interface ActionValidationResult {
-    isValid: boolean
-    reason?: string
+export interface ValidActionValidationResult {
+    isValid: true
     movementPath?: CoordinateMovePath
 }
+
+export interface InvalidActionValidationResult {
+    isValid: false
+    rejection: SquaddieActionRejection
+}
+
+export type ActionValidationResult =
+    | ValidActionValidationResult
+    | InvalidActionValidationResult
 
 export interface ValidSquaddieActionOption {
     action: SquaddieAction
@@ -158,7 +170,9 @@ export const SquaddieActionValidationService = {
         ) {
             return {
                 isValid: false,
-                reason: "This action requires a destination.",
+                rejection: {
+                    reason: SquaddieActionRejectionReason.DESTINATION_REQUIRED,
+                },
             }
         }
 
@@ -185,18 +199,6 @@ export const SquaddieActionValidationService = {
         })
         if (!movementValidation.isValid) {
             return movementValidation
-        }
-
-        const occupiedValidation = validateMovementDestinationNotOccupied({
-            actor,
-            squaddieAction,
-            decisions: action.decisions,
-            coordinateMapCollectionManager:
-                managers.coordinateMapCollectionManager,
-            mapId: map.mapId,
-        })
-        if (!occupiedValidation.isValid) {
-            return occupiedValidation
         }
 
         const teleportDestinationValidation = validateActionDestination({
@@ -444,7 +446,7 @@ export const SquaddieActionValidationService = {
             if (!cooldownValidation.isValid) {
                 invalidActions.push({
                     ...commonActionFields,
-                    reason: cooldownValidation.reason!,
+                    rejection: cooldownValidation.rejection,
                 })
                 continue
             }
@@ -457,7 +459,7 @@ export const SquaddieActionValidationService = {
             if (!usesPerTurnValidation.isValid) {
                 invalidActions.push({
                     ...commonActionFields,
-                    reason: usesPerTurnValidation.reason!,
+                    rejection: usesPerTurnValidation.rejection,
                 })
                 continue
             }
@@ -470,19 +472,19 @@ export const SquaddieActionValidationService = {
             if (!usesPerMissionValidation.isValid) {
                 invalidActions.push({
                     ...commonActionFields,
-                    reason: usesPerMissionValidation.reason!,
+                    rejection: usesPerMissionValidation.rejection,
                 })
                 continue
             }
 
-            const apReason = getActionPointInvalidReason({
+            const actionPointRejection = getActionPointRejection({
                 actionPointCost: apCost,
                 currentActionPoints,
             })
-            if (apReason != undefined) {
+            if (actionPointRejection != undefined) {
                 invalidActions.push({
                     ...commonActionFields,
-                    reason: apReason,
+                    rejection: actionPointRejection,
                 })
                 continue
             }
@@ -508,7 +510,9 @@ export const SquaddieActionValidationService = {
             if (aimCoordinateResults.length === 0) {
                 invalidActions.push({
                     ...commonActionFields,
-                    reason: "No applicable targets in range",
+                    rejection: {
+                        reason: SquaddieActionRejectionReason.NO_TARGETS_IN_RANGE,
+                    },
                 })
                 continue
             }
@@ -528,7 +532,9 @@ export const SquaddieActionValidationService = {
             if (effectiveAimCoordinateResults.length === 0) {
                 invalidActions.push({
                     ...commonActionFields,
-                    reason: "No targets can be affected",
+                    rejection: {
+                        reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+                    },
                 })
                 continue
             }
@@ -696,7 +702,7 @@ const generateTurnsRecursively = ({
 }
 
 interface ActionCategorizationResult {
-    invalidReason?: string
+    rejection?: SquaddieActionRejection
     validTargets?: Map<string, Set<string>>
 }
 
@@ -722,11 +728,12 @@ const getActionCategorizationResult = ({
     const actionPointCost =
         squaddieAction.effectOnActor.SUCCESS?.actionPoints?.spent
 
-    const apReason = getActionPointInvalidReason({
+    const actionPointRejection = getActionPointRejection({
         actionPointCost,
         currentActionPoints,
     })
-    if (apReason != undefined) return { invalidReason: apReason }
+    if (actionPointRejection != undefined)
+        return { rejection: actionPointRejection }
 
     const allTargetsInRange =
         SquaddieActionValidationService.calculateReachableSquaddiesByCoordinate(
@@ -740,7 +747,11 @@ const getActionCategorizationResult = ({
         )
 
     if (allTargetsInRange.size === 0)
-        return { invalidReason: "No applicable targets in range" }
+        return {
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_TARGETS_IN_RANGE,
+            },
+        }
 
     const effectiveTargets = filterTargetGroupsWithEffect({
         actor,
@@ -751,7 +762,11 @@ const getActionCategorizationResult = ({
     })
 
     if (effectiveTargets.size === 0) {
-        return { invalidReason: "No targets can be affected" }
+        return {
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+            },
+        }
     }
 
     return { validTargets: effectiveTargets }
@@ -798,15 +813,16 @@ const filterTargetGroupsWithEffect = ({
     return effectiveTargets
 }
 
-const getActionPointInvalidReason = ({
+const getActionPointRejection = ({
     actionPointCost,
     currentActionPoints,
 }: {
     actionPointCost?: ActionPointCost
     currentActionPoints: { current: number }
-}): string | undefined => {
+}): SquaddieActionRejection | undefined => {
     if (actionPointCost === "all") {
-        if (currentActionPoints.current <= 0) return "Squaddie cannot act"
+        if (currentActionPoints.current <= 0)
+            return { reason: SquaddieActionRejectionReason.CANNOT_ACT }
         return undefined
     }
 
@@ -814,7 +830,11 @@ const getActionPointInvalidReason = ({
         actionPointCost != undefined &&
         actionPointCost > currentActionPoints.current
     ) {
-        return `Needs ${actionPointCost} action points`
+        return {
+            reason: SquaddieActionRejectionReason.NOT_ENOUGH_ACTION_POINTS,
+            actionPointsNeeded: actionPointCost,
+            actionPointsRemaining: currentActionPoints.current,
+        }
     }
 
     return undefined
@@ -851,7 +871,12 @@ const validateTargetsInRange = ({
     })
 
     if (affiliationFilteredTargets.length !== targets.length) {
-        return { isValid: false, reason: "All targets must be in range" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.TARGET_AFFILIATION_NOT_ALLOWED,
+            },
+        }
     }
 
     const inRangeTargets = filterTargetsByDistance({
@@ -863,7 +888,12 @@ const validateTargetsInRange = ({
     })
 
     if (inRangeTargets.length !== affiliationFilteredTargets.length) {
-        return { isValid: false, reason: "All targets must be in range" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.TARGETS_OUT_OF_RANGE,
+            },
+        }
     }
 
     const losValidTargets = filterTargetsByLineOfSight({
@@ -875,7 +905,12 @@ const validateTargetsInRange = ({
     })
 
     if (losValidTargets.length !== inRangeTargets.length) {
-        return { isValid: false, reason: "All targets must be in range" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.TARGETS_NOT_VISIBLE,
+            },
+        }
     }
 
     return { isValid: true }
@@ -1063,11 +1098,13 @@ const validateActionCooldown = ({
         battleSquaddieId: actor,
         actionId: squaddieAction.id,
     })
-    const pluralTurns = turnsRemaining == 1 ? "turn" : "turns"
     if (turnsRemaining != undefined) {
         return {
             isValid: false,
-            reason: `Cannot be used for ${turnsRemaining} ${pluralTurns}`,
+            rejection: {
+                reason: SquaddieActionRejectionReason.ON_COOLDOWN,
+                turnsRemaining,
+            },
         }
     }
     return { isValid: true }
@@ -1090,7 +1127,11 @@ const validateActionUsesPerTurn = ({
     if (usesThisTurn >= squaddieAction.usesPerTurn) {
         return {
             isValid: false,
-            reason: `Already used ${usesThisTurn} of ${squaddieAction.usesPerTurn} time${squaddieAction.usesPerTurn === 1 ? "" : "s"} this turn`,
+            rejection: {
+                reason: SquaddieActionRejectionReason.USES_PER_TURN_EXHAUSTED,
+                usesThisTurn,
+                usesPerTurn: squaddieAction.usesPerTurn,
+            },
         }
     }
     return { isValid: true }
@@ -1113,7 +1154,11 @@ const validateActionUsesPerMission = ({
     if (usesThisMission >= squaddieAction.usesPerMission) {
         return {
             isValid: false,
-            reason: `Already used ${usesThisMission} of ${squaddieAction.usesPerMission} time${squaddieAction.usesPerMission === 1 ? "" : "s"} this mission`,
+            rejection: {
+                reason: SquaddieActionRejectionReason.USES_PER_MISSION_EXHAUSTED,
+                usesThisMission,
+                usesPerMission: squaddieAction.usesPerMission,
+            },
         }
     }
     return { isValid: true }
@@ -1137,7 +1182,10 @@ const validateActionPointCost = ({
             battleSquaddieId: actor,
         })
         if (!canAct) {
-            return { isValid: false, reason: "Squaddie cannot act" }
+            return {
+                isValid: false,
+                rejection: { reason: SquaddieActionRejectionReason.CANNOT_ACT },
+            }
         }
         return { isValid: true }
     }
@@ -1146,51 +1194,12 @@ const validateActionPointCost = ({
     if (current < actionPointCost) {
         return {
             isValid: false,
-            reason: `Needs ${actionPointCost} action points`,
+            rejection: {
+                reason: SquaddieActionRejectionReason.NOT_ENOUGH_ACTION_POINTS,
+                actionPointsNeeded: actionPointCost,
+                actionPointsRemaining: current,
+            },
         }
-    }
-
-    return { isValid: true }
-}
-
-const validateMovementDestinationNotOccupied = ({
-    actor,
-    squaddieAction,
-    decisions,
-    coordinateMapCollectionManager,
-    mapId,
-}: {
-    actor: BattleSquaddieId
-    squaddieAction: SquaddieAction
-    decisions: SquaddieActionDecisions | undefined
-    coordinateMapCollectionManager: CoordinateMapCollectionManager
-    mapId: string
-}): ActionValidationResult => {
-    const actorMovement =
-        squaddieAction.effectOnActor.SUCCESS?.movement?.movementType
-    const isActorMovementAction =
-        actorMovement === MovementEffectType.ACTOR_CHOSEN ||
-        actorMovement === MovementEffectType.ACTOR_CHOSEN_SPECIAL_TRAVERSAL
-    if (!isActorMovementAction) {
-        return { isValid: true }
-    }
-
-    const destination = decisions?.targetDestination
-    if (destination == undefined) {
-        return { isValid: true }
-    }
-
-    const map = coordinateMapCollectionManager.getMapById(mapId)
-    const occupant = CoordinateMapService.getSquaddieAtCoordinate({
-        map,
-        coordinate: destination,
-    })
-    const occupantIsADifferentSquaddie =
-        occupant != undefined &&
-        (occupant.outOfBattleSquaddieId !== actor.outOfBattleSquaddieId ||
-            occupant.inBattleSquaddieId !== actor.inBattleSquaddieId)
-    if (occupantIsADifferentSquaddie) {
-        return { isValid: false, reason: "Destination is occupied" }
     }
 
     return { isValid: true }
@@ -1238,7 +1247,12 @@ const validateMovementPathByDistance = ({
         actorCoordinate?.row == undefined ||
         actorCoordinate?.col == undefined
     ) {
-        return { isValid: false, reason: "Actor has no position" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.ACTOR_HAS_NO_POSITION,
+            },
+        }
     }
     const actorPosition = {
         row: actorCoordinate.row,
@@ -1279,7 +1293,12 @@ const validateMovementPathByDistance = ({
         }
     ).maximumMovementCost
     if (hexDistance > maximumMovementCost) {
-        return { isValid: false, reason: "Destination is too far away" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_TOO_FAR,
+            },
+        }
     }
     return validateMovementPathWithPathfinding({
         coordinateMapCollectionManager,
@@ -1346,7 +1365,12 @@ const validateMovementPathWithPathfinding = ({
     })
 
     if (path == undefined) {
-        return { isValid: false, reason: "Destination is blocked" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_BLOCKED,
+            },
+        }
     }
 
     if (
@@ -1356,7 +1380,12 @@ const validateMovementPathWithPathfinding = ({
             traversalOverrides?.squaddieMovementSpecialTraversalInfo
                 ?.minimumRange
     ) {
-        return { isValid: false, reason: "Destination is too close" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_TOO_CLOSE,
+            },
+        }
     }
 
     return { isValid: true, movementPath: path }
@@ -1496,7 +1525,12 @@ const validateTargetsCanBeAffected = ({
     })
 
     if (!hasAffectedTarget) {
-        return { isValid: false, reason: "No targets can be affected" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+            },
+        }
     }
 
     return { isValid: true }
@@ -1527,7 +1561,9 @@ const validateAoeAction = ({
     if (resolvedTargetCoordinate == undefined) {
         return {
             isValid: false,
-            reason: "AoE action requires a target coordinate",
+            rejection: {
+                reason: SquaddieActionRejectionReason.TARGET_COORDINATE_REQUIRED,
+            },
         }
     }
 
@@ -1541,7 +1577,12 @@ const validateAoeAction = ({
     if (!centerValidation.isValid) return centerValidation
 
     if (targets.length === 0) {
-        return { isValid: false, reason: "No valid targets in blast radius" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_TARGETS_IN_AREA,
+            },
+        }
     }
 
     return aimCoordinateTargetRequirementValidation({
@@ -1575,7 +1616,12 @@ const validateAoeCenterInRange = ({
 
     const centerKey = OffsetCoordinateService.coordinateToKey(targetCoordinate)
     if (!reachableKeys.has(centerKey)) {
-        return { isValid: false, reason: "Blast center is out of range" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.TARGET_COORDINATE_OUT_OF_RANGE,
+            },
+        }
     }
 
     return { isValid: true }
@@ -1601,7 +1647,9 @@ const validateTargetAtCenter = ({
     if (squaddieAtCenter == undefined) {
         return {
             isValid: false,
-            reason: "Target coordinate must have a target",
+            rejection: {
+                reason: SquaddieActionRejectionReason.TARGET_COORDINATE_HAS_NO_TARGET,
+            },
         }
     }
 
@@ -1614,7 +1662,9 @@ const validateTargetAtCenter = ({
     if (!isInTargetList) {
         return {
             isValid: false,
-            reason: "Target coordinate must have a target",
+            rejection: {
+                reason: SquaddieActionRejectionReason.TARGET_COORDINATE_HAS_NO_TARGET,
+            },
         }
     }
 
@@ -2215,10 +2265,7 @@ const generateAbilityActionOptions = ({
             positionOverride,
         })
 
-        if (
-            result.invalidReason != undefined ||
-            result.validTargets == undefined
-        )
+        if (result.rejection != undefined || result.validTargets == undefined)
             continue
 
         const actionPointCost =
@@ -2379,7 +2426,9 @@ const checkForValidMovementAction = (
     } else {
         invalidActions.push({
             actionId: defaultMoveAction.id,
-            reason: "No valid movement destinations",
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_VALID_MOVEMENT_DESTINATIONS,
+            },
             actionPointCostDependsOnMovementPath:
                 SquaddieActionService.actionPointCostDependsOnMovementPath(
                     defaultMoveAction
@@ -2496,7 +2545,12 @@ const validateActionDestination = ({
     )
     const { maximum } = ActionRangeService.minAndMaxByRange[destinationRange]
     if (distance > maximum) {
-        return { isValid: false, reason: "Destination is out of range" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_OUT_OF_RANGE,
+            },
+        }
     }
 
     const isPassable = CoordinateMapService.canSquaddieStopAtCoordinate({
@@ -2505,7 +2559,12 @@ const validateActionDestination = ({
         squaddieId: actor,
     })
     if (!isPassable) {
-        return { isValid: false, reason: "Destination is blocked" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_BLOCKED,
+            },
+        }
     }
 
     const hasLos = LineOfSightService.hasLineOfSight({
@@ -2517,7 +2576,12 @@ const validateActionDestination = ({
         moveThroughWalls: false,
     })
     if (!hasLos) {
-        return { isValid: false, reason: "Destination is not visible" }
+        return {
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_NOT_VISIBLE,
+            },
+        }
     }
 
     return { isValid: true }

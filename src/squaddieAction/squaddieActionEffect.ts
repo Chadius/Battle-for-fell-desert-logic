@@ -12,6 +12,7 @@ import {
 } from "../proficiency/squaddieCondition.js"
 import type { ActionPointCost } from "./squaddieAction.js"
 import {
+    MovementEffectType,
     movementEffectSchema,
     type SquaddieActionMovementEffect,
 } from "./squaddieActionMovementEffect.js"
@@ -150,6 +151,11 @@ export const SquaddieActionEffectService = {
         }
         return result.data as SquaddieActionEffect
     },
+    isActorChosenMoveWithoutPathCost: (
+        effect: Pick<SquaddieActionEffect, "actionPoints" | "movement">
+    ): boolean =>
+        effect.movement?.movementType === MovementEffectType.ACTOR_CHOSEN &&
+        effect.actionPoints?.additional?.movementPathActionPointCost !== true,
     hinders: (effect: SquaddieActionEffect): boolean =>
         drainsActionPoints(effect) ||
         (effect.conditions?.add ?? []).some((condition) =>

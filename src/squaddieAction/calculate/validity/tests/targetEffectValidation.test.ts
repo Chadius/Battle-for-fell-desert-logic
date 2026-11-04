@@ -27,6 +27,7 @@ import {
 } from "../../../../proficiency/squaddieCondition.js"
 import { ProficiencyType } from "../../../../proficiency/proficiencyLevel.js"
 import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieActionRejectionReason } from "../squaddieActionRejection.js"
 
 describe("target effect validation", () => {
     let effectSquaddieActionManager: SquaddieActionManager
@@ -172,8 +173,12 @@ describe("target effect validation", () => {
             map: { mapId: effectMapId },
         })
 
-        expect(result.isValid).toBe(false)
-        expect(result.reason).toBe("No targets can be affected")
+        expect(result).toEqual({
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+            },
+        })
     })
 
     it("returns valid when healing action targets squaddie below full HP", () => {
@@ -263,8 +268,12 @@ describe("target effect validation", () => {
             map: { mapId: effectMapId },
         })
 
-        expect(result.isValid).toBe(false)
-        expect(result.reason).toBe("No targets can be affected")
+        expect(result).toEqual({
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+            },
+        })
     })
 
     it("returns valid when damage action targets squaddie with HP remaining", () => {
@@ -369,8 +378,12 @@ describe("target effect validation", () => {
             map: { mapId: effectMapId },
         })
 
-        expect(result.isValid).toBe(false)
-        expect(result.reason).toBe("No targets can be affected")
+        expect(result).toEqual({
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+            },
+        })
     })
 
     it("returns valid when target has conditions that can be dispelled", () => {
@@ -512,8 +525,12 @@ describe("target effect validation", () => {
             map: { mapId: effectMapId },
         })
 
-        expect(result.isValid).toBe(false)
-        expect(result.reason).toBe("No targets can be affected")
+        expect(result).toEqual({
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+            },
+        })
     })
 
     it("returns valid when target has conditions that can be treated", () => {
@@ -967,8 +984,12 @@ describe("TELEPORT_TO_ACTOR_CHOSEN validation passes decisions through", () => {
             map: { mapId: teleportMapId },
         })
 
-        expect(result.isValid).toBe(false)
-        expect(result.reason).toBe("This action requires a destination.")
+        expect(result).toEqual({
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_REQUIRED,
+            },
+        })
     })
 
     it("categorizeSquaddieActions lists teleport action as valid when a friend is in range", () => {

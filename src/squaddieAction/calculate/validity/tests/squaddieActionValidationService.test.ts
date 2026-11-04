@@ -30,6 +30,7 @@ import {
     SquaddieConditionSource,
     SquaddieConditionType,
 } from "../../../../proficiency/squaddieCondition.js"
+import { SquaddieActionRejectionReason } from "../squaddieActionRejection.js"
 
 describe("SquaddieActionValidationService", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -80,11 +81,10 @@ describe("SquaddieActionValidationService", () => {
 
             const result = callIsActionValid(action)
 
-            expect(result.isValid).toBe(true)
-            expect(result.reason).toBeUndefined()
+            expect(result).toEqual({ isValid: true })
         })
 
-        it("returns invalid with reason when squaddie has insufficient action points", () => {
+        it("reports the action points needed and remaining", () => {
             inBattleSquaddieManager.spendActionPoints({
                 ...actor,
                 actionPoints: 1,
@@ -102,8 +102,14 @@ describe("SquaddieActionValidationService", () => {
 
             const result = callIsActionValid(action)
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("Needs 3 action points")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.NOT_ENOUGH_ACTION_POINTS,
+                    actionPointsNeeded: 3,
+                    actionPointsRemaining: 2,
+                },
+            })
         })
 
         it("returns valid when squaddie has exactly the required action points", () => {
@@ -156,8 +162,12 @@ describe("SquaddieActionValidationService", () => {
 
             const result = callIsActionValid(action)
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("Squaddie cannot act")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.CANNOT_ACT,
+                },
+            })
         })
 
         it("returns valid when action has no action point cost defined", () => {
@@ -302,8 +312,10 @@ describe("SquaddieActionValidationService", () => {
             const result = callMoveIsActionValid(decisions)
 
             expect(result.isValid).toBe(true)
-            expect(result.movementPath).toBeDefined()
-            expect(result.movementPath?.steps.length).toBeGreaterThan(0)
+            const movementPath = result.isValid
+                ? result.movementPath
+                : undefined
+            expect(movementPath?.steps.length).toBeGreaterThan(0)
         })
 
         it("returns invalid when hex distance exceeds maximum movement", () => {
@@ -313,9 +325,12 @@ describe("SquaddieActionValidationService", () => {
 
             const result = callMoveIsActionValid(decisions)
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("Destination is too far away")
-            expect(result.movementPath).toBeUndefined()
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.DESTINATION_TOO_FAR,
+                },
+            })
         })
 
         it("returns invalid when path cost exceeds maximum even if hex distance is within range", () => {
@@ -325,9 +340,12 @@ describe("SquaddieActionValidationService", () => {
 
             const result = callMoveIsActionValid(decisions)
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("Destination is blocked")
-            expect(result.movementPath).toBeUndefined()
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.DESTINATION_BLOCKED,
+                },
+            })
         })
 
         it("returns invalid when wall blocks path to destination", () => {
@@ -360,16 +378,18 @@ describe("SquaddieActionValidationService", () => {
                 wallMapId
             )
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("Destination is blocked")
-            expect(result.movementPath).toBeUndefined()
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.DESTINATION_BLOCKED,
+                },
+            })
         })
 
         it("returns valid without movementPath when no destination is provided", () => {
             const result = callMoveIsActionValid()
 
-            expect(result.isValid).toBe(true)
-            expect(result.movementPath).toBeUndefined()
+            expect(result).toEqual({ isValid: true })
         })
     })
 
@@ -515,8 +535,12 @@ describe("SquaddieActionValidationService", () => {
         it("isActionValid invalid when blast center out of action range", () => {
             const result = callAoeIsActionValid({ row: 0, col: 5 }, [enemy])
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("Blast center is out of range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGET_COORDINATE_OUT_OF_RANGE,
+                },
+            })
         })
 
         it("isActionValid valid for empty-center action when enemy is in AoE radius", () => {
@@ -528,8 +552,12 @@ describe("SquaddieActionValidationService", () => {
         it("isActionValid invalid when targetCoordinateRequiresTarget: false and NO squaddies are in AoE radius", () => {
             const result = callAoeIsActionValid({ row: 0, col: 1 }, [])
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("No valid targets in blast radius")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.NO_TARGETS_IN_AREA,
+                },
+            })
         })
 
         it("isActionValid invalid when targetCoordinateRequiresTarget: true and no squaddie at center", () => {
@@ -562,8 +590,12 @@ describe("SquaddieActionValidationService", () => {
 
             const result = callAoeIsActionValid({ row: 0, col: 1 }, [enemy])
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("Target coordinate must have a target")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGET_COORDINATE_HAS_NO_TARGET,
+                },
+            })
         })
     })
 
@@ -732,7 +764,7 @@ describe("SquaddieActionValidationService", () => {
                 })
             })
 
-            it("returns invalid with a message stating how many turns remain", () => {
+            it("reports the turns remaining on the cooldown", () => {
                 const result = SquaddieActionValidationService.isActionValid({
                     actor,
                     action: { id: frozenActionId },
@@ -745,8 +777,13 @@ describe("SquaddieActionValidationService", () => {
                     map: { mapId },
                 })
 
-                expect(result.isValid).toBe(false)
-                expect(result.reason).toBe("Cannot be used for 2 turns")
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: SquaddieActionRejectionReason.ON_COOLDOWN,
+                        turnsRemaining: 2,
+                    },
+                })
             })
         })
     })

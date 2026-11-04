@@ -78,7 +78,10 @@ describe("SquaddieActionClassificationService.classify carry actions", () => {
                 },
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
-                        actionPoints: { spent: 1 },
+                        actionPoints: {
+                            spent: 1,
+                            additional: { movementPathActionPointCost: true },
+                        },
                         movement: {
                             movementType: MovementEffectType.ACTOR_CHOSEN,
                         },

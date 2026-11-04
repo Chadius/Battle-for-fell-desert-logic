@@ -26,6 +26,7 @@ import { ActionRange } from "../../../squaddieAction/actionRange.js"
 import { CoordinateGeneratorShape } from "../../../coordinateMap/shape.js"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
 import { MissionAffiliationTurn } from "../../missionTurn.js"
+import { SquaddieActionRejectionReason } from "../../../squaddieAction/calculate/validity/squaddieActionRejection.js"
 
 const leapActionId = "leap"
 const mapId = "ready-action-test-map"
@@ -192,7 +193,7 @@ describe("MissionEngine.readyAction movement destination validation", () => {
         expect(result.isValid).toBe(false)
     })
 
-    it("rejects a destination occupied by another squaddie", () => {
+    it("rejects a destination an enemy stands on as blocked", () => {
         const result = missionEngine.readyAction({
             actor: actorId,
             targets: [],
@@ -204,7 +205,12 @@ describe("MissionEngine.readyAction movement destination validation", () => {
             },
         })
 
-        expect(result.isValid).toBe(false)
+        expect(result).toEqual({
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_BLOCKED,
+            },
+        })
     })
 })
 
@@ -224,7 +230,11 @@ describe("MissionEngine.readyAction — TELEPORT_TO_ACTOR_CHOSEN validation", ()
             },
         })
 
-        expect(result.isValid).toBe(false)
-        expect(result.message).toBe("This action requires a destination.")
+        expect(result).toEqual({
+            isValid: false,
+            rejection: {
+                reason: SquaddieActionRejectionReason.DESTINATION_REQUIRED,
+            },
+        })
     })
 })

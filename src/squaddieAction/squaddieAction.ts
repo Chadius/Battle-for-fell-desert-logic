@@ -112,6 +112,33 @@ type SerializedDegreeOfSuccessEffects = z.infer<
     typeof degreeOfSuccessEffectsSchema
 >
 
+const ACTOR_CHOSEN_MOVE_WITHOUT_PATH_COST_MESSAGE =
+    "an ACTOR_CHOSEN move must set actionPoints.additional.movementPathActionPointCost to true; use ACTOR_CHOSEN_SPECIAL_TRAVERSAL for a fixed-range move"
+
+const findDegreesWithActorChosenMoveWithoutPathCost = (
+    effects: SerializedDegreeOfSuccessEffects | DegreeOfSuccessEffects
+): TDegreeOfSuccess[] =>
+    Object.values(DegreeOfSuccess).filter((degree) => {
+        const effect = effects[degree]
+        return (
+            effect != undefined &&
+            SquaddieActionEffectService.isActorChosenMoveWithoutPathCost(effect)
+        )
+    })
+
+const actorDegreeOfSuccessEffectsSchema =
+    degreeOfSuccessEffectsSchema.superRefine((effects, context) => {
+        for (const degree of findDegreesWithActorChosenMoveWithoutPathCost(
+            effects
+        )) {
+            context.addIssue({
+                code: "custom",
+                path: [degree, "movement"],
+                message: ACTOR_CHOSEN_MOVE_WITHOUT_PATH_COST_MESSAGE,
+            })
+        }
+    })
+
 export const squaddieActionSchema = z.object({
     id: z.string().min(1),
     attribute: z.enum(AttributeScore),
@@ -135,7 +162,7 @@ export const squaddieActionSchema = z.object({
         applies: z.boolean(),
         contribution: z.number(),
     }),
-    effectOnActor: degreeOfSuccessEffectsSchema,
+    effectOnActor: actorDegreeOfSuccessEffectsSchema,
     effectOnTarget: degreeOfSuccessEffectsSchema.optional(),
     cooldownTurns: z.number().int().min(1).optional(),
     usesPerTurn: z.number().int().min(1).optional(),
@@ -185,6 +212,18 @@ const serializeSquaddieAction = (
     usesPerTurn: action.usesPerTurn,
     usesPerMission: action.usesPerMission,
 })
+
+const throwIfActorChosenMoveHasNoPathCost = ({
+    id,
+    effectOnActor,
+}: Pick<SquaddieAction, "id" | "effectOnActor">): void => {
+    const degrees = findDegreesWithActorChosenMoveWithoutPathCost(effectOnActor)
+    if (degrees.length > 0) {
+        throw new Error(
+            `[SquaddieActionService.new]: action ${id} effectOnActor ${degrees.join(", ")}: ${ACTOR_CHOSEN_MOVE_WITHOUT_PATH_COST_MESSAGE}`
+        )
+    }
+}
 
 export const SquaddieActionService = {
     new: ({
@@ -236,6 +275,7 @@ export const SquaddieActionService = {
                 `[SquaddieActionService.new]: usesPerMission must be a positive integer, got ${usesPerMission}`
             )
         }
+        throwIfActorChosenMoveHasNoPathCost({ id, effectOnActor })
         const resolvedProficiency = proficiency ?? ProficiencyType.UNKNOWN
         const isWeapon = WEAPON_PROFICIENCY_TYPES.has(resolvedProficiency)
         const resolvedMultipleAttackPenalty: MultipleAttackPenalty = {

@@ -5,6 +5,7 @@ import {
     createTwoPlayerMission,
     TwoPlayerMissionActionIds,
 } from "../../../testUtils/mission/twoPlayerMission.js"
+import { ReadyActionRejectionReason } from "../readyActionRejection.js"
 
 const jabActionId = TwoPlayerMissionActionIds.jab
 const waveActionId = TwoPlayerMissionActionIds.wave
@@ -48,8 +49,13 @@ describe("MissionEngine active squaddie lock", () => {
                 action: { id: jabActionId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.message).toMatch(/already started their turn/)
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: ReadyActionRejectionReason.ANOTHER_SQUADDIE_IS_MID_TURN,
+                    squaddieMidTurn: player1Id,
+                },
+            })
         })
 
         it("still allows the active squaddie to ready further actions", () => {
@@ -119,8 +125,13 @@ describe("MissionEngine active squaddie lock", () => {
                     action: { id: jabActionId },
                 })
 
-                expect(result.isValid).toBe(false)
-                expect(result.message).toMatch(/already started their turn/)
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: ReadyActionRejectionReason.ANOTHER_SQUADDIE_IS_MID_TURN,
+                        squaddieMidTurn: player1Id,
+                    },
+                })
             })
         })
     })
@@ -142,8 +153,13 @@ describe("MissionEngine active squaddie lock", () => {
                 action: { id: jabActionId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.message).toMatch(/already started their turn/)
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: ReadyActionRejectionReason.ANOTHER_SQUADDIE_IS_MID_TURN,
+                    squaddieMidTurn: player1Id,
+                },
+            })
         })
 
         describe("and the active squaddie ends their turn", () => {
@@ -222,8 +238,13 @@ describe("MissionEngine active squaddie lock", () => {
                 action: { id: jabActionId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.message).toMatch(/readied action/)
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: ReadyActionRejectionReason.ANOTHER_SQUADDIE_HAS_READIED_ACTION,
+                    squaddieWithReadiedAction: player1Id,
+                },
+            })
         })
 
         describe("and the readied action is cancelled", () => {
