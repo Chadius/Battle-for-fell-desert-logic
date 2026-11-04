@@ -12,6 +12,7 @@ import {
     CampaignTestHarness,
     CampaignTestHarnessIds,
 } from "../../../testUtils/campaign/campaignTestHarness.js"
+import { ReadyActionRejectionReason } from "../readyActionRejection.js"
 
 const makeBriefingMovie = (sceneId: string): Movie => ({
     id: "movie-1",
@@ -257,8 +258,12 @@ describe("MissionEngine campaign squaddie deployment", () => {
                     action: { id: DEFAULT_END_TURN_ACTION_ID },
                 })
 
-                expect(result.isValid).toBe(false)
-                expect(result.message).toContain("deployment")
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: ReadyActionRejectionReason.CAMPAIGN_SQUADDIE_DEPLOYMENT_IN_PROGRESS,
+                    },
+                })
             })
         })
     })

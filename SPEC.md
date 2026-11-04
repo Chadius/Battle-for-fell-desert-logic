@@ -88,6 +88,12 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 - Multiple movement types: WALK, JUMP, PHASE.
 - Path is expressed as ordered `CoordinateMovePathStep` records.
 - Squaddies block movement by default; the adapter supports `stopSearchOnSquaddie` flag.
+- An `ACTOR_CHOSEN` move must set `actionPoints.additional.movementPathActionPointCost: true`, so
+  pathfinding always checks its destination (`SquaddieActionService.new` throws and the action
+  schema rejects it otherwise). A move with a set price, such as a Charge that costs 2 AP and
+  covers 2 AP worth of movement, or a fixed-range jump, is `ACTOR_CHOSEN_SPECIAL_TRAVERSAL` with
+  `squaddieMovementSpecialTraversalInfo.actionPointsOfMovement`.
+  A destination holding another squaddie is therefore rejected as `DESTINATION_BLOCKED`.
 - `ReachablePreviewCalculator` (`src/squaddieAction/calculate/reachablePreview/`) is the single home
   for "what can this squaddie reach" previews, wrapping `SquaddieActionValidationService`.
   `MissionEngine`/`MissionManager` expose thin delegators over it; every one takes an optional
@@ -186,6 +192,29 @@ it ends its turn or runs out of action points (undo can release it). `MissionEng
 returns that squaddie, or `undefined`, so a host can explain the lock before the player tries to act;
 `readyAction` uses the same rule when it refuses. `endSquaddieTurn` goes through `readyAction`, so it
 follows the same rules and throws when one refuses.
+
+#### Rejections
+
+Logic never words a refusal; it returns a code and the host writes the text. `readyAction` returns
+`ReadyActionResult`: `{ isValid: true }` or `{ isValid: false, rejection }`. A `ReadyActionRejection`
+is either one of `ReadyActionRejectionReason` (movie playing, deployment in progress, not this
+squaddie's turn, AI controlled, another squaddie has a readied action, another squaddie is mid-turn)
+or a `SquaddieActionRejection` from validation. `SquaddieActionValidationService.isActionValid`
+returns that `rejection`, and every entry in `getSquaddieActionValidity`'s invalid list carries one.
+
+Each rejection is `{ reason }` plus only the fields its code needs, as a discriminated union:
+
+| Code                                  | Extra fields                                  |
+| ------------------------------------- | --------------------------------------------- |
+| `ON_COOLDOWN`                         | `turnsRemaining`                              |
+| `USES_PER_TURN_EXHAUSTED`             | `usesThisTurn`, `usesPerTurn`                 |
+| `USES_PER_MISSION_EXHAUSTED`          | `usesThisMission`, `usesPerMission`           |
+| `NOT_ENOUGH_ACTION_POINTS`            | `actionPointsNeeded`, `actionPointsRemaining` |
+| `ANOTHER_SQUADDIE_HAS_READIED_ACTION` | `squaddieWithReadiedAction`                   |
+| `ANOTHER_SQUADDIE_IS_MID_TURN`        | `squaddieMidTurn`                             |
+
+A code that needs a number gets a new field rather than a sentence. Undo refusals follow the same
+idea through `SquaddieTurnActionRecordUndoBlockedReason`.
 
 `MissionEngine.hasSquaddieActedThisTurn(squaddieId)` reports whether that one squaddie has acted this
 turn (including a 0-AP action or `endSquaddieTurn`); undoing their only action makes it false again.

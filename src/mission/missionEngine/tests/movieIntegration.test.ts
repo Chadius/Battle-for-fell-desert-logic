@@ -13,6 +13,7 @@ import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
 import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 import { MissionAffiliationTurn } from "../../missionTurn.js"
+import { ReadyActionRejectionReason } from "../readyActionRejection.js"
 import {
     createOneDecisionMovie,
     OneDecisionMovieIds,
@@ -59,8 +60,12 @@ describe("MissionEngine movie integration", () => {
                     action: { id: "scimitar" },
                 })
 
-                expect(result.isValid).toBe(false)
-                expect(result.message).toContain("movie")
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: ReadyActionRejectionReason.MOVIE_PLAYING,
+                    },
+                })
             })
         })
     })

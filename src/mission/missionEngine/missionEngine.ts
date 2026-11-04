@@ -112,6 +112,10 @@ import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieAc
 import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 import { MovieManager } from "../../movie/movieManager.js"
 import {
+    ReadyActionRejectionReason,
+    type ReadyActionResult,
+} from "./readyActionRejection.js"
+import {
     type MissionStatistics,
     MissionStatisticsService,
 } from "../missionStatistics.js"
@@ -186,23 +190,20 @@ export class MissionEngine {
         this.rollGenerator = rollGenerator ?? new RollGenerator()
     }
 
-    readyAction({ actor, targets, action }: ReadiedAction): {
-        isValid: boolean
-        message?: string
-    } {
+    readyAction({ actor, targets, action }: ReadiedAction): ReadyActionResult {
         if (this.isMoviePlaying()) {
             return {
                 isValid: false,
-                message:
-                    "[MissionEngine.readyAction]: a movie is currently playing",
+                rejection: { reason: ReadyActionRejectionReason.MOVIE_PLAYING },
             }
         }
 
         if (this.isCampaignSquaddieDeploymentInProgress()) {
             return {
                 isValid: false,
-                message:
-                    "[MissionEngine.readyAction]: campaign squaddie deployment is in progress",
+                rejection: {
+                    reason: ReadyActionRejectionReason.CAMPAIGN_SQUADDIE_DEPLOYMENT_IN_PROGRESS,
+                },
             }
         }
 
@@ -837,7 +838,7 @@ export class MissionEngine {
         })
         if (!readyActionValidity.isValid) {
             throw new Error(
-                `[MissionEngine.endSquaddieTurn]: cannot end this squaddie's turn: ${readyActionValidity.message}`
+                `[MissionEngine.endSquaddieTurn]: cannot end this squaddie's turn: ${readyActionValidity.rejection.reason}`
             )
         }
 
@@ -1700,10 +1701,11 @@ export class MissionEngine {
         }
     }
 
-    private validateReadiedAction({ actor, targets, action }: ReadiedAction): {
-        isValid: boolean
-        message?: string
-    } {
+    private validateReadiedAction({
+        actor,
+        targets,
+        action,
+    }: ReadiedAction): ReadyActionResult {
         if (
             !this.missionManager?.inBattleSquaddieManager ||
             !this.missionManager?.squaddieActionManager ||
@@ -1728,13 +1730,15 @@ export class MissionEngine {
             map: { mapId: this.missionManager.missionState.mapId },
         })
 
-        return { isValid: result.isValid, message: result.reason }
+        if (result.isValid) {
+            return { isValid: true }
+        }
+        return { isValid: false, rejection: result.rejection }
     }
 
-    canReadyActionBecauseOfAffiliationTurn({ actor }: ReadiedAction): {
-        isValid: boolean
-        message?: string
-    } {
+    canReadyActionBecauseOfAffiliationTurn({
+        actor,
+    }: ReadiedAction): ReadyActionResult {
         if (!this.missionManager?.missionState?.turn) {
             return {
                 isValid: true,
@@ -1752,7 +1756,9 @@ export class MissionEngine {
             if (actorAffiliation !== turnAffiliation) {
                 return {
                     isValid: false,
-                    message: "It is not this squaddie's turn",
+                    rejection: {
+                        reason: ReadyActionRejectionReason.NOT_SQUADDIE_TURN,
+                    },
                 }
             }
 
@@ -1769,7 +1775,9 @@ export class MissionEngine {
             if (controllerType === TurnControllerType.AI) {
                 return {
                     isValid: false,
-                    message: "This squaddie is AI controlled",
+                    rejection: {
+                        reason: ReadyActionRejectionReason.AI_CONTROLLED,
+                    },
                 }
             }
 
@@ -1787,7 +1795,7 @@ export class MissionEngine {
 
     private canReadyActionBecauseNoOtherSquaddieIsActive(
         actor: BattleSquaddieId
-    ): { isValid: boolean; message?: string } {
+    ): ReadyActionResult {
         const readiedActionCheck =
             this.canReadyActionBecauseNoUnexecutedReadiedAction(actor)
         if (!readiedActionCheck.isValid) {
@@ -1799,7 +1807,7 @@ export class MissionEngine {
 
     private canReadyActionBecauseNoUnexecutedReadiedAction(
         actor: BattleSquaddieId
-    ): { isValid: boolean; message?: string } {
+    ): ReadyActionResult {
         if (!this.readiedAction) {
             return { isValid: true }
         }
@@ -1814,14 +1822,16 @@ export class MissionEngine {
 
         return {
             isValid: false,
-            message:
-                "Another squaddie has a readied action that must be executed or cancelled first",
+            rejection: {
+                reason: ReadyActionRejectionReason.ANOTHER_SQUADDIE_HAS_READIED_ACTION,
+                squaddieWithReadiedAction: this.readiedAction.actor,
+            },
         }
     }
 
     private canReadyActionBecauseSquaddieIsNotMidTurn(
         actor: BattleSquaddieId
-    ): { isValid: boolean; message?: string } {
+    ): ReadyActionResult {
         const squaddieMidTurnId = this.getSquaddieMidTurn()
         if (!squaddieMidTurnId) {
             return { isValid: true }
@@ -1837,8 +1847,10 @@ export class MissionEngine {
 
         return {
             isValid: false,
-            message:
-                "Another squaddie has already started their turn and must finish before this squaddie can act",
+            rejection: {
+                reason: ReadyActionRejectionReason.ANOTHER_SQUADDIE_IS_MID_TURN,
+                squaddieMidTurn: squaddieMidTurnId,
+            },
         }
     }
 }

@@ -27,6 +27,7 @@ import { CoordinateGeneratorShape } from "../../coordinateMap/shape.js"
 import { MissionAffiliationTurn, MissionTurnService } from "../missionTurn.js"
 import { type DebugFlags, DebugFlagsService } from "../debugFlags.js"
 import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
+import { ReadyActionRejectionReason } from "./readyActionRejection.js"
 
 describe("MissionEngine", () => {
     describe("isDone", () => {
@@ -198,12 +199,11 @@ describe("MissionEngine", () => {
                     action: { id: "action-1" },
                 })
 
-                expect(result.isValid).toBe(true)
-                expect(result.message).toBeUndefined()
+                expect(result).toEqual({ isValid: true })
                 expect(missionEngine.getReadiedAction()).toBeDefined()
             })
 
-            it("returns isValid false with a message when actor affiliation does not match current turn phase", () => {
+            it("rejects because it is not this squaddie's turn", () => {
                 const missionState = MissionStateService.new({
                     id: "mission-1",
                     mapId: "map-1",
@@ -226,8 +226,12 @@ describe("MissionEngine", () => {
                     action: { id: "action-1" },
                 })
 
-                expect(result.isValid).toBe(false)
-                expect(result.message).toBe("It is not this squaddie's turn")
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: ReadyActionRejectionReason.NOT_SQUADDIE_TURN,
+                    },
+                })
             })
 
             it("does not store the readied action when affiliation does not match", () => {

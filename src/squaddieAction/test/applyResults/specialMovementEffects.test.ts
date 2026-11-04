@@ -136,6 +136,10 @@ describe("Special movement effects", () => {
                 id: "normalMove",
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: {
+                        actionPoints: {
+                            spent: 0,
+                            additional: { movementPathActionPointCost: true },
+                        },
                         movement: {
                             movementType: MovementEffectType.ACTOR_CHOSEN,
                         },

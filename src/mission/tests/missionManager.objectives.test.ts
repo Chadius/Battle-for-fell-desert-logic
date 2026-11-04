@@ -599,6 +599,10 @@ describe("MissionManager", () => {
                 },
                 effectOnActor: {
                     SUCCESS: {
+                        actionPoints: {
+                            spent: 0,
+                            additional: { movementPathActionPointCost: true },
+                        },
                         movement: {
                             movementType: MovementEffectType.ACTOR_CHOSEN,
                         },
