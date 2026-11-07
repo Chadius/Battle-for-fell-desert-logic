@@ -336,7 +336,7 @@ describe("MissionEngine movie integration", () => {
             it("rejects it because no movie is playing", () => {
                 const engine = new MissionEngine()
 
-                const result = engine.selectMovieDecision("choice-a")
+                const result = engine.selectMovieDecision("any-choice")
 
                 expect(result).toEqual({
                     isValid: false,
@@ -404,7 +404,7 @@ describe("MissionEngine movie integration", () => {
                 const engine = new MissionEngine()
                 engine.playMovie(makeMovie("scene-1"))
 
-                const result = engine.selectMovieDecision("choice-a")
+                const result = engine.selectMovieDecision("any-choice")
 
                 expect(result).toEqual({
                     isValid: false,
