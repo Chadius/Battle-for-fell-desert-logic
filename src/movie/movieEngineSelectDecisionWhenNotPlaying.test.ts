@@ -4,10 +4,16 @@ import {
     MovieEngineCommand,
     MovieEngineState,
 } from "./movieEngine.js"
+import { MovieDecisionRejectionReason } from "./movieDecisionRejection.js"
 import {
     createOneDecisionMovie,
     OneDecisionMovieIds,
 } from "../testUtils/movie/oneDecisionMovie.js"
+
+const noMoviePlayingRejection = {
+    isValid: false,
+    rejection: { reason: MovieDecisionRejectionReason.NO_MOVIE_PLAYING },
+}
 
 describe("MovieEngine selectDecision when the movie is not playing", () => {
     describe("when the movie was stopped on a DECISION line", () => {
@@ -18,11 +24,9 @@ describe("MovieEngine selectDecision when the movie is not playing", () => {
         })
 
         it("rejects the decision because no movie is playing", () => {
-            const result = engine.selectDecision(
-                OneDecisionMovieIds.firstChoice
-            )
-
-            expect(result.message).toContain("no movie is playing")
+            expect(
+                engine.selectDecision(OneDecisionMovieIds.firstChoice)
+            ).toEqual(noMoviePlayingRejection)
         })
 
         it("keeps the movie stopped", () => {
@@ -43,11 +47,9 @@ describe("MovieEngine selectDecision when the movie is not playing", () => {
             const engine = new MovieEngine(createOneDecisionMovie())
             engine.selectDecision(OneDecisionMovieIds.firstChoice)
 
-            const result = engine.selectDecision(
-                OneDecisionMovieIds.secondChoice
-            )
-
-            expect(result.message).toContain("no movie is playing")
+            expect(
+                engine.selectDecision(OneDecisionMovieIds.secondChoice)
+            ).toEqual(noMoviePlayingRejection)
         })
     })
 })

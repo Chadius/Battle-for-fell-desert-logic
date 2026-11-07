@@ -9,6 +9,10 @@ import {
 } from "../../squaddieAction/calculate/reachablePreview/reachablePreviewCalculator.js"
 import type { Movie } from "../../movie/movie.js"
 import {
+    MovieDecisionRejectionReason,
+    type MovieDecisionResult,
+} from "../../movie/movieDecisionRejection.js"
+import {
     MovieEngine,
     MovieEngineState,
     type TMovieEngineCommand,
@@ -673,15 +677,13 @@ export class MissionEngine {
         this.recordMovieCompleteAndResumePhaseAdvance()
     }
 
-    selectMovieDecision(decisionId: string): {
-        isValid: boolean
-        message?: string
-    } {
+    selectMovieDecision(decisionId: string): MovieDecisionResult {
         if (!this.activeMovieEngine) {
             return {
                 isValid: false,
-                message:
-                    "[MissionEngine.selectMovieDecision]: no movie is playing",
+                rejection: {
+                    reason: MovieDecisionRejectionReason.NO_MOVIE_PLAYING,
+                },
             }
         }
         const result = this.activeMovieEngine.selectDecision(decisionId)

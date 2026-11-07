@@ -297,6 +297,10 @@ file that still carries them.
   numbers, because `plural()`, `ordinal()` and `round()` need numbers and formatting one for a
   locale belongs to the host. `TIME_ELAPSED` is not a logic token: the host supplies it, through
   the presentation package's `HostTextSubstitutionToken`.
+- `MissionEngine.selectMovieDecision` returns a `MovieDecisionResult`: `{ isValid: true }` or
+  `{ isValid: false, rejection: { reason } }`, where `reason` is a `MovieDecisionRejectionReason`
+  (`NO_MOVIE_PLAYING`, `SCENE_IS_NOT_A_CONVERSATION`, `LINE_IS_NOT_A_DECISION`,
+  `UNKNOWN_DECISION_ID`). As with `readyAction`, the host words these or treats them as its own bug.
 - `MovieService.validate` checks the scene graph only (existence, conflicts, cycles). The
   presentation package validates movie text.
 

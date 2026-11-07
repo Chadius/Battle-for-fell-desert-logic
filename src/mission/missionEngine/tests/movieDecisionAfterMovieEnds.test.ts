@@ -4,10 +4,16 @@ import {
     MovieEngineCommand,
     MovieEngineState,
 } from "../../../movie/movieEngine.js"
+import { MovieDecisionRejectionReason } from "../../../movie/movieDecisionRejection.js"
 import {
     createOneDecisionMovie,
     OneDecisionMovieIds,
 } from "../../../testUtils/movie/oneDecisionMovie.js"
+
+const noMoviePlayingRejection = {
+    isValid: false,
+    rejection: { reason: MovieDecisionRejectionReason.NO_MOVIE_PLAYING },
+}
 
 describe("MissionEngine selectMovieDecision after a movie ends", () => {
     describe("when the player's decision has finished the movie", () => {
@@ -16,11 +22,9 @@ describe("MissionEngine selectMovieDecision after a movie ends", () => {
             engine.playMovie(createOneDecisionMovie())
             engine.selectMovieDecision(OneDecisionMovieIds.firstChoice)
 
-            const result = engine.selectMovieDecision(
-                OneDecisionMovieIds.secondChoice
-            )
-
-            expect(result.message).toContain("no movie is playing")
+            expect(
+                engine.selectMovieDecision(OneDecisionMovieIds.secondChoice)
+            ).toEqual(noMoviePlayingRejection)
         })
     })
 
@@ -33,11 +37,9 @@ describe("MissionEngine selectMovieDecision after a movie ends", () => {
         })
 
         it("rejects the decision because no movie is playing", () => {
-            const result = engine.selectMovieDecision(
-                OneDecisionMovieIds.firstChoice
-            )
-
-            expect(result.message).toContain("no movie is playing")
+            expect(
+                engine.selectMovieDecision(OneDecisionMovieIds.firstChoice)
+            ).toEqual(noMoviePlayingRejection)
         })
 
         it("leaves the movie stopped", () => {

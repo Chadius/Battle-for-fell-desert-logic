@@ -14,6 +14,7 @@ import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.
 import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 import { MissionAffiliationTurn } from "../../missionTurn.js"
 import { ReadyActionRejectionReason } from "../readyActionRejection.js"
+import { MovieDecisionRejectionReason } from "../../../movie/movieDecisionRejection.js"
 import {
     createOneDecisionMovie,
     OneDecisionMovieIds,
@@ -332,13 +333,17 @@ describe("MissionEngine movie integration", () => {
 
     describe("selectMovieDecision", () => {
         describe("when no movie is active", () => {
-            it("rejects the call", () => {
+            it("rejects it because no movie is playing", () => {
                 const engine = new MissionEngine()
 
                 const result = engine.selectMovieDecision("choice-a")
 
-                expect(result.isValid).toBe(false)
-                expect(result.message).toContain("no movie is playing")
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: MovieDecisionRejectionReason.NO_MOVIE_PLAYING,
+                    },
+                })
             })
         })
 
@@ -363,27 +368,50 @@ describe("MissionEngine movie integration", () => {
             })
 
             describe("when an unrecognized decision ID is submitted", () => {
-                it("rejects it with a message naming the unknown ID", () => {
+                it("rejects it as an unknown decision ID", () => {
                     const engine = new MissionEngine()
                     engine.playMovie(createOneDecisionMovie())
 
                     const result = engine.selectMovieDecision("no-such-choice")
 
-                    expect(result.isValid).toBe(false)
-                    expect(result.message).toContain("no-such-choice")
+                    expect(result).toEqual({
+                        isValid: false,
+                        rejection: {
+                            reason: MovieDecisionRejectionReason.UNKNOWN_DECISION_ID,
+                        },
+                    })
+                })
+
+                it("keeps the movie playing on the same decision line", () => {
+                    const engine = new MissionEngine()
+                    engine.playMovie(createOneDecisionMovie())
+
+                    engine.selectMovieDecision("no-such-choice")
+
+                    expect(engine.getMovieStatus()).toMatchObject({
+                        state: MovieEngineState.PLAYING,
+                        currentScene: {
+                            sceneId: OneDecisionMovieIds.scene,
+                            lineId: OneDecisionMovieIds.line,
+                        },
+                    })
                 })
             })
         })
 
         describe("when a movie with only image scenes is playing", () => {
-            it("rejects the decision", () => {
+            it("rejects it because the scene is not a conversation", () => {
                 const engine = new MissionEngine()
                 engine.playMovie(makeMovie("scene-1"))
 
                 const result = engine.selectMovieDecision("choice-a")
 
-                expect(result.isValid).toBe(false)
-                expect(result.message).toContain("not a conversation")
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: MovieDecisionRejectionReason.SCENE_IS_NOT_A_CONVERSATION,
+                    },
+                })
             })
         })
     })

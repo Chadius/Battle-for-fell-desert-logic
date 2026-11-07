@@ -12,6 +12,10 @@ import {
     type MovieSceneConversationState,
 } from "./movieSceneConversation.js"
 import { type MovieScene, MovieSceneType } from "./movieScene.js"
+import {
+    MovieDecisionRejectionReason,
+    type MovieDecisionResult,
+} from "./movieDecisionRejection.js"
 
 export const MovieEngineState = {
     PLAYING: "PLAYING",
@@ -103,11 +107,13 @@ export class MovieEngine {
         this.checkSkipProgress()
     }
 
-    selectDecision(decisionId: string): { isValid: boolean; message?: string } {
+    selectDecision(decisionId: string): MovieDecisionResult {
         if (this.movieState !== MovieEngineState.PLAYING) {
             return {
                 isValid: false,
-                message: `[MovieEngine.${this.selectDecision.name}]: no movie is playing`,
+                rejection: {
+                    reason: MovieDecisionRejectionReason.NO_MOVIE_PLAYING,
+                },
             }
         }
         if (
@@ -116,7 +122,9 @@ export class MovieEngine {
         ) {
             return {
                 isValid: false,
-                message: "Current scene is not a conversation",
+                rejection: {
+                    reason: MovieDecisionRejectionReason.SCENE_IS_NOT_A_CONVERSATION,
+                },
             }
         }
 
