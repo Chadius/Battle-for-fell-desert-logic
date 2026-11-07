@@ -180,7 +180,6 @@ describe("usesPerTurn validation", () => {
                 collection: mapCollection,
                 map: CoordinateMapService.new({
                     id: mapId,
-                    name: "Cat Test Map",
                     movementProperties: ["1 1 1", " 1 1 1", "1 1 1 "],
                 }),
             })

@@ -112,7 +112,6 @@ export function createDashMission(): {
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: "dash_map",
-            name: "dash map",
             movementProperties: ["1 1 1 1 1"],
         }),
     })

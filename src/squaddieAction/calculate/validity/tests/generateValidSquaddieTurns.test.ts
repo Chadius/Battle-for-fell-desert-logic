@@ -116,7 +116,6 @@ describe("generateValidSquaddieTurns", () => {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: mapId,
-                name: "Test Map",
                 movementProperties: ["1 1 1 1 1"],
             }),
         })

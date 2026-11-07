@@ -36,7 +36,6 @@ describe("SimpleAggressorStrategy", () => {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: mapId,
-                name: "Test Map",
                 movementProperties: [properties],
             }),
         })

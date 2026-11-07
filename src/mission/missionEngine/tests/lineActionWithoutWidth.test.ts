@@ -126,7 +126,6 @@ const createLineEngine = (
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: "test_map",
-            name: "test map",
             movementProperties: [terrain.join(" ")],
         }),
     })

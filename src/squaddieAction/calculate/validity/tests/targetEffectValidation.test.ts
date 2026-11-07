@@ -79,7 +79,6 @@ describe("target effect validation", () => {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: effectMapId,
-                name: "Effect Test Map",
                 movementProperties: ["1 1 1 1 1 ", " 1 1 1 1 1"],
             }),
         })
@@ -900,7 +899,6 @@ describe("TELEPORT_TO_ACTOR_CHOSEN validation passes decisions through", () => {
         teleportCoordinateMapCollectionManager.addOrUpdate({
             map: CoordinateMapService.new({
                 id: teleportMapId,
-                name: "Teleport Effect Test Map",
                 movementProperties: ["1 1 1"],
             }),
         })

@@ -23,7 +23,6 @@ const campaignSquaddie = (
         id,
         outOfBattleAttributeSheetId: `sheet-${id}`,
         outOfBattleSquaddieId: `battle-${id}`,
-        name: id,
         ...overrides,
     })
 
@@ -275,11 +274,11 @@ describe("CampaignSquaddieDeploymentManager", () => {
         })
 
         describe("getAssignedCampaignSquaddie", () => {
-            it("returns the full campaign squaddie assigned to a filled coordinate", () => {
+            it("returns the campaign squaddie assigned to a filled coordinate", () => {
                 const manager = buildManagerWithOneOpenAndOneFilledCoordinate()
 
                 expect(
-                    manager.getAssignedCampaignSquaddie("slot-filled")?.name
+                    manager.getAssignedCampaignSquaddie("slot-filled")?.id
                 ).toBe("lini")
             })
 

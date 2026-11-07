@@ -80,7 +80,6 @@ function createTestSetup(): {
 
     const map = CoordinateMapService.new({
         id: mapId,
-        name: "Leap test map",
         movementProperties: ["1 - 1 1 1 1"],
     })
 
@@ -305,7 +304,6 @@ function createTeleportTestSetup(): {
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: teleportMapId,
-            name: "Teleport test map",
             movementProperties: ["1 1 1 1 1", " 1 - 1 1 1", "1 1 1 1 1"],
         }),
     })

@@ -23,7 +23,6 @@ describe("Coordinate Map Manager", () => {
             manager.addOrUpdate({
                 map: CoordinateMapService.new({
                     id: "testMap",
-                    name: "testMap",
                     movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
                 }),
             })
@@ -131,7 +130,6 @@ describe("Coordinate Map Manager", () => {
                     collection: coordinateMapCollection,
                     map: CoordinateMapService.new({
                         id: "testMap",
-                        name: "testMap",
                         movementProperties: [
                             "1 1 1 1 ",
                             " 1 1 1 1 ",
@@ -400,14 +398,12 @@ describe("Coordinate Map Manager", () => {
             manager.addOrUpdate({
                 map: CoordinateMapService.new({
                     id: "mapA",
-                    name: "Map A",
                     movementProperties: ["1 1 1 "],
                 }),
             })
             manager.addOrUpdate({
                 map: CoordinateMapService.new({
                     id: "mapB",
-                    name: "Map B",
                     movementProperties: ["1 1 "],
                 }),
             })
@@ -429,7 +425,6 @@ describe("Coordinate Map Manager", () => {
             )
             testMap = CoordinateMapService.new({
                 id: "testMap",
-                name: "testMap",
                 movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
             })
         })
@@ -445,7 +440,6 @@ describe("Coordinate Map Manager", () => {
         it("loads an array of map blobs", () => {
             const secondMap = CoordinateMapService.new({
                 id: "secondMap",
-                name: "Second Map",
                 movementProperties: ["1 1 "],
             })
             const errors = manager.addMapsFromJson([
@@ -523,7 +517,6 @@ describe("Coordinate Map Manager", () => {
             manager.addOrUpdate({
                 map: CoordinateMapService.new({
                     id: "testMap",
-                    name: "testMap",
                     movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
                 }),
             })
@@ -556,7 +549,6 @@ describe("Coordinate Map Manager", () => {
             const deserialized: CoordinateMap =
                 manager.deserializeMap(parsedMap)
             expect(deserialized.id).toEqual(originalMap.id)
-            expect(deserialized.name).toEqual(originalMap.name)
             expect(
                 CoordinateMapService.getNumberOfColumns({ map: deserialized })
             ).toEqual(

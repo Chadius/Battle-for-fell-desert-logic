@@ -3,7 +3,6 @@ import type { TSquaddieAffiliation } from "../affiliation/affiliation.js"
 
 export interface Squad {
     id: string
-    name: string
     affiliation: TSquaddieAffiliation
     squaddies: Map<string, Map<number, TSquaddieRole>>
 }
@@ -11,13 +10,11 @@ export interface Squad {
 export const SquadService = {
     new: ({
         id,
-        name,
         affiliation,
         squaddies,
     }: Partial<Squad> & Omit<Squad, "squaddies">): Squad => {
         return {
             id,
-            name,
             affiliation,
             squaddies: squaddies ?? new Map(),
         }
@@ -111,7 +108,6 @@ const cloneSquaddiesById = (squaddies: Squad["squaddies"]) => {
 const clone = (original: Squad): Squad => {
     return {
         id: original.id,
-        name: original.name,
         affiliation: original.affiliation,
         squaddies: cloneSquaddiesById(original.squaddies),
     }

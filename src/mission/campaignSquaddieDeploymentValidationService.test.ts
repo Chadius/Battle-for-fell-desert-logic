@@ -24,7 +24,6 @@ const campaignSquaddie = (
         id,
         outOfBattleAttributeSheetId: `sheet-${id}`,
         outOfBattleSquaddieId: `battle-${id}`,
-        name: id,
         ...overrides,
     })
 

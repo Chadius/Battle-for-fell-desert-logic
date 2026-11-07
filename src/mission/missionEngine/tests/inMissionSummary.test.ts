@@ -299,7 +299,6 @@ describe("InMissionSummary", () => {
             expect(() =>
                 engine.loadSerializedInMissionSummary({
                     mapId: "map-1",
-                    mapName: "map-1",
                     missionObjectives: [],
                     inBattleSquaddieCollection: { byOutOfBattleSquaddieId: {} },
                     recentPhaseTransitions: [],
@@ -348,7 +347,6 @@ describe("InMissionSummary", () => {
 
             const savedState: SerializedInMissionSummary = {
                 mapId: "map-1",
-                mapName: "map-1",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: false, hasGivenReward: false },
                 ],
@@ -402,7 +400,6 @@ describe("InMissionSummary", () => {
 
             const savedState: SerializedInMissionSummary = {
                 mapId: "mad",
-                mapName: "Mad",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],

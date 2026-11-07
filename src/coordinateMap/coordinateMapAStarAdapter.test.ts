@@ -214,7 +214,6 @@ describe("coordinateMapAStarAdapter", () => {
         beforeEach(() => {
             map = CoordinateMapService.new({
                 id: "map",
-                name: "map",
                 movementProperties: ["1 1 1 1 1 "],
             })
         })
@@ -276,7 +275,6 @@ describe("coordinateMapAStarAdapter", () => {
                 it("cannot reach destination because the terrain cost is too high", () => {
                     const mapWithDoubleCostTerrain = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 2 2 1 1 "],
                     })
                     graph = new CoordinateMapAStarAdapter({
@@ -303,7 +301,6 @@ describe("coordinateMapAStarAdapter", () => {
                 it("can set search limits to reduce terrain movement costs", () => {
                     const mapWithDoubleCostTerrain = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 2 2 1 1 "],
                     })
                     graph = new CoordinateMapAStarAdapter({
@@ -331,7 +328,6 @@ describe("coordinateMapAStarAdapter", () => {
                 it("records path cost as 1 per step when reduceMoveCosts is active", () => {
                     const mapWithDoubleCostTerrain = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 2 2 1 1 "],
                     })
                     graph = new CoordinateMapAStarAdapter({
@@ -365,7 +361,6 @@ describe("coordinateMapAStarAdapter", () => {
                 beforeEach(() => {
                     mapWithAPit = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 - - 1 1 "],
                     })
                 })
@@ -452,7 +447,6 @@ describe("coordinateMapAStarAdapter", () => {
                 beforeEach(() => {
                     mapWithAWall = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 x x 1 1 "],
                     })
                 })
@@ -539,7 +533,6 @@ describe("coordinateMapAStarAdapter", () => {
             beforeEach(() => {
                 map = CoordinateMapService.new({
                     id: "map",
-                    name: "map",
                     movementProperties: ["1 1 1 1 1 "],
                 })
 

@@ -23,7 +23,6 @@ const buildArmyWithLeaderSquaddie = ({
         id: "campaign-squaddie",
         outOfBattleAttributeSheetId: "test sheet",
         outOfBattleSquaddieId,
-        name: "Campaign Squaddie",
         isLeader,
     })
     return ArmyService.addOrUpdate({

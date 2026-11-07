@@ -108,7 +108,6 @@ describe("previewReadiedActionAndForecastResults", () => {
 
         const map = CoordinateMapService.new({
             id: "test_map",
-            name: "test map",
             movementProperties: ["1 1 1 "],
         })
 

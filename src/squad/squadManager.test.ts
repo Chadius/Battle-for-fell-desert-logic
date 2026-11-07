@@ -20,7 +20,6 @@ describe("Squad Manager", () => {
     it("can add a squad", () => {
         const squad = SquadService.new({
             id: "squad",
-            name: "Squad",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddies: new Map([
                 [
@@ -38,7 +37,6 @@ describe("Squad Manager", () => {
     it("can add a squaddie to a squad", () => {
         const squad = SquadService.new({
             id: "squad",
-            name: "Squad",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddies: new Map([
                 [
@@ -67,7 +65,6 @@ describe("Squad Manager", () => {
     it("can remove a squaddie from a squad", () => {
         const squad = SquadService.new({
             id: "squad",
-            name: "Squad",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddies: new Map([
                 [

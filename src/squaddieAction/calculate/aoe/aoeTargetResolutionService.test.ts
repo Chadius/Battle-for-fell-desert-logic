@@ -180,7 +180,6 @@ describe("AoeTargetResolutionService", () => {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: mapId,
-                name: "Test Map",
                 movementProperties: [
                     "1 1 1 1 1 1",
                     " 1 1 1 1 1 1",
@@ -375,7 +374,6 @@ describe("AoeTargetResolutionService", () => {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: mapId,
-                name: "Terrain Test Map",
                 movementProperties,
             }),
         })
@@ -722,7 +720,6 @@ describe("AoeTargetResolutionService", () => {
                 collection: mapCollection,
                 map: CoordinateMapService.new({
                     id: mapId,
-                    name: "Diagonal Test Map",
                     movementProperties: [
                         "1 1 1 1",
                         " 1 1 1 1",

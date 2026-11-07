@@ -34,7 +34,6 @@ describe("MissionManager — transactional JSON loading", () => {
         coordinateMapCollectionManager.addOrUpdate({
             map: CoordinateMapService.new({
                 id: MAP_ID,
-                name: "Transaction Test Map",
                 movementProperties: ["1 1 1"],
             }),
         })

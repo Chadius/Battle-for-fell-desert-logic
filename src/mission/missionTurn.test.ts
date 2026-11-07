@@ -98,7 +98,6 @@ describe("MissionTurn", () => {
 
         coordinateMap = CoordinateMapService.new({
             id: "test map",
-            name: "Test Map",
             movementProperties: [
                 "1 1 1 1 1 1 1 1 1 1 ",
                 " 1 1 1 1 1 1 1 1 1 1 ",

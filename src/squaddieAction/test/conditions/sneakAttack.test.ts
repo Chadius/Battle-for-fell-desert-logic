@@ -487,7 +487,6 @@ describe("Sneak Attack", () => {
 
             const map = CoordinateMapService.new({
                 id: MAP_ID,
-                name: "Flanking Map",
                 movementProperties: ["1 1 1"],
             })
             coordinateMapCollectionManager = new CoordinateMapCollectionManager(

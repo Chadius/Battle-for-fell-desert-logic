@@ -198,7 +198,6 @@ describe("endSquaddieTurn", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 1 1"],
             })
 
@@ -519,7 +518,6 @@ describe("endSquaddieTurn", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 1 1 1 1 1 1 1"],
             })
             const coordinateMapCollectionManager =
@@ -631,7 +629,6 @@ describe("endSquaddieTurn", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1"],
             })
             const coordinateMapCollectionManager =

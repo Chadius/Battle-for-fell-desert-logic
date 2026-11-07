@@ -27,7 +27,6 @@ interface VisitedCoordinate {
 
 export interface CoordinatePathMap {
     id: string
-    name: string
     visitedCoordinates: Map<string, VisitedCoordinate>
     numberOfRows: number
     numberOfColumns: number
@@ -36,16 +35,13 @@ export interface CoordinatePathMap {
 export const CoordinatePathMapService = {
     new: ({
         id,
-        name,
         map,
     }: {
         id: string
-        name: string
         map: CoordinateMap
     }): CoordinatePathMap => {
         return {
             id,
-            name,
             visitedCoordinates: new Map(),
             numberOfRows: CoordinateMapService.getNumberOfRows({ map }),
             numberOfColumns: CoordinateMapService.getNumberOfColumns({ map }),

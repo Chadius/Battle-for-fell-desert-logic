@@ -399,7 +399,6 @@ describe("MissionEngine", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 "],
             })
 
@@ -962,7 +961,6 @@ describe("MissionEngine", () => {
 
             const map = CoordinateMapService.new({
                 id: "overview_map",
-                name: "overview map",
                 movementProperties: ["1 2 - X"],
             })
 
@@ -1017,7 +1015,6 @@ describe("MissionEngine", () => {
         it("returns correct row and col for each tile", () => {
             const map = CoordinateMapService.new({
                 id: "grid_map",
-                name: "grid map",
                 movementProperties: ["1 1", " 1 1"],
             })
 
@@ -1082,7 +1079,6 @@ describe("MissionEngine", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 "],
             })
 
@@ -1186,7 +1182,6 @@ describe("MissionEngine", () => {
 
                 const map = CoordinateMapService.new({
                     id: "debug_test_map",
-                    name: "debug test map",
                     movementProperties: ["1 1 1 1 1 1 1 1 1 1"],
                 })
 

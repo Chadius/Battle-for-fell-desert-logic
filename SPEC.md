@@ -214,7 +214,15 @@ Each rejection is `{ reason }` plus only the fields its code needs, as a discrim
 | `ANOTHER_SQUADDIE_IS_MID_TURN`        | `squaddieMidTurn`                             |
 
 A code that needs a number gets a new field rather than a sentence. Undo refusals follow the same
-idea through `SquaddieTurnActionRecordUndoBlockedReason`.
+idea: `canUndoLastPlayerUndoableAction` and `undoLastPlayerUndoableAction` return a
+`SquaddieTurnActionRecordUndoBlockedReason` code as `reason`.
+
+`MissionEngine.finalizeLoadingMission()` returns `{ isValid: true }` or one of two failures.
+`{ isValid: false, missionFileErrors }` lists problems with the mission files, written for the
+author. `{ isValid: false, rejection: { reason } }` means the files are fine but the campaign stops
+the mission from starting: `NO_PLAYER_SQUADDIE_CAN_DEPLOY` means every campaign squaddie is injured
+and the mission has no player squaddies of its own. The undo methods return the same kind of union:
+`UndoAvailability` (`canUndo` or a `reason`) and `UndoResult` (the `removedAction` or a `reason`).
 
 `MissionEngine.hasSquaddieActedThisTurn(squaddieId)` reports whether that one squaddie has acted this
 turn (including a 0-AP action or `endSquaddieTurn`); undoing their only action makes it false again.
@@ -275,7 +283,9 @@ once per mission.
 
 ### Resources
 
-Logic holds only opaque resource keys, such as `resourceManifestEntryId`. The content and media
+Logic holds only opaque resource keys, such as `resourceManifestEntryId`. It holds no display
+names either: maps, squads, campaign missions and campaign squaddies are known only by `id`, and
+their names live in the presentation package's content files. The content and media
 manifests, and resolving a key to its description or file, live in the presentation package
 (`fell-desert-presentation-layer`).
 

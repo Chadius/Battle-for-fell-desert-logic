@@ -58,7 +58,6 @@ function createEngineWithActions(): MissionEngine {
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: mapId,
-            name: "Decisions test map",
             movementProperties: ["1 1 1 1 1"],
         }),
     })

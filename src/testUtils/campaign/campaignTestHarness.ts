@@ -47,7 +47,6 @@ import type { MissionObjective } from "../../mission/missionObjective.js"
 
 export const CampaignTestHarnessIds = {
     mapId: "campaign-test-harness-map",
-    mapName: "Campaign Test Harness Map",
     missionStateId: "campaign-test-harness-mission",
     lini: {
         campaignSquaddieId: "lini",
@@ -185,7 +184,6 @@ export class CampaignTestHarness extends MissionEngine {
                 CampaignTestHarnessIds.lini.attributeSheetId,
             outOfBattleSquaddieId:
                 CampaignTestHarnessIds.lini.outOfBattleSquaddieId,
-            name: "Lini",
             isLeader: true,
         })
     }
@@ -197,7 +195,6 @@ export class CampaignTestHarness extends MissionEngine {
                 CampaignTestHarnessIds.rem.attributeSheetId,
             outOfBattleSquaddieId:
                 CampaignTestHarnessIds.rem.outOfBattleSquaddieId,
-            name: "Rem",
         })
     }
 
@@ -285,7 +282,6 @@ export class CampaignTestHarness extends MissionEngine {
         coordinateMapCollectionManager.addOrUpdate({
             map: CoordinateMapService.new({
                 id: CampaignTestHarnessIds.mapId,
-                name: CampaignTestHarnessIds.mapName,
                 movementProperties: ["1 1", "1 1"],
             }),
         })

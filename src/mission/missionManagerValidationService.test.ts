@@ -50,7 +50,6 @@ const buildCoordinateMapCollectionManager =
     (): CoordinateMapCollectionManager => {
         const map = CoordinateMapService.new({
             id: TEST_IDS.mapId,
-            name: "Test Map",
             movementProperties: ["1 1"],
         })
         const manager = new CoordinateMapCollectionManager(
@@ -446,7 +445,6 @@ describe("MissionManagerValidationService", () => {
                     // Row 0: normal normal pit(-)  wall(x)
                     const map = CoordinateMapService.new({
                         id: TEST_IDS.mapId,
-                        name: "Obstacle Map",
                         movementProperties: ["1 1 - x"],
                     })
                     const manager = new CoordinateMapCollectionManager(
@@ -674,7 +672,6 @@ describe("MissionManagerValidationService", () => {
                         id: "leader-squaddie",
                         outOfBattleAttributeSheetId: TEST_IDS.attributeSheetId,
                         outOfBattleSquaddieId: TEST_IDS.squaddieId,
-                        name: "Leader",
                         isLeader: true,
                     })
                 )

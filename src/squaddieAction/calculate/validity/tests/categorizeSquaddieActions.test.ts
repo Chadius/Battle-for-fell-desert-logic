@@ -205,7 +205,6 @@ describe("categorizeSquaddieActions", () => {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: mapId,
-                name: "Test Map",
                 movementProperties: ["1 1 1 1 1 1 1"],
             }),
         })
@@ -621,7 +620,6 @@ describe("categorizeSquaddieActions", () => {
             collection: smallMapCollection,
             map: CoordinateMapService.new({
                 id: "small-map",
-                name: "Small Map",
                 movementProperties: ["1"],
             }),
         })

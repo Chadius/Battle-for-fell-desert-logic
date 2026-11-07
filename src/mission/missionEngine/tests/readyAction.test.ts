@@ -81,7 +81,6 @@ function createTestSetup(): {
 
     const map = CoordinateMapService.new({
         id: mapId,
-        name: "Ready action test map",
         movementProperties: ["1 - 1 1 1 1"],
     })
 

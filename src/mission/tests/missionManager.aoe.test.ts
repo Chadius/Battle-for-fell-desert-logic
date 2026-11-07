@@ -111,7 +111,6 @@ describe("MissionManager", () => {
 
                 const map = CoordinateMapService.new({
                     id: "line_map",
-                    name: "Line map",
                     movementProperties: ["1 1 1 1 1 1"],
                 })
                 const coordinateMapCollectionManager =
@@ -308,7 +307,6 @@ describe("MissionManager", () => {
 
                 const map = CoordinateMapService.new({
                     id: "bloom_map",
-                    name: "Bloom map",
                     movementProperties: ["1 1 1 1", "1 1 1 1"],
                 })
                 const coordinateMapCollectionManager =

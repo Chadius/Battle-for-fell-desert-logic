@@ -361,7 +361,6 @@ describe("getAllValidTargetsInRangeOfAction", () => {
                 collection: mapCollection,
                 map: CoordinateMapService.new({
                     id: aoeMapId,
-                    name: "AoE Map",
                     movementProperties: [
                         "1 1 1 1 1 1 1 1 1 1 ",
                         " 1 1 1 1 1 1 1 1 1 1",

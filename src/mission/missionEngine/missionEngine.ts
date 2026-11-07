@@ -22,9 +22,16 @@ import {
     MissionObjectiveRewardType,
 } from "../missionObjectiveReward.js"
 import {
+    type FinalizeLoadingMissionResult,
+    FinalizeLoadingMissionRejectionReason,
+} from "./finalizeLoadingMissionRejection.js"
+import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
     SquaddieTurnActionRecordUndoBlockedReason,
+    type TSquaddieTurnActionRecordUndoBlockedReason,
+    type UndoAvailability,
+    type UndoResult,
 } from "../history/squaddieTurnActionRecord.js"
 import {
     type InMissionSummary,
@@ -746,7 +753,7 @@ export class MissionEngine {
         )
     }
 
-    canUndoLastPlayerUndoableAction(): { canUndo: boolean; reason?: string } {
+    canUndoLastPlayerUndoableAction(): UndoAvailability {
         this.throwIfMissionManagerIsUndefined(
             this.canUndoLastPlayerUndoableAction.name
         )
@@ -764,11 +771,7 @@ export class MissionEngine {
         return reason == null ? { canUndo: true } : { canUndo: false, reason }
     }
 
-    undoLastPlayerUndoableAction(): {
-        success: boolean
-        removedAction?: SquaddieTurnActionRecord
-        reason?: string
-    } {
+    undoLastPlayerUndoableAction(): UndoResult {
         this.throwIfMissionManagerIsUndefined(
             this.undoLastPlayerUndoableAction.name
         )
@@ -791,16 +794,14 @@ export class MissionEngine {
             (result) => SquaddieActionResultCalculator.reverseResult(result)
         )
 
-        const { removedAction } = this.missionManager!.undoLastAction({
-            reversingResults,
-        })
+        this.missionManager!.undoLastAction({ reversingResults })
 
-        return { success: true, removedAction }
+        return { success: true, removedAction: squaddieTurnActionRecord }
     }
 
     private undoBlockReason(
         squaddieTurnActionRecord: SquaddieTurnActionRecord
-    ): string | null {
+    ): TSquaddieTurnActionRecordUndoBlockedReason | null {
         return SquaddieTurnActionRecordService.isPlayerAllowedToUndo({
             squaddieTurnActionRecord,
             squaddieAffiliations: this.squaddieAffiliationsForResults(
@@ -1426,25 +1427,32 @@ export class MissionEngine {
         return this.missionManager.loadMissionFromJson(data)
     }
 
-    finalizeLoadingMission(): { isValid: boolean; errors: string[] } {
+    finalizeLoadingMission(): FinalizeLoadingMissionResult {
         const validation = this.missionManager?.validate() ?? {
             isValid: false,
-            errors: ["missionManager is undefined"],
+            errors: [
+                `[MissionEngine.${this.finalizeLoadingMission.name}]: missionManager is undefined`,
+            ],
         }
         if (!validation.isValid) {
-            return validation
+            return { isValid: false, missionFileErrors: validation.errors }
         }
         if (
             this.missionManager!.hasPendingCampaignSquaddieDeploymentCoordinates()
         ) {
-            const deploymentValidation =
-                this.missionManager!.validateCampaignSquaddieDeploymentCanBegin()
-            if (!deploymentValidation.isValid) return deploymentValidation
+            if (!this.missionManager!.canCampaignSquaddieDeploymentBegin()) {
+                return {
+                    isValid: false,
+                    rejection: {
+                        reason: FinalizeLoadingMissionRejectionReason.NO_PLAYER_SQUADDIE_CAN_DEPLOY,
+                    },
+                }
+            }
             this.missionManager!.beginCampaignSquaddieDeployment()
-            return { isValid: true, errors: [] }
+            return { isValid: true }
         }
         this.missionManager!.deployRequiredSquaddies()
-        return { isValid: true, errors: [] }
+        return { isValid: true }
     }
 
     getCampaignDeploymentStatus(): ReturnType<

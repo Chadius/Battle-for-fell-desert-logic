@@ -15,13 +15,11 @@ describe("Map Transposition", () => {
     beforeEach(() => {
         coordinateMap = CoordinateMapService.new({
             id: "map",
-            name: "map",
             movementProperties: ["1 1 1 2 ", " 1 1 1 1 ", "1 1 1 1 "],
         })
 
         transpositionMap = CoordinatePathMapService.new({
             id: "transpositionMap",
-            name: "transpositionMap",
             map: coordinateMap,
         })
     })
@@ -227,7 +225,6 @@ describe("Map Transposition", () => {
         beforeEach(() => {
             coordinateMap = CoordinateMapService.new({
                 id: "getClosestPath",
-                name: "getClosestPath",
                 movementProperties: [
                     "2 2 1 1 1 ",
                     " 1 1 1 1 1 ",
@@ -238,7 +235,6 @@ describe("Map Transposition", () => {
             })
             coordinatePathMap = CoordinatePathMapService.new({
                 id: "coordinatePathMap",
-                name: "coordinatePathMap",
                 map: coordinateMap,
             })
         })

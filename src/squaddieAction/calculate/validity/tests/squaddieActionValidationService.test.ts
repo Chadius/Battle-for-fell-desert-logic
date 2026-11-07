@@ -255,7 +255,6 @@ describe("SquaddieActionValidationService", () => {
                 collection: mapCollection,
                 map: CoordinateMapService.new({
                     id: movementMapId,
-                    name: "Movement Test Map",
                     movementProperties: ["1 2 2 1 1 1 1 1"],
                 }),
             })
@@ -355,7 +354,6 @@ describe("SquaddieActionValidationService", () => {
                 collection: wallMapCollection,
                 map: CoordinateMapService.new({
                     id: wallMapId,
-                    name: "Wall Map",
                     movementProperties: ["1 x 1"],
                 }),
             })
@@ -458,7 +456,6 @@ describe("SquaddieActionValidationService", () => {
                 collection: mapCollection,
                 map: CoordinateMapService.new({
                     id: aoeMapId,
-                    name: "AoE Test Map",
                     movementProperties: [
                         "1 1 1 1 1 1 1 1 1 1 ",
                         " 1 1 1 1 1 1 1 1 1 1",
@@ -654,7 +651,6 @@ describe("SquaddieActionValidationService", () => {
                 collection: mapCollection,
                 map: CoordinateMapService.new({
                     id: aoeMapId,
-                    name: "AoE Test Map",
                     movementProperties: [
                         "1 1 1 1 1 1 1 1 1 1 ",
                         " 1 1 1 1 1 1 1 1 1 1",

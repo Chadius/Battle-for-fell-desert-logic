@@ -12,7 +12,6 @@ const newCampaignSquaddie = (id: string, injury?: CampaignSquaddieInjury) =>
         id,
         outOfBattleAttributeSheetId: `sheet-${id}`,
         outOfBattleSquaddieId: `battle-${id}`,
-        name: id,
         injury,
     })
 

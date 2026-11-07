@@ -98,7 +98,6 @@ export const ValidationTestSetup = {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: mapId,
-                name: "Test Map",
                 movementProperties: mapMovementProperties,
             }),
         })

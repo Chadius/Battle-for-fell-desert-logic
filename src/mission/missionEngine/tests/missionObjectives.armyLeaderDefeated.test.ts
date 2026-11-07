@@ -19,7 +19,6 @@ function setSlitherDemonAsArmyLeader(harness: MissionEngineTestHarness): void {
         outOfBattleAttributeSheetId: "irrelevant-sheet",
         outOfBattleSquaddieId:
             MissionEngineTestHarnessIds.slitherDemon.outOfBattleSquaddieId,
-        name: "Slither Demon",
         isLeader: true,
     })
     const army = ArmyService.addOrUpdate({

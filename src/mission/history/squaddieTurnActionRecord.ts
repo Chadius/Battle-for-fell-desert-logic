@@ -1,4 +1,5 @@
 import { z } from "zod"
+import type { EnumLike } from "../../enum.js"
 import type { SquaddieAction } from "../../squaddieAction/squaddieAction.js"
 import {
     type SerializedSquaddieActionResult,
@@ -53,14 +54,24 @@ export const squaddieTurnActionRecordSchema = z.object({
 })
 
 export const SquaddieTurnActionRecordUndoBlockedReason = {
-    NO_ACTION_TO_UNDO: "no action to undo",
-    NO_RECORDED_RESULTS: "action has no recorded results",
-    ACTION_TYPE_CANNOT_BE_UNDONE: "action type cannot be undone",
-    ACTION_DID_NOT_SUCCEED: "action did not succeed",
-    ACTION_TARGETED_ENEMIES: "action targeted enemies and cannot be reversed",
-    ACTOR_IS_NOT_PLAYER_AFFILIATED:
-        "action was taken by a non-player squaddie and cannot be undone by the player",
-} as const
+    NO_ACTION_TO_UNDO: "NO_ACTION_TO_UNDO",
+    NO_RECORDED_RESULTS: "NO_RECORDED_RESULTS",
+    ACTION_TYPE_CANNOT_BE_UNDONE: "ACTION_TYPE_CANNOT_BE_UNDONE",
+    ACTION_DID_NOT_SUCCEED: "ACTION_DID_NOT_SUCCEED",
+    ACTION_TARGETED_ENEMIES: "ACTION_TARGETED_ENEMIES",
+    ACTOR_IS_NOT_PLAYER_AFFILIATED: "ACTOR_IS_NOT_PLAYER_AFFILIATED",
+} as const satisfies Record<string, string>
+export type TSquaddieTurnActionRecordUndoBlockedReason = EnumLike<
+    typeof SquaddieTurnActionRecordUndoBlockedReason
+>
+
+export type UndoAvailability =
+    | { canUndo: true }
+    | { canUndo: false; reason: TSquaddieTurnActionRecordUndoBlockedReason }
+
+export type UndoResult =
+    | { success: true; removedAction: SquaddieTurnActionRecord }
+    | { success: false; reason: TSquaddieTurnActionRecordUndoBlockedReason }
 
 type IsPlayerAllowedToUndoInput = {
     squaddieTurnActionRecord: SquaddieTurnActionRecord
@@ -174,7 +185,9 @@ export const SquaddieTurnActionRecordService = {
         }
     },
 
-    isPlayerAllowedToUndo: (input: IsPlayerAllowedToUndoInput): string | null =>
+    isPlayerAllowedToUndo: (
+        input: IsPlayerAllowedToUndoInput
+    ): TSquaddieTurnActionRecordUndoBlockedReason | null =>
         noRecordedResultsReason(input) ??
         actionCannotSucceedReason(input) ??
         actorIsNotPlayerAffiliatedReason(input) ??
@@ -183,14 +196,14 @@ export const SquaddieTurnActionRecordService = {
 
 const noRecordedResultsReason = ({
     squaddieTurnActionRecord,
-}: IsPlayerAllowedToUndoInput): string | null =>
+}: IsPlayerAllowedToUndoInput): TSquaddieTurnActionRecordUndoBlockedReason | null =>
     squaddieTurnActionRecord.results[0] == undefined
         ? SquaddieTurnActionRecordUndoBlockedReason.NO_RECORDED_RESULTS
         : null
 
 const actionCannotSucceedReason = ({
     squaddieAction,
-}: IsPlayerAllowedToUndoInput): string | null =>
+}: IsPlayerAllowedToUndoInput): TSquaddieTurnActionRecordUndoBlockedReason | null =>
     squaddieAction?.degreesOfSuccess?.some(
         (degreeOfSuccess) =>
             degreeOfSuccess != DegreeOfSuccess.SUCCESS &&
@@ -201,14 +214,14 @@ const actionCannotSucceedReason = ({
 
 const actorIsNotPlayerAffiliatedReason = (
     input: IsPlayerAllowedToUndoInput
-): string | null =>
+): TSquaddieTurnActionRecordUndoBlockedReason | null =>
     actorAffiliationOrThrow(input) === SquaddieAffiliation.PLAYER
         ? null
         : SquaddieTurnActionRecordUndoBlockedReason.ACTOR_IS_NOT_PLAYER_AFFILIATED
 
 const resultsBlockUndoReason = (
     input: IsPlayerAllowedToUndoInput
-): string | null => {
+): TSquaddieTurnActionRecordUndoBlockedReason | null => {
     const { squaddieTurnActionRecord, squaddieAffiliations } = input
     const actorResult = squaddieTurnActionRecord.results[0]
     const actorAffiliation = actorAffiliationOrThrow(input)

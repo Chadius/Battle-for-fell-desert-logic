@@ -356,7 +356,6 @@ describe("OFF_GUARD condition", () => {
         const buildFlankingMap = () => {
             const map = CoordinateMapService.new({
                 id: MAP_ID,
-                name: "Flanking Map",
                 movementProperties: ["1 1 1", "1 1 1"],
             })
             const manager = new CoordinateMapCollectionManager(

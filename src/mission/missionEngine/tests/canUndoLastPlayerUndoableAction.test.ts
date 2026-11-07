@@ -18,6 +18,7 @@ import {
 import {
     type SquaddieTurnActionRecord,
     SquaddieTurnActionRecordService,
+    SquaddieTurnActionRecordUndoBlockedReason,
 } from "../../history/squaddieTurnActionRecord.js"
 import {
     type SquaddieAction,
@@ -70,7 +71,6 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
 
         const coordinateMap = CoordinateMapService.new({
             id: "test_map",
-            name: "test map",
             movementProperties: [
                 "1 1 1 1 1 1 1 1 1 1 ",
                 " 1 1 1 1 1 1 1 1 1 1 ",
@@ -246,7 +246,7 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
 
             expect(missionEngine.canUndoLastPlayerUndoableAction()).toEqual({
                 canUndo: false,
-                reason: "no action to undo",
+                reason: SquaddieTurnActionRecordUndoBlockedReason.NO_ACTION_TO_UNDO,
             })
         })
     })
@@ -260,7 +260,7 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
 
             expect(missionEngine.canUndoLastPlayerUndoableAction()).toEqual({
                 canUndo: false,
-                reason: "no action to undo",
+                reason: SquaddieTurnActionRecordUndoBlockedReason.NO_ACTION_TO_UNDO,
             })
         })
     })
@@ -303,7 +303,7 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
 
             expect(missionEngine.canUndoLastPlayerUndoableAction()).toEqual({
                 canUndo: false,
-                reason: "action targeted enemies and cannot be reversed",
+                reason: SquaddieTurnActionRecordUndoBlockedReason.ACTION_TARGETED_ENEMIES,
             })
         })
     })
@@ -331,11 +331,11 @@ describe("MissionEngine.canUndoLastPlayerUndoableAction", () => {
 
             expect(preview).toEqual({
                 canUndo: false,
-                reason: "action targeted enemies and cannot be reversed",
+                reason: SquaddieTurnActionRecordUndoBlockedReason.ACTION_TARGETED_ENEMIES,
             })
             expect(undo).toMatchObject({
                 success: false,
-                reason: "action targeted enemies and cannot be reversed",
+                reason: SquaddieTurnActionRecordUndoBlockedReason.ACTION_TARGETED_ENEMIES,
             })
         })
     })

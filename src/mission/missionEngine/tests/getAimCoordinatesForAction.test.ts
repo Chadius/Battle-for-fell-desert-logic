@@ -77,7 +77,6 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
         const map = CoordinateMapService.new({
             id: "test_map",
-            name: "test map",
             movementProperties: [mapRow],
         })
 
@@ -412,7 +411,6 @@ describe("getAimCoordinatesForAction and getTargetsForAimCoordinate", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 1 1 1 1"],
             })
 

@@ -75,7 +75,6 @@ const createMeleeStandoff = (): {
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: mapId,
-            name: "Melee standoff map",
             movementProperties: ["1 1"],
         }),
     })

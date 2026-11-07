@@ -57,7 +57,6 @@ export class CoordinateMapAStarAdapter
         this.map = map
         this.coordinatePathMap = CoordinatePathMapService.new({
             id: "search",
-            name: "search",
             map: this.map,
         })
         this.inBattleSquaddieManager = inBattleSquaddieManager

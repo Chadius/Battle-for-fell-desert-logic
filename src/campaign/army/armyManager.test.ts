@@ -16,7 +16,6 @@ describe("Army Manager", () => {
             id: "lini",
             outOfBattleAttributeSheetId: "sheet-lini",
             outOfBattleSquaddieId: "battle-lini",
-            name: "Lini",
         })
         army = ArmyService.new()
         manager = new ArmyManager(army)
@@ -70,7 +69,6 @@ describe("Army Manager", () => {
                 id: "rem",
                 outOfBattleAttributeSheetId: "sheet-rem",
                 outOfBattleSquaddieId: "battle-rem",
-                name: "Rem",
                 isLeader: true,
             })
             const blobs = [

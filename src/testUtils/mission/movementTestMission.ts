@@ -51,7 +51,6 @@ import { MissionDeploymentService } from "../../mission/missionDeployment.js"
 
 export const MovementTestMissionIds = {
     mapId: "movement-test-map-id",
-    mapName: "Movement Test",
     missionStateId: "movementTestMissionId",
     fracta: {
         outOfBattleSquaddieId: "fracta",
@@ -157,7 +156,6 @@ function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager 
 
     const coordinateMap = CoordinateMapService.new({
         id: MovementTestMissionIds.mapId,
-        name: MovementTestMissionIds.mapName,
         movementProperties,
     })
 

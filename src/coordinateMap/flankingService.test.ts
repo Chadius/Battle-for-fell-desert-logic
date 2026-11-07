@@ -50,7 +50,6 @@ describe("FlankingService", () => {
     beforeEach(() => {
         const map = CoordinateMapService.new({
             id: MAP_ID,
-            name: "Flanking Test Map",
             movementProperties: [
                 "1 1 1 1 1",
                 "1 1 1 1 1",

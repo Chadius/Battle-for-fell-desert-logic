@@ -17,7 +17,6 @@ const buildArmyLedBy = (outOfBattleSquaddieId: string): Army =>
             id: "campaign-leader",
             outOfBattleAttributeSheetId: "test sheet",
             outOfBattleSquaddieId,
-            name: "Leader",
             isLeader: true,
         }),
     })

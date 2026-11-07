@@ -57,7 +57,6 @@ import { MissionDeploymentService } from "../../mission/missionDeployment.js"
 
 export const SneakAttackMissionIds = {
     mapId: "sneak-attack-map-id",
-    mapName: "Sneak Attack Test",
     missionStateId: "sneakAttackMissionId",
     lini: {
         outOfBattleSquaddieId: "lini-sneak",
@@ -148,7 +147,6 @@ function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager 
 
     const coordinateMap = CoordinateMapService.new({
         id: SneakAttackMissionIds.mapId,
-        name: SneakAttackMissionIds.mapName,
         movementProperties,
     })
 

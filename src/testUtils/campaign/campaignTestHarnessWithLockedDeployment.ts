@@ -42,7 +42,6 @@ import {
 
 export const CampaignTestHarnessWithLockedDeploymentIds = {
     mapId: "campaign-test-harness-locked-deployment-map",
-    mapName: "Campaign Test Harness Locked Deployment Map",
     missionStateId: "campaign-test-harness-locked-deployment-mission",
     lini: {
         campaignSquaddieId: CampaignTestHarnessIds.lini.campaignSquaddieId,
@@ -132,7 +131,6 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
             outOfBattleSquaddieId:
                 CampaignTestHarnessWithLockedDeploymentIds.vale
                     .outOfBattleSquaddieId,
-            name: "Vale",
         })
     }
 
@@ -146,7 +144,6 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
             outOfBattleSquaddieId:
                 CampaignTestHarnessWithLockedDeploymentIds.otto
                     .outOfBattleSquaddieId,
-            name: "Otto",
         })
     }
 
@@ -160,7 +157,6 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
             outOfBattleSquaddieId:
                 CampaignTestHarnessWithLockedDeploymentIds.zaya
                     .outOfBattleSquaddieId,
-            name: "Zaya",
         })
     }
 
@@ -301,7 +297,6 @@ export class CampaignTestHarnessWithLockedDeployment extends MissionEngine {
         coordinateMapCollectionManager.addOrUpdate({
             map: CoordinateMapService.new({
                 id: CampaignTestHarnessWithLockedDeploymentIds.mapId,
-                name: CampaignTestHarnessWithLockedDeploymentIds.mapName,
                 movementProperties: ["1 1 1 ", "1 1 1 "],
             }),
         })

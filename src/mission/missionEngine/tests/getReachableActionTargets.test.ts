@@ -134,7 +134,6 @@ const createPreviewScenario = ({
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: mapId,
-            name: "Threat range map",
             movementProperties,
         }),
     })

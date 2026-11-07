@@ -23,7 +23,6 @@ describe("InMissionSummary", () => {
             const summary = InMissionSummaryService.new({})
 
             expect(summary.mapId).toBe("")
-            expect(summary.mapName).toBe("")
             expect(summary.missionObjectives).toEqual([])
             expect(
                 summary.inBattleSquaddieCollection.byOutOfBattleSquaddieId
@@ -123,13 +122,11 @@ describe("InMissionSummary", () => {
 
             const summary = InMissionSummaryService.createFromMission({
                 mapId: "test-map",
-                mapName: "Test Map",
                 missionObjectives: [objective],
                 inBattleSquaddieManager,
             })
 
             expect(summary.mapId).toBe("test-map")
-            expect(summary.mapName).toBe("Test Map")
             expect(summary.missionObjectives).toHaveLength(1)
             expect(summary.missionObjectives[0].id).toBe("obj-1")
             expect(summary.missionObjectives[0].isCompleted).toBe(false)
@@ -269,7 +266,6 @@ describe("InMissionSummary", () => {
                 })
             const original: InMissionSummary = {
                 mapId: "test-map",
-                mapName: "Test Map",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                     { id: "obj-2", isCompleted: false, hasGivenReward: false },
@@ -284,7 +280,6 @@ describe("InMissionSummary", () => {
             const restored = InMissionSummaryService.deserialize(parsed)
 
             expect(restored.mapId).toBe("test-map")
-            expect(restored.mapName).toBe("Test Map")
             expect(restored.missionObjectives).toEqual(
                 original.missionObjectives
             )
@@ -301,7 +296,6 @@ describe("InMissionSummary", () => {
         it("SerializedInMissionSummary is directly JSON-serializable", () => {
             const summary: InMissionSummary = {
                 mapId: "",
-                mapName: "",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: false },
                 ],
@@ -364,7 +358,6 @@ describe("InMissionSummary", () => {
             tempManager.spendActionPoints({ ...tempId, actionPoints: 2 })
             const savedState: InMissionSummary = {
                 mapId: "",
-                mapName: "",
                 missionObjectives: [],
                 inBattleSquaddieCollection:
                     tempManager.inBattleSquaddieCollection!,
@@ -393,7 +386,6 @@ describe("InMissionSummary", () => {
         it("marks objectives as rewarded if saved summary has them rewarded", () => {
             const savedState: InMissionSummary = {
                 mapId: "",
-                mapName: "",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],
@@ -427,7 +419,6 @@ describe("InMissionSummary", () => {
         it("does not modify objectives not in saved summary", () => {
             const savedState: InMissionSummary = {
                 mapId: "",
-                mapName: "",
                 missionObjectives: [],
                 inBattleSquaddieCollection:
                     InBattleSquaddieCollectionService.new(),

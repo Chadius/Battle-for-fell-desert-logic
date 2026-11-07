@@ -56,7 +56,6 @@ import { MissionDeploymentService } from "../../mission/missionDeployment.js"
 
 export const ValeAndGloriaMissionIds = {
     mapId: "target-practice-map-id",
-    mapName: "Target Practice",
     missionStateId: "targetPracticeMissionId",
     vale: {
         outOfBattleSquaddieId: "vale",
@@ -150,7 +149,6 @@ function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager 
 
     const coordinateMap = CoordinateMapService.new({
         id: ValeAndGloriaMissionIds.mapId,
-        name: ValeAndGloriaMissionIds.mapName,
         movementProperties,
     })
 

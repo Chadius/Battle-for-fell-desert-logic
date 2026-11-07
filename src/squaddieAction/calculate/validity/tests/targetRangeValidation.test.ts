@@ -580,7 +580,6 @@ describe("targetRangeValidation", () => {
                 collection: mapCollection,
                 map: CoordinateMapService.new({
                     id: pathfindingMapId,
-                    name: "Pathfinding Test Map",
                     movementProperties: ["1 2 2 - 2 x 1 "],
                 }),
             })

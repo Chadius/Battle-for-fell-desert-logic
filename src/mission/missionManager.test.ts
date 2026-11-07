@@ -109,7 +109,6 @@ describe("MissionManager", () => {
                 coordinateMapCollectionManager.addOrUpdate({
                     map: CoordinateMapService.new({
                         id: "map-1",
-                        name: "Map",
                         movementProperties: ["1 1"],
                     }),
                 })

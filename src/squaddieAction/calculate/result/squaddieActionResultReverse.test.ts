@@ -819,7 +819,6 @@ describe("Reversing SquaddieActionResults", () => {
             let mapCollection = CoordinateMapCollectionService.new()
             const map = CoordinateMapService.new({
                 id: "test-map",
-                name: "test-map",
                 movementProperties: [
                     "1 1 1 1 1 1 1 1 1 1 ",
                     " 1 1 1 1 1 1 1 1 1 1 ",

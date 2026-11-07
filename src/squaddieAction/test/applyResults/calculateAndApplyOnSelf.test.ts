@@ -329,7 +329,6 @@ describe("Squaddie resolves actions on themself", () => {
                 collection: mapCollection,
                 map: CoordinateMapService.new({
                     id: "map",
-                    name: "map",
                     movementProperties: ["1 1 1 1 1 1 1 1 1 1 "],
                 }),
             })

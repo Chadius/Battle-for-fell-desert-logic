@@ -87,10 +87,7 @@ import {
 import type { ArmyManager } from "../campaign/army/armyManager.js"
 import type { CampaignSquaddie } from "../campaign/army/campaignSquaddie.js"
 import type { ArmyMissionResult } from "../campaign/army/army.js"
-import {
-    type CampaignSquaddieDeploymentValidationResult,
-    CampaignSquaddieDeploymentValidationService,
-} from "./campaignSquaddieDeploymentValidationService.js"
+import { CampaignSquaddieDeploymentValidationService } from "./campaignSquaddieDeploymentValidationService.js"
 import { CampaignSquaddieDeploymentManager } from "./campaignSquaddieDeploymentManager.js"
 import { CampaignSquaddieMissionBridgeService } from "./campaignSquaddieMissionBridgeService.js"
 import { CampaignSquaddieDeploymentCoordinateCollectionService } from "./campaignSquaddieDeploymentCoordinateCollection.js"
@@ -699,19 +696,8 @@ export class MissionManager {
             this.createInMissionSummary.name
         )
 
-        const mapId = this.missionState!.mapId
-        let mapName
-        try {
-            mapName =
-                this.coordinateMapCollectionManager?.getMapById(mapId)?.name ??
-                ""
-        } catch {
-            mapName = ""
-        }
-
         return InMissionSummaryService.createFromMission({
-            mapId,
-            mapName,
+            mapId: this.missionState!.mapId,
             missionObjectives: this.missionState!.objectives,
             inBattleSquaddieManager: this.inBattleSquaddieManager!,
             revealHiddenObjectives:
@@ -1216,11 +1202,11 @@ export class MissionManager {
         )
     }
 
-    validateCampaignSquaddieDeploymentCanBegin(): CampaignSquaddieDeploymentValidationResult {
+    canCampaignSquaddieDeploymentBegin(): boolean {
         this.throwIfArmyManagerIsUndefined(
-            this.validateCampaignSquaddieDeploymentCanBegin.name
+            this.canCampaignSquaddieDeploymentBegin.name
         )
-        return CampaignSquaddieDeploymentValidationService.validateAnyPlayerSquaddieCanDeploy(
+        return CampaignSquaddieDeploymentValidationService.canAnyPlayerSquaddieDeploy(
             {
                 campaignSquaddies: this.armyManager!.getAll(),
                 inMissionPlayerSquaddieCount:

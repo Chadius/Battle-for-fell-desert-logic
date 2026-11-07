@@ -69,7 +69,6 @@ const createTwoSquaddieMission = ({
         collection: mapCollection,
         map: CoordinateMapService.new({
             id: "map",
-            name: "map",
             movementProperties: mapRows,
         }),
     })
@@ -676,7 +675,6 @@ describe("Special movement effects", () => {
                         collection: noRoomMapCollection,
                         map: CoordinateMapService.new({
                             id: "noRoomMap",
-                            name: "noRoomMap",
                             movementProperties: ["- 1 -"],
                         }),
                     })
