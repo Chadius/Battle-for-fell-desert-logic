@@ -12,10 +12,13 @@ import { MissionObjectiveService } from "../../missionObjective.js"
 import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
 import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
-import { MovieSceneConversationService } from "../../../movie/movieSceneConversation.js"
 import { MissionAffiliationTurn } from "../../missionTurn.js"
 import { ResourceManifestCollectionService } from "../../../resource/resourceManifestCollection.js"
 import { ResourceManifestEntryService } from "../../../resource/resourceManifest.js"
+import {
+    createOneDecisionMovie,
+    OneDecisionMovieIds,
+} from "../../../testUtils/movie/oneDecisionMovie.js"
 
 const makeMovie = (...sceneIds: string[]): Movie => ({
     id: "movie-1",
@@ -395,47 +398,12 @@ describe("MissionEngine movie integration", () => {
         })
 
         describe("when a movie with a conversation decision scene is playing", () => {
-            const makeConversationMovie = (): Movie => ({
-                id: "convo-movie",
-                firstSceneId: "convo-scene",
-                scenes: [
-                    {
-                        type: MovieSceneType.CONVERSATION,
-                        data: MovieSceneConversationService.new({
-                            id: "convo-scene",
-                            lines: [
-                                {
-                                    type: "DECISION",
-                                    prompt: {
-                                        "en-US": { text: "Choose wisely" },
-                                    },
-                                    options: [
-                                        {
-                                            decisionId: "choice-a",
-                                            text: {
-                                                "en-US": { text: "Option A" },
-                                            },
-                                        },
-                                        {
-                                            decisionId: "choice-b",
-                                            text: {
-                                                "en-US": { text: "Option B" },
-                                            },
-                                        },
-                                    ],
-                                },
-                            ],
-                        }),
-                    },
-                ],
-            })
-
             describe("when a valid decision completes the movie", () => {
                 let engine: MissionEngine
                 beforeEach(() => {
                     engine = new MissionEngine()
-                    engine.playMovie(makeConversationMovie())
-                    engine.selectMovieDecision("choice-a")
+                    engine.playMovie(createOneDecisionMovie())
+                    engine.selectMovieDecision(OneDecisionMovieIds.firstChoice)
                 })
 
                 it("the movie stops playing", () => {
@@ -452,7 +420,7 @@ describe("MissionEngine movie integration", () => {
             describe("when an unrecognized decision ID is submitted", () => {
                 it("rejects it with a message naming the unknown ID", () => {
                     const engine = new MissionEngine()
-                    engine.playMovie(makeConversationMovie())
+                    engine.playMovie(createOneDecisionMovie())
 
                     const result = engine.selectMovieDecision("no-such-choice")
 

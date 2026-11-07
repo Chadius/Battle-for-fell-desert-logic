@@ -133,6 +133,12 @@ export class MovieEngine {
     }
 
     selectDecision(decisionId: string): { isValid: boolean; message?: string } {
+        if (this.movieState !== MovieEngineState.PLAYING) {
+            return {
+                isValid: false,
+                message: `[MovieEngine.${this.selectDecision.name}]: no movie is playing`,
+            }
+        }
         if (
             this.currentScene.type !== MovieSceneType.CONVERSATION ||
             this.currentSceneState.type !== MovieSceneType.CONVERSATION
