@@ -1,5 +1,6 @@
 export * from "./movie.js"
 export * from "./movieCollection.js"
+export * from "./movieDecisionRejection.js"
 export * from "./movieEngine.js"
 export * from "./movieLoader.js"
 export * from "./movieManager.js"
