@@ -395,6 +395,21 @@ export const MissionObjectiveCriteriaService = {
                 return false
         }
     },
+
+    getBattleSquaddieIdsSelectedByCriteria: (
+        criteria: MissionObjectiveSquaddieSelectionCriteria,
+        inBattleSquaddieManager: InBattleSquaddieManager
+    ): BattleSquaddieId[] =>
+        getBattleSquaddieIdsSelectedByCriteria(
+            criteria,
+            inBattleSquaddieManager
+        ),
+
+    getArmyLeaderBattleSquaddieId: (
+        inBattleSquaddieManager: InBattleSquaddieManager,
+        army?: Army
+    ): BattleSquaddieId | undefined =>
+        getArmyLeaderBattleSquaddieId(inBattleSquaddieManager, army),
 }
 
 const validateSquaddieIdCriteriaInput = ({
@@ -442,29 +457,56 @@ const squaddieMatchesIdSelection = (
     return true
 }
 
+type MissionObjectiveSquaddieSelectionCriteria =
+    | AllSquaddiesDefeatedCriteria
+    | SpecificSquaddiesInjuredCriteria
+    | SpecificSquaddiesDefeatedCriteria
+
+const squaddieMatchesAffiliationSelection = (
+    battleSquaddieId: BattleSquaddieId,
+    criteria: MissionObjectiveSquaddieSelectionCriteria,
+    inBattleSquaddieManager: InBattleSquaddieManager
+): boolean => {
+    if (criteria.type !== MissionObjectiveCriteriaType.ALL_SQUADDIES_DEFEATED)
+        return true
+    if (criteria.affiliations == undefined) return true
+    if (criteria.affiliations.size === 0) return true
+
+    const affiliation =
+        inBattleSquaddieManager.getSquaddieAffiliation(battleSquaddieId)
+    return criteria.affiliations.has(affiliation)
+}
+
+const getBattleSquaddieIdsSelectedByCriteria = (
+    criteria: MissionObjectiveSquaddieSelectionCriteria,
+    inBattleSquaddieManager: InBattleSquaddieManager
+): BattleSquaddieId[] =>
+    inBattleSquaddieManager
+        .getAllSquaddies()
+        .filter(
+            (battleSquaddieId) =>
+                squaddieMatchesAffiliationSelection(
+                    battleSquaddieId,
+                    criteria,
+                    inBattleSquaddieManager
+                ) &&
+                squaddieMatchesIdSelection(
+                    SquaddieIdConverterService.squaddieIdToKey(
+                        battleSquaddieId
+                    ),
+                    battleSquaddieId.outOfBattleSquaddieId,
+                    criteria
+                )
+        )
+
 const isAllSquaddiesDefeatedSatisfied = (
     criteria: AllSquaddiesDefeatedCriteria,
     inBattleSquaddieManager: InBattleSquaddieManager
 ): boolean => {
-    const allSquaddies = inBattleSquaddieManager.getAllSquaddies()
-
-    const matchingSquaddies = allSquaddies.filter((squaddie) => {
-        if (criteria.affiliations && criteria.affiliations.size > 0) {
-            const affiliation =
-                inBattleSquaddieManager.getSquaddieAffiliation(squaddie)
-            if (!criteria.affiliations.has(affiliation)) {
-                return false
-            }
-        }
-
-        const battleSquaddieId =
-            SquaddieIdConverterService.squaddieIdToKey(squaddie)
-        return squaddieMatchesIdSelection(
-            battleSquaddieId,
-            squaddie.outOfBattleSquaddieId,
-            criteria
-        )
-    })
+    const matchingSquaddies = getBattleSquaddieIdsSelectedByCriteria(
+        criteria,
+        inBattleSquaddieManager
+    )
 
     if (matchingSquaddies.length === 0) {
         return false
@@ -565,24 +607,34 @@ const isPhaseReachedSatisfied = (
     return currentPhaseOrder >= targetPhaseOrder
 }
 
-const isArmyLeaderDefeatedSatisfied = (
+const getArmyLeaderBattleSquaddieId = (
     inBattleSquaddieManager: InBattleSquaddieManager,
     army?: Army
-): boolean => {
-    if (army == undefined) return false
+): BattleSquaddieId | undefined => {
+    if (army == undefined) return undefined
 
     const leader = ArmyService.getLeader(army)
-    if (leader == undefined) return false
+    if (leader == undefined) return undefined
 
-    const matchingSquaddie = inBattleSquaddieManager
+    return inBattleSquaddieManager
         .getAllSquaddies()
         .find(
             (squaddie) =>
                 squaddie.outOfBattleSquaddieId === leader.outOfBattleSquaddieId
         )
-    if (matchingSquaddie == undefined) return false
+}
 
-    return inBattleSquaddieManager.isSquaddieDefeated(matchingSquaddie)
+const isArmyLeaderDefeatedSatisfied = (
+    inBattleSquaddieManager: InBattleSquaddieManager,
+    army?: Army
+): boolean => {
+    const leaderBattleSquaddieId = getArmyLeaderBattleSquaddieId(
+        inBattleSquaddieManager,
+        army
+    )
+    if (leaderBattleSquaddieId == undefined) return false
+
+    return inBattleSquaddieManager.isSquaddieDefeated(leaderBattleSquaddieId)
 }
 
 const serializeMissionObjectiveCriteriaAllSquaddiesDefeated = (
