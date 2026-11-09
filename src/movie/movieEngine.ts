@@ -41,6 +41,7 @@ interface ImageSceneStatus {
 }
 
 interface MovieStatus {
+    movieId: string
     state: TMovieEngineState
     isFastForward: boolean
     canSkip: boolean
@@ -96,6 +97,7 @@ export class MovieEngine {
     status(): MovieStatus {
         const isTerminal = this.movieState !== MovieEngineState.PLAYING
         return {
+            movieId: this.movie.id,
             state: this.movieState,
             isFastForward: this.isFastForward,
             canSkip: canSkipRemainingScenes(

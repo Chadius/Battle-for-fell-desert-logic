@@ -5,6 +5,7 @@ import { MovieSceneConversationService } from "../../movie/movieSceneConversatio
 export const OneDecisionMovieIds = {
     movie: "decision-movie",
     scene: "decision-scene",
+    line: "decision-line",
     firstChoice: "first-choice",
     secondChoice: "second-choice",
 } as const
@@ -21,6 +22,7 @@ export function createOneDecisionMovie(): Movie {
                     lines: [
                         {
                             type: "DECISION",
+                            id: OneDecisionMovieIds.line,
                             prompt: { "en-US": { text: "Choose a path" } },
                             options: [
                                 {

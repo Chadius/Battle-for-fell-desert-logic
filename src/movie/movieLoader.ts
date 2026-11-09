@@ -50,6 +50,7 @@ const decisionOptionSchema = z.object({
 
 const dialogLineSchema = z.object({
     type: z.literal("DIALOG"),
+    id: z.string().min(1),
     speakerId: z
         .string()
         .nullish()
@@ -70,6 +71,7 @@ const dialogLineSchema = z.object({
 
 const decisionLineSchema = z.object({
     type: z.literal("DECISION"),
+    id: z.string().min(1),
     prompt: localizedTextSchema,
     options: z.array(decisionOptionSchema),
 })
@@ -123,16 +125,37 @@ const parsedSceneToMovieScene = (scene: z.infer<typeof movieSceneSchema>) => {
     } as const
 }
 
+const firstDuplicateId = (ids: string[]): string | undefined => {
+    const uniqueIds = new Set<string>()
+    for (const id of ids) {
+        if (uniqueIds.has(id)) return id
+        uniqueIds.add(id)
+    }
+    return undefined
+}
+
 const throwIfDuplicateSceneIds = (
     scenes: z.infer<typeof movieSceneSchema>[]
 ) => {
-    const seen = new Set<string>()
+    const duplicateSceneId = firstDuplicateId(scenes.map((scene) => scene.id))
+    if (duplicateSceneId !== undefined)
+        throw new Error(
+            `[MovieLoader.loadFromJSON] Duplicate scene id '${duplicateSceneId}'`
+        )
+}
+
+const throwIfDuplicateLineIds = (
+    scenes: z.infer<typeof movieSceneSchema>[]
+) => {
     for (const scene of scenes) {
-        if (seen.has(scene.id))
+        if (scene.type !== MovieSceneType.CONVERSATION) continue
+        const duplicateLineId = firstDuplicateId(
+            scene.lines.map((line) => line.id)
+        )
+        if (duplicateLineId !== undefined)
             throw new Error(
-                `[MovieLoader.loadFromJSON] Duplicate scene id '${scene.id}'`
+                `[MovieLoader.loadFromJSON] Duplicate line id '${duplicateLineId}' in scene '${scene.id}'`
             )
-        seen.add(scene.id)
     }
 }
 
@@ -147,6 +170,7 @@ export const MovieLoader = {
         }
         const { id, firstSceneId, scenes } = result.data
         throwIfDuplicateSceneIds(scenes)
+        throwIfDuplicateLineIds(scenes)
         const movie: Movie = {
             id,
             firstSceneId,

@@ -11,6 +11,7 @@ export type TMovieSceneConversationCommand =
 
 export interface DialogLine {
     type: "DIALOG"
+    id: string
     speakerId?: string
     text: LocalizedText
     portrait?: { resourceManifestEntryId: string; position: "LEFT" | "RIGHT" }
@@ -25,6 +26,7 @@ export interface DecisionOption {
 
 export interface DecisionLine {
     type: "DECISION"
+    id: string
     prompt: LocalizedText
     options: DecisionOption[]
 }
@@ -39,7 +41,7 @@ export interface MovieSceneConversation {
 
 export interface DecisionRecord {
     sceneId: string
-    lineIndex: number
+    lineId: string
     decisionId: string
 }
 
@@ -53,6 +55,7 @@ export interface MovieSceneConversationState {
 export interface ConversationSceneStatus {
     type: "CONVERSATION"
     sceneId: string
+    lineId: string
     speakerId: string | undefined
     text: string
     portrait:
@@ -138,7 +141,7 @@ export const MovieSceneConversationService = {
 
         const record: DecisionRecord = {
             sceneId: movieSceneConversation.id,
-            lineIndex: movieSceneConversationState.currentLineIndex,
+            lineId: currentLine.id,
             decisionId,
         }
         const isLastLine =
@@ -215,6 +218,7 @@ export const MovieSceneConversationService = {
             return {
                 type: "CONVERSATION",
                 sceneId: movieSceneConversation.id,
+                lineId: line.id,
                 speakerId: line.speakerId,
                 text: LocalizedTextService.resolve(line.text, languageCode),
                 portrait:
@@ -229,6 +233,7 @@ export const MovieSceneConversationService = {
         return {
             type: "CONVERSATION",
             sceneId: movieSceneConversation.id,
+            lineId: line.id,
             speakerId: undefined,
             text: LocalizedTextService.resolve(line.prompt, languageCode),
             portrait: undefined,

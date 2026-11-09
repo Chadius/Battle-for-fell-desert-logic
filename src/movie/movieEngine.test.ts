@@ -92,6 +92,7 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION",
+                            id: "what-do-you-do",
                             prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
@@ -112,14 +113,13 @@ describe("MovieEngine", () => {
                 const engine = new MovieEngine(movie, [])
 
                 engine.selectDecision("attack")
-                engine.tick(1)
 
                 expect(engine.result()).toEqual({
                     state: "DONE",
                     decisions: [
                         {
                             sceneId: "conv-1",
-                            lineIndex: 0,
+                            lineId: "what-do-you-do",
                             decisionId: "attack",
                         },
                     ],
@@ -176,6 +176,7 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION",
+                            id: "line-2",
                             prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
@@ -208,6 +209,7 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION",
+                            id: "line-3",
                             prompt: { "en-US": { text: "What do you do?" } },
                             options: [
                                 {
@@ -218,6 +220,7 @@ describe("MovieEngine", () => {
                         },
                         {
                             type: "DIALOG",
+                            id: "line-4",
                             text: { "en-US": { text: "You attacked!" } },
                         },
                     ],
@@ -249,6 +252,7 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DIALOG",
+                        id: "greeting",
                         speakerId: "lini",
                         text: { "en-US": { text: "Hello" } },
                     },
@@ -266,6 +270,7 @@ describe("MovieEngine", () => {
             expect(status.currentScene).toEqual({
                 type: MovieSceneType.CONVERSATION,
                 sceneId: "conv-1",
+                lineId: "greeting",
                 speakerId: "lini",
                 text: "Hello",
                 portrait: undefined,
@@ -283,6 +288,7 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DIALOG",
+                        id: "line-6",
                         speakerId: "lini",
                         text: { "en-US": { text: "Hello" } },
                         portrait: {
@@ -329,6 +335,7 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION" as const,
+                            id: "line-7",
                             prompt: { "en-US": { text: "Which path?" } },
                             options: [
                                 {
@@ -378,6 +385,7 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DECISION" as const,
+                        id: "line-8",
                         prompt: { "en-US": { text: "Where to?" } },
                         options: [
                             {
@@ -399,6 +407,7 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DIALOG" as const,
+                        id: "line-9",
                         text: { "en-US": { text: "Gloria: Hello!" } },
                     },
                 ],
@@ -408,6 +417,7 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DIALOG" as const,
+                        id: "line-10",
                         text: { "en-US": { text: "Vale: Welcome!" } },
                     },
                 ],
@@ -417,6 +427,7 @@ describe("MovieEngine", () => {
                 lines: [
                     {
                         type: "DIALOG" as const,
+                        id: "line-11",
                         text: {
                             "en-US": { text: "The adventure continues..." },
                         },
@@ -576,6 +587,7 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DIALOG",
+                            id: "line-12",
                             text: { "en-US": { text: "Hello" } },
                         },
                     ],
@@ -602,10 +614,12 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DIALOG",
+                            id: "line-13",
                             text: { "en-US": { text: "Preamble" } },
                         },
                         {
                             type: "DECISION",
+                            id: "line-14",
                             prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {
@@ -644,10 +658,12 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DIALOG",
+                            id: "line-15",
                             text: { "en-US": { text: "Preamble" } },
                         },
                         {
                             type: "DECISION",
+                            id: "line-16",
                             prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {
@@ -682,6 +698,7 @@ describe("MovieEngine", () => {
                     lines: [
                         {
                             type: "DECISION",
+                            id: "line-17",
                             prompt: { "en-US": { text: "Choose" } },
                             options: [
                                 {

@@ -19,6 +19,7 @@ const makeConversationMovie = (): Movie => ({
                 lines: [
                     {
                         type: "DECISION",
+                        id: "line-1",
                         prompt: {
                             "en-US": {
                                 text: "Turn {TURN_COUNT}: dealt {DAMAGE_DEALT_BY_PLAYER_TEAM}",
@@ -52,6 +53,7 @@ const makeConversationMovieWithExtraToken = (): Movie => ({
                 lines: [
                     {
                         type: "DECISION",
+                        id: "line-2",
                         prompt: {
                             "en-US": {
                                 text: "Elapsed: {timeFormat(TIME_ELAPSED, mm:ss)}",
