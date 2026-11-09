@@ -4,6 +4,7 @@ import {
 } from "../../squaddieAction/squaddieAction.js"
 import { ActionRange } from "../../squaddieAction/actionRange.js"
 import { DegreeOfSuccess } from "../../degreesOfSuccess/degreeOfSuccess.js"
+import { ProficiencyType } from "../../proficiency/proficiencyLevel.js"
 import {
     MissionAffiliationTurn,
     type TMissionAffiliationTurn,
@@ -34,6 +35,11 @@ export const TwoPlayerMissionActionIds = {
     jab: "jab",
     wave: "wave",
     poke: "poke",
+    surge: "surge",
+    flourish: "flourish",
+    mend: "mend",
+    salute: "salute",
+    groupMend: "groupMend",
 }
 
 function createJabAction() {
@@ -63,6 +69,101 @@ function createWaveAction() {
         effectOnActor: {
             [DegreeOfSuccess.SUCCESS]: {
                 actionPoints: { spent: 0 },
+            },
+        },
+    })
+}
+
+function createSurgeAction() {
+    return SquaddieActionService.new({
+        id: TwoPlayerMissionActionIds.surge,
+        name: "Surge",
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+        range: ActionRange.SELF,
+        affiliationRelationship: { self: true, foe: false, friend: false },
+        cooldownTurns: 1,
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 1 },
+            },
+        },
+    })
+}
+
+function createFlourishAction() {
+    return SquaddieActionService.new({
+        id: TwoPlayerMissionActionIds.flourish,
+        name: "Flourish",
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+        range: ActionRange.SELF,
+        affiliationRelationship: { self: true, foe: false, friend: false },
+        usesPerTurn: 1,
+        usesPerMission: 2,
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 1 },
+            },
+        },
+    })
+}
+
+function createMendAction() {
+    return SquaddieActionService.new({
+        id: TwoPlayerMissionActionIds.mend,
+        name: "Mend",
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+        range: ActionRange.SELF,
+        affiliationRelationship: { self: true, foe: false, friend: false },
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 1 },
+            },
+        },
+        effectOnTarget: {
+            [DegreeOfSuccess.SUCCESS]: {
+                healing: { raw: 2 },
+            },
+        },
+    })
+}
+
+function createGroupMendAction() {
+    return SquaddieActionService.new({
+        id: TwoPlayerMissionActionIds.groupMend,
+        name: "Group Mend",
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+        range: ActionRange.MELEE,
+        affiliationRelationship: { self: true, foe: false, friend: true },
+        cooldownTurns: 2,
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 1 },
+            },
+        },
+        effectOnTarget: {
+            [DegreeOfSuccess.SUCCESS]: {
+                healing: { raw: 2 },
+            },
+        },
+    })
+}
+
+function createSaluteAction() {
+    return SquaddieActionService.new({
+        id: TwoPlayerMissionActionIds.salute,
+        name: "Salute",
+        proficiency: ProficiencyType.WEAPON_SIMPLE,
+        howToDetermineDegreeOfSuccess:
+            HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
+        range: ActionRange.SELF,
+        affiliationRelationship: { self: true, foe: false, friend: false },
+        effectOnActor: {
+            [DegreeOfSuccess.SUCCESS]: {
+                actionPoints: { spent: 1 },
             },
         },
     })
@@ -103,7 +204,11 @@ function createPokeAction() {
 
 export function createTwoPlayerMission({
     missionAffiliationTurn = MissionAffiliationTurn.PLAYER_TURN,
-}: { missionAffiliationTurn?: TMissionAffiliationTurn } = {}): {
+    startingDamage = 0,
+}: {
+    missionAffiliationTurn?: TMissionAffiliationTurn
+    startingDamage?: number
+} = {}): {
     missionEngine: MissionEngine
     player1Id: BattleSquaddieId
     player2Id: BattleSquaddieId
@@ -127,6 +232,11 @@ export function createTwoPlayerMission({
             TwoPlayerMissionActionIds.jab,
             TwoPlayerMissionActionIds.wave,
             TwoPlayerMissionActionIds.poke,
+            TwoPlayerMissionActionIds.surge,
+            TwoPlayerMissionActionIds.flourish,
+            TwoPlayerMissionActionIds.mend,
+            TwoPlayerMissionActionIds.salute,
+            TwoPlayerMissionActionIds.groupMend,
         ],
     })
     const player2 = OutOfBattleSquaddieService.new({
@@ -151,6 +261,14 @@ export function createTwoPlayerMission({
     const player2Id = inBattleSquaddieManager.createNewSquaddie({
         outOfBattleSquaddieId: "player-2",
     })
+    if (startingDamage > 0) {
+        for (const playerId of [player1Id, player2Id]) {
+            inBattleSquaddieManager.dealDamageToSquaddie({
+                ...playerId,
+                damage: { amount: startingDamage, type: undefined },
+            })
+        }
+    }
 
     const coordinateMap = CoordinateMapService.new({
         id: "test_map",
@@ -179,6 +297,11 @@ export function createTwoPlayerMission({
     squaddieActionManager.addOrUpdate(createJabAction())
     squaddieActionManager.addOrUpdate(createWaveAction())
     squaddieActionManager.addOrUpdate(createPokeAction())
+    squaddieActionManager.addOrUpdate(createSurgeAction())
+    squaddieActionManager.addOrUpdate(createFlourishAction())
+    squaddieActionManager.addOrUpdate(createMendAction())
+    squaddieActionManager.addOrUpdate(createSaluteAction())
+    squaddieActionManager.addOrUpdate(createGroupMendAction())
     squaddieActionManager.addOrUpdate(SquaddieActionService.defaultEndTurn())
     squaddieActionManager.addOrUpdate(SquaddieActionService.defaultMove())
 

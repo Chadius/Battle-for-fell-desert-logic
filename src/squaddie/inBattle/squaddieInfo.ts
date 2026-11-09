@@ -14,6 +14,7 @@ export interface SquaddieInfo {
     conditions: SquaddieCondition[]
     isDefeated: boolean
     canAct: boolean
+    attackContributionThisTurn: number
     items: {
         itemIds: string[]
         itemIdsUsed: string[]
@@ -31,6 +32,7 @@ export const SquaddieInfoService = {
         conditions,
         isDefeated,
         canAct,
+        attackContributionThisTurn,
         items,
     }: {
         name: string
@@ -42,6 +44,7 @@ export const SquaddieInfoService = {
         conditions: Map<TSquaddieConditionType, SquaddieCondition[]>
         isDefeated: boolean
         canAct: boolean
+        attackContributionThisTurn: number
         items: {
             itemIds: string[]
             itemIdsUsed: string[]
@@ -57,6 +60,7 @@ export const SquaddieInfoService = {
             conditions: flattenConditionsMap(conditions),
             isDefeated,
             canAct,
+            attackContributionThisTurn,
             items: {
                 itemIds: [...items.itemIds],
                 itemIdsUsed: [...items.itemIdsUsed],

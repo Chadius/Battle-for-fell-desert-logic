@@ -47,6 +47,16 @@ const applyResultToSquaddie = ({
     applyHealingResultToSquaddie({ inBattleSquaddieManager, result })
     applyActionCooldownResultToSquaddie({ inBattleSquaddieManager, result })
     applyActionUseResultToSquaddie({ inBattleSquaddieManager, result })
+    clearActionCooldownResultFromSquaddie({ inBattleSquaddieManager, result })
+    refundActionUseResultToSquaddie({ inBattleSquaddieManager, result })
+    applyMultipleAttackPenaltyResultToSquaddie({
+        inBattleSquaddieManager,
+        result,
+    })
+    refundMultipleAttackPenaltyResultToSquaddie({
+        inBattleSquaddieManager,
+        result,
+    })
     moveSquaddie({ result, map })
 }
 
@@ -199,6 +209,76 @@ const applyActionUseResultToSquaddie = ({
             outOfBattleSquaddieId: result.outOfBattleSquaddieId,
         },
         actionId: result.actionUse.actionId,
+    })
+}
+
+const clearActionCooldownResultFromSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.cooldownCleared == undefined) return
+
+    inBattleSquaddieManager.clearCooldown({
+        battleSquaddieId: {
+            inBattleSquaddieId: result.inBattleSquaddieId,
+            outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        },
+        actionId: result.cooldownCleared.actionId,
+    })
+}
+
+const refundActionUseResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.actionUseRefunded == undefined) return
+
+    inBattleSquaddieManager.refundActionUse({
+        battleSquaddieId: {
+            inBattleSquaddieId: result.inBattleSquaddieId,
+            outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        },
+        actionId: result.actionUseRefunded.actionId,
+    })
+}
+
+const applyMultipleAttackPenaltyResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.multipleAttackPenalty == undefined) return
+
+    inBattleSquaddieManager.incrementAttackContributionThisTurn({
+        inBattleSquaddieId: result.inBattleSquaddieId,
+        outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        amount: result.multipleAttackPenalty.contribution,
+    })
+}
+
+const refundMultipleAttackPenaltyResultToSquaddie = ({
+    inBattleSquaddieManager,
+    result,
+}: {
+    inBattleSquaddieManager: InBattleSquaddieManager
+    result: SquaddieActionResult
+}) => {
+    if (result.multipleAttackPenaltyRefunded == undefined) return
+
+    inBattleSquaddieManager.refundAttackContributionThisTurn({
+        battleSquaddieId: {
+            inBattleSquaddieId: result.inBattleSquaddieId,
+            outOfBattleSquaddieId: result.outOfBattleSquaddieId,
+        },
+        amount: result.multipleAttackPenaltyRefunded.contribution,
     })
 }
 

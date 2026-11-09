@@ -109,7 +109,10 @@ import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieAc
 import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 import { MovieManager } from "../../movie/movieManager.js"
 import { TextSubstitutionService } from "../../movie/textSubstitution.js"
-import { MissionStatisticsService } from "../missionStatistics.js"
+import {
+    type MissionStatistics,
+    MissionStatisticsService,
+} from "../missionStatistics.js"
 import { MissionTextSubstitutionToken } from "./textSubstitutionTokens.js"
 
 export type { TMovieEngineCommand }
@@ -486,6 +489,14 @@ export class MissionEngine {
 
         return this.missionManager!.inBattleSquaddieManager!.getSquaddieInfo(
             squaddieId
+        )
+    }
+
+    getMissionStatistics(): MissionStatistics {
+        this.throwIfMissionManagerIsUndefined(this.getMissionStatistics.name)
+        return (
+            this.missionManager!.missionState?.missionStatistics ??
+            MissionStatisticsService.new()
         )
     }
 

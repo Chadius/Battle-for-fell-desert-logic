@@ -35,6 +35,11 @@ import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 import { OutOfBattleSquaddieTestSetup } from "../../../testUtils/outOfBattleSquaddieTestSetup.js"
 import { OutOfBattleSquaddieManager } from "../../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 
+const findResultWithDamage = (
+    results: SquaddieActionResult[]
+): SquaddieActionResult | undefined =>
+    results.find((result) => result.damage != undefined)
+
 describe("Squaddie Actions against foes", () => {
     let longswordAction: SquaddieAction
     let lethalLongswordAction: SquaddieAction
@@ -226,8 +231,12 @@ describe("Squaddie Actions against foes", () => {
         )
     })
 
-    it("will have results for the actor and targets", () => {
-        expect(longswordResults).toHaveLength(2)
+    it("will add the weapon's multiple attack penalty contribution to the actor", () => {
+        expect(longswordResults).toContainEqual({
+            inBattleSquaddieId: actorInBattleSquaddieId,
+            outOfBattleSquaddieId: actorOutOfBattleSquaddieId,
+            multipleAttackPenalty: { contribution: 1 },
+        })
     })
 
     it("will calculate the expected action point spend by the actor", () => {
@@ -243,7 +252,7 @@ describe("Squaddie Actions against foes", () => {
     })
 
     it("will calculate damage against the target", () => {
-        expect(longswordResults[1]).toEqual(
+        expect(findResultWithDamage(longswordResults)).toEqual(
             expect.objectContaining({
                 inBattleSquaddieId: targetInBattleSquaddieId,
                 outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
@@ -261,7 +270,7 @@ describe("Squaddie Actions against foes", () => {
     })
 
     it("knows if the damage will ko the target", () => {
-        expect(lethalLongswordResults[1]).toEqual(
+        expect(findResultWithDamage(lethalLongswordResults)).toEqual(
             expect.objectContaining({
                 inBattleSquaddieId: targetInBattleSquaddieId,
                 outOfBattleSquaddieId: targetOutOfBattleSquaddieId,
@@ -334,7 +343,7 @@ describe("Squaddie Actions against foes", () => {
                 },
             })
 
-        expect(longswordPartiallyAbsorbedResults[1]).toEqual(
+        expect(findResultWithDamage(longswordPartiallyAbsorbedResults)).toEqual(
             expect.objectContaining({
                 inBattleSquaddieId: targetInBattleSquaddieId,
                 outOfBattleSquaddieId: targetOutOfBattleSquaddieId,

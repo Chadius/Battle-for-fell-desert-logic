@@ -161,6 +161,8 @@ export class InBattleSquaddieManager {
             conditions,
             isDefeated,
             canAct,
+            attackContributionThisTurn:
+                squaddieInfo.inBattleSquaddie.attackContributionThisTurn,
             items: {
                 itemIds,
                 itemIdsUsed: squaddieInfo.inBattleSquaddie.itemIdsUsed,
@@ -509,6 +511,24 @@ export class InBattleSquaddieManager {
             )
     }
 
+    refundAttackContributionThisTurn({
+        battleSquaddieId,
+        amount,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        amount: number
+    }): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.refundAttackContributionThisTurn.name
+        )
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.refundAttackContributionThisTurn({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+                amount,
+            })
+    }
+
     getProficiencyLevel(
         params: BattleSquaddieId & {
             type: TProficiencyType
@@ -844,6 +864,25 @@ export class InBattleSquaddieManager {
             })
     }
 
+    clearCooldown({
+        battleSquaddieId,
+        actionId,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.clearCooldown.name
+        )
+
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.clearCooldown({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+                actionId,
+            })
+    }
+
     decrementActionCooldowns(battleSquaddieId: BattleSquaddieId): void {
         this.throwIfInBattleSquaddieCollectionIsUndefined(
             this.decrementActionCooldowns.name
@@ -883,6 +922,24 @@ export class InBattleSquaddieManager {
         )
         this.inBattleSquaddieCollection =
             InBattleSquaddieCollectionService.recordActionUse({
+                collection: this.inBattleSquaddieCollection!,
+                battleSquaddieId,
+                actionId,
+            })
+    }
+
+    refundActionUse({
+        battleSquaddieId,
+        actionId,
+    }: {
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): void {
+        this.throwIfInBattleSquaddieCollectionIsUndefined(
+            this.refundActionUse.name
+        )
+        this.inBattleSquaddieCollection =
+            InBattleSquaddieCollectionService.refundActionUse({
                 collection: this.inBattleSquaddieCollection!,
                 battleSquaddieId,
                 actionId,

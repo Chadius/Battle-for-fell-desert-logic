@@ -22,6 +22,7 @@ describe("SquaddieInfo", () => {
                     maximumActionPoints: 3,
                     isDefeated: false,
                     canAct: true,
+                    attackContributionThisTurn: 0,
                     items: {
                         itemIds: ["sword", "shield"],
                         itemIdsUsed: ["potion"],
@@ -77,6 +78,7 @@ describe("SquaddieInfo", () => {
                     conditions: conditionsMap,
                     isDefeated: false,
                     canAct: true,
+                    attackContributionThisTurn: 0,
                     items: { itemIds: [], itemIdsUsed: [] },
                 })
 
@@ -96,6 +98,7 @@ describe("SquaddieInfo", () => {
                     conditions: new Map(),
                     isDefeated: true,
                     canAct: false,
+                    attackContributionThisTurn: 0,
                     items: { itemIds: [], itemIdsUsed: [] },
                 })
 
@@ -127,6 +130,7 @@ describe("SquaddieInfo", () => {
                     ]),
                     isDefeated: false,
                     canAct: true,
+                    attackContributionThisTurn: 0,
                     items: { itemIds: ["lance"], itemIdsUsed: [] },
                 })
 

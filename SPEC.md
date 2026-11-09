@@ -75,7 +75,12 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
   outcome before committing.
 - `SquaddieActionResultCalculator` commits an action given actual dice rolls.
 - `ApplyResultService` writes calculated results back into in-battle state.
-- Undo support: `SquaddieActionResultReverse` reverses the last undoable action.
+- Undo support: `SquaddieActionResultCalculator.reverseResult` reverses the last undoable action —
+  action points, damage, healing, conditions, movement, cooldowns (cleared), uses this turn and
+  this mission (refunded), and multiple attack penalty contribution (refunded). Each history record
+  also stores the `missionStatisticsChange` it caused, which undo subtracts from the mission totals.
+  One action use is one history record holding every target's results, so one undo reverses the
+  whole action, and it is blocked if any target was a foe.
 
 ### Movement and Pathfinding
 
@@ -213,6 +218,9 @@ the duration would tick down during PLAYER_TURN_END.
   BONUS_EXPERIENCE, GAIN_ITEM).
 - `MissionHistory` records every action taken by every squaddie each turn, enabling replay and undo.
 - `InMissionSummary` is a snapshot (squaddies, map, turn, objectives) suitable for rendering.
+- `MissionEngine.getMissionStatistics()` returns the current PLAYER-team totals (all zero before
+  any action). `MissionEngine.getSquaddieInfo(id).attackContributionThisTurn` reports how much the
+  squaddie has added toward its multiple attack penalty this turn.
 
 ### Items
 

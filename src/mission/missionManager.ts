@@ -56,8 +56,8 @@ import { MissionResourceLoader } from "./missionResourceLoader.js"
 import {
     type ActionableCoordinate,
     type MovementDestinationWithCost,
-    ReachablePreviewCalculator,
     type ReachableActionTarget,
+    ReachablePreviewCalculator,
     type ReachablePreviewQueryOptions,
 } from "../squaddieAction/calculate/reachablePreview/reachablePreviewCalculator.js"
 import type { OffsetCoordinate } from "../coordinateMap/offsetCoordinate.js"
@@ -73,7 +73,10 @@ import {
 import type { BattleSquaddieId } from "../squaddie/inBattle/battleSquaddieId.js"
 import type { MissionDeployment } from "./missionDeployment.js"
 import { MovieManager } from "../movie/movieManager.js"
-import { MissionStatisticsService } from "./missionStatistics.js"
+import {
+    type MissionStatistics,
+    MissionStatisticsService,
+} from "./missionStatistics.js"
 import { SquaddieIdConverterService } from "../squaddie/idConverterService.js"
 import type { TargetResult } from "./targetResult.js"
 import {
@@ -85,8 +88,8 @@ import type { ArmyManager } from "../campaign/army/armyManager.js"
 import type { CampaignSquaddie } from "../campaign/army/campaignSquaddie.js"
 import type { ArmyMissionResult } from "../campaign/army/army.js"
 import {
-    CampaignSquaddieDeploymentValidationService,
     type CampaignSquaddieDeploymentValidationResult,
+    CampaignSquaddieDeploymentValidationService,
 } from "./campaignSquaddieDeploymentValidationService.js"
 import { CampaignSquaddieDeploymentManager } from "./campaignSquaddieDeploymentManager.js"
 import { CampaignSquaddieMissionBridgeService } from "./campaignSquaddieMissionBridgeService.js"
@@ -287,37 +290,82 @@ export class MissionManager {
             }
         >
     } {
-        this.throwIfStateIsUndefined(this.useActionAndGetResults.name)
-        this.throwIfInBattleSquaddieManagerIsUndefined(
-            this.useActionAndGetResults.name
-        )
-        this.throwIfSquaddieActionManagerIsUndefined(
-            this.useActionAndGetResults.name
-        )
-        this.throwIfCoordinateMapCollectionManagerIsUndefined(
-            this.useActionAndGetResults.name
-        )
+        this.throwIfUnableToUseActions(this.useActionAndGetResults.name)
 
-        const calculationResults =
-            SquaddieActionResultCalculator.calculateActionResultsWithRolls({
+        const calculationResults = this.calculateActionResults({
+            actor,
+            targets,
+            action,
+            rollGenerator,
+        })
+        const { resultsForAllTargets, missionStatisticsChange } =
+            this.applyResultsToEachTarget({
                 actor,
                 targets,
-                action,
-                managers: {
-                    inBattleSquaddieManager: this.inBattleSquaddieManager!,
-                    squaddieActionManager: this.squaddieActionManager!,
-                    coordinateMapCollectionManager:
-                        this.coordinateMapCollectionManager!,
-                },
-                rollGenerator,
-                map: {
-                    mapId: this.missionState!.mapId,
-                },
-                challengeModifierSetting:
-                    this.effectiveChallengeModifierSetting(),
+                targetResults: calculationResults.targetResults,
             })
+        this.recordActionIfItHadResults({
+            actionId: action.id,
+            actor,
+            results: resultsForAllTargets,
+            missionStatisticsChange,
+        })
+        this.removeDefeatedSquaddiesFromMap(actor, targets)
 
-        const fullAction = this.squaddieActionManager!.get(action.id)
+        return calculationResults
+    }
+
+    private throwIfUnableToUseActions(functionName: string) {
+        this.throwIfStateIsUndefined(functionName)
+        this.throwIfInBattleSquaddieManagerIsUndefined(functionName)
+        this.throwIfSquaddieActionManagerIsUndefined(functionName)
+        this.throwIfCoordinateMapCollectionManagerIsUndefined(functionName)
+    }
+
+    private calculateActionResults({
+        actor,
+        targets,
+        action,
+        rollGenerator,
+    }: {
+        actor: BattleSquaddieId
+        targets: BattleSquaddieId[]
+        action: {
+            id: string
+            decisions?: SquaddieActionDecisions
+        }
+        rollGenerator: RollGenerator
+    }) {
+        return SquaddieActionResultCalculator.calculateActionResultsWithRolls({
+            actor,
+            targets,
+            action,
+            managers: {
+                inBattleSquaddieManager: this.inBattleSquaddieManager!,
+                squaddieActionManager: this.squaddieActionManager!,
+                coordinateMapCollectionManager:
+                    this.coordinateMapCollectionManager!,
+            },
+            rollGenerator,
+            map: {
+                mapId: this.missionState!.mapId,
+            },
+            challengeModifierSetting: this.effectiveChallengeModifierSetting(),
+        })
+    }
+
+    private applyResultsToEachTarget({
+        actor,
+        targets,
+        targetResults,
+    }: {
+        actor: BattleSquaddieId
+        targets: BattleSquaddieId[]
+        targetResults: Map<string, TargetResult>
+    }): {
+        resultsForAllTargets: SquaddieActionResult[]
+        missionStatisticsChange: MissionStatistics
+    } {
         const actorAffiliation =
             this.inBattleSquaddieManager!.getSquaddieAffiliation(actor)
         const targetsByKey = new Map(
@@ -327,37 +375,54 @@ export class MissionManager {
             ])
         )
 
-        for (const [
-            targetKey,
-            targetResult,
-        ] of calculationResults.targetResults) {
-            ApplyResultService.applyResultsToSquaddies({
-                inBattleSquaddieManager: this.inBattleSquaddieManager!,
-                results: targetResult.squaddieActionResults,
-                map: {
-                    mapId: this.missionState!.mapId,
-                    manager: this.coordinateMapCollectionManager!,
-                },
-            })
-
-            if (targetResult.squaddieActionResults.length > 0) {
-                this.recordAction({
-                    action: fullAction,
-                    results: targetResult.squaddieActionResults,
-                    actor,
+        const resultsForAllTargets: SquaddieActionResult[] = []
+        let missionStatisticsChange = MissionStatisticsService.new()
+        for (const [targetKey, targetResult] of targetResults) {
+            this.applyResults(targetResult.squaddieActionResults)
+            resultsForAllTargets.push(...targetResult.squaddieActionResults)
+            missionStatisticsChange = MissionStatisticsService.add(
+                missionStatisticsChange,
+                this.recordMissionStatisticsForTarget({
+                    actorAffiliation,
+                    target: targetsByKey.get(targetKey)!,
+                    targetResult,
                 })
-            }
-
-            this.recordMissionStatisticsForTarget({
-                actorAffiliation,
-                target: targetsByKey.get(targetKey)!,
-                targetResult,
-            })
+            )
         }
-        this.removeDefeatedSquaddiesFromMap(actor, targets)
-        this.applyMultipleAttackPenalty(fullAction, actor)
 
-        return calculationResults
+        return { resultsForAllTargets, missionStatisticsChange }
+    }
+
+    private applyResults(results: SquaddieActionResult[]) {
+        ApplyResultService.applyResultsToSquaddies({
+            inBattleSquaddieManager: this.inBattleSquaddieManager!,
+            results,
+            map: {
+                mapId: this.missionState!.mapId,
+                manager: this.coordinateMapCollectionManager!,
+            },
+        })
+    }
+
+    private recordActionIfItHadResults({
+        actionId,
+        actor,
+        results,
+        missionStatisticsChange,
+    }: {
+        actionId: string
+        actor: BattleSquaddieId
+        results: SquaddieActionResult[]
+        missionStatisticsChange: MissionStatistics
+    }) {
+        if (results.length === 0) return
+
+        this.recordAction({
+            action: this.squaddieActionManager!.get(actionId),
+            results,
+            actor,
+            missionStatisticsChange,
+        })
     }
 
     private effectiveChallengeModifierSetting():
@@ -378,21 +443,6 @@ export class MissionManager {
         })
     }
 
-    private readonly applyMultipleAttackPenalty = (
-        fullAction: SquaddieAction,
-        actor: {
-            inBattleSquaddieId: number
-            outOfBattleSquaddieId: string
-        }
-    ) => {
-        if (fullAction.multipleAttackPenalty.contribution > 0) {
-            this.inBattleSquaddieManager!.incrementAttackContributionThisTurn({
-                inBattleSquaddieId: actor.inBattleSquaddieId,
-                outOfBattleSquaddieId: actor.outOfBattleSquaddieId,
-                amount: fullAction.multipleAttackPenalty.contribution,
-            })
-        }
-    }
     private readonly removeDefeatedSquaddiesFromMap = (
         actor: { inBattleSquaddieId: number; outOfBattleSquaddieId: string },
         targets: {
@@ -422,10 +472,12 @@ export class MissionManager {
         action,
         results,
         actor,
+        missionStatisticsChange,
     }: {
         action: SquaddieAction
         results: SquaddieActionResult[]
         actor?: BattleSquaddieId
+        missionStatisticsChange?: MissionStatistics
     }): void {
         this.throwIfStateIsUndefined(this.recordAction.name)
 
@@ -445,6 +497,7 @@ export class MissionManager {
             results,
             actor,
             sequenceNumber,
+            missionStatisticsChange,
         })
 
         let turnEntry = MissionHistoryService.getTurn({
@@ -503,7 +556,7 @@ export class MissionManager {
         actorAffiliation: TSquaddieAffiliation
         target: { inBattleSquaddieId: number; outOfBattleSquaddieId: string }
         targetResult: TargetResult
-    }): void {
+    }): MissionStatistics {
         const targetAffiliation =
             this.inBattleSquaddieManager!.getSquaddieAffiliation(target)
         const { damageNet, damageAbsorbed, healingNet } =
@@ -511,20 +564,26 @@ export class MissionManager {
                 targetResult.squaddieActionResults
             )
 
-        this.missionState = {
-            ...this.missionState!,
-            missionStatistics: MissionStatisticsService.recordActionResult({
-                missionStatistics:
-                    this.missionState!.missionStatistics ??
-                    MissionStatisticsService.new(),
+        const missionStatisticsChange =
+            MissionStatisticsService.recordActionResult({
+                missionStatistics: MissionStatisticsService.new(),
                 actorAffiliation,
                 targetAffiliation,
                 damageNet,
                 damageAbsorbed,
                 healingNet,
                 degreeOfSuccess: targetResult.degreeOfSuccess,
-            }),
+            })
+
+        this.missionState = {
+            ...this.missionState!,
+            missionStatistics: MissionStatisticsService.add(
+                this.missionState!.missionStatistics ??
+                    MissionStatisticsService.new(),
+                missionStatisticsChange
+            ),
         }
+        return missionStatisticsChange
     }
 
     private static damageAndHealingTotals(results: SquaddieActionResult[]): {
@@ -619,9 +678,27 @@ export class MissionManager {
         this.missionState = {
             ...this.missionState!,
             history: updatedHistory,
+            missionStatistics: this.missionStatisticsWithoutAction(lastAction),
         }
 
         return { removedAction: lastAction }
+    }
+
+    private missionStatisticsWithoutAction(
+        removedAction: SquaddieTurnActionRecord
+    ): MissionStatistics | undefined {
+        const missionStatistics = this.missionState!.missionStatistics
+        if (
+            missionStatistics == undefined ||
+            removedAction.missionStatisticsChange == undefined
+        ) {
+            return missionStatistics
+        }
+
+        return MissionStatisticsService.subtract(
+            missionStatistics,
+            removedAction.missionStatisticsChange
+        )
     }
 
     createInMissionSummary(): InMissionSummary {

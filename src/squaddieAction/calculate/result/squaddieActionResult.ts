@@ -75,7 +75,29 @@ export interface SquaddieActionResult {
     actionUse?: {
         actionId: string
     }
+    cooldownCleared?: {
+        actionId: string
+    }
+    actionUseRefunded?: {
+        actionId: string
+    }
+    multipleAttackPenalty?: {
+        contribution: number
+    }
+    multipleAttackPenaltyRefunded?: {
+        contribution: number
+    }
 }
+
+type ActionTrackingResultFields = Pick<
+    SquaddieActionResult,
+    | "cooldown"
+    | "actionUse"
+    | "cooldownCleared"
+    | "actionUseRefunded"
+    | "multipleAttackPenalty"
+    | "multipleAttackPenaltyRefunded"
+>
 
 export type SerializedSquaddieActionResult = Omit<
     SquaddieActionResult,
@@ -148,6 +170,16 @@ export const squaddieActionResultSchema = z.object({
         })
         .optional(),
     movement: z.object({ expectedPath: coordinateMovePathSchema }).optional(),
+    cooldown: z
+        .object({ actionId: z.string(), turnsRemaining: z.number() })
+        .optional(),
+    actionUse: z.object({ actionId: z.string() }).optional(),
+    cooldownCleared: z.object({ actionId: z.string() }).optional(),
+    actionUseRefunded: z.object({ actionId: z.string() }).optional(),
+    multipleAttackPenalty: z.object({ contribution: z.number() }).optional(),
+    multipleAttackPenaltyRefunded: z
+        .object({ contribution: z.number() })
+        .optional(),
 })
 
 export const SquaddieActionResultService = {
@@ -169,6 +201,7 @@ export const SquaddieActionResultService = {
         cloned = cloneDispel(original, cloned)
         cloned = cloneTreat(original, cloned)
         cloned = cloneMovement(original, cloned)
+        cloned = copyActionTrackingFields(original, cloned)
 
         return cloned
     },
@@ -188,6 +221,7 @@ export const SquaddieActionResultService = {
         serializable = convertDispelToSerialized(result, serializable)
         serializable = convertTreatToSerialized(result, serializable)
         serializable = convertMovementToSerialized(result, serializable)
+        serializable = copyActionTrackingFields(result, serializable)
 
         return serializable
     },
@@ -207,9 +241,31 @@ export const SquaddieActionResultService = {
         result = convertDispelFromSerialized(serialized, result)
         result = convertTreatFromSerialized(serialized, result)
         result = convertMovementFromSerialized(serialized, result)
+        result = copyActionTrackingFields(serialized, result)
 
         return result
     },
+}
+
+const actionTrackingFieldNames: (keyof ActionTrackingResultFields)[] = [
+    "cooldown",
+    "actionUse",
+    "cooldownCleared",
+    "actionUseRefunded",
+    "multipleAttackPenalty",
+    "multipleAttackPenaltyRefunded",
+]
+
+const copyActionTrackingFields = <T extends ActionTrackingResultFields>(
+    source: ActionTrackingResultFields,
+    destination: T
+): T => {
+    for (const fieldName of actionTrackingFieldNames) {
+        const value = source[fieldName]
+        if (value == undefined) continue
+        Object.assign(destination, { [fieldName]: { ...value } })
+    }
+    return destination
 }
 
 const cloneActionPoints = (

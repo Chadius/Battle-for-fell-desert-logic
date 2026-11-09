@@ -363,6 +363,20 @@ export const InBattleSquaddieService = {
         newSquaddie.attackContributionThisTurn += amount
         return newSquaddie
     },
+    refundAttackContributionThisTurn: ({
+        squaddie,
+        amount,
+    }: {
+        squaddie: InBattleSquaddie
+        amount: number
+    }): InBattleSquaddie => {
+        const newSquaddie = clone(squaddie)
+        newSquaddie.attackContributionThisTurn = Math.max(
+            0,
+            newSquaddie.attackContributionThisTurn - amount
+        )
+        return newSquaddie
+    },
     getProficiencyLevel: ({
         attributeSheet,
         type,
@@ -548,6 +562,17 @@ export const InBattleSquaddieService = {
         newSquaddie.actionCooldowns.set(actionId, turnsRemaining)
         return { squaddie: newSquaddie }
     },
+    clearCooldown: ({
+        squaddie,
+        actionId,
+    }: {
+        squaddie: InBattleSquaddie
+        actionId: string
+    }): { squaddie: InBattleSquaddie } => {
+        const newSquaddie = clone(squaddie)
+        newSquaddie.actionCooldowns.delete(actionId)
+        return { squaddie: newSquaddie }
+    },
     decrementActionCooldowns: ({
         squaddie,
     }: {
@@ -583,6 +608,18 @@ export const InBattleSquaddieService = {
             actionId,
             currentUsesThisMission + 1
         )
+        return newSquaddie
+    },
+    refundActionUse: ({
+        squaddie,
+        actionId,
+    }: {
+        squaddie: InBattleSquaddie
+        actionId: string
+    }): InBattleSquaddie => {
+        const newSquaddie = clone(squaddie)
+        decrementActionUseCount(newSquaddie.actionUsesThisTurn, actionId)
+        decrementActionUseCount(newSquaddie.actionUsesThisMission, actionId)
         return newSquaddie
     },
     resetActionUsesThisTurn: ({
@@ -641,6 +678,18 @@ const clone = (original: InBattleSquaddie): InBattleSquaddie => {
         actionUsesThisTurn: new Map(original.actionUsesThisTurn),
         actionUsesThisMission: new Map(original.actionUsesThisMission),
     }
+}
+
+const decrementActionUseCount = (
+    actionUses: Map<string, number>,
+    actionId: string
+) => {
+    const remainingUses = (actionUses.get(actionId) ?? 0) - 1
+    if (remainingUses <= 0) {
+        actionUses.delete(actionId)
+        return
+    }
+    actionUses.set(actionId, remainingUses)
 }
 
 const deepCopyConditions = (

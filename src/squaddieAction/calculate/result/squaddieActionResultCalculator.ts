@@ -159,6 +159,11 @@ export const SquaddieActionResultCalculator = {
                       usesPerTurn: squaddieAction.usesPerTurn,
                       usesPerMission: squaddieAction.usesPerMission,
                   }),
+                  ...calculateMultipleAttackPenaltyResult({
+                      battleSquaddieId: actor,
+                      contribution:
+                          squaddieAction.multipleAttackPenalty.contribution,
+                  }),
               ]
             : []
 
@@ -339,6 +344,9 @@ export const SquaddieActionResultCalculator = {
         reversed = reverseDispel(original, reversed)
         reversed = reverseTreat(original, reversed)
         reversed = reverseMovement(original, reversed)
+        reversed = reverseCooldown(original, reversed)
+        reversed = reverseActionUse(original, reversed)
+        reversed = reverseMultipleAttackPenalty(original, reversed)
         return reversed
     },
 
@@ -532,6 +540,23 @@ const calculateActionUseResult = ({
             inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,
             outOfBattleSquaddieId: battleSquaddieId.outOfBattleSquaddieId,
             actionUse: { actionId },
+        },
+    ]
+}
+
+const calculateMultipleAttackPenaltyResult = ({
+    battleSquaddieId,
+    contribution,
+}: {
+    battleSquaddieId: BattleSquaddieId
+    contribution: number
+}): SquaddieActionResult[] => {
+    if (contribution <= 0) return []
+    return [
+        {
+            inBattleSquaddieId: battleSquaddieId.inBattleSquaddieId,
+            outOfBattleSquaddieId: battleSquaddieId.outOfBattleSquaddieId,
+            multipleAttackPenalty: { contribution },
         },
     ]
 }
@@ -1384,6 +1409,38 @@ const extractConditionsFromMap = (
         }
     }
     return conditions
+}
+
+const reverseCooldown = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (original.cooldown == undefined) return reversed
+
+    reversed.cooldownCleared = { actionId: original.cooldown.actionId }
+    return reversed
+}
+
+const reverseActionUse = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (original.actionUse == undefined) return reversed
+
+    reversed.actionUseRefunded = { actionId: original.actionUse.actionId }
+    return reversed
+}
+
+const reverseMultipleAttackPenalty = (
+    original: SquaddieActionResult,
+    reversed: SquaddieActionResult
+): SquaddieActionResult => {
+    if (original.multipleAttackPenalty == undefined) return reversed
+
+    reversed.multipleAttackPenaltyRefunded = {
+        contribution: original.multipleAttackPenalty.contribution,
+    }
+    return reversed
 }
 
 const reverseActionPoints = (

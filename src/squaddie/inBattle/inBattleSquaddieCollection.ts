@@ -502,6 +502,41 @@ export const InBattleSquaddieCollectionService = {
             battleSquaddieId,
         })
     },
+    refundAttackContributionThisTurn: ({
+        collection,
+        battleSquaddieId,
+        amount,
+    }: {
+        collection: InBattleSquaddieCollection
+        battleSquaddieId: BattleSquaddieId
+        amount: number
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(
+            collection,
+            "refundAttackContributionThisTurn"
+        )
+        const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
+            collection,
+            battleSquaddieId,
+        })
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "refundAttackContributionThisTurn",
+            collection,
+            battleSquaddieId,
+        })
+
+        const updatedSquaddie =
+            InBattleSquaddieService.refundAttackContributionThisTurn({
+                squaddie: inBattleSquaddie!,
+                amount,
+            })
+
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: updatedSquaddie,
+            battleSquaddieId,
+        })
+    },
     resetActionPoints: ({
         collection,
         battleSquaddieId,
@@ -848,6 +883,37 @@ export const InBattleSquaddieCollectionService = {
             battleSquaddieId,
         })
     },
+    clearCooldown: ({
+        collection,
+        battleSquaddieId,
+        actionId,
+    }: {
+        collection: InBattleSquaddieCollection
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "clearCooldown")
+        const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
+            collection,
+            battleSquaddieId,
+        })
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "clearCooldown",
+            collection,
+            battleSquaddieId,
+        })
+
+        const { squaddie } = InBattleSquaddieService.clearCooldown({
+            squaddie: inBattleSquaddie!,
+            actionId,
+        })
+
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: squaddie,
+            battleSquaddieId,
+        })
+    },
     decrementActionCooldowns: ({
         collection,
         battleSquaddieId,
@@ -897,6 +963,37 @@ export const InBattleSquaddieCollectionService = {
         })
 
         const updatedSquaddie = InBattleSquaddieService.recordActionUse({
+            squaddie: inBattleSquaddie!,
+            actionId,
+        })
+
+        return addOrUpdateSquaddie({
+            collection,
+            inBattleSquaddie: updatedSquaddie,
+            battleSquaddieId,
+        })
+    },
+    refundActionUse: ({
+        collection,
+        battleSquaddieId,
+        actionId,
+    }: {
+        collection: InBattleSquaddieCollection
+        battleSquaddieId: BattleSquaddieId
+        actionId: string
+    }): InBattleSquaddieCollection => {
+        throwIfCollectionIsUndefined(collection, "refundActionUse")
+        const inBattleSquaddie = InBattleSquaddieCollectionService.getSquaddie({
+            collection,
+            battleSquaddieId,
+        })
+        throwErrorsIfSquaddieIsUndefined({
+            functionName: "refundActionUse",
+            collection,
+            battleSquaddieId,
+        })
+
+        const updatedSquaddie = InBattleSquaddieService.refundActionUse({
             squaddie: inBattleSquaddie!,
             actionId,
         })

@@ -116,6 +116,18 @@ export const MissionStatisticsService = {
         return updatedMissionStatistics
     },
 
+    add: (
+        missionStatistics: MissionStatistics,
+        change: MissionStatistics
+    ): MissionStatistics =>
+        combineMissionStatistics(missionStatistics, change, 1),
+
+    subtract: (
+        missionStatistics: MissionStatistics,
+        change: MissionStatistics
+    ): MissionStatistics =>
+        combineMissionStatistics(missionStatistics, change, -1),
+
     addDamageDealtByPlayerTeam: (
         missionStatistics: MissionStatistics,
         amount: number
@@ -240,3 +252,28 @@ export const MissionStatisticsService = {
         return MissionStatisticsService.createFromJSON(result.data)
     },
 }
+
+const combineMissionStatistics = (
+    missionStatistics: MissionStatistics,
+    change: MissionStatistics,
+    direction: 1 | -1
+): MissionStatistics => ({
+    damageDealtByPlayerTeam:
+        missionStatistics.damageDealtByPlayerTeam +
+        direction * change.damageDealtByPlayerTeam,
+    damageTakenByPlayerTeam:
+        missionStatistics.damageTakenByPlayerTeam +
+        direction * change.damageTakenByPlayerTeam,
+    damageAbsorbedByPlayerTeam:
+        missionStatistics.damageAbsorbedByPlayerTeam +
+        direction * change.damageAbsorbedByPlayerTeam,
+    healingReceivedByPlayerTeam:
+        missionStatistics.healingReceivedByPlayerTeam +
+        direction * change.healingReceivedByPlayerTeam,
+    criticalHitsDealtByPlayerTeam:
+        missionStatistics.criticalHitsDealtByPlayerTeam +
+        direction * change.criticalHitsDealtByPlayerTeam,
+    criticalHitsTakenByPlayerTeam:
+        missionStatistics.criticalHitsTakenByPlayerTeam +
+        direction * change.criticalHitsTakenByPlayerTeam,
+})
