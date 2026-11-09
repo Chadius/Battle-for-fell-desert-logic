@@ -17,6 +17,7 @@ import { ActionRange } from "../../../squaddieAction/actionRange.js"
 import { DegreeOfSuccess } from "../../../degreesOfSuccess/degreeOfSuccess.js"
 import { ProficiencyType } from "../../../proficiency/proficiencyLevel.js"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieActionRejectionReason } from "../../../squaddieAction/calculate/validity/squaddieActionRejection.js"
 
 describe("getSquaddieActionValidity", () => {
     const meleeAttackId = "melee-attack"
@@ -139,10 +140,12 @@ describe("getSquaddieActionValidity", () => {
 
         expect(result.battleSquaddieId).toEqual(playerSquaddieId)
         expect(result.invalidActions).toHaveLength(1)
-        expect(result.invalidActions[0].actionId).toBe(meleeAttackId)
-        expect(result.invalidActions[0].reason).toBe(
-            "No applicable targets in range"
+        const meleeInvalid = result.invalidActions.find(
+            (invalidAction) => invalidAction.actionId === meleeAttackId
         )
+        expect(meleeInvalid?.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NO_TARGETS_IN_RANGE,
+        })
         expect(result.validActions).toHaveLength(2)
     })
 

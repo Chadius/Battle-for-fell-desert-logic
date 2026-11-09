@@ -1,3 +1,8 @@
+import {
+    type MovieDecisionRejection,
+    MovieDecisionRejectionReason,
+} from "./movieDecisionRejection.js"
+
 export const MovieSceneConversationCommand = {
     CONFIRM: "CONFIRM",
     COMPLETE_SCENE: "COMPLETE_SCENE",
@@ -102,13 +107,18 @@ export const MovieSceneConversationService = {
         decisionId: string
     ):
         | { isValid: true; state: MovieSceneConversationState }
-        | { isValid: false; message: string } => {
+        | { isValid: false; rejection: MovieDecisionRejection } => {
         const currentLine =
             movieSceneConversation.lines[
                 movieSceneConversationState.currentLineIndex
             ]
         if (currentLine.type !== "DECISION") {
-            return { isValid: false, message: "Current line is not a DECISION" }
+            return {
+                isValid: false,
+                rejection: {
+                    reason: MovieDecisionRejectionReason.LINE_IS_NOT_A_DECISION,
+                },
+            }
         }
         const option = currentLine.options.find(
             (o) => o.decisionId === decisionId
@@ -116,7 +126,9 @@ export const MovieSceneConversationService = {
         if (option === undefined) {
             return {
                 isValid: false,
-                message: `Unknown decisionId: "${decisionId}"`,
+                rejection: {
+                    reason: MovieDecisionRejectionReason.UNKNOWN_DECISION_ID,
+                },
             }
         }
 

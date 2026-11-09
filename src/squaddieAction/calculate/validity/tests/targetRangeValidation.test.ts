@@ -16,6 +16,7 @@ import { SquaddieActionCollectionService } from "../../../squaddieActionCollecti
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection.js"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap.js"
 import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieActionRejectionReason } from "../squaddieActionRejection.js"
 
 describe("targetRangeValidation", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -127,7 +128,7 @@ describe("targetRangeValidation", () => {
             expect(result.isValid).toBe(true)
         })
 
-        it("returns invalid with 'All targets must be in range' when foe target is out of range", () => {
+        it("when the foe is out of range, reports the targets are out of range", () => {
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy",
                 actionIds: [],
@@ -177,8 +178,12 @@ describe("targetRangeValidation", () => {
                 map: { mapId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("All targets must be in range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGETS_OUT_OF_RANGE,
+                },
+            })
         })
 
         it("returns valid when friend target is in range (for healing actions)", () => {
@@ -284,8 +289,12 @@ describe("targetRangeValidation", () => {
                 map: { mapId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("All targets must be in range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGET_AFFILIATION_NOT_ALLOWED,
+                },
+            })
         })
 
         it("returns invalid when one of multiple targets is out of range (all targets must be valid)", () => {
@@ -359,8 +368,12 @@ describe("targetRangeValidation", () => {
                 map: { mapId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("All targets must be in range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGETS_OUT_OF_RANGE,
+                },
+            })
         })
 
         it("returns valid when all targets are in range (multiple targets)", () => {
@@ -508,8 +521,12 @@ describe("targetRangeValidation", () => {
                 map: { mapId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("All targets must be in range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGETS_OUT_OF_RANGE,
+                },
+            })
         })
     })
 
@@ -691,8 +708,12 @@ describe("targetRangeValidation", () => {
                 map: { mapId: pathfindingMapId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("All targets must be in range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGETS_OUT_OF_RANGE,
+                },
+            })
         })
 
         it("valid when action crosses over pits", () => {
@@ -816,11 +837,15 @@ describe("targetRangeValidation", () => {
                 map: { mapId: pathfindingMapId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("All targets must be in range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGETS_NOT_VISIBLE,
+                },
+            })
         })
 
-        it("invalid when one of multiple targets is unreachable due to pathfinding", () => {
+        it("when one target is behind a wall, reports the targets are not visible", () => {
             pathfindingCoordinateMapCollectionManager.addSquaddie({
                 mapId: pathfindingMapId,
                 squaddieId: pathfindingActor,
@@ -902,8 +927,12 @@ describe("targetRangeValidation", () => {
                 map: { mapId: pathfindingMapId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("All targets must be in range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGETS_NOT_VISIBLE,
+                },
+            })
         })
     })
 })

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { MovieDecisionRejectionReason } from "./movieDecisionRejection.js"
 import {
     MovieSceneConversationCommand,
     MovieSceneConversationService,
@@ -131,7 +132,7 @@ describe("MovieSceneConversationService", () => {
         })
 
         describe("when an unknown decisionId is submitted on a DECISION line", () => {
-            it("returns isValid false and does not advance", () => {
+            it("rejects it as an unknown decision ID", () => {
                 const scene = MovieSceneConversationService.new({
                     id: "scene-1",
                     lines: [
@@ -158,7 +159,40 @@ describe("MovieSceneConversationService", () => {
                     "unknown-id"
                 )
 
-                expect(result.isValid).toBe(false)
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: MovieDecisionRejectionReason.UNKNOWN_DECISION_ID,
+                    },
+                })
+            })
+        })
+
+        describe("when the current line is a DIALOG line", () => {
+            it("rejects it because the line is not a decision", () => {
+                const scene = MovieSceneConversationService.new({
+                    id: "scene-1",
+                    lines: [
+                        {
+                            type: "DIALOG",
+                            id: "line-1",
+                        },
+                    ],
+                })
+                const state = MovieSceneConversationService.initialState(scene)
+
+                const result = MovieSceneConversationService.selectDecision(
+                    scene,
+                    state,
+                    "attack"
+                )
+
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: MovieDecisionRejectionReason.LINE_IS_NOT_A_DECISION,
+                    },
+                })
             })
         })
     })

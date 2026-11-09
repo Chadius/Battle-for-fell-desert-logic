@@ -87,25 +87,17 @@ export const CampaignSquaddieDeploymentValidationService = {
     isSquaddieEligible: (campaignSquaddie: CampaignSquaddie): boolean =>
         !CampaignSquaddieService.isInjured(campaignSquaddie),
 
-    validateAnyPlayerSquaddieCanDeploy: ({
+    canAnyPlayerSquaddieDeploy: ({
         campaignSquaddies,
         inMissionPlayerSquaddieCount,
     }: {
         campaignSquaddies: CampaignSquaddie[]
         inMissionPlayerSquaddieCount: number
-    }): CampaignSquaddieDeploymentValidationResult => {
-        const anyCampaignSquaddieIsEligible = campaignSquaddies.some(
+    }): boolean =>
+        inMissionPlayerSquaddieCount > 0 ||
+        campaignSquaddies.some(
             CampaignSquaddieDeploymentValidationService.isSquaddieEligible
-        )
-        if (anyCampaignSquaddieIsEligible || inMissionPlayerSquaddieCount > 0)
-            return { isValid: true, errors: [] }
-        return {
-            isValid: false,
-            errors: [
-                `[CampaignSquaddieDeploymentValidationService.validateAnyPlayerSquaddieCanDeploy]: the mission cannot start because no campaign squaddie is healthy enough to deploy and the mission has no player squaddies of its own`,
-            ],
-        }
-    },
+        ),
 
     validateAnyPlayerSquaddieIsDeployed: ({
         deployedCampaignSquaddieCount,

@@ -15,6 +15,7 @@ import { TurnControllerType } from "../../turnController.js"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
 import { MissionEngineTestHarness } from "../../../testUtils/mission/missionEngineTestHarness.js"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
+import { ReadyActionRejectionReason } from "../readyActionRejection.js"
 
 describe("getSquaddiesWhoCanActThisPhase", () => {
     let inBattleSquaddieManager: InBattleSquaddieManager
@@ -289,8 +290,10 @@ describe("getSquaddiesWhoCanActThisPhase", () => {
                 ],
                 action: { id: "any-action" },
             })
-            expect(result.isValid).toBe(false)
-            expect(result.message).toBe("This squaddie is AI controlled")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: { reason: ReadyActionRejectionReason.AI_CONTROLLED },
+            })
         })
 
         it("PLAYER phase with mixed HUMAN/AI squaddies — readyAction accepted for HUMAN, rejected for AI", () => {

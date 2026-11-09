@@ -26,6 +26,7 @@ import {
     SquaddieConditionType,
 } from "../../../../proficiency/squaddieCondition.js"
 import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieActionRejectionReason } from "../squaddieActionRejection.js"
 
 describe("categorizeSquaddieActions", () => {
     let squaddieActionManager: SquaddieActionManager
@@ -244,13 +245,21 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === meleeAttackId
         )
         expect(meleeInvalid).toBeDefined()
-        expect(meleeInvalid!.reason).toBe("Needs 1 action points")
+        expect(meleeInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NOT_ENOUGH_ACTION_POINTS,
+            actionPointsNeeded: 1,
+            actionPointsRemaining: 0,
+        })
 
         const healInvalid = result.invalidActions.find(
             (a) => a.actionId === rangedHealId
         )
         expect(healInvalid).toBeDefined()
-        expect(healInvalid!.reason).toBe("Needs 1 action points")
+        expect(healInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NOT_ENOUGH_ACTION_POINTS,
+            actionPointsNeeded: 1,
+            actionPointsRemaining: 0,
+        })
 
         const endTurnValid = result.validActions.find(
             (a) => a.actionId === DEFAULT_END_TURN_ACTION_ID
@@ -261,7 +270,9 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === DEFAULT_MOVE_ACTION_ID
         )
         expect(moveInvalid).toBeDefined()
-        expect(moveInvalid!.reason).toBe("No valid movement destinations")
+        expect(moveInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NO_VALID_MOVEMENT_DESTINATIONS,
+        })
     })
 
     it("reports action as invalid when no applicable targets are in range", () => {
@@ -291,7 +302,9 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === meleeAttackId
         )
         expect(meleeInvalid).toBeDefined()
-        expect(meleeInvalid!.reason).toBe("No applicable targets in range")
+        expect(meleeInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NO_TARGETS_IN_RANGE,
+        })
     })
 
     it("reports action as valid when AP and targets are sufficient", () => {
@@ -364,7 +377,9 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === meleeAttackId
         )
         expect(meleeInvalid).toBeDefined()
-        expect(meleeInvalid!.reason).toBe("No applicable targets in range")
+        expect(meleeInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NO_TARGETS_IN_RANGE,
+        })
 
         const healValid = result.validActions.find(
             (a) => a.actionId === rangedHealId
@@ -408,13 +423,17 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === meleeAttackId
         )
         expect(meleeInvalid).toBeDefined()
-        expect(meleeInvalid!.reason).toBe("No applicable targets in range")
+        expect(meleeInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NO_TARGETS_IN_RANGE,
+        })
 
         const healInvalid = result.invalidActions.find(
             (a) => a.actionId === rangedHealId
         )
         expect(healInvalid).toBeDefined()
-        expect(healInvalid!.reason).toBe("No targets can be affected")
+        expect(healInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+        })
     })
 
     it("knows the action is valid if it applies a condition", () => {
@@ -487,9 +506,9 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === healAndProtectActionId
         )
         expect(healAndProtectIsInvalid).toBeDefined()
-        expect(healAndProtectIsInvalid!.reason).toBe(
-            "No targets can be affected"
-        )
+        expect(healAndProtectIsInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NO_TARGETS_CAN_BE_AFFECTED,
+        })
     })
 
     it("EndTurn is always valid", () => {
@@ -586,7 +605,10 @@ describe("categorizeSquaddieActions", () => {
             expect(result.invalidActions).toContainEqual(
                 expect.objectContaining({
                     actionId: meleeAttackId,
-                    reason: "Cannot be used for 2 turns",
+                    rejection: {
+                        reason: SquaddieActionRejectionReason.ON_COOLDOWN,
+                        turnsRemaining: 2,
+                    },
                 })
             )
         })
@@ -625,6 +647,8 @@ describe("categorizeSquaddieActions", () => {
             (a) => a.actionId === DEFAULT_MOVE_ACTION_ID
         )
         expect(moveInvalid).toBeDefined()
-        expect(moveInvalid!.reason).toBe("No valid movement destinations")
+        expect(moveInvalid!.rejection).toEqual({
+            reason: SquaddieActionRejectionReason.NO_VALID_MOVEMENT_DESTINATIONS,
+        })
     })
 })

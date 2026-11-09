@@ -93,6 +93,7 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
   schema rejects it otherwise). A move with a set price, such as a Charge that costs 2 AP and
   covers 2 AP worth of movement, or a fixed-range jump, is `ACTOR_CHOSEN_SPECIAL_TRAVERSAL` with
   `squaddieMovementSpecialTraversalInfo.actionPointsOfMovement`.
+  A destination holding another squaddie is therefore rejected as `DESTINATION_BLOCKED`.
 - `ReachablePreviewCalculator` (`src/squaddieAction/calculate/reachablePreview/`) is the single home
   for "what can this squaddie reach" previews, wrapping `SquaddieActionValidationService`.
   `MissionEngine`/`MissionManager` expose thin delegators over it; every one takes an optional
@@ -192,6 +193,37 @@ returns that squaddie, or `undefined`, so a host can explain the lock before the
 `readyAction` uses the same rule when it refuses. `endSquaddieTurn` goes through `readyAction`, so it
 follows the same rules and throws when one refuses.
 
+#### Rejections
+
+Logic never words a refusal; it returns a code and the host writes the text. `readyAction` returns
+`ReadyActionResult`: `{ isValid: true }` or `{ isValid: false, rejection }`. A `ReadyActionRejection`
+is either one of `ReadyActionRejectionReason` (movie playing, deployment in progress, not this
+squaddie's turn, AI controlled, another squaddie has a readied action, another squaddie is mid-turn)
+or a `SquaddieActionRejection` from validation. `SquaddieActionValidationService.isActionValid`
+returns that `rejection`, and every entry in `getSquaddieActionValidity`'s invalid list carries one.
+
+Each rejection is `{ reason }` plus only the fields its code needs, as a discriminated union:
+
+| Code                                  | Extra fields                                  |
+| ------------------------------------- | --------------------------------------------- |
+| `ON_COOLDOWN`                         | `turnsRemaining`                              |
+| `USES_PER_TURN_EXHAUSTED`             | `usesThisTurn`, `usesPerTurn`                 |
+| `USES_PER_MISSION_EXHAUSTED`          | `usesThisMission`, `usesPerMission`           |
+| `NOT_ENOUGH_ACTION_POINTS`            | `actionPointsNeeded`, `actionPointsRemaining` |
+| `ANOTHER_SQUADDIE_HAS_READIED_ACTION` | `squaddieWithReadiedAction`                   |
+| `ANOTHER_SQUADDIE_IS_MID_TURN`        | `squaddieMidTurn`                             |
+
+A code that needs a number gets a new field rather than a sentence. Undo refusals follow the same
+idea: `canUndoLastPlayerUndoableAction` and `undoLastPlayerUndoableAction` return a
+`SquaddieTurnActionRecordUndoBlockedReason` code as `reason`.
+
+`MissionEngine.finalizeLoadingMission()` returns `{ isValid: true }` or one of two failures.
+`{ isValid: false, missionFileErrors }` lists problems with the mission files, written for the
+author. `{ isValid: false, rejection: { reason } }` means the files are fine but the campaign stops
+the mission from starting: `NO_PLAYER_SQUADDIE_CAN_DEPLOY` means every campaign squaddie is injured
+and the mission has no player squaddies of its own. The undo methods return the same kind of union:
+`UndoAvailability` (`canUndo` or a `reason`) and `UndoResult` (the `removedAction` or a `reason`).
+
 `MissionEngine.hasSquaddieActedThisTurn(squaddieId)` reports whether that one squaddie has acted this
 turn (including a 0-AP action or `endSquaddieTurn`); undoing their only action makes it false again.
 "Turn" is the whole round, so it stays true through later phases until `turnCount` advances.
@@ -275,6 +307,10 @@ file that still carries them.
   numbers, because `plural()`, `ordinal()` and `round()` need numbers and formatting one for a
   locale belongs to the host. `TIME_ELAPSED` is not a logic token: the host supplies it, through
   the presentation package's `HostTextSubstitutionToken`.
+- `MissionEngine.selectMovieDecision` returns a `MovieDecisionResult`: `{ isValid: true }` or
+  `{ isValid: false, rejection: { reason } }`, where `reason` is a `MovieDecisionRejectionReason`
+  (`NO_MOVIE_PLAYING`, `SCENE_IS_NOT_A_CONVERSATION`, `LINE_IS_NOT_A_DECISION`,
+  `UNKNOWN_DECISION_ID`). As with `readyAction`, the host words these or treats them as its own bug.
 - `MovieService.validate` checks the scene graph only (existence, conflicts, cycles). The
   presentation package validates movie text.
 

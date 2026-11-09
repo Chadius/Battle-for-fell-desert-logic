@@ -20,6 +20,7 @@ import { SquaddieActionCollectionService } from "../../../squaddieActionCollecti
 import { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager.js"
 import { CoordinateMapCollectionService } from "../../../../coordinateMap/coordinateMapCollection.js"
 import { CoordinateMapService } from "../../../../coordinateMap/coordinateMap.js"
+import { SquaddieActionRejectionReason } from "../squaddieActionRejection.js"
 
 describe("usesPerTurn validation", () => {
     let setup: ValidationTestResult
@@ -80,8 +81,14 @@ describe("usesPerTurn validation", () => {
                 },
                 map: { mapId: setup.mapId },
             })
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toContain("1 of 1")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.USES_PER_TURN_EXHAUSTED,
+                    usesThisTurn: 1,
+                    usesPerTurn: 1,
+                },
+            })
         })
 
         it("is valid when uses remaining exist for an action with usesPerTurn > 1", () => {
@@ -260,7 +267,11 @@ describe("usesPerTurn validation", () => {
             )
             expect(invalid).toBeDefined()
             expect(invalid?.usesPerTurn).toBe(1)
-            expect(invalid?.reason).toContain("1 of 1")
+            expect(invalid?.rejection).toEqual({
+                reason: SquaddieActionRejectionReason.USES_PER_TURN_EXHAUSTED,
+                usesThisTurn: 1,
+                usesPerTurn: 1,
+            })
 
             const valid = validity.validActions.find(
                 (a) => a.actionId === actionId

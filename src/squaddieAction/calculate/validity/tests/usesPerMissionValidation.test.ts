@@ -5,6 +5,7 @@ import { DegreeOfSuccess } from "../../../../degreesOfSuccess/degreeOfSuccess.js
 import { ValidationTestSetup } from "../../../../testUtils/validationTestSetup.js"
 import type { ValidationTestResult } from "../../../../testUtils/validationTestSetup.js"
 import type { BattleSquaddieId } from "../../../../squaddie/inBattle/battleSquaddieId.js"
+import { SquaddieActionRejectionReason } from "../squaddieActionRejection.js"
 
 describe("usesPerMission validation", () => {
     let setup: ValidationTestResult
@@ -82,8 +83,14 @@ describe("usesPerMission validation", () => {
 
             const result = checkValidity()
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toContain("3 of 3")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.USES_PER_MISSION_EXHAUSTED,
+                    usesThisMission: 3,
+                    usesPerMission: 3,
+                },
+            })
         })
     })
 })

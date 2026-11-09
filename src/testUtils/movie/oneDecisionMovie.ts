@@ -24,9 +24,7 @@ export function createOneDecisionMovie(): Movie {
                             type: "DECISION",
                             id: OneDecisionMovieIds.line,
                             options: [
-                                {
-                                    decisionId: OneDecisionMovieIds.firstChoice,
-                                },
+                                { decisionId: OneDecisionMovieIds.firstChoice },
                                 {
                                     decisionId:
                                         OneDecisionMovieIds.secondChoice,

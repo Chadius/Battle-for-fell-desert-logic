@@ -3,6 +3,7 @@ import {
     CampaignTestHarness,
     CampaignTestHarnessIds,
 } from "../../../testUtils/campaign/campaignTestHarness.js"
+import { FinalizeLoadingMissionRejectionReason } from "../finalizeLoadingMissionRejection.js"
 
 const injureWholeArmy = (harness: CampaignTestHarness) => {
     for (const campaignSquaddieId of [
@@ -29,12 +30,15 @@ describe("MissionEngine when no player squaddie can join the mission", () => {
         })
 
         describe("when the mission has no player squaddies of its own", () => {
-            it("reports that the mission cannot start", () => {
+            it("rejects the mission because no player squaddie can deploy", () => {
                 const result = harness.finalizeLoadingMission()
 
-                expect(result.errors.join()).toContain(
-                    "the mission cannot start"
-                )
+                expect(result).toEqual({
+                    isValid: false,
+                    rejection: {
+                        reason: FinalizeLoadingMissionRejectionReason.NO_PLAYER_SQUADDIE_CAN_DEPLOY,
+                    },
+                })
             })
 
             it("does not begin deployment", () => {

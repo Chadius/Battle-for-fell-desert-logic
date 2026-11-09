@@ -68,6 +68,11 @@ describe("MissionEngine.loadMissionFromJson", () => {
 })
 
 describe("MissionEngine.finalizeLoadingMission", () => {
+    const missionFileErrorResult = {
+        isValid: false,
+        missionFileErrors: expect.arrayContaining([expect.any(String)]),
+    }
+
     describe("after a valid load", () => {
         let engine: MissionEngine
 
@@ -76,10 +81,9 @@ describe("MissionEngine.finalizeLoadingMission", () => {
             loadValidMission(engine)
         })
 
-        it("returns isValid true", () => {
+        it("accepts the mission", () => {
             const result = engine.finalizeLoadingMission()
-            expect(result.isValid).toBeTruthy()
-            expect(result.errors).toHaveLength(0)
+            expect(result.isValid).toBe(true)
         })
 
         it("places Lini on the map at the deployment coordinate", () => {
@@ -106,27 +110,31 @@ describe("MissionEngine.finalizeLoadingMission", () => {
         })
     })
 
-    it("returns isValid false with errors when called without a prior valid load", () => {
+    it("reports mission file errors when called without a prior valid load", () => {
         const engine = new MissionEngine()
         const result = engine.finalizeLoadingMission()
-        expect(result.isValid).toBeFalsy()
-        expect(result.errors.length).toBeGreaterThan(0)
+        expect(result).toEqual(missionFileErrorResult)
     })
 
-    it("returns isValid false with errors after an invalid load", () => {
-        const engine = new MissionEngine()
-        engine.loadMissionFromJson({
-            maps: MissionEngineTestHarness.serializeMaps(),
-            missionState: MissionStateService.serialize(
-                MissionStateService.new({
-                    id: "bad",
-                    mapId: "nonexistent-map",
-                })
-            ),
+    describe("after an invalid load", () => {
+        let engine: MissionEngine
+
+        beforeEach(() => {
+            engine = new MissionEngine()
+            engine.loadMissionFromJson({
+                maps: MissionEngineTestHarness.serializeMaps(),
+                missionState: MissionStateService.serialize(
+                    MissionStateService.new({
+                        id: "bad",
+                        mapId: "nonexistent-map",
+                    })
+                ),
+            })
         })
 
-        const result = engine.finalizeLoadingMission()
-        expect(result.isValid).toBeFalsy()
-        expect(result.errors.length).toBeGreaterThan(0)
+        it("reports mission file errors, not a rejection", () => {
+            const result = engine.finalizeLoadingMission()
+            expect(result).toEqual(missionFileErrorResult)
+        })
     })
 })

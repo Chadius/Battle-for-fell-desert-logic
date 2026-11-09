@@ -511,7 +511,9 @@ describe("SquaddieTurnActionRecordService", () => {
                     squaddieAffiliations,
                     squaddieAction: onlySuccessAndCriticalDegreeAction,
                 })
-            ).toBe("action targeted enemies and cannot be reversed")
+            ).toBe(
+                SquaddieTurnActionRecordUndoBlockedReason.ACTION_TARGETED_ENEMIES
+            )
         })
 
         it("returns true when all targets are friends with a success or critical only action", () => {
@@ -600,7 +602,9 @@ describe("SquaddieTurnActionRecordService", () => {
                     squaddieAffiliations,
                     squaddieAction: actionThatCouldFail,
                 })
-            ).toBe("action type cannot be undone")
+            ).toBe(
+                SquaddieTurnActionRecordUndoBlockedReason.ACTION_TYPE_CANNOT_BE_UNDONE
+            )
         })
 
         it("blocks the player from undoing an action taken by a non-player squaddie, even a friendly one", () => {

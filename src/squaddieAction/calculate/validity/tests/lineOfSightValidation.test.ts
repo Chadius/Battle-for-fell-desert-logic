@@ -14,6 +14,7 @@ import type { OutOfBattleSquaddieManager } from "../../../../squaddie/outOfBattl
 import type { CoordinateMapCollectionManager } from "../../../../coordinateMap/coordinateMapManager.js"
 import type { SquaddieActionManager } from "../../../squaddieActionManager.js"
 import type { OffsetCoordinate } from "../../../../coordinateMap/offsetCoordinate.js"
+import { SquaddieActionRejectionReason } from "../squaddieActionRejection.js"
 
 const createEnemyAtPosition = ({
     id,
@@ -363,8 +364,12 @@ describe("line of sight validation", () => {
                 map: { mapId },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.reason).toBe("Blast center is out of range")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGET_COORDINATE_OUT_OF_RANGE,
+                },
+            })
         })
 
         it("blast center is valid when A* reaches it by going around a wall", () => {

@@ -30,6 +30,7 @@ import {
 import { TurnControllerType } from "../../turnController.js"
 import { SquaddieIdConverterService } from "../../../squaddie/idConverterService.js"
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
+import { ReadyActionRejectionReason } from "../readyActionRejection.js"
 
 function advanceHarnessToPlayerTurn(missionEngine: MissionEngine): void {
     missionEngine.transitionToNextPhase()
@@ -326,8 +327,10 @@ describe("endSquaddieTurn", () => {
                 action: { id: "any-action" },
             })
 
-            expect(result.isValid).toBe(false)
-            expect(result.message).toBe("This squaddie is AI controlled")
+            expect(result).toEqual({
+                isValid: false,
+                rejection: { reason: ReadyActionRejectionReason.AI_CONTROLLED },
+            })
         })
 
         it("readyAction is accepted for a HUMAN-controlled ENEMY squaddie (debug override)", () => {

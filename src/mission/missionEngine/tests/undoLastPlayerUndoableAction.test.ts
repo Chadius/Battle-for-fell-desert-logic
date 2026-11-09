@@ -15,7 +15,10 @@ import {
     CoordinateMovePathMoveType,
     CoordinateMovePathService,
 } from "../../../coordinateMap/path/path.js"
-import { SquaddieTurnActionRecordService } from "../../history/squaddieTurnActionRecord.js"
+import {
+    SquaddieTurnActionRecordService,
+    SquaddieTurnActionRecordUndoBlockedReason,
+} from "../../history/squaddieTurnActionRecord.js"
 import type { SquaddieAction } from "../../../squaddieAction/squaddieAction.js"
 import { SquaddieTurnRecordService } from "../../history/squaddieTurnRecord.js"
 import { MissionTurnHistoryEntryService } from "../../history/missionTurnHistoryEntry.js"
@@ -103,9 +106,10 @@ describe("undoLastPlayerUndoableAction", () => {
 
         const result = missionEngine.undoLastPlayerUndoableAction()
 
-        expect(result.success).toBe(false)
-        expect(result.reason).toBe("no action to undo")
-        expect(result.removedAction).toBeUndefined()
+        expect(result).toEqual({
+            success: false,
+            reason: SquaddieTurnActionRecordUndoBlockedReason.NO_ACTION_TO_UNDO,
+        })
     })
 
     it("successfully undoes a movement action", () => {
@@ -173,9 +177,10 @@ describe("undoLastPlayerUndoableAction", () => {
 
         const result = missionEngine.undoLastPlayerUndoableAction()
 
-        expect(result.success).toBe(true)
-        expect(result.removedAction).toBeDefined()
-        expect(result.removedAction?.action.id).toBe("move")
+        expect(result).toMatchObject({
+            success: true,
+            removedAction: { action: { id: "move" } },
+        })
 
         const position = coordinateMapCollectionManager.getSquaddieCoordinate({
             mapId: "test_map",
@@ -287,8 +292,10 @@ describe("undoLastPlayerUndoableAction", () => {
 
         const result = missionEngine.undoLastPlayerUndoableAction()
 
-        expect(result.success).toBe(true)
-        expect(result.removedAction?.action.id).toBe("move")
+        expect(result).toMatchObject({
+            success: true,
+            removedAction: { action: { id: "move" } },
+        })
 
         const position = coordinateMapCollectionManager.getSquaddieCoordinate({
             mapId: "test_map",
@@ -388,9 +395,9 @@ describe("undoLastPlayerUndoableAction", () => {
 
         const result = missionEngine.undoLastPlayerUndoableAction()
 
-        expect(result.success).toBe(false)
-        expect(result.reason).toBe(
-            "action targeted enemies and cannot be reversed"
-        )
+        expect(result).toEqual({
+            success: false,
+            reason: SquaddieTurnActionRecordUndoBlockedReason.ACTION_TARGETED_ENEMIES,
+        })
     })
 })

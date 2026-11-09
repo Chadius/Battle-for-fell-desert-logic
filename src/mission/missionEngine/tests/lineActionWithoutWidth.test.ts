@@ -25,6 +25,7 @@ import { RollGenerator } from "../../../squaddieAction/calculate/roll/rollGenera
 import type { BattleSquaddieId } from "../../../squaddie/inBattle/battleSquaddieId.js"
 import type { OffsetCoordinate } from "../../../coordinateMap/offsetCoordinate.js"
 import type { AimCoordinateResult } from "../../../squaddieAction/calculate/validity/squaddieActionValidationService.js"
+import { SquaddieActionRejectionReason } from "../../../squaddieAction/calculate/validity/squaddieActionRejection.js"
 
 const lightningBoltId = "lightning-bolt"
 const mapWidth = 7
@@ -310,7 +311,12 @@ describe("MissionEngine — LINE action with an areaOfEffectSize of 0", () => {
                 },
             })
 
-            expect(readyResult.message).toMatch(/must have a target/)
+            expect(readyResult).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGET_COORDINATE_HAS_NO_TARGET,
+                },
+            })
         })
     })
 
@@ -322,7 +328,12 @@ describe("MissionEngine — LINE action with an areaOfEffectSize of 0", () => {
                 action: { id: lightningBoltId },
             })
 
-            expect(readyResult.message).toMatch(/requires a target coordinate/)
+            expect(readyResult).toEqual({
+                isValid: false,
+                rejection: {
+                    reason: SquaddieActionRejectionReason.TARGET_COORDINATE_REQUIRED,
+                },
+            })
         })
     })
 })
