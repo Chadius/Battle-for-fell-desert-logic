@@ -88,6 +88,11 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
 - Multiple movement types: WALK, JUMP, PHASE.
 - Path is expressed as ordered `CoordinateMovePathStep` records.
 - Squaddies block movement by default; the adapter supports `stopSearchOnSquaddie` flag.
+- An `ACTOR_CHOSEN` move must set `actionPoints.additional.movementPathActionPointCost: true`, so
+  pathfinding always checks its destination (`SquaddieActionService.new` throws and the action
+  schema rejects it otherwise). A move with a set price, such as a Charge that costs 2 AP and
+  covers 2 AP worth of movement, or a fixed-range jump, is `ACTOR_CHOSEN_SPECIAL_TRAVERSAL` with
+  `squaddieMovementSpecialTraversalInfo.actionPointsOfMovement`.
 - `ReachablePreviewCalculator` (`src/squaddieAction/calculate/reachablePreview/`) is the single home
   for "what can this squaddie reach" previews, wrapping `SquaddieActionValidationService`.
   `MissionEngine`/`MissionManager` expose thin delegators over it; every one takes an optional
