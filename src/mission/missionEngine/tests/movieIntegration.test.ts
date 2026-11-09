@@ -13,8 +13,6 @@ import { MissionObjectiveRewardService } from "../../missionObjectiveReward.js"
 import { MissionObjectiveCriteriaService } from "../../missionObjectiveCriteria.js"
 import { SquaddieAffiliation } from "../../../affiliation/affiliation.js"
 import { MissionAffiliationTurn } from "../../missionTurn.js"
-import { ResourceManifestCollectionService } from "../../../resource/resourceManifestCollection.js"
-import { ResourceManifestEntryService } from "../../../resource/resourceManifest.js"
 import {
     createOneDecisionMovie,
     OneDecisionMovieIds,
@@ -102,61 +100,6 @@ describe("MissionEngine movie integration", () => {
                 harness.endSquaddieTurn(harness.getLiniSquaddieId())
 
                 expect(harness.isMoviePlaying()).toBe(true)
-            })
-        })
-
-        describe("when resource collections are registered and the referenced movie has an image scene", () => {
-            let harness: MissionEngineTestHarness
-
-            beforeEach(() => {
-                const resourceManifestCollection =
-                    ResourceManifestCollectionService.add(
-                        ResourceManifestCollectionService.new(),
-                        "img",
-                        ResourceManifestEntryService.new({
-                            id: "victory-image",
-                            label: "Victory",
-                            description: {
-                                "en-US": { text: "The squad celebrates." },
-                            },
-                            type: "IMAGE",
-                        })
-                    )
-
-                harness = new MissionEngineTestHarness()
-                harness.registerResourceCollections([
-                    resourceManifestCollection,
-                ])
-                harness.registerMovie(makeMovie("victory-scene"))
-                harness.addObjective(
-                    MissionObjectiveService.new({
-                        id: "play-victory-movie",
-                        rewards: [
-                            MissionObjectiveRewardService.newPlayMovieReward(
-                                "movie-1"
-                            ),
-                        ],
-                        criteria: [
-                            MissionObjectiveCriteriaService.newAllSquaddiesDefeatedCriteria(
-                                {
-                                    affiliations: [SquaddieAffiliation.ENEMY],
-                                }
-                            ),
-                        ],
-                    })
-                )
-                harness.advanceToPlayerTurn()
-                harness.defeatSlitherDemon()
-            })
-
-            it("resolves the scene's description from the registered resource collection", () => {
-                harness.endSquaddieTurn(harness.getLiniSquaddieId())
-
-                const currentScene = harness.getMovieStatus()?.currentScene
-                if (currentScene?.type !== "IMAGE") {
-                    throw new Error("expected an image scene")
-                }
-                expect(currentScene.description).toBe("The squad celebrates.")
             })
         })
     })

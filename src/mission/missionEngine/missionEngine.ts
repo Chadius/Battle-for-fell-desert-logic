@@ -8,7 +8,6 @@ import {
     type ReachablePreviewQueryOptions,
 } from "../../squaddieAction/calculate/reachablePreview/reachablePreviewCalculator.js"
 import type { Movie } from "../../movie/movie.js"
-import type { ResourceManifestCollection } from "../../resource/resourceManifestCollection.js"
 import {
     MovieEngine,
     MovieEngineState,
@@ -179,7 +178,6 @@ export class MissionEngine {
     private activeMovieEngine?: MovieEngine
     private recentMovieEvents: TMissionMovieEvent[] = []
     private readonly queuedMovies: Movie[] = []
-    private resourceCollections: ResourceManifestCollection[] = []
 
     constructor(
         missionManager?: MissionManager,
@@ -643,22 +641,13 @@ export class MissionEngine {
         this.missionManager!.movieManager.add(movie)
     }
 
-    registerResourceCollections(
-        resourceCollections: ResourceManifestCollection[]
-    ): void {
-        this.resourceCollections = resourceCollections
-    }
-
     playMovie(movie: Movie): void {
         if (this.isMoviePlaying()) {
             this.queuedMovies.push(movie)
             return
         }
 
-        this.activeMovieEngine = new MovieEngine(
-            movie,
-            this.resourceCollections
-        )
+        this.activeMovieEngine = new MovieEngine(movie)
         this.recentMovieEvents = [MissionMovieEvent.MOVIE_STARTED]
     }
 

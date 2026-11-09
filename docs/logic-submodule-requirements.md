@@ -168,8 +168,8 @@ change needed for this item.
 
 ### Background
 
-`ResourceManifestType` already carries `AUDIO` and `VIDEO` (this half of the old §2.4 gap is
-closed). What's still missing is a way to *attach* a sound to a cutscene: nothing on
+The presentation package's `ResourceManifestType` already carries `AUDIO` and `VIDEO` (this half of
+the old §2.4 gap is closed). What's still missing is a way to *attach* a sound to a cutscene: nothing on
 `MovieSceneConversation` / `MovieSceneImage` / `DialogLine` points at an audio resource, so the
 browser has nothing to play.
 
@@ -188,7 +188,7 @@ Additive, optional fields — nothing existing changes shape:
 ### Not required
 
 - No new engine playback state, timing, or "audio finished" events — the browser owns playback.
-- No change to how `AUDIO` resources are declared or resolved (that machinery exists).
+- No change to how `AUDIO` resources are declared or resolved (the presentation package does this).
 - Ambient/UI sound (menu blips, hover ticks) and the mute/volume control are pure front-end, no
   engine involvement.
 
@@ -197,8 +197,13 @@ Additive, optional fields — nothing existing changes shape:
 Still needed. Checked against `logic` @ `9a909d9`: no `voiceResourceManifestEntryId` or
 `musicResourceManifestEntryId` field exists anywhere in `logic/src`. The `AUDIO`/`VIDEO` resource
 types and the content/media split (`ResourceManifestMediaEntry`, resolved by id, where "no media yet"
-is a normal `undefined` result) are already in place, so once the cue fields exist the front end can
-resolve them the same way it resolves portraits. The front end has no `<audio>` playback yet.
+is a normal `undefined` result) are in the presentation package, so once the cue fields exist the
+front end can resolve them the same way it resolves portraits. The front end has no `<audio>`
+playback yet.
+
+Open question: this ask was written when `portrait` lived on the movie status. Step 5 of the
+presentation split moves portraits to `movieContent.json`, so decide whether cues belong there
+instead of on the `logic` movie types before adding these fields.
 
 ---
 
