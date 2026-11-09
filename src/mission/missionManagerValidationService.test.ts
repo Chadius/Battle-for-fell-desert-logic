@@ -50,7 +50,6 @@ const buildCoordinateMapCollectionManager =
     (): CoordinateMapCollectionManager => {
         const map = CoordinateMapService.new({
             id: TEST_IDS.mapId,
-            name: "Test Map",
             movementProperties: ["1 1"],
         })
         const manager = new CoordinateMapCollectionManager(
@@ -67,7 +66,6 @@ const buildSquaddieActionManager = (): SquaddieActionManager => {
     manager.addOrUpdate(
         SquaddieActionService.new({
             id: TEST_IDS.actionId,
-            name: "Test Action",
             attribute: AttributeScore.BODY,
             proficiency: ProficiencyType.WEAPON_SIMPLE,
             range: ActionRange.MELEE,
@@ -113,7 +111,6 @@ const buildOutOfBattleSquaddieManager = (): OutOfBattleSquaddieManager => {
 
     const squaddie = OutOfBattleSquaddieService.new({
         id: TEST_IDS.squaddieId,
-        name: "Test Squaddie",
         attributeSheetId: TEST_IDS.attributeSheetId,
         actionIds: [TEST_IDS.actionId],
         affiliation: SquaddieAffiliation.PLAYER,
@@ -220,10 +217,8 @@ describe("MissionManagerValidationService", () => {
             const missingOutOfBattleId = "nonexistent-squaddie"
             const fakeInBattleSquaddie = InBattleSquaddieService.new({
                 id: 0,
-                name: "Ghost",
                 outOfBattleSquaddie: OutOfBattleSquaddieService.new({
                     id: missingOutOfBattleId,
-                    name: "Ghost",
                     attributeSheetId: "ghost-sheet",
                     actionIds: [],
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -260,7 +255,6 @@ describe("MissionManagerValidationService", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "orphaned-squaddie",
-                    name: "Orphaned",
                     attributeSheetId: "missing-sheet",
                     actionIds: [],
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -268,10 +262,8 @@ describe("MissionManagerValidationService", () => {
             )
             const fakeInBattleSquaddie = InBattleSquaddieService.new({
                 id: 0,
-                name: "Orphaned",
                 outOfBattleSquaddie: OutOfBattleSquaddieService.new({
                     id: "orphaned-squaddie",
-                    name: "Orphaned",
                     attributeSheetId: "missing-sheet",
                     actionIds: [],
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -436,7 +428,6 @@ describe("MissionManagerValidationService", () => {
             squaddieItemManager.addOrUpdate(
                 SquaddieItemService.new({
                     id: TEST_IDS.itemId,
-                    name: "Test Item",
                 })
             )
             input.inBattleSquaddieManager!.setSquaddieItemManager(
@@ -454,7 +445,6 @@ describe("MissionManagerValidationService", () => {
                     // Row 0: normal normal pit(-)  wall(x)
                     const map = CoordinateMapService.new({
                         id: TEST_IDS.mapId,
-                        name: "Obstacle Map",
                         movementProperties: ["1 1 - x"],
                     })
                     const manager = new CoordinateMapCollectionManager(
@@ -682,7 +672,6 @@ describe("MissionManagerValidationService", () => {
                         id: "leader-squaddie",
                         outOfBattleAttributeSheetId: TEST_IDS.attributeSheetId,
                         outOfBattleSquaddieId: TEST_IDS.squaddieId,
-                        name: "Leader",
                         isLeader: true,
                     })
                 )

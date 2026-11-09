@@ -76,7 +76,6 @@ describe("forecasts on effects on yourself", () => {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "outOfBattleSquaddie",
-                name: "outOfBattleSquaddie",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "attributeSheet",
             })
@@ -95,7 +94,6 @@ describe("forecasts on effects on yourself", () => {
     it("will always succeed if the action always succeeds", () => {
         const hurtsSelf = SquaddieActionService.new({
             id: "hurtsSelf",
-            name: "hurtsSelf",
             affiliationRelationship: {
                 self: true,
                 foe: false,

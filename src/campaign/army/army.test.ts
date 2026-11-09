@@ -14,7 +14,6 @@ describe("Army", () => {
             id: "lini",
             outOfBattleAttributeSheetId: "sheet-lini",
             outOfBattleSquaddieId: "battle-lini",
-            name: "Lini",
         })
         army = ArmyService.new()
     })
@@ -39,7 +38,6 @@ describe("Army", () => {
             id: lini.id,
             outOfBattleAttributeSheetId: lini.outOfBattleAttributeSheetId,
             outOfBattleSquaddieId: lini.outOfBattleSquaddieId,
-            name: "Lini the Bold",
             isLeader: true,
         })
         const updatedArmy = ArmyService.addOrUpdate({
@@ -74,7 +72,6 @@ describe("Army", () => {
             id: "rem",
             outOfBattleAttributeSheetId: "sheet-rem",
             outOfBattleSquaddieId: "battle-rem",
-            name: "Rem",
         })
         const withRem = ArmyService.addOrUpdate({
             army: withLini,
@@ -111,7 +108,6 @@ describe("Army", () => {
                     id: "leader",
                     outOfBattleAttributeSheetId: "sheet-leader",
                     outOfBattleSquaddieId: "battle-leader",
-                    name: "Leader",
                     isLeader: true,
                 })
                 const withLini = ArmyService.addOrUpdate({

@@ -62,7 +62,6 @@ describe("coordinateMapAStarAdapter", () => {
 
         noAffiliationOutOfBattleSquaddie0 = OutOfBattleSquaddieService.new({
             id: "noAffiliation",
-            name: "noAffiliation",
             actionIds: ["endTurn"],
             attributeSheetId: "test sheet",
             affiliation: SquaddieAffiliation.NONE,
@@ -170,7 +169,6 @@ describe("coordinateMapAStarAdapter", () => {
                 const outOfBattleSquaddieWithReducedMoveCosts =
                     OutOfBattleSquaddieService.new({
                         id: "noAffiliation",
-                        name: "noAffiliation",
                         actionIds: ["endTurn"],
                         attributeSheetId: "test sheet with reduced move costs",
                         affiliation: SquaddieAffiliation.NONE,
@@ -216,7 +214,6 @@ describe("coordinateMapAStarAdapter", () => {
         beforeEach(() => {
             map = CoordinateMapService.new({
                 id: "map",
-                name: "map",
                 movementProperties: ["1 1 1 1 1 "],
             })
         })
@@ -278,7 +275,6 @@ describe("coordinateMapAStarAdapter", () => {
                 it("cannot reach destination because the terrain cost is too high", () => {
                     const mapWithDoubleCostTerrain = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 2 2 1 1 "],
                     })
                     graph = new CoordinateMapAStarAdapter({
@@ -305,7 +301,6 @@ describe("coordinateMapAStarAdapter", () => {
                 it("can set search limits to reduce terrain movement costs", () => {
                     const mapWithDoubleCostTerrain = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 2 2 1 1 "],
                     })
                     graph = new CoordinateMapAStarAdapter({
@@ -333,7 +328,6 @@ describe("coordinateMapAStarAdapter", () => {
                 it("records path cost as 1 per step when reduceMoveCosts is active", () => {
                     const mapWithDoubleCostTerrain = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 2 2 1 1 "],
                     })
                     graph = new CoordinateMapAStarAdapter({
@@ -367,7 +361,6 @@ describe("coordinateMapAStarAdapter", () => {
                 beforeEach(() => {
                     mapWithAPit = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 - - 1 1 "],
                     })
                 })
@@ -454,7 +447,6 @@ describe("coordinateMapAStarAdapter", () => {
                 beforeEach(() => {
                     mapWithAWall = CoordinateMapService.new({
                         id: "map",
-                        name: "map",
                         movementProperties: ["1 x x 1 1 "],
                     })
                 })
@@ -541,14 +533,12 @@ describe("coordinateMapAStarAdapter", () => {
             beforeEach(() => {
                 map = CoordinateMapService.new({
                     id: "map",
-                    name: "map",
                     movementProperties: ["1 1 1 1 1 "],
                 })
 
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "player",
-                        name: "player",
                         actionIds: ["endTurn"],
                         attributeSheetId: "test sheet",
                         affiliation: SquaddieAffiliation.PLAYER,
@@ -558,7 +548,6 @@ describe("coordinateMapAStarAdapter", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "ally",
-                        name: "ally",
                         actionIds: ["endTurn"],
                         attributeSheetId: "test sheet",
                         affiliation: SquaddieAffiliation.ALLY,
@@ -568,7 +557,6 @@ describe("coordinateMapAStarAdapter", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "enemy",
-                        name: "enemy",
                         actionIds: ["endTurn"],
                         attributeSheetId: "test sheet",
                         affiliation: SquaddieAffiliation.ENEMY,

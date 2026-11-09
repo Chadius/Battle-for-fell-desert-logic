@@ -38,7 +38,6 @@ function createEngineWithActions(): MissionEngine {
 
     const playerSquaddie = OutOfBattleSquaddieService.new({
         id: "player-1",
-        name: "Player 1",
         affiliation: SquaddieAffiliation.PLAYER,
         attributeSheetId: "actor-sheet",
         actionIds: [rescueActionId],
@@ -59,14 +58,12 @@ function createEngineWithActions(): MissionEngine {
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: mapId,
-            name: "Decisions test map",
             movementProperties: ["1 1 1 1 1"],
         }),
     })
 
     const rescueAction = SquaddieActionService.new({
         id: rescueActionId,
-        name: "Rescue",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.MEDIUM,
@@ -90,7 +87,6 @@ function createEngineWithActions(): MissionEngine {
     )
     const gravityPullAction = SquaddieActionService.new({
         id: gravityPullActionId,
-        name: "Gravity Pull",
         attribute: AttributeScore.MIND,
         proficiency: ProficiencyType.SKILL_MIND,
         range: ActionRange.SELF,

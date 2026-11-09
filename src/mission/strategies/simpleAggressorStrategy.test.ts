@@ -36,7 +36,6 @@ describe("SimpleAggressorStrategy", () => {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: mapId,
-                name: "Test Map",
                 movementProperties: [properties],
             }),
         })
@@ -57,7 +56,6 @@ describe("SimpleAggressorStrategy", () => {
 
         const actorSquaddie = OutOfBattleSquaddieService.new({
             id: "actor",
-            name: "Actor",
             actionIds: [meleeAttackId],
             attributeSheetId: "shared-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -66,7 +64,6 @@ describe("SimpleAggressorStrategy", () => {
 
         const targetSquaddie = OutOfBattleSquaddieService.new({
             id: "target",
-            name: "Target",
             actionIds: [],
             attributeSheetId: "shared-sheet",
             affiliation: SquaddieAffiliation.PLAYER,
@@ -104,7 +101,6 @@ describe("SimpleAggressorStrategy", () => {
         squaddieActionManager.addOrUpdate(
             SquaddieActionService.new({
                 id: meleeAttackId,
-                name: "Melee Attack",
                 range: ActionRange.MELEE,
                 affiliationRelationship: {
                     self: false,

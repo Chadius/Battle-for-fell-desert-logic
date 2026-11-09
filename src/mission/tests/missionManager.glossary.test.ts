@@ -22,7 +22,6 @@ const buildValidMissionManager = (): MissionManager => {
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: MAP_ID,
-            name: "Glossary Test Map",
             movementProperties: ["1 1"],
         }),
     })

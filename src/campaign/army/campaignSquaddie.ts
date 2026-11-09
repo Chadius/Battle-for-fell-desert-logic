@@ -10,7 +10,6 @@ export interface CampaignSquaddie {
     id: string
     outOfBattleAttributeSheetId: string
     outOfBattleSquaddieId: string
-    name: string
     isLeader: boolean
     injury?: CampaignSquaddieInjury
     injuryHistory: string[]
@@ -24,7 +23,6 @@ export const campaignSquaddieSchema = z.object({
     id: z.string().min(1),
     outOfBattleAttributeSheetId: z.string().min(1),
     outOfBattleSquaddieId: z.string().min(1),
-    name: z.string().min(1),
     isLeader: z.boolean(),
     injury: campaignSquaddieInjurySchema.optional(),
     injuryHistory: z.array(z.string().min(1)),
@@ -37,7 +35,6 @@ export const CampaignSquaddieService = {
         id,
         outOfBattleAttributeSheetId,
         outOfBattleSquaddieId,
-        name,
         isLeader,
         injury,
         injuryHistory,
@@ -45,7 +42,6 @@ export const CampaignSquaddieService = {
         id: string
         outOfBattleAttributeSheetId: string
         outOfBattleSquaddieId: string
-        name: string
         isLeader?: boolean
         injury?: CampaignSquaddieInjury
         injuryHistory?: string[]
@@ -55,7 +51,6 @@ export const CampaignSquaddieService = {
                 id,
                 outOfBattleAttributeSheetId,
                 outOfBattleSquaddieId,
-                name,
                 isLeader: isLeader ?? false,
                 injury,
                 injuryHistory: injuryHistory ?? [],
@@ -72,7 +67,6 @@ export const CampaignSquaddieService = {
             outOfBattleAttributeSheetId:
                 campaignSquaddie.outOfBattleAttributeSheetId,
             outOfBattleSquaddieId: campaignSquaddie.outOfBattleSquaddieId,
-            name: campaignSquaddie.name,
             isLeader: campaignSquaddie.isLeader,
             injury: cloneInjury(campaignSquaddie.injury),
             injuryHistory: [...campaignSquaddie.injuryHistory],

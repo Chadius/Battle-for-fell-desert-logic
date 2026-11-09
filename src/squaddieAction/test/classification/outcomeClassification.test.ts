@@ -21,7 +21,6 @@ const proficiency = ProficiencyType.SKILL_MIND
 const friendSupport = (effectOnFriend: SquaddieActionEffect): SquaddieAction =>
     SquaddieActionService.new({
         id: "support",
-        name: "Support",
         proficiency,
         affiliationRelationship: { self: false, foe: false, friend: true },
         effectOnActor: spendOneActionPoint,
@@ -55,7 +54,6 @@ describe("SquaddieActionClassificationService.classify outcome", () => {
         it("is HINDER for draining the foe's action points", () => {
             const exhaust = SquaddieActionService.new({
                 id: "exhaust",
-                name: "Exhaust",
                 proficiency,
                 affiliationRelationship: {
                     self: false,
@@ -78,7 +76,6 @@ describe("SquaddieActionClassificationService.classify outcome", () => {
         it("is DAMAGE, because damage comes first", () => {
             const searingThought = SquaddieActionService.new({
                 id: "searing-thought",
-                name: "Searing Thought",
                 proficiency,
                 affiliationRelationship: {
                     self: false,
@@ -129,7 +126,6 @@ describe("SquaddieActionClassificationService.classify outcome", () => {
         it("is HINDER, because hindering comes before assisting", () => {
             const siphon = SquaddieActionService.new({
                 id: "siphon",
-                name: "Siphon",
                 proficiency,
                 affiliationRelationship: {
                     self: false,
@@ -157,7 +153,6 @@ describe("SquaddieActionClassificationService.classify outcome", () => {
         it("is UNKNOWN", () => {
             const friendlyFire = SquaddieActionService.new({
                 id: "friendly-fire",
-                name: "Friendly Fire",
                 proficiency,
                 affiliationRelationship: {
                     self: false,
@@ -180,7 +175,6 @@ describe("SquaddieActionClassificationService.classify outcome", () => {
         it("is UNKNOWN", () => {
             const healFoe = SquaddieActionService.new({
                 id: "heal-foe",
-                name: "Heal Foe",
                 proficiency,
                 affiliationRelationship: {
                     self: false,

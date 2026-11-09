@@ -4,7 +4,6 @@
     "data": [
         {
             "id": "goblin-grunt",
-            "name": "Goblin Grunt",
             "attributeSheetId": "goblin-grunt-attribute-sheet",
             "actionIds": ["goblin-grunt-claw"],
             "affiliation": "ENEMY"

@@ -33,7 +33,6 @@ const createEnemyAtPosition = ({
     outOfBattleSquaddieManager.addOrUpdateSquaddie(
         OutOfBattleSquaddieService.new({
             id,
-            name: id,
             actionIds: [],
             attributeSheetId: "test-sheet",
             affiliation: SquaddieAffiliation.ENEMY,
@@ -62,7 +61,6 @@ const createFoeTargetingAttack = (
 ) => {
     const action = SquaddieActionService.new({
         id,
-        name: id,
         range,
         affiliationRelationship: { self: false, foe: true, friend: false },
         effectOnActor: {
@@ -81,7 +79,6 @@ const createBloomAoEAction = (
 ) => {
     const action = SquaddieActionService.new({
         id,
-        name: id,
         range,
         shape: CoordinateGeneratorShape.BLOOM,
         areaOfEffectSize: 1,

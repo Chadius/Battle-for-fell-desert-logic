@@ -42,7 +42,6 @@ describe("InMissionSummary", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -123,7 +122,6 @@ describe("InMissionSummary", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -196,7 +194,6 @@ describe("InMissionSummary", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -256,7 +253,6 @@ describe("InMissionSummary", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -303,7 +299,6 @@ describe("InMissionSummary", () => {
             expect(() =>
                 engine.loadSerializedInMissionSummary({
                     mapId: "map-1",
-                    mapName: "map-1",
                     missionObjectives: [],
                     inBattleSquaddieCollection: { byOutOfBattleSquaddieId: {} },
                     recentPhaseTransitions: [],
@@ -314,7 +309,6 @@ describe("InMissionSummary", () => {
         it("restores squaddie state from serializable summary", () => {
             let outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -337,7 +331,6 @@ describe("InMissionSummary", () => {
             let inBattleSquaddie = InBattleSquaddieService.new({
                 id: 0,
                 outOfBattleSquaddie,
-                name: "Updated Name",
                 attributeSheet,
             })
             inBattleSquaddie = InBattleSquaddieService.dealDamageToSquaddie({
@@ -354,7 +347,6 @@ describe("InMissionSummary", () => {
 
             const savedState: SerializedInMissionSummary = {
                 mapId: "map-1",
-                mapName: "map-1",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: false, hasGivenReward: false },
                 ],
@@ -381,7 +373,6 @@ describe("InMissionSummary", () => {
         it("restores objective hasGivenReward flag", () => {
             let outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -404,13 +395,11 @@ describe("InMissionSummary", () => {
             let inBattleSquaddie = InBattleSquaddieService.new({
                 id: 0,
                 outOfBattleSquaddie,
-                name: "Updated Name",
                 attributeSheet,
             })
 
             const savedState: SerializedInMissionSummary = {
                 mapId: "mad",
-                mapName: "Mad",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],

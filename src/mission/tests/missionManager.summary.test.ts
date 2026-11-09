@@ -41,7 +41,6 @@ describe("MissionManager", () => {
 
             const enemySquaddie = OutOfBattleSquaddieService.new({
                 id: "enemy-1",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "test sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -117,7 +116,6 @@ describe("MissionManager", () => {
             tempManager.spendActionPoints({ ...tempId, actionPoints: 2 })
             const savedState = {
                 mapId: "",
-                mapName: "",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: false, hasGivenReward: false },
                 ],
@@ -150,7 +148,6 @@ describe("MissionManager", () => {
             })
             const savedState = {
                 mapId: "",
-                mapName: "",
                 missionObjectives: [
                     { id: "obj-1", isCompleted: true, hasGivenReward: true },
                 ],
@@ -301,7 +298,6 @@ describe("MissionManager", () => {
             coordinateMapCollectionManager.addOrUpdate({
                 map: CoordinateMapService.new({
                     id: "testMap",
-                    name: "testMap",
                     movementProperties: ["1 1 1 1 ", " 1 2 1 x ", "1 - x x "],
                 }),
             })

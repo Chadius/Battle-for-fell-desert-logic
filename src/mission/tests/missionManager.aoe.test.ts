@@ -30,7 +30,6 @@ describe("MissionManager", () => {
             const createLineAction = () =>
                 SquaddieActionService.new({
                     id: "slash",
-                    name: "Slash",
                     range: ActionRange.LONG,
                     shape: CoordinateGeneratorShape.LINE,
                     areaOfEffectSize: 0,
@@ -67,7 +66,6 @@ describe("MissionManager", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "actor",
-                        name: "Actor",
                         affiliation: SquaddieAffiliation.PLAYER,
                         attributeSheetId: "line_sheet",
                     })
@@ -75,7 +73,6 @@ describe("MissionManager", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "enemy-a",
-                        name: "Enemy A",
                         affiliation: SquaddieAffiliation.ENEMY,
                         attributeSheetId: "line_sheet",
                     })
@@ -83,7 +80,6 @@ describe("MissionManager", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "enemy-b",
-                        name: "Enemy B",
                         affiliation: SquaddieAffiliation.ENEMY,
                         attributeSheetId: "line_sheet",
                     })
@@ -91,7 +87,6 @@ describe("MissionManager", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "enemy-c",
-                        name: "Enemy C",
                         affiliation: SquaddieAffiliation.ENEMY,
                         attributeSheetId: "line_sheet",
                     })
@@ -116,7 +111,6 @@ describe("MissionManager", () => {
 
                 const map = CoordinateMapService.new({
                     id: "line_map",
-                    name: "Line map",
                     movementProperties: ["1 1 1 1 1 1"],
                 })
                 const coordinateMapCollectionManager =
@@ -232,7 +226,6 @@ describe("MissionManager", () => {
             const createBloomAction = () =>
                 SquaddieActionService.new({
                     id: "fireball",
-                    name: "Fireball",
                     range: ActionRange.MEDIUM,
                     shape: CoordinateGeneratorShape.BLOOM,
                     areaOfEffectSize: 1,
@@ -269,7 +262,6 @@ describe("MissionManager", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "actor",
-                        name: "Actor",
                         affiliation: SquaddieAffiliation.PLAYER,
                         attributeSheetId: "bloom_sheet",
                     })
@@ -277,7 +269,6 @@ describe("MissionManager", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "enemy-a",
-                        name: "Enemy A",
                         affiliation: SquaddieAffiliation.ENEMY,
                         attributeSheetId: "bloom_sheet",
                     })
@@ -285,7 +276,6 @@ describe("MissionManager", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "enemy-b",
-                        name: "Enemy B",
                         affiliation: SquaddieAffiliation.ENEMY,
                         attributeSheetId: "bloom_sheet",
                     })
@@ -293,7 +283,6 @@ describe("MissionManager", () => {
                 outOfBattleSquaddieManager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "enemy-c",
-                        name: "Enemy C",
                         affiliation: SquaddieAffiliation.ENEMY,
                         attributeSheetId: "bloom_sheet",
                     })
@@ -318,7 +307,6 @@ describe("MissionManager", () => {
 
                 const map = CoordinateMapService.new({
                     id: "bloom_map",
-                    name: "Bloom map",
                     movementProperties: ["1 1 1 1", "1 1 1 1"],
                 })
                 const coordinateMapCollectionManager =

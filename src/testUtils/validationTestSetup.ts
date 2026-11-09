@@ -51,7 +51,6 @@ export const ValidationTestSetup = {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 actionIds: [],
                 attributeSheetId: "test-sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -62,7 +61,6 @@ export const ValidationTestSetup = {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: target.id,
-                    name: target.id,
                     actionIds: [],
                     attributeSheetId: "test-sheet",
                     affiliation: target.affiliation,
@@ -100,7 +98,6 @@ export const ValidationTestSetup = {
             collection: mapCollection,
             map: CoordinateMapService.new({
                 id: mapId,
-                name: "Test Map",
                 movementProperties: mapMovementProperties,
             }),
         })

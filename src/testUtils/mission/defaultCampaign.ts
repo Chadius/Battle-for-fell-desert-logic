@@ -8,13 +8,9 @@ import { createSneakAttackMission } from "./sneakAttackMission.js"
 
 export const DefaultCampaignIds = {
     mission1Id: "test-harness-mission-1",
-    mission1Name: "Test Harness Mission",
     mission2Id: "vale-gloria-mission-1",
-    mission2Name: "Vale and Gloria Mission",
     mission3Id: "movement-test-mission-1",
-    mission3Name: "Movement Test Mission",
     mission4Id: "sneak-attack-mission",
-    mission4Name: "Sneak Attack Mission",
 } as const
 
 export function createDefaultCampaignMissionManager(): CampaignMissionManager {
@@ -25,7 +21,6 @@ export function createDefaultCampaignMissionManager(): CampaignMissionManager {
     campaignMissionManager.addMission(
         CampaignMissionService.new({
             id: DefaultCampaignIds.mission1Id,
-            name: DefaultCampaignIds.mission1Name,
         })
     )
     campaignMissionManager.addMissionManager({
@@ -36,7 +31,6 @@ export function createDefaultCampaignMissionManager(): CampaignMissionManager {
     campaignMissionManager.addMission(
         CampaignMissionService.new({
             id: DefaultCampaignIds.mission2Id,
-            name: DefaultCampaignIds.mission2Name,
         })
     )
     campaignMissionManager.addMissionManager({
@@ -47,7 +41,6 @@ export function createDefaultCampaignMissionManager(): CampaignMissionManager {
     campaignMissionManager.addMission(
         CampaignMissionService.new({
             id: DefaultCampaignIds.mission3Id,
-            name: DefaultCampaignIds.mission3Name,
         })
     )
     campaignMissionManager.addMissionManager({
@@ -58,7 +51,6 @@ export function createDefaultCampaignMissionManager(): CampaignMissionManager {
     campaignMissionManager.addMission(
         CampaignMissionService.new({
             id: DefaultCampaignIds.mission4Id,
-            name: DefaultCampaignIds.mission4Name,
         })
     )
     campaignMissionManager.addMissionManager({

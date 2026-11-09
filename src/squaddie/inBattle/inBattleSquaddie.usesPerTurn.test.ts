@@ -8,14 +8,12 @@ const createSquaddie = () => {
     const sheet = OutOfBattleSquaddieTestSetup.createTestAttributeSheet()
     const outOfBattle = OutOfBattleSquaddieService.new({
         id: "hero",
-        name: "Hero",
         actionIds: ["thunder-strike"],
         attributeSheetId: "test-sheet",
         affiliation: SquaddieAffiliation.PLAYER,
     })
     return InBattleSquaddieService.new({
         id: 0,
-        name: "Hero",
         outOfBattleSquaddie: outOfBattle,
         attributeSheet: sheet,
     })

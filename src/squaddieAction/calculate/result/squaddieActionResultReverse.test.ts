@@ -801,7 +801,6 @@ describe("Reversing SquaddieActionResults", () => {
             outOfBattleSquaddieId = "soldier"
             const outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: outOfBattleSquaddieId,
-                name: "Soldier",
                 actionIds: [],
                 attributeSheetId: "soldier",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -820,7 +819,6 @@ describe("Reversing SquaddieActionResults", () => {
             let mapCollection = CoordinateMapCollectionService.new()
             const map = CoordinateMapService.new({
                 id: "test-map",
-                name: "test-map",
                 movementProperties: [
                     "1 1 1 1 1 1 1 1 1 1 ",
                     " 1 1 1 1 1 1 1 1 1 1 ",

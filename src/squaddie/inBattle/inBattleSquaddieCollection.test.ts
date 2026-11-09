@@ -44,14 +44,12 @@ describe("InBattleSquaddieCollection", () => {
                 })
             outOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "squaddie-1",
-                name: "Test Squaddie 1",
                 actionIds: ["action1"],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
             })
             outOfBattleSquaddie2 = OutOfBattleSquaddieService.new({
                 id: "squaddie-2",
-                name: "Test Squaddie 2",
                 actionIds: ["action2"],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -69,81 +67,80 @@ describe("InBattleSquaddieCollection", () => {
             expect(restored.byOutOfBattleSquaddieId.size).toEqual(0)
         })
 
-        it("round-trip serialization preserves collection with one squaddie", () => {
-            let collection = InBattleSquaddieCollectionService.new()
-            const { collection: updatedCollection, inBattleId } =
-                InBattleSquaddieCollectionService.createNewSquaddie({
-                    collection,
-                    outOfBattleSquaddie,
-                    attributeSheet,
-                })
-            collection = updatedCollection
+        describe("when a collection with one squaddie is serialized and restored", () => {
+            it("restores that squaddie unchanged", () => {
+                const { collection, inBattleId } =
+                    InBattleSquaddieCollectionService.createNewSquaddie({
+                        collection: InBattleSquaddieCollectionService.new(),
+                        outOfBattleSquaddie,
+                        attributeSheet,
+                    })
+                const battleSquaddieId = {
+                    inBattleSquaddieId: inBattleId,
+                    outOfBattleSquaddieId: outOfBattleSquaddie.id,
+                }
 
-            const serializable =
-                InBattleSquaddieCollectionService.serialize(collection)
-            const restored =
-                InBattleSquaddieCollectionService.deserialize(serializable)
+                const restored = InBattleSquaddieCollectionService.deserialize(
+                    InBattleSquaddieCollectionService.serialize(collection)
+                )
 
-            expect(restored.byOutOfBattleSquaddieId.size).toEqual(1)
-            const restoredSquaddie =
-                InBattleSquaddieCollectionService.getSquaddie({
-                    collection: restored,
-                    battleSquaddieId: {
-                        inBattleSquaddieId: inBattleId,
-                        outOfBattleSquaddieId: outOfBattleSquaddie.id,
-                    },
-                })
-            expect(restoredSquaddie).toBeDefined()
-            expect(restoredSquaddie!.name).toEqual("Test Squaddie 1")
+                expect(
+                    InBattleSquaddieCollectionService.getSquaddie({
+                        collection: restored,
+                        battleSquaddieId,
+                    })
+                ).toEqual(
+                    InBattleSquaddieCollectionService.getSquaddie({
+                        collection,
+                        battleSquaddieId,
+                    })
+                )
+            })
         })
 
-        it("round-trip serialization preserves collection with multiple squaddies", () => {
-            let collection = InBattleSquaddieCollectionService.new()
-
-            const { collection: c1, inBattleId: id1 } =
-                InBattleSquaddieCollectionService.createNewSquaddie({
-                    collection,
-                    outOfBattleSquaddie,
-                    attributeSheet,
-                })
-            collection = c1
-
-            const { collection: c2, inBattleId: id2 } =
-                InBattleSquaddieCollectionService.createNewSquaddie({
-                    collection,
-                    outOfBattleSquaddie: outOfBattleSquaddie2,
-                    attributeSheet,
-                })
-            collection = c2
-
-            const serializable =
-                InBattleSquaddieCollectionService.serialize(collection)
-            const restored =
-                InBattleSquaddieCollectionService.deserialize(serializable)
-
-            expect(restored.byOutOfBattleSquaddieId.size).toEqual(2)
-
-            const restoredSquaddie1 =
-                InBattleSquaddieCollectionService.getSquaddie({
-                    collection: restored,
-                    battleSquaddieId: {
-                        inBattleSquaddieId: id1,
+        describe("when a collection with several squaddies is serialized and restored", () => {
+            it("restores each squaddie unchanged under its own id", () => {
+                const { collection: withFirst, inBattleId: firstInBattleId } =
+                    InBattleSquaddieCollectionService.createNewSquaddie({
+                        collection: InBattleSquaddieCollectionService.new(),
+                        outOfBattleSquaddie,
+                        attributeSheet,
+                    })
+                const { collection, inBattleId: secondInBattleId } =
+                    InBattleSquaddieCollectionService.createNewSquaddie({
+                        collection: withFirst,
+                        outOfBattleSquaddie: outOfBattleSquaddie2,
+                        attributeSheet,
+                    })
+                const battleSquaddieIds = [
+                    {
+                        inBattleSquaddieId: firstInBattleId,
                         outOfBattleSquaddieId: outOfBattleSquaddie.id,
                     },
-                })
-            expect(restoredSquaddie1).toBeDefined()
-            expect(restoredSquaddie1!.name).toEqual("Test Squaddie 1")
-
-            const restoredSquaddie2 =
-                InBattleSquaddieCollectionService.getSquaddie({
-                    collection: restored,
-                    battleSquaddieId: {
-                        inBattleSquaddieId: id2,
+                    {
+                        inBattleSquaddieId: secondInBattleId,
                         outOfBattleSquaddieId: outOfBattleSquaddie2.id,
                     },
-                })
-            expect(restoredSquaddie2).toBeDefined()
-            expect(restoredSquaddie2!.name).toEqual("Test Squaddie 2")
+                ]
+
+                const restored = InBattleSquaddieCollectionService.deserialize(
+                    InBattleSquaddieCollectionService.serialize(collection)
+                )
+
+                battleSquaddieIds.forEach((battleSquaddieId) =>
+                    expect(
+                        InBattleSquaddieCollectionService.getSquaddie({
+                            collection: restored,
+                            battleSquaddieId,
+                        })
+                    ).toEqual(
+                        InBattleSquaddieCollectionService.getSquaddie({
+                            collection,
+                            battleSquaddieId,
+                        })
+                    )
+                )
+            })
         })
 
         it("round-trip serialization preserves squaddie conditions", () => {
@@ -246,7 +243,6 @@ describe("InBattleSquaddieCollection", () => {
                                 InBattleSquaddieService.new({
                                     id: 0,
                                     outOfBattleSquaddie,
-                                    name: "New Squaddie",
                                     attributeSheet,
                                 })
                             ),
@@ -272,7 +268,6 @@ describe("InBattleSquaddieCollection", () => {
                         },
                     })
                 expect(newSquaddie).toBeDefined()
-                expect(newSquaddie!.name).toEqual("New Squaddie")
                 expect(newSquaddie!.hitPoints.current).toEqual(10)
             })
 
@@ -299,7 +294,6 @@ describe("InBattleSquaddieCollection", () => {
                 let inBattleSquaddie = InBattleSquaddieService.new({
                     id: inBattleId,
                     outOfBattleSquaddie,
-                    name: "Updated Name",
                     attributeSheet,
                 })
                 ;({ squaddie: inBattleSquaddie } =
@@ -315,7 +309,6 @@ describe("InBattleSquaddieCollection", () => {
 
                 let item = SquaddieItemService.new({
                     id: "item1",
-                    name: "Item 1",
                 })
                 inBattleSquaddie = InBattleSquaddieService.useItem({
                     squaddie: inBattleSquaddie,
@@ -347,7 +340,6 @@ describe("InBattleSquaddieCollection", () => {
                         },
                     })!
 
-                expect(updatedSquaddie.name).toEqual("Updated Name")
                 expect(updatedSquaddie.hitPoints.current).toEqual(5)
                 expect(updatedSquaddie.actionPoints.current).toEqual(1)
                 expect(updatedSquaddie.itemIdsUsed).toEqual(["item1"])

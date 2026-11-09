@@ -11,7 +11,6 @@ const newLini = (
         id: "lini",
         outOfBattleAttributeSheetId: "sheet-lini",
         outOfBattleSquaddieId: "battle-lini",
-        name: "Lini",
         ...overrides,
     })
 

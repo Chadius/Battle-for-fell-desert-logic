@@ -7,8 +7,7 @@ import type { MissionManager } from "../mission/missionManager.js"
 describe("CampaignMissionManager", () => {
     let manager: CampaignMissionManager
 
-    const createMission = (id: string, name: string) =>
-        CampaignMissionService.new({ id, name })
+    const createMission = (id: string) => CampaignMissionService.new({ id })
 
     beforeEach(() => {
         manager = new CampaignMissionManager(
@@ -18,22 +17,19 @@ describe("CampaignMissionManager", () => {
 
     describe("addMission", () => {
         it("registers a mission in the collection", () => {
-            manager.addMission(createMission("mission-1", "First Mission"))
+            manager.addMission(createMission("mission-1"))
 
             const serialized = manager.getSerializedMissions()
             expect(serialized).toHaveLength(1)
             expect(serialized[0]).toEqual({
                 id: "mission-1",
-                name: "First Mission",
             })
         })
 
         it("throws when collection is undefined", () => {
             const managerWithoutCollection = new CampaignMissionManager()
             expect(() =>
-                managerWithoutCollection.addMission(
-                    createMission("mission-1", "First Mission")
-                )
+                managerWithoutCollection.addMission(createMission("mission-1"))
             ).toThrow(/CampaignMissionManager\.addMission/)
         })
     })
@@ -41,7 +37,7 @@ describe("CampaignMissionManager", () => {
     describe("addMissionManager and loadMissionById", () => {
         it("stores a MissionManager and retrieves it as current after load", () => {
             const stubMissionManager = {} as MissionManager
-            manager.addMission(createMission("mission-1", "First Mission"))
+            manager.addMission(createMission("mission-1"))
             manager.addMissionManager({
                 id: "mission-1",
                 missionManager: stubMissionManager,
@@ -56,12 +52,12 @@ describe("CampaignMissionManager", () => {
             const firstManager = {} as MissionManager
             const secondManager = {} as MissionManager
 
-            manager.addMission(createMission("mission-1", "First Mission"))
+            manager.addMission(createMission("mission-1"))
             manager.addMissionManager({
                 id: "mission-1",
                 missionManager: firstManager,
             })
-            manager.addMission(createMission("mission-2", "Second Mission"))
+            manager.addMission(createMission("mission-2"))
             manager.addMissionManager({
                 id: "mission-2",
                 missionManager: secondManager,
@@ -89,14 +85,14 @@ describe("CampaignMissionManager", () => {
 
     describe("getSerializedMissions", () => {
         it("returns metadata for all registered missions", () => {
-            manager.addMission(createMission("mission-1", "First Mission"))
-            manager.addMission(createMission("mission-2", "Second Mission"))
+            manager.addMission(createMission("mission-1"))
+            manager.addMission(createMission("mission-2"))
 
             const serialized = manager.getSerializedMissions()
 
             expect(serialized).toEqual([
-                { id: "mission-1", name: "First Mission" },
-                { id: "mission-2", name: "Second Mission" },
+                { id: "mission-1" },
+                { id: "mission-2" },
             ])
         })
     })

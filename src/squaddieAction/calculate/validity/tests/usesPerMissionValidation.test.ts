@@ -22,7 +22,6 @@ describe("usesPerMission validation", () => {
         setup.squaddieActionManager.addOrUpdate(
             SquaddieActionService.new({
                 id: actionId,
-                name: "Warcry",
                 usesPerMission: 3,
                 effectOnActor: {
                     [DegreeOfSuccess.SUCCESS]: { actionPoints: { spent: 1 } },

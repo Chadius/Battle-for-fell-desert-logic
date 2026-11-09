@@ -35,7 +35,6 @@ describe("MissionManager — transactional JSON loading", () => {
         coordinateMapCollectionManager.addOrUpdate({
             map: CoordinateMapService.new({
                 id: MAP_ID,
-                name: "Transaction Test Map",
                 movementProperties: ["1 1 1"],
             }),
         })
@@ -72,7 +71,6 @@ describe("MissionManager — transactional JSON loading", () => {
         it("commits staged squaddieActionManager to live fields after successful validate", () => {
             const action = SquaddieActionService.new({
                 id: "slash",
-                name: "Slash",
                 attribute: AttributeScore.BODY,
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
@@ -155,7 +153,6 @@ describe("MissionManager — transactional JSON loading", () => {
             const manager = new MissionManager()
             const action = SquaddieActionService.new({
                 id: "slash",
-                name: "Slash",
                 attribute: AttributeScore.BODY,
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
@@ -229,7 +226,6 @@ describe("MissionManager — transactional JSON loading", () => {
         it("accumulates two addActionsFromJson calls in staging before committing", () => {
             const actionA = SquaddieActionService.new({
                 id: "slash",
-                name: "Slash",
                 attribute: AttributeScore.BODY,
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
@@ -245,7 +241,6 @@ describe("MissionManager — transactional JSON loading", () => {
             })
             const actionB = SquaddieActionService.new({
                 id: "heal",
-                name: "Heal",
                 attribute: AttributeScore.SOUL,
                 proficiency: ProficiencyType.UNKNOWN,
                 targeting: {

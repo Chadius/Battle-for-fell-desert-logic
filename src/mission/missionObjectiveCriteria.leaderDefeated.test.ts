@@ -23,7 +23,6 @@ const buildArmyWithLeaderSquaddie = ({
         id: "campaign-squaddie",
         outOfBattleAttributeSheetId: "test sheet",
         outOfBattleSquaddieId,
-        name: "Campaign Squaddie",
         isLeader,
     })
     return ArmyService.addOrUpdate({
@@ -77,7 +76,6 @@ describe("ArmyLeaderDefeatedCriteria", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "leader-out-of-battle",
-                    name: "Leader",
                     actionIds: [],
                     attributeSheetId: "test sheet",
                     affiliation: SquaddieAffiliation.ENEMY,

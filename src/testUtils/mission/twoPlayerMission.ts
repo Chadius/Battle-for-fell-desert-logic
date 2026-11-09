@@ -45,7 +45,6 @@ export const TwoPlayerMissionActionIds = {
 function createJabAction() {
     return SquaddieActionService.new({
         id: TwoPlayerMissionActionIds.jab,
-        name: "Jab",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -61,7 +60,6 @@ function createJabAction() {
 function createWaveAction() {
     return SquaddieActionService.new({
         id: TwoPlayerMissionActionIds.wave,
-        name: "Wave",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -77,7 +75,6 @@ function createWaveAction() {
 function createSurgeAction() {
     return SquaddieActionService.new({
         id: TwoPlayerMissionActionIds.surge,
-        name: "Surge",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -94,7 +91,6 @@ function createSurgeAction() {
 function createFlourishAction() {
     return SquaddieActionService.new({
         id: TwoPlayerMissionActionIds.flourish,
-        name: "Flourish",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -112,7 +108,6 @@ function createFlourishAction() {
 function createMendAction() {
     return SquaddieActionService.new({
         id: TwoPlayerMissionActionIds.mend,
-        name: "Mend",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -133,7 +128,6 @@ function createMendAction() {
 function createGroupMendAction() {
     return SquaddieActionService.new({
         id: TwoPlayerMissionActionIds.groupMend,
-        name: "Group Mend",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.MELEE,
@@ -155,7 +149,6 @@ function createGroupMendAction() {
 function createSaluteAction() {
     return SquaddieActionService.new({
         id: TwoPlayerMissionActionIds.salute,
-        name: "Salute",
         proficiency: ProficiencyType.WEAPON_SIMPLE,
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
@@ -172,7 +165,6 @@ function createSaluteAction() {
 function createPokeAction() {
     return SquaddieActionService.new({
         id: TwoPlayerMissionActionIds.poke,
-        name: "Poke",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.MELEE,
@@ -225,7 +217,6 @@ export function createTwoPlayerMission({
 
     const player1 = OutOfBattleSquaddieService.new({
         id: "player-1",
-        name: "Player One",
         affiliation: SquaddieAffiliation.PLAYER,
         attributeSheetId: "player_sheet",
         actionIds: [
@@ -241,7 +232,6 @@ export function createTwoPlayerMission({
     })
     const player2 = OutOfBattleSquaddieService.new({
         id: "player-2",
-        name: "Player Two",
         affiliation: SquaddieAffiliation.PLAYER,
         attributeSheetId: "player_sheet",
         actionIds: [TwoPlayerMissionActionIds.jab],
@@ -272,7 +262,6 @@ export function createTwoPlayerMission({
 
     const coordinateMap = CoordinateMapService.new({
         id: "test_map",
-        name: "test map",
         movementProperties: ["1 1 1 1 1"],
     })
 

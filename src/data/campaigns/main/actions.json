@@ -4,7 +4,6 @@
     "data": [
         {
             "id": "lini-scimitar",
-            "name": "Scimitar",
             "attribute": "BODY",
             "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
             "targeting": {
@@ -51,7 +50,6 @@
         },
         {
             "id": "lini-blessing",
-            "name": "Blessing",
             "attribute": "SOUL",
             "degreesOfSuccess": ["SUCCESS"],
             "targeting": {
@@ -105,7 +103,6 @@
         },
         {
             "id": "lini-heal",
-            "name": "Heal",
             "attribute": "SOUL",
             "degreesOfSuccess": ["SUCCESS"],
             "targeting": {
@@ -144,7 +141,6 @@
         },
         {
             "id": "lini-solar-sphere",
-            "name": "Solar Sphere",
             "attribute": "SOUL",
             "degreesOfSuccess": ["CRITICAL", "SUCCESS", "FAILURE", "BOTCH"],
             "targeting": {
@@ -233,7 +229,6 @@
         },
         {
             "id": "vale-lightning-bolt",
-            "name": "Lightning Bolt",
             "attribute": "MIND",
             "degreesOfSuccess": ["SUCCESS", "FAILURE"],
             "targeting": {
@@ -274,7 +269,6 @@
         },
         {
             "id": "vale-dagger",
-            "name": "Dagger Stab",
             "attribute": "BODY",
             "degreesOfSuccess": ["SUCCESS", "CRITICAL", "FAILURE"],
             "targeting": {
@@ -323,7 +317,6 @@
         },
         {
             "id": "vale-intimidating-glare",
-            "name": "Intimidating Glare",
             "attribute": "MIND",
             "degreesOfSuccess": ["CRITICAL", "SUCCESS", "FAILURE"],
             "targeting": {
@@ -403,7 +396,6 @@
         },
         {
             "id": "vale-rescue",
-            "name": "Rescue",
             "attribute": "BODY",
             "degreesOfSuccess": ["SUCCESS"],
             "targeting": {
@@ -443,7 +435,6 @@
         },
         {
             "id": "gloria-longsword",
-            "name": "Longsword",
             "attribute": "BODY",
             "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
             "targeting": {
@@ -490,7 +481,6 @@
         },
         {
             "id": "gloria-shield",
-            "name": "Shield",
             "attribute": "BODY",
             "degreesOfSuccess": ["SUCCESS"],
             "targeting": {
@@ -558,7 +548,6 @@
         },
         {
             "id": "gloria-sweep",
-            "name": "Sweep",
             "attribute": "BODY",
             "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
             "targeting": {
@@ -605,7 +594,6 @@
         },
         {
             "id": "fracta-axe-strike",
-            "name": "Axe Strike",
             "attribute": "BODY",
             "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
             "targeting": {
@@ -652,7 +640,6 @@
         },
         {
             "id": "fracta-leap",
-            "name": "Leap",
             "attribute": "BODY",
             "degreesOfSuccess": ["SUCCESS"],
             "targeting": {
@@ -693,7 +680,6 @@
         },
         {
             "id": "default-move",
-            "name": "Move",
             "attribute": "BODY",
             "degreesOfSuccess": ["SUCCESS"],
             "targeting": {
@@ -731,7 +717,6 @@
         },
         {
             "id": "default-end-turn",
-            "name": "End Turn",
             "attribute": "BODY",
             "degreesOfSuccess": ["SUCCESS"],
             "targeting": {

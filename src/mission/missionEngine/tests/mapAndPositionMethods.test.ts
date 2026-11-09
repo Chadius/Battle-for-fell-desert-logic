@@ -6,6 +6,7 @@ import {
     MissionEngineTestHarness,
     MissionEngineTestHarnessIds,
 } from "../../../testUtils/mission/missionEngineTestHarness.js"
+import { SquaddieActionService } from "../../../squaddieAction/squaddieAction.js"
 
 describe("MissionEngine map and position methods", () => {
     describe("getMapDimensions", () => {
@@ -333,52 +334,22 @@ describe("MissionEngine map and position methods", () => {
             )
         })
 
-        it("returns Lini scimitar action", () => {
-            const action = missionEngine.getActionById(
-                MissionEngineTestHarnessIds.lini.scimitarActionId
-            )
+        describe("when asked for an action the mission loaded", () => {
+            it.each([
+                MissionEngineTestHarnessIds.lini.scimitarActionId,
+                MissionEngineTestHarnessIds.lini.blessingActionId,
+                MissionEngineTestHarnessIds.lini.healActionId,
+                MissionEngineTestHarnessIds.slitherDemon.clawActionId,
+            ])(
+                "returns the definition the mission loaded for %s",
+                (actionId) => {
+                    const action = missionEngine.getActionById(actionId)
 
-            expect(action).toBeDefined()
-            expect(action.id).toBe(
-                MissionEngineTestHarnessIds.lini.scimitarActionId
+                    expect(SquaddieActionService.serialize(action)).toEqual(
+                        MissionEngineTestHarness.serializedAction(actionId)
+                    )
+                }
             )
-            expect(action.name).toBe("Scimitar")
-        })
-
-        it("returns Lini blessing action", () => {
-            const action = missionEngine.getActionById(
-                MissionEngineTestHarnessIds.lini.blessingActionId
-            )
-
-            expect(action).toBeDefined()
-            expect(action.id).toBe(
-                MissionEngineTestHarnessIds.lini.blessingActionId
-            )
-            expect(action.name).toBe("Blessing")
-        })
-
-        it("returns Lini heal action", () => {
-            const action = missionEngine.getActionById(
-                MissionEngineTestHarnessIds.lini.healActionId
-            )
-
-            expect(action).toBeDefined()
-            expect(action.id).toBe(
-                MissionEngineTestHarnessIds.lini.healActionId
-            )
-            expect(action.name).toBe("Heal")
-        })
-
-        it("returns Slither Demon claw action", () => {
-            const action = missionEngine.getActionById(
-                MissionEngineTestHarnessIds.slitherDemon.clawActionId
-            )
-
-            expect(action).toBeDefined()
-            expect(action.id).toBe(
-                MissionEngineTestHarnessIds.slitherDemon.clawActionId
-            )
-            expect(action.name).toBe("Claw")
         })
 
         it("throws error for unknown action", () => {

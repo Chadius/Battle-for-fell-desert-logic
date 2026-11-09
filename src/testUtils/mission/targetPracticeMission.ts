@@ -56,7 +56,6 @@ import { MissionDeploymentService } from "../../mission/missionDeployment.js"
 
 export const ValeAndGloriaMissionIds = {
     mapId: "target-practice-map-id",
-    mapName: "Target Practice",
     missionStateId: "targetPracticeMissionId",
     vale: {
         outOfBattleSquaddieId: "vale",
@@ -150,7 +149,6 @@ function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager 
 
     const coordinateMap = CoordinateMapService.new({
         id: ValeAndGloriaMissionIds.mapId,
-        name: ValeAndGloriaMissionIds.mapName,
         movementProperties,
     })
 
@@ -207,7 +205,6 @@ function createSquaddieActionManager(): SquaddieActionManager {
 function createLightningBoltAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.vale.lightningBoltActionId,
-        name: "Lightning Bolt",
         attribute: AttributeScore.MIND,
         proficiency: ProficiencyType.SKILL_MIND,
         range: ActionRange.LONG,
@@ -242,7 +239,6 @@ function createLightningBoltAction(): SquaddieAction {
 function createDaggerStabAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.vale.daggerActionId,
-        name: "Dagger Stab",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_SIMPLE,
         range: ActionRange.MELEE,
@@ -289,7 +285,6 @@ function createDaggerStabAction(): SquaddieAction {
 function createIntimidatingGlareAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.vale.intimidatingGlareActionId,
-        name: "Intimidating Glare",
         attribute: AttributeScore.MIND,
         proficiency: ProficiencyType.SKILL_MIND,
         range: ActionRange.SHORT,
@@ -348,7 +343,6 @@ function createIntimidatingGlareAction(): SquaddieAction {
 function createLongswordAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.gloria.longswordActionId,
-        name: "Longsword",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_MARTIAL,
         range: ActionRange.MELEE,
@@ -384,7 +378,6 @@ function createLongswordAction(): SquaddieAction {
 function createShieldAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.gloria.shieldActionId,
-        name: "Shield",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.SKILL_BODY,
         range: ActionRange.SELF,
@@ -433,7 +426,6 @@ function createShieldAction(): SquaddieAction {
 function createSweepAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.gloria.sweepActionId,
-        name: "Sweep",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_MARTIAL,
         range: ActionRange.MELEE,
@@ -471,7 +463,6 @@ function createSweepAction(): SquaddieAction {
 function createDemonBiteAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: ValeAndGloriaMissionIds.slitherDemon.biteActionId,
-        name: "Bite",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_NATURAL,
         range: ActionRange.MELEE,
@@ -532,7 +523,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const valeSquaddie = OutOfBattleSquaddieService.new({
         id: ValeAndGloriaMissionIds.vale.outOfBattleSquaddieId,
-        name: "Vale",
         attributeSheetId: ValeAndGloriaMissionIds.vale.attributeSheetId,
         actionIds: [
             ValeAndGloriaMissionIds.vale.lightningBoltActionId,
@@ -564,7 +554,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const gloriaSquaddie = OutOfBattleSquaddieService.new({
         id: ValeAndGloriaMissionIds.gloria.outOfBattleSquaddieId,
-        name: "Gloria",
         attributeSheetId: ValeAndGloriaMissionIds.gloria.attributeSheetId,
         actionIds: [
             ValeAndGloriaMissionIds.gloria.longswordActionId,
@@ -590,7 +579,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const demonSquaddie = OutOfBattleSquaddieService.new({
         id: ValeAndGloriaMissionIds.slitherDemon.outOfBattleSquaddieId,
-        name: "Slither Demon",
         attributeSheetId: ValeAndGloriaMissionIds.slitherDemon.attributeSheetId,
         actionIds: [ValeAndGloriaMissionIds.slitherDemon.biteActionId],
         affiliation: SquaddieAffiliation.ENEMY,

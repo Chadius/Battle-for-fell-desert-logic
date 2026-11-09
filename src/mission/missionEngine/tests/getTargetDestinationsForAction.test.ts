@@ -49,7 +49,6 @@ function createTestSetup(): {
 
     const playerSquaddie = OutOfBattleSquaddieService.new({
         id: "player-1",
-        name: "Player 1",
         affiliation: SquaddieAffiliation.PLAYER,
         attributeSheetId: "actor-sheet",
         actionIds: [leapActionId],
@@ -63,7 +62,6 @@ function createTestSetup(): {
     )
     const enemySquaddie = OutOfBattleSquaddieService.new({
         id: enemyOutOfBattleId,
-        name: "Enemy 1",
         affiliation: SquaddieAffiliation.ENEMY,
         attributeSheetId: "enemy-sheet",
     })
@@ -82,7 +80,6 @@ function createTestSetup(): {
 
     const map = CoordinateMapService.new({
         id: mapId,
-        name: "Leap test map",
         movementProperties: ["1 - 1 1 1 1"],
     })
 
@@ -103,7 +100,6 @@ function createTestSetup(): {
 
     const leapAction = SquaddieActionService.new({
         id: leapActionId,
-        name: "Leap",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -288,7 +284,6 @@ function createTeleportTestSetup(): {
 
     const playerSquaddie = OutOfBattleSquaddieService.new({
         id: "teleport-actor",
-        name: "Actor",
         affiliation: SquaddieAffiliation.PLAYER,
         attributeSheetId: "teleport-actor-sheet",
         actionIds: [rescueActionId],
@@ -309,7 +304,6 @@ function createTeleportTestSetup(): {
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: teleportMapId,
-            name: "Teleport test map",
             movementProperties: ["1 1 1 1 1", " 1 - 1 1 1", "1 1 1 1 1"],
         }),
     })
@@ -321,7 +315,6 @@ function createTeleportTestSetup(): {
 
     const rescueAction = SquaddieActionService.new({
         id: rescueActionId,
-        name: "Rescue",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.MEDIUM,

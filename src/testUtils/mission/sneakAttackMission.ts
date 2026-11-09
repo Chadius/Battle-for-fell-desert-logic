@@ -57,7 +57,6 @@ import { MissionDeploymentService } from "../../mission/missionDeployment.js"
 
 export const SneakAttackMissionIds = {
     mapId: "sneak-attack-map-id",
-    mapName: "Sneak Attack Test",
     missionStateId: "sneakAttackMissionId",
     lini: {
         outOfBattleSquaddieId: "lini-sneak",
@@ -148,7 +147,6 @@ function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager 
 
     const coordinateMap = CoordinateMapService.new({
         id: SneakAttackMissionIds.mapId,
-        name: SneakAttackMissionIds.mapName,
         movementProperties,
     })
 
@@ -207,7 +205,6 @@ function createSquaddieActionManager(): SquaddieActionManager {
 function createScimitarAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: SneakAttackMissionIds.lini.scimitarActionId,
-        name: "Scimitar",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_MARTIAL,
         range: ActionRange.MELEE,
@@ -243,7 +240,6 @@ function createScimitarAction(): SquaddieAction {
 function createHealAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: SneakAttackMissionIds.lini.healActionId,
-        name: "Heal",
         attribute: AttributeScore.SOUL,
         proficiency: ProficiencyType.SKILL_SOUL,
         range: ActionRange.MELEE,
@@ -273,7 +269,6 @@ function createHealAction(): SquaddieAction {
 function createSolarSphereAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: SneakAttackMissionIds.lini.solarSphereActionId,
-        name: "Solar Sphere",
         attribute: AttributeScore.SOUL,
         proficiency: ProficiencyType.SKILL_SOUL,
         range: ActionRange.MEDIUM,
@@ -347,7 +342,6 @@ function createSolarSphereAction(): SquaddieAction {
 function createDaggerAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: SneakAttackMissionIds.vale.daggerActionId,
-        name: "Dagger",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_SIMPLE,
         range: ActionRange.MELEE,
@@ -394,7 +388,6 @@ function createDaggerAction(): SquaddieAction {
 function createLightningBoltAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: SneakAttackMissionIds.vale.lightningBoltActionId,
-        name: "Lightning Bolt",
         attribute: AttributeScore.MIND,
         proficiency: ProficiencyType.SKILL_MIND,
         range: ActionRange.LONG,
@@ -430,7 +423,6 @@ function createLightningBoltAction(): SquaddieAction {
 function createRescueAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: SneakAttackMissionIds.vale.rescueActionId,
-        name: "Rescue",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.MEDIUM,
@@ -459,7 +451,6 @@ function createRescueAction(): SquaddieAction {
 function createClawAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: SneakAttackMissionIds.demon.clawActionId,
-        name: "Claw",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_NATURAL,
         range: ActionRange.MELEE,
@@ -508,7 +499,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const liniSquaddie = OutOfBattleSquaddieService.new({
         id: SneakAttackMissionIds.lini.outOfBattleSquaddieId,
-        name: "Lini",
         attributeSheetId: SneakAttackMissionIds.lini.attributeSheetId,
         actionIds: [
             SneakAttackMissionIds.lini.scimitarActionId,
@@ -537,7 +527,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const valeSquaddie = OutOfBattleSquaddieService.new({
         id: SneakAttackMissionIds.vale.outOfBattleSquaddieId,
-        name: "Vale",
         attributeSheetId: SneakAttackMissionIds.vale.attributeSheetId,
         actionIds: [
             SneakAttackMissionIds.vale.daggerActionId,
@@ -563,7 +552,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const demonSquaddie = OutOfBattleSquaddieService.new({
         id: SneakAttackMissionIds.demon.outOfBattleSquaddieId,
-        name: "Goblin Grunt",
         attributeSheetId: SneakAttackMissionIds.demon.attributeSheetId,
         actionIds: [SneakAttackMissionIds.demon.clawActionId],
         affiliation: SquaddieAffiliation.ENEMY,

@@ -29,7 +29,6 @@ describe("MissionManager", () => {
 
             const playerOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Player 1",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
             })
@@ -49,7 +48,6 @@ describe("MissionManager", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 "],
             })
 
@@ -199,14 +197,12 @@ describe("MissionManager", () => {
 
             const playerOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "player-1",
-                name: "Player 1",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "test_sheet",
             })
 
             const allyOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "ally-1",
-                name: "Ally 1",
                 affiliation: SquaddieAffiliation.ALLY,
                 attributeSheetId: "test_sheet",
             })
@@ -233,7 +229,6 @@ describe("MissionManager", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 "],
             })
 

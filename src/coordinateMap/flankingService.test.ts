@@ -50,7 +50,6 @@ describe("FlankingService", () => {
     beforeEach(() => {
         const map = CoordinateMapService.new({
             id: MAP_ID,
-            name: "Flanking Test Map",
             movementProperties: [
                 "1 1 1 1 1",
                 "1 1 1 1 1",
@@ -73,7 +72,6 @@ describe("FlankingService", () => {
         outOfBattleManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "player",
-                name: "Player",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -82,7 +80,6 @@ describe("FlankingService", () => {
         outOfBattleManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "enemy",
-                name: "Enemy",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -91,7 +88,6 @@ describe("FlankingService", () => {
         outOfBattleManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "ally",
-                name: "Ally",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.ALLY,
@@ -100,7 +96,6 @@ describe("FlankingService", () => {
         outOfBattleManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: "player2",
-                name: "Player 2",
                 actionIds: [],
                 attributeSheetId: "sheet",
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -228,7 +223,6 @@ describe("FlankingService", () => {
             outOfBattleManager2.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy2",
-                    name: "Enemy 2",
                     actionIds: [],
                     attributeSheetId: "sheet2",
                     affiliation: SquaddieAffiliation.ENEMY,
@@ -238,7 +232,6 @@ describe("FlankingService", () => {
             inBattleSquaddieManager.outOfBattleSquaddieManager!.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "enemy2",
-                    name: "Enemy 2",
                     actionIds: [],
                     attributeSheetId: "sheet",
                     affiliation: SquaddieAffiliation.ENEMY,

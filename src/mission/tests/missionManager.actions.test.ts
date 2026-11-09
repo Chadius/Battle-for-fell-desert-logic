@@ -62,14 +62,12 @@ describe("MissionManager", () => {
 
             const actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "actor",
-                name: "Actor",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "actor_sheet",
             })
 
             const targetOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
                 id: "target",
-                name: "Target",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "target_sheet",
             })
@@ -96,7 +94,6 @@ describe("MissionManager", () => {
 
             const attackAction = SquaddieActionService.new({
                 id: "attack",
-                name: "Attack",
                 targeting: {
                     range: ActionRange.MELEE,
                     shape: CoordinateGeneratorShape.BLOOM,
@@ -126,7 +123,6 @@ describe("MissionManager", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 "],
             })
 
@@ -308,7 +304,6 @@ describe("MissionManager", () => {
         it("should remove defeated squaddies from the map", () => {
             const fatalAttackAction = SquaddieActionService.new({
                 id: "fatal-attack",
-                name: "Fatal Attack",
                 targeting: {
                     range: ActionRange.MELEE,
                     shape: CoordinateGeneratorShape.BLOOM,
@@ -404,7 +399,6 @@ describe("MissionManager", () => {
                     id: "squaddie-1",
                     attributeSheetId: "attr-sheet-1",
                     affiliation: SquaddieAffiliation.PLAYER,
-                    name: "squaddie-1",
                 })
             )
 
@@ -423,7 +417,6 @@ describe("MissionManager", () => {
                     collection: coordinateMapCollection,
                     map: CoordinateMapService.new({
                         id: "map-1",
-                        name: "test map",
                         movementProperties: ["1 1 1 "],
                     }),
                 })
@@ -662,7 +655,6 @@ describe("MissionManager", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "actor",
-                    name: "Actor",
                     affiliation: SquaddieAffiliation.PLAYER,
                     attributeSheetId: "actor_sheet",
                 })
@@ -670,7 +662,6 @@ describe("MissionManager", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "target",
-                    name: "Target",
                     affiliation: SquaddieAffiliation.ENEMY,
                     attributeSheetId: "target_sheet",
                 })
@@ -696,7 +687,6 @@ describe("MissionManager", () => {
             squaddieActionManager.addOrUpdate(
                 SquaddieActionService.new({
                     id: weaponActionId,
-                    name: "Weapon Attack",
                     proficiency: ProficiencyType.WEAPON_MARTIAL,
                     targeting: {
                         range: ActionRange.MELEE,
@@ -725,7 +715,6 @@ describe("MissionManager", () => {
             squaddieActionManager.addOrUpdate(
                 SquaddieActionService.new({
                     id: nonWeaponActionId,
-                    name: "Non-Weapon",
                     proficiency: ProficiencyType.SKILL_BODY,
                     targeting: {
                         range: ActionRange.MELEE,
@@ -754,7 +743,6 @@ describe("MissionManager", () => {
             squaddieActionManager.addOrUpdate(
                 SquaddieActionService.new({
                     id: flurryActionId,
-                    name: "Flurry",
                     proficiency: ProficiencyType.WEAPON_MARTIAL,
                     multipleAttackPenalty: { contribution: 2 },
                     targeting: {
@@ -782,7 +770,6 @@ describe("MissionManager", () => {
 
             const map = CoordinateMapService.new({
                 id: "test_map",
-                name: "test map",
                 movementProperties: ["1 1 1 "],
             })
 

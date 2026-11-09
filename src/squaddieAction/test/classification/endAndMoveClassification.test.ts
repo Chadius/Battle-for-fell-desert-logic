@@ -25,7 +25,6 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
         it("classifies any other action with the same effect as END", () => {
             const wait = SquaddieActionService.new({
                 id: "wait",
-                name: "Wait",
                 affiliationRelationship: {
                     self: true,
                     foe: false,
@@ -48,7 +47,6 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
         it("is a SELF ASSIST, because healing the actor is more than ending the turn", () => {
             const lastStand = SquaddieActionService.new({
                 id: "last-stand",
-                name: "Last Stand",
                 affiliationRelationship: {
                     self: true,
                     foe: false,
@@ -70,7 +68,6 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
         it("is a SELF ASSIST, because restoring action points is more than ending the turn", () => {
             const secondWind = SquaddieActionService.new({
                 id: "second-wind",
-                name: "Second Wind",
                 affiliationRelationship: {
                     self: true,
                     foe: false,
@@ -93,7 +90,6 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
         it("is DAMAGE, not END", () => {
             const desperateStrike = SquaddieActionService.new({
                 id: "desperate-strike",
-                name: "Desperate Strike",
                 affiliationRelationship: {
                     self: false,
                     foe: true,
@@ -117,7 +113,6 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
         it("is HINDER, not END", () => {
             const exhaustingRoar = SquaddieActionService.new({
                 id: "exhausting-roar",
-                name: "Exhausting Roar",
                 affiliationRelationship: {
                     self: false,
                     foe: true,
@@ -153,7 +148,6 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
         it("classifies a special traversal like Leap as MOVE", () => {
             const leap = SquaddieActionService.new({
                 id: "leap",
-                name: "Leap",
                 affiliationRelationship: {
                     self: true,
                     foe: false,
@@ -181,7 +175,6 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
         it("is a SELF ASSIST, because the actor can stay in place and still be helped", () => {
             const defensiveRetreat = SquaddieActionService.new({
                 id: "defensive-retreat",
-                name: "Defensive Retreat",
                 affiliationRelationship: {
                     self: true,
                     foe: false,
@@ -208,7 +201,6 @@ describe("SquaddieActionClassificationService.classify end and move actions", ()
         it("is DAMAGE, not MOVE", () => {
             const charge = SquaddieActionService.new({
                 id: "charge",
-                name: "Charge",
                 affiliationRelationship: {
                     self: false,
                     foe: true,

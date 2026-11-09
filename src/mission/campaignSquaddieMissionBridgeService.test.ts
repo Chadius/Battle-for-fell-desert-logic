@@ -38,7 +38,6 @@ const buildEmptyMissionManagers = () => {
     coordinateMapCollectionManager.addOrUpdate({
         map: CoordinateMapService.new({
             id: MAP_ID,
-            name: "Map",
             movementProperties: ["1 1 1", "1 1 1"],
         }),
     })
@@ -166,7 +165,6 @@ describe("CampaignSquaddieMissionBridgeService", () => {
                     )
                 ).toMatchObject({
                     id: CampaignTestHarnessIds.lini.outOfBattleSquaddieId,
-                    name: "Lini",
                     attributeSheetId:
                         CampaignTestHarnessIds.lini.attributeSheetId,
                     affiliation: SquaddieAffiliation.PLAYER,

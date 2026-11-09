@@ -49,14 +49,12 @@ describe("previewReadiedActionAndForecastResults", () => {
 
         const actorOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: "actor",
-            name: "Actor",
             affiliation: SquaddieAffiliation.PLAYER,
             attributeSheetId: "actor_sheet",
         })
 
         const targetOutOfBattleSquaddie = OutOfBattleSquaddieService.new({
             id: "target",
-            name: "Target",
             affiliation: SquaddieAffiliation.ENEMY,
             attributeSheetId: "target_sheet",
         })
@@ -81,7 +79,6 @@ describe("previewReadiedActionAndForecastResults", () => {
 
         const attackAction = SquaddieActionService.new({
             id: "attack",
-            name: "Attack",
             targeting: {
                 range: ActionRange.MELEE,
                 shape: CoordinateGeneratorShape.BLOOM,
@@ -111,7 +108,6 @@ describe("previewReadiedActionAndForecastResults", () => {
 
         const map = CoordinateMapService.new({
             id: "test_map",
-            name: "test map",
             movementProperties: ["1 1 1 "],
         })
 

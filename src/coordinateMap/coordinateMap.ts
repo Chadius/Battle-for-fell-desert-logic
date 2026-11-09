@@ -34,7 +34,6 @@ interface Coordinate {
 
 export interface CoordinateMap {
     id: string
-    name: string
     coordinates: Coordinate[][]
     coordinateBySquaddie: Map<string, OffsetMaybeOffmapCoordinate>
     coordinatesSquaddiesCannotStopOn: Set<string>
@@ -60,7 +59,6 @@ const offsetMaybeOffmapCoordinateSchema = z.object({
 
 export const coordinateMapSchema = z.object({
     id: z.string().min(1),
-    name: z.string(),
     coordinates: z.array(z.array(coordinateSchema)),
     coordinateBySquaddie: z.record(
         z.string(),
@@ -74,11 +72,9 @@ export type SerializedCoordinateMap = z.infer<typeof coordinateMapSchema>
 export const CoordinateMapService = {
     new: ({
         id,
-        name,
         movementProperties,
     }: {
         id: string
-        name: string
         movementProperties: string[]
     }): CoordinateMap => {
         const coordinates =
@@ -87,7 +83,6 @@ export const CoordinateMapService = {
             calculateCoordinateProperties(coordinates)
         return {
             id,
-            name,
             coordinates,
             coordinatesSquaddiesCannotStopOn,
             coordinateBySquaddie: new Map(),
@@ -407,7 +402,6 @@ export const CoordinateMapService = {
 
         return {
             id: map.id,
-            name: map.name,
             coordinates: map.coordinates.map((row) =>
                 row.map((c) => cloneCoordinate(c))
             ),
@@ -441,7 +435,6 @@ export const CoordinateMapService = {
 
         return {
             id: serialized.id,
-            name: serialized.name,
             coordinates: serialized.coordinates.map((row) =>
                 row.map((c) => cloneCoordinate(c))
             ),
@@ -542,7 +535,6 @@ const cloneCoordinateMap = (original: CoordinateMap): CoordinateMap => {
 
     return {
         id: original.id,
-        name: original.name,
         coordinates: original.coordinates.map((row) =>
             row.map((c) => cloneCoordinate(c))
         ),

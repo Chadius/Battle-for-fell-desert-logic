@@ -11,7 +11,6 @@ describe("Coordinate Map", () => {
     it("creates a new map instead of modifying the original", () => {
         const originalMap = CoordinateMapService.new({
             id: "original",
-            name: "original",
             movementProperties: ["1 1 1 1 ", " 1 1 1 1 ", "1 1 1 1 "],
         })
 
@@ -106,14 +105,12 @@ describe("Coordinate Map", () => {
         it("serializes a map with no squaddies", () => {
             const map = CoordinateMapService.new({
                 id: "test-map",
-                name: "Test Map",
                 movementProperties: ["1 1 1", "1 - 1", "1 1 x"],
             })
 
             const serialized = CoordinateMapService.serialize(map)
 
             expect(serialized.id).toBe("test-map")
-            expect(serialized.name).toBe("Test Map")
             expect(serialized.coordinates).toHaveLength(3)
             expect(serialized.coordinateBySquaddie).toEqual({})
             expect(serialized.coordinatesSquaddiesCannotStopOn).toContain("1,1")
@@ -123,7 +120,6 @@ describe("Coordinate Map", () => {
         it("serializes a map with squaddies", () => {
             let map = CoordinateMapService.new({
                 id: "test-map",
-                name: "Test Map",
                 movementProperties: ["1 1 1", "1 1 1", "1 1 1"],
             })
 
@@ -171,7 +167,6 @@ describe("Coordinate Map", () => {
         it("serializes to JSON-compatible format", () => {
             let map = CoordinateMapService.new({
                 id: "test-map",
-                name: "Test Map",
                 movementProperties: ["1 1", "1 1"],
             })
 
@@ -202,7 +197,6 @@ describe("Coordinate Map", () => {
         it("deserializes a map with no squaddies", () => {
             const serialized: SerializedCoordinateMap = {
                 id: "test-map",
-                name: "Test Map",
                 coordinates: [
                     [
                         { row: 0, col: 0, movementCost: 1, canStop: true },
@@ -220,7 +214,6 @@ describe("Coordinate Map", () => {
             const map = CoordinateMapService.deserialize(serialized)
 
             expect(map.id).toBe("test-map")
-            expect(map.name).toBe("Test Map")
             expect(map.coordinates).toHaveLength(2)
             expect(map.coordinateBySquaddie.size).toBe(0)
             expect(map.coordinatesSquaddiesCannotStopOn.has("1,1")).toBe(true)
@@ -233,7 +226,6 @@ describe("Coordinate Map", () => {
             })
             const serialized: SerializedCoordinateMap = {
                 id: "test-map",
-                name: "Test Map",
                 coordinates: [
                     [
                         {
@@ -280,7 +272,6 @@ describe("Coordinate Map", () => {
         it("round-trip preserves map state", () => {
             let originalMap = CoordinateMapService.new({
                 id: "test-map",
-                name: "Test Map",
                 movementProperties: ["1 1 1", "1 - 1", "1 1 x"],
             })
 
@@ -306,7 +297,6 @@ describe("Coordinate Map", () => {
             const deserializedMap = CoordinateMapService.deserialize(serialized)
 
             expect(deserializedMap.id).toBe(originalMap.id)
-            expect(deserializedMap.name).toBe(originalMap.name)
             expect(deserializedMap.coordinates.length).toBe(
                 originalMap.coordinates.length
             )
@@ -342,7 +332,6 @@ describe("Coordinate Map", () => {
         it("round-trip through JSON preserves map state", () => {
             let originalMap = CoordinateMapService.new({
                 id: "test-map",
-                name: "Test Map",
                 movementProperties: ["1 1", "1 1"],
             })
 
@@ -377,7 +366,6 @@ describe("Coordinate Map", () => {
         it("uses the starting coordinate column, not the row", () => {
             let map = CoordinateMapService.new({
                 id: "test-map",
-                name: "Test Map",
                 movementProperties: [
                     "1 1 2 1 1",
                     " 1 - 1 x 1",
@@ -412,7 +400,6 @@ describe("Coordinate Map", () => {
         it("uses actual terrain movement cost instead of incrementing by 1", () => {
             let map = CoordinateMapService.new({
                 id: "test-map",
-                name: "Test Map",
                 movementProperties: ["1 1 1", " 2 2 2"],
             })
 
@@ -441,7 +428,6 @@ describe("Coordinate Map", () => {
         it("routes around walls to find optimal path", () => {
             let map = CoordinateMapService.new({
                 id: "test-map",
-                name: "Test Map",
                 movementProperties: ["1 1 1 1", " 1 x 1 1", "1 1 1 1"],
             })
 

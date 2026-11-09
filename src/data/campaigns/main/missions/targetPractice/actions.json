@@ -4,7 +4,6 @@
     "data": [
         {
             "id": "slither-demon-v2-bite",
-            "name": "Bite",
             "attribute": "BODY",
             "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
             "targeting": {

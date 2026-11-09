@@ -4,7 +4,6 @@
     "data": [
         {
             "id": "vale-mt-gravity-pull",
-            "name": "Gravity Pull",
             "attribute": "MIND",
             "degreesOfSuccess": ["SUCCESS", "FAILURE"],
             "targeting": {
@@ -45,7 +44,6 @@
         },
         {
             "id": "slither-demon-v3-bite",
-            "name": "Bite",
             "attribute": "BODY",
             "degreesOfSuccess": ["FAILURE", "SUCCESS", "CRITICAL"],
             "targeting": {

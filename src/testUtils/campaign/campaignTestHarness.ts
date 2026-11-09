@@ -47,7 +47,6 @@ import type { MissionObjective } from "../../mission/missionObjective.js"
 
 export const CampaignTestHarnessIds = {
     mapId: "campaign-test-harness-map",
-    mapName: "Campaign Test Harness Map",
     missionStateId: "campaign-test-harness-mission",
     lini: {
         campaignSquaddieId: "lini",
@@ -168,7 +167,6 @@ export class CampaignTestHarness extends MissionEngine {
         outOfBattleSquaddieManager.addOrUpdateSquaddie(
             OutOfBattleSquaddieService.new({
                 id: CampaignTestHarnessIds.guest.outOfBattleSquaddieId,
-                name: "Guest",
                 attributeSheetId: CampaignTestHarnessIds.lini.attributeSheetId,
                 affiliation: SquaddieAffiliation.PLAYER,
             })
@@ -186,7 +184,6 @@ export class CampaignTestHarness extends MissionEngine {
                 CampaignTestHarnessIds.lini.attributeSheetId,
             outOfBattleSquaddieId:
                 CampaignTestHarnessIds.lini.outOfBattleSquaddieId,
-            name: "Lini",
             isLeader: true,
         })
     }
@@ -198,7 +195,6 @@ export class CampaignTestHarness extends MissionEngine {
                 CampaignTestHarnessIds.rem.attributeSheetId,
             outOfBattleSquaddieId:
                 CampaignTestHarnessIds.rem.outOfBattleSquaddieId,
-            name: "Rem",
         })
     }
 
@@ -231,7 +227,6 @@ export class CampaignTestHarness extends MissionEngine {
     static createLiniOutOfBattleSquaddie(): OutOfBattleSquaddie {
         return OutOfBattleSquaddieService.new({
             id: CampaignTestHarnessIds.lini.outOfBattleSquaddieId,
-            name: "Lini",
             attributeSheetId: CampaignTestHarnessIds.lini.attributeSheetId,
             affiliation: SquaddieAffiliation.PLAYER,
             actionIds: [CampaignTestHarnessIds.lini.scimitarActionId],
@@ -241,7 +236,6 @@ export class CampaignTestHarness extends MissionEngine {
     private static createRemOutOfBattleSquaddie(): OutOfBattleSquaddie {
         return OutOfBattleSquaddieService.new({
             id: CampaignTestHarnessIds.rem.outOfBattleSquaddieId,
-            name: "Rem",
             attributeSheetId: CampaignTestHarnessIds.rem.attributeSheetId,
             affiliation: SquaddieAffiliation.PLAYER,
             actionIds: [CampaignTestHarnessIds.rem.healActionId],
@@ -288,7 +282,6 @@ export class CampaignTestHarness extends MissionEngine {
         coordinateMapCollectionManager.addOrUpdate({
             map: CoordinateMapService.new({
                 id: CampaignTestHarnessIds.mapId,
-                name: CampaignTestHarnessIds.mapName,
                 movementProperties: ["1 1", "1 1"],
             }),
         })
@@ -314,7 +307,6 @@ export class CampaignTestHarness extends MissionEngine {
     static createScimitarAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: CampaignTestHarnessIds.lini.scimitarActionId,
-            name: "Scimitar",
             attribute: AttributeScore.BODY,
             proficiency: ProficiencyType.WEAPON_MARTIAL,
             range: ActionRange.MELEE,
@@ -350,7 +342,6 @@ export class CampaignTestHarness extends MissionEngine {
     private static createHealAction(): SquaddieAction {
         return SquaddieActionService.new({
             id: CampaignTestHarnessIds.rem.healActionId,
-            name: "Heal",
             attribute: AttributeScore.SOUL,
             proficiency: ProficiencyType.SKILL_SOUL,
             range: ActionRange.MELEE,

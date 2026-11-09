@@ -51,7 +51,6 @@ import { MissionDeploymentService } from "../../mission/missionDeployment.js"
 
 export const MovementTestMissionIds = {
     mapId: "movement-test-map-id",
-    mapName: "Movement Test",
     missionStateId: "movementTestMissionId",
     fracta: {
         outOfBattleSquaddieId: "fracta",
@@ -157,7 +156,6 @@ function createCoordinateMapCollectionManager(): CoordinateMapCollectionManager 
 
     const coordinateMap = CoordinateMapService.new({
         id: MovementTestMissionIds.mapId,
-        name: MovementTestMissionIds.mapName,
         movementProperties,
     })
 
@@ -212,7 +210,6 @@ function createSquaddieActionManager(): SquaddieActionManager {
 function createAxeStrikeAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: MovementTestMissionIds.fracta.axeStrikeActionId,
-        name: "Axe Strike",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_MARTIAL,
         range: ActionRange.MELEE,
@@ -250,7 +247,6 @@ function createAxeStrikeAction(): SquaddieAction {
 function createLeapAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: MovementTestMissionIds.fracta.leapActionId,
-        name: "Leap",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.SELF,
@@ -282,7 +278,6 @@ function createLeapAction(): SquaddieAction {
 function createRescueAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: MovementTestMissionIds.vale.rescueActionId,
-        name: "Rescue",
         howToDetermineDegreeOfSuccess:
             HowToDetermineDegreeOfSuccess.AUTOMATIC_SUCCESS,
         range: ActionRange.MEDIUM,
@@ -314,7 +309,6 @@ function createRescueAction(): SquaddieAction {
 function createGravityPullAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: MovementTestMissionIds.vale.gravityPullActionId,
-        name: "Gravity Pull",
         attribute: AttributeScore.MIND,
         proficiency: ProficiencyType.SKILL_MIND,
         range: ActionRange.SELF,
@@ -351,7 +345,6 @@ function createGravityPullAction(): SquaddieAction {
 function createDemonBiteAction(): SquaddieAction {
     return SquaddieActionService.new({
         id: MovementTestMissionIds.slitherDemon.biteActionId,
-        name: "Bite",
         attribute: AttributeScore.BODY,
         proficiency: ProficiencyType.WEAPON_NATURAL,
         range: ActionRange.MELEE,
@@ -411,7 +404,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const fractaSquaddie = OutOfBattleSquaddieService.new({
         id: MovementTestMissionIds.fracta.outOfBattleSquaddieId,
-        name: "Fracta",
         attributeSheetId: MovementTestMissionIds.fracta.attributeSheetId,
         actionIds: [
             MovementTestMissionIds.fracta.axeStrikeActionId,
@@ -442,7 +434,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const valeSquaddie = OutOfBattleSquaddieService.new({
         id: MovementTestMissionIds.vale.outOfBattleSquaddieId,
-        name: "Vale",
         attributeSheetId: MovementTestMissionIds.vale.attributeSheetId,
         actionIds: [
             MovementTestMissionIds.vale.rescueActionId,
@@ -468,7 +459,6 @@ function createOutOfBattleSquaddieManager(): OutOfBattleSquaddieManager {
 
     const demonSquaddie = OutOfBattleSquaddieService.new({
         id: MovementTestMissionIds.slitherDemon.outOfBattleSquaddieId,
-        name: "Slither Demon",
         attributeSheetId: MovementTestMissionIds.slitherDemon.attributeSheetId,
         actionIds: [MovementTestMissionIds.slitherDemon.biteActionId],
         affiliation: SquaddieAffiliation.ENEMY,

@@ -53,13 +53,11 @@ describe("MissionManager", () => {
 
             const lini = OutOfBattleSquaddieService.new({
                 id: "lini",
-                name: "Lini",
                 affiliation: SquaddieAffiliation.PLAYER,
                 attributeSheetId: "lini_sheet",
             })
             const demon = OutOfBattleSquaddieService.new({
                 id: "slither-demon",
-                name: "Slither Demon",
                 affiliation: SquaddieAffiliation.ENEMY,
                 attributeSheetId: "demon_sheet",
             })
@@ -79,7 +77,6 @@ describe("MissionManager", () => {
 
             const map = CoordinateMapService.new({
                 id: "deploy_map",
-                name: "deploy map",
                 movementProperties: ["1 1 1 1 1 "],
             })
             coordinateMapCollectionManager = new CoordinateMapCollectionManager(
@@ -317,7 +314,6 @@ describe("MissionManager", () => {
             outOfBattleSquaddieManager.addOrUpdateSquaddie(
                 OutOfBattleSquaddieService.new({
                     id: "actor",
-                    name: "Actor",
                     affiliation: SquaddieAffiliation.PLAYER,
                     attributeSheetId: "actor_sheet",
                 })
@@ -332,7 +328,6 @@ describe("MissionManager", () => {
 
             attackAction = SquaddieActionService.new({
                 id: "attack",
-                name: "Attack",
                 attribute: AttributeScore.BODY,
                 proficiency: ProficiencyType.WEAPON_MARTIAL,
                 targeting: {
@@ -360,7 +355,6 @@ describe("MissionManager", () => {
             coordinateMapCollectionManager.addOrUpdate({
                 map: CoordinateMapService.new({
                     id: "test-map",
-                    name: "Test Map",
                     movementProperties: ["1 1 1 1 1"],
                 }),
             })
@@ -443,7 +437,6 @@ describe("MissionManager", () => {
                 manager.addOrUpdateSquaddie(
                     OutOfBattleSquaddieService.new({
                         id: "hero",
-                        name: "Hero",
                         affiliation: SquaddieAffiliation.PLAYER,
                         attributeSheetId: attributeSheet.id,
                     })
@@ -550,7 +543,6 @@ describe("MissionManager", () => {
             coordinateMapCollectionManager.addOrUpdate({
                 map: CoordinateMapService.new({
                     id: "mission-map",
-                    name: "Mission Map",
                     movementProperties: ["1 1 1"],
                 }),
             })

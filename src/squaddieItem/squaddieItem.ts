@@ -3,7 +3,6 @@ import { type TProficiencyType } from "../proficiency/proficiencyLevel.js"
 
 export interface SquaddieItem {
     id: string
-    name: string
     numberOfUses?: number
     passiveProficiencyBonuses: Map<TProficiencyType, number>
     actionIds: Set<string>
@@ -12,7 +11,6 @@ export interface SquaddieItem {
 
 export const squaddieItemSchema = z.object({
     id: z.string().min(1),
-    name: z.string().min(1),
     numberOfUses: z.number().optional(),
     passiveProficiencyBonuses: z.record(z.string(), z.number()),
     actionIds: z.array(z.string()),
@@ -24,14 +22,12 @@ export type SerializedSquaddieItem = z.infer<typeof squaddieItemSchema>
 export const SquaddieItemService = {
     new: ({
         id,
-        name,
         numberOfUses,
         passiveProficiencyBonuses,
         actionIds,
         glossaryTermIds,
     }: {
         id: string
-        name: string
         numberOfUses?: number
         passiveProficiencyBonuses?: { [t in TProficiencyType]?: number }
         actionIds?: string[]
@@ -46,7 +42,6 @@ export const SquaddieItemService = {
 
         return {
             id,
-            name,
             numberOfUses,
             passiveProficiencyBonuses: new Map(passiveProficiencyBonusEntries),
             actionIds: new Set(actionIds ?? []),
@@ -66,7 +61,6 @@ export const SquaddieItemService = {
         })
         return {
             id: item.id,
-            name: item.name,
             numberOfUses: item.numberOfUses,
             passiveProficiencyBonuses,
             actionIds: Array.from(item.actionIds),
@@ -86,7 +80,6 @@ export const SquaddieItemService = {
         const serialized = result.data
         return {
             id: serialized.id,
-            name: serialized.name,
             numberOfUses: serialized.numberOfUses,
             passiveProficiencyBonuses: new Map(
                 Object.entries(serialized.passiveProficiencyBonuses) as [

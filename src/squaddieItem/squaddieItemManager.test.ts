@@ -15,7 +15,6 @@ describe("Squaddie Item Manager", () => {
     beforeEach(() => {
         plateMail = SquaddieItemService.new({
             id: "plateMail",
-            name: "Plate Mail",
             numberOfUses: undefined,
             passiveProficiencyBonuses: {
                 [ProficiencyType.ARMOR]: 2,
@@ -47,7 +46,6 @@ describe("Squaddie Item Manager", () => {
             expect(serialized).toHaveLength(1)
             expect(serialized[0]).toEqual({
                 id: "plateMail",
-                name: "Plate Mail",
                 numberOfUses: undefined,
                 passiveProficiencyBonuses: { [ProficiencyType.ARMOR]: 2 },
                 actionIds: [],
@@ -76,7 +74,6 @@ describe("Squaddie Item Manager", () => {
         it("loads an array of item blobs", () => {
             const healingPotion = SquaddieItemService.new({
                 id: "healingPotion",
-                name: "Healing Potion",
                 numberOfUses: 1,
                 passiveProficiencyBonuses: {},
                 actionIds: ["heal"],
