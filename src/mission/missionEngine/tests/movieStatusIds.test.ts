@@ -28,7 +28,6 @@ const makeMovie = (): Movie => ({
                     {
                         type: "DIALOG",
                         id: "greeting",
-                        text: { "en-US": { text: "Hello" } },
                     },
                 ],
             }),

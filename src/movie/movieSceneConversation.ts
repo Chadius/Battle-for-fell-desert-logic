@@ -1,6 +1,3 @@
-import type { LocalizedText } from "../localization/localizedText.js"
-import { LocalizedTextService } from "../localization/localizedText.js"
-
 export const MovieSceneConversationCommand = {
     CONFIRM: "CONFIRM",
     COMPLETE_SCENE: "COMPLETE_SCENE",
@@ -12,22 +9,16 @@ export type TMovieSceneConversationCommand =
 export interface DialogLine {
     type: "DIALOG"
     id: string
-    speakerId?: string
-    text: LocalizedText
-    portrait?: { resourceManifestEntryId: string; position: "LEFT" | "RIGHT" }
-    dialogPosition?: "LEFT" | "CENTER" | "RIGHT"
 }
 
 export interface DecisionOption {
     decisionId: string
-    text: LocalizedText
     nextSceneId?: string
 }
 
 export interface DecisionLine {
     type: "DECISION"
     id: string
-    prompt: LocalizedText
     options: DecisionOption[]
 }
 
@@ -56,17 +47,8 @@ export interface ConversationSceneStatus {
     type: "CONVERSATION"
     sceneId: string
     lineId: string
-    speakerId: string | undefined
-    text: string
-    portrait:
-        | {
-              resourceManifestEntryId: string
-              position: "LEFT" | "RIGHT"
-          }
-        | undefined
-    dialogPosition: "LEFT" | "CENTER" | "RIGHT"
     isWaitingForDecision: boolean
-    decisions: { decisionId: string; text: string }[]
+    decisions: { decisionId: string }[]
 }
 
 export const MovieSceneConversationService = {
@@ -206,39 +188,21 @@ export const MovieSceneConversationService = {
 
     status: (
         movieSceneConversation: MovieSceneConversation,
-        movieSceneConversationState: MovieSceneConversationState,
-        languageCode: string = LocalizedTextService.FALLBACK_LANGUAGE_CODE
+        movieSceneConversationState: MovieSceneConversationState
     ): ConversationSceneStatus => {
         const line =
             movieSceneConversation.lines[
                 movieSceneConversationState.currentLineIndex
             ]
-        if (line.type === "DIALOG") {
-            return {
-                type: "CONVERSATION",
-                sceneId: movieSceneConversation.id,
-                lineId: line.id,
-                speakerId: line.speakerId,
-                text: LocalizedTextService.resolve(line.text, languageCode),
-                portrait: line.portrait,
-                dialogPosition: line.dialogPosition ?? "LEFT",
-                isWaitingForDecision: false,
-                decisions: [],
-            }
-        }
+        const isWaitingForDecision = line.type === "DECISION"
         return {
             type: "CONVERSATION",
             sceneId: movieSceneConversation.id,
             lineId: line.id,
-            speakerId: undefined,
-            text: LocalizedTextService.resolve(line.prompt, languageCode),
-            portrait: undefined,
-            dialogPosition: "LEFT",
-            isWaitingForDecision: true,
-            decisions: line.options.map((option) => ({
-                decisionId: option.decisionId,
-                text: LocalizedTextService.resolve(option.text, languageCode),
-            })),
+            isWaitingForDecision,
+            decisions: isWaitingForDecision
+                ? line.options.map(({ decisionId }) => ({ decisionId }))
+                : [],
         }
     },
 

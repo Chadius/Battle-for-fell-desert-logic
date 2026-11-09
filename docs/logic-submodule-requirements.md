@@ -4,14 +4,14 @@
 
 Six asks, each unblocking one item in `docs/html-interface-architecture.md` or
 `docs/action-animation-plan.md`. They are independent — land them in any order. #1, #2 and #4 are
-closed; #3 and #6 are fully specified and waiting on `logic`; #5 needs a design decision before it
-can be specified.
+closed; #3 needs no `logic` change, because audio cues live in `movieContent.json`; #6 is fully
+specified and waiting on `logic`; #5 needs a design decision before it can be specified.
 
 | # | Unblocks | Size | Shape |
 | - | -------- | ---- | ----- |
 | 1 | Undo button (§5) | small | new read-only `MissionEngine` query — **DONE** |
 | 2 | Non-player movement-range preview (§5) | medium | AP override on the movement queries — **DONE** |
-| 3 | Audio voice/music cues (§2.4) | small | optional fields on movie scene types — **not started** |
+| 3 | Audio voice/music cues (§2.4) | none in `logic` | cues live in `movieContent.json` — **moved to the presentation package** |
 | 4 | Combat-target list (§4) | none | confirm `readyAction` already supports it — **CONFIRMED, front-end-only — built** |
 | 5 | Objective progress in the situation report (§4) | small–medium | display text for `MissionObjective` — **needs a decision** |
 | 6 | Battle stage text and results (action animation plan) | small | two fields on `TargetResult` — **not started** |
@@ -164,46 +164,39 @@ change needed for this item.
 
 ---
 
-## 3. Audio voice/music cues — optional sound-cue fields on movie scene types
+## 3. Audio voice/music cues — keyed by movie id in `movieContent.json`
 
 ### Background
 
 The presentation package's `ResourceManifestType` already carries `AUDIO` and `VIDEO` (this half of
-the old §2.4 gap is closed). What's still missing is a way to *attach* a sound to a cutscene: nothing on
-`MovieSceneConversation` / `MovieSceneImage` / `DialogLine` points at an audio resource, so the
+the old §2.4 gap is closed). What's still missing is a way to *attach* a sound to a cutscene, so the
 browser has nothing to play.
 
 ### What's needed
 
-Additive, optional fields — nothing existing changes shape:
+Decided: audio cues are presentation data, so they live in `movieContent.json` beside portraits.
+`logic` gets no cue fields.
 
-1. `DialogLine.voiceResourceManifestEntryId?: string` — a per-line voice-over clip.
-2. A scene-level music cue, e.g. `MovieSceneConversation.musicResourceManifestEntryId?: string` and
-   the same on `MovieSceneImage` (or one shared mechanism if that's cleaner).
-3. Surface both through the movie status the engine already returns
-   (`ConversationSceneStatus` / the image-scene equivalent), the same way `portrait` is surfaced
-   today — the front end resolves the id to a URL via its media collection and plays it through a
-   plain `<audio>` element.
+1. A per-line voice-over clip, on the dialog line's entry in `movieContent.json`.
+2. A scene-level music cue, on the scene's entry in `movieContent.json`.
+3. The host finds the current cue with the ids `MissionEngine.getMovieStatus()` already reports
+   (`movieId`, `sceneId` and `lineId`), resolves the resource id to a URL through its media
+   collection, and plays it through a plain `<audio>` element.
 
 ### Not required
 
-- No new engine playback state, timing, or "audio finished" events — the browser owns playback.
+- No `logic` change: no new fields, playback state, timing, or "audio finished" events. The browser
+  owns playback.
 - No change to how `AUDIO` resources are declared or resolved (the presentation package does this).
 - Ambient/UI sound (menu blips, hover ticks) and the mute/volume control are pure front-end, no
   engine involvement.
 
 ### Status
 
-Still needed. Checked against `logic` @ `9a909d9`: no `voiceResourceManifestEntryId` or
-`musicResourceManifestEntryId` field exists anywhere in `logic/src`. The `AUDIO`/`VIDEO` resource
-types and the content/media split (`ResourceManifestMediaEntry`, resolved by id, where "no media yet"
-is a normal `undefined` result) are in the presentation package, so once the cue fields exist the
-front end can resolve them the same way it resolves portraits. The front end has no `<audio>`
-playback yet.
-
-Open question: this ask was written when `portrait` lived on the movie status. Step 5 of the
-presentation split moves portraits to `movieContent.json`, so decide whether cues belong there
-instead of on the `logic` movie types before adding these fields.
+Waiting on the presentation package and the front end. The `AUDIO`/`VIDEO` resource types and the
+content/media split (`ResourceManifestMediaEntry`, resolved by id, where "no media yet" is a normal
+`undefined` result) are in the presentation package, so cues can resolve the same way portraits do.
+`movieContent.json` needs the cue fields, and the front end has no `<audio>` playback yet.
 
 ---
 

@@ -25,7 +25,6 @@ const makeMovie = (...sceneIds: string[]): Movie => ({
         type: MovieSceneType.IMAGE,
         data: MovieSceneImageService.new({
             id,
-            resourceManifestEntryId: "img",
         }),
     })),
 })
@@ -38,7 +37,6 @@ const makeFiniteMovie = (id: string, durationMs: number): Movie => ({
             type: MovieSceneType.IMAGE,
             data: MovieSceneImageService.new({
                 id,
-                resourceManifestEntryId: "img",
                 introTransition: { durationMs },
             }),
         },
@@ -166,7 +164,6 @@ describe("MissionEngine movie integration", () => {
                     type: MovieSceneType.IMAGE,
                     data: MovieSceneImageService.new({
                         id: sceneId,
-                        resourceManifestEntryId: "img",
                     }),
                 },
             ],

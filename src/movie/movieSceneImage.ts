@@ -24,8 +24,6 @@ export interface MovieSceneAutoScroll {
 export interface MovieSceneImage {
     id: string
     nextSceneId: string | undefined
-    resourceManifestEntryId: string | undefined
-    caption: string | undefined
     introTransition: MovieSceneTransition | undefined
     exitTransition: MovieSceneTransition | undefined
     manualScrollEnabled: boolean
@@ -53,8 +51,6 @@ export interface ImageSceneStatus {
     type: "IMAGE"
     sceneId: string
     phase: TMovieSceneImagePhase
-    resourceManifestEntryId: string | undefined
-    caption: string | undefined
     transitionProgress: number
     autoScrollProgress: { x: number; y: number }
     manualScrollOffset: { x: number; y: number }
@@ -64,8 +60,6 @@ export const MovieSceneImageService = {
     new: ({
         id,
         nextSceneId,
-        resourceManifestEntryId,
-        caption,
         introTransition,
         exitTransition,
         manualScrollEnabled,
@@ -73,8 +67,6 @@ export const MovieSceneImageService = {
     }: {
         id: string
         nextSceneId?: string
-        resourceManifestEntryId?: string
-        caption?: string
         introTransition?: MovieSceneTransition
         exitTransition?: MovieSceneTransition
         manualScrollEnabled?: boolean
@@ -82,8 +74,6 @@ export const MovieSceneImageService = {
     }): MovieSceneImage => ({
         id,
         nextSceneId,
-        resourceManifestEntryId,
-        caption,
         introTransition,
         exitTransition,
         manualScrollEnabled: manualScrollEnabled ?? false,
@@ -212,8 +202,6 @@ export const MovieSceneImageService = {
         type: "IMAGE",
         sceneId: movieSceneImage.id,
         phase: movieSceneImageState.phase,
-        resourceManifestEntryId: movieSceneImage.resourceManifestEntryId,
-        caption: movieSceneImage.caption,
         transitionProgress: transitionProgress(
             movieSceneImage,
             movieSceneImageState

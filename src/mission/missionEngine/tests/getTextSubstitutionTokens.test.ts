@@ -40,16 +40,13 @@ describe("MissionEngine.getTextSubstitutionTokens", () => {
     })
 
     describe("when comparing against the token catalog", () => {
-        it("gives a value for every token except the one the host supplies", () => {
+        it("gives a value for every token", () => {
             const tokens = Object.keys(
                 buildEngine().getTextSubstitutionTokens()
             )
 
             expect(tokens.sort()).toEqual(
-                MissionTextSubstitutionToken.AVAILABLE.filter(
-                    (token) =>
-                        token !== MissionTextSubstitutionToken.TIME_ELAPSED
-                ).sort()
+                [...MissionTextSubstitutionToken.AVAILABLE].sort()
             )
         })
     })

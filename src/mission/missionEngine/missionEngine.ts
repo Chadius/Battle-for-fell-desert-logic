@@ -111,14 +111,13 @@ import { SquaddieActionManager } from "../../squaddieAction/squaddieActionManage
 import { SquaddieActionCollectionService } from "../../squaddieAction/squaddieActionCollection.js"
 import type { OutOfBattleSquaddieManager } from "../../squaddie/outOfBattle/outOfBattleSquaddieManager.js"
 import { MovieManager } from "../../movie/movieManager.js"
-import { TextSubstitutionService } from "../../movie/textSubstitution.js"
 import {
     type MissionStatistics,
     MissionStatisticsService,
 } from "../missionStatistics.js"
 import {
     MissionTextSubstitutionToken,
-    type TEngineSuppliedTextSubstitutionToken,
+    type TMissionTextSubstitutionToken,
 } from "./textSubstitutionTokens.js"
 
 export type { TMovieEngineCommand }
@@ -694,38 +693,11 @@ export class MissionEngine {
         this.recordMovieCompleteAndResumePhaseAdvance()
     }
 
-    getMovieStatus(
-        extraTokens?: Record<string, string>
-    ): ReturnType<MovieEngine["status"]> | undefined {
-        const status = this.activeMovieEngine?.status()
-        if (status?.currentScene?.type !== "CONVERSATION") {
-            return status
-        }
-
-        const tokens = this.textSubstitutionTokens(extraTokens)
-        return {
-            ...status,
-            currentScene: {
-                ...status.currentScene,
-                text: TextSubstitutionService.substitute(
-                    status.currentScene.text,
-                    tokens
-                ),
-                decisions: status.currentScene.decisions.map((decision) => ({
-                    ...decision,
-                    text: TextSubstitutionService.substitute(
-                        decision.text,
-                        tokens
-                    ),
-                })),
-            },
-        }
+    getMovieStatus(): ReturnType<MovieEngine["status"]> | undefined {
+        return this.activeMovieEngine?.status()
     }
 
-    getTextSubstitutionTokens(): Record<
-        TEngineSuppliedTextSubstitutionToken,
-        number
-    > {
+    getTextSubstitutionTokens(): Record<TMissionTextSubstitutionToken, number> {
         const missionState = this.missionManager?.missionState
         const missionStatistics =
             missionState?.missionStatistics ?? MissionStatisticsService.new()
@@ -746,17 +718,6 @@ export class MissionEngine {
             [MissionTextSubstitutionToken.CRITICAL_HITS_TAKEN_BY_PLAYER_TEAM]:
                 missionStatistics.criticalHitsTakenByPlayerTeam,
         }
-    }
-
-    private textSubstitutionTokens(
-        extraTokens?: Record<string, string>
-    ): Record<string, string> {
-        const missionTokens = Object.fromEntries(
-            Object.entries(this.getTextSubstitutionTokens()).map(
-                ([token, value]): [string, string] => [token, `${value}`]
-            )
-        )
-        return { ...missionTokens, ...extraTokens }
     }
 
     previewReadiedActionAndForecastResults(): SerializedForecastedActionResult[] {

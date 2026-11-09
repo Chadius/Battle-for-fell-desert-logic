@@ -17,7 +17,6 @@ const makeMovie = (id: string, sceneId: string): Movie => ({
             type: MovieSceneType.IMAGE,
             data: MovieSceneImageService.new({
                 id: sceneId,
-                resourceManifestEntryId: "img",
             }),
         },
     ],
