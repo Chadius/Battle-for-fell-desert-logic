@@ -57,7 +57,6 @@ export interface InvalidSquaddieAction {
     cooldownTurns?: number
     usesPerTurn?: number
     usesPerMission?: number
-    glossaryTermIds?: string[]
     classification: TSquaddieActionClassification
 }
 
@@ -70,7 +69,6 @@ export interface ValidSquaddieAction {
     cooldownTurns?: number
     usesPerTurn?: number
     usesPerMission?: number
-    glossaryTermIds?: string[]
     classification: TSquaddieActionClassification
 }
 
@@ -432,7 +430,6 @@ export const SquaddieActionValidationService = {
                 cooldownTurns: squaddieAction.cooldownTurns,
                 usesPerTurn: squaddieAction.usesPerTurn,
                 usesPerMission: squaddieAction.usesPerMission,
-                glossaryTermIds: squaddieAction.glossaryTermIds,
                 classification:
                     SquaddieActionClassificationService.classify(
                         squaddieAction
