@@ -257,6 +257,9 @@ the duration would tick down during PLAYER_TURN_END.
 - `MissionEngine.getMissionStatistics()` returns the current PLAYER-team totals (all zero before
   any action). `MissionEngine.getSquaddieInfo(id).attackContributionThisTurn` reports how much the
   squaddie has added toward its multiple attack penalty this turn.
+- `MissionEngine.getSquaddieInfo(id).absorbAmount` is the damage the squaddie's ABSORB conditions will
+  soak before it loses HP (its temporary hit points), using the same per-source stacking as damage,
+  so a host does not recompute it from `conditions`.
 - `MissionEngine.getMissionObjectiveStatuses()` reports every objective, hidden ones included and
   marked `hidden`, with `isCompleted`, `hasGivenReward`, its `rewardTypes` (so a host can tell goals
   like `MISSION_ENDS` from cutscene triggers like `PLAY_MOVIE`), and one status per criterion:

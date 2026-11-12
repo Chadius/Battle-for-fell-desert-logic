@@ -8,6 +8,7 @@ export interface SquaddieInfo {
     affiliation: TSquaddieAffiliation
     currentHitPoints: number
     maxHitPoints: number
+    absorbAmount: number
     currentActionPoints: number
     maximumActionPoints: number
     conditions: SquaddieCondition[]
@@ -25,6 +26,7 @@ export const SquaddieInfoService = {
         affiliation,
         currentHitPoints,
         maxHitPoints,
+        absorbAmount,
         currentActionPoints,
         maximumActionPoints,
         conditions,
@@ -36,6 +38,7 @@ export const SquaddieInfoService = {
         affiliation: TSquaddieAffiliation
         currentHitPoints: number
         maxHitPoints: number
+        absorbAmount: number
         currentActionPoints: number
         maximumActionPoints: number
         conditions: Map<TSquaddieConditionType, SquaddieCondition[]>
@@ -51,6 +54,7 @@ export const SquaddieInfoService = {
             affiliation,
             currentHitPoints,
             maxHitPoints,
+            absorbAmount,
             currentActionPoints,
             maximumActionPoints,
             conditions: flattenConditionsMap(conditions),

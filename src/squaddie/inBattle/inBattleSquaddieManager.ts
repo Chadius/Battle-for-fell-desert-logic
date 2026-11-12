@@ -10,6 +10,7 @@ import type { BattleSquaddieId, InBattleSquaddie } from "./inBattleSquaddie.js"
 import type { AttributeScoreType } from "../../proficiency/attributeScore.js"
 import {
     type SquaddieCondition,
+    SquaddieConditionType,
     type TSquaddieConditionDecaysAt,
     type TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.js"
@@ -133,6 +134,11 @@ export class InBattleSquaddieManager {
     getSquaddieInfo(battleSquaddieId: BattleSquaddieId): SquaddieInfo {
         const hitPoints = this.getHitPoints(battleSquaddieId)
 
+        const absorbAmount = this.calculateConditionAmountForSquaddie({
+            ...battleSquaddieId,
+            conditionType: SquaddieConditionType.ABSORB,
+        })
+
         const actionPoints = this.getActionPoints(battleSquaddieId)
 
         const maxActionPoints = this.getMaximumActionPoints(battleSquaddieId)
@@ -155,6 +161,7 @@ export class InBattleSquaddieManager {
             affiliation,
             currentHitPoints: hitPoints.current,
             maxHitPoints: hitPoints.max,
+            absorbAmount,
             currentActionPoints: actionPoints.current,
             maximumActionPoints: maxActionPoints,
             conditions,

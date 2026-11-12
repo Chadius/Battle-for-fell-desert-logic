@@ -16,6 +16,7 @@ describe("SquaddieInfo", () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     currentHitPoints: 8,
                     maxHitPoints: 10,
+                    absorbAmount: 4,
                     currentActionPoints: 2,
                     conditions: new Map(),
                     maximumActionPoints: 3,
@@ -31,6 +32,7 @@ describe("SquaddieInfo", () => {
                 expect(info.affiliation).toBe(SquaddieAffiliation.PLAYER)
                 expect(info.currentHitPoints).toBe(8)
                 expect(info.maxHitPoints).toBe(10)
+                expect(info.absorbAmount).toBe(4)
                 expect(info.currentActionPoints).toBe(2)
                 expect(info.maximumActionPoints).toBe(3)
                 expect(info.conditions).toEqual([])
@@ -70,6 +72,7 @@ describe("SquaddieInfo", () => {
                     affiliation: SquaddieAffiliation.ENEMY,
                     currentHitPoints: 5,
                     maxHitPoints: 10,
+                    absorbAmount: 0,
                     currentActionPoints: 1,
                     maximumActionPoints: 2,
                     conditions: conditionsMap,
@@ -89,6 +92,7 @@ describe("SquaddieInfo", () => {
                     affiliation: SquaddieAffiliation.ALLY,
                     currentHitPoints: 0,
                     maxHitPoints: 10,
+                    absorbAmount: 0,
                     currentActionPoints: 0,
                     maximumActionPoints: 3,
                     conditions: new Map(),
@@ -118,6 +122,7 @@ describe("SquaddieInfo", () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     currentHitPoints: 15,
                     maxHitPoints: 20,
+                    absorbAmount: 0,
                     currentActionPoints: 3,
                     maximumActionPoints: 3,
                     conditions: new Map([
