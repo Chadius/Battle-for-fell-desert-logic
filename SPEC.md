@@ -72,6 +72,10 @@ Collections are the equivalent of in-memory tables; Data Objects are pure value 
   target defense; result maps to a degree of success.
 - `SquaddieActionForecastCalculator` computes probability distributions (out of 36) for each
   outcome before committing.
+  Each forecast's `modifierBreakdown` carries `isFlankingTarget` (the actor flanks the target) and
+  `isTargetOffGuardByFlanking` (the flank actually lowered the target's Armor by 1: the action is
+  defended by Armor and the target is not already OFF_GUARD), so a host shows an Off-Guard badge
+  only when it applies.
 - `SquaddieActionResultCalculator` commits an action given actual dice rolls.
 - `ApplyResultService` writes calculated results back into in-battle state.
 - Undo support: `SquaddieActionResultCalculator.reverseResult` reverses the last undoable action —
@@ -260,6 +264,13 @@ the duration would tick down during PLAYER_TURN_END.
 - `MissionEngine.getSquaddieInfo(id).absorbAmount` is the damage the squaddie's ABSORB conditions will
   soak before it loses HP (its temporary hit points), using the same per-source stacking as damage,
   so a host does not recompute it from `conditions`.
+- `MissionEngine.getSquaddieInfo(id).conditionTotals` lists one `SquaddieConditionTotal` per active
+  condition type, hindering types first: `totalAmount` (the effective amount after stacking, or
+  `undefined` for a binary condition), `isHindering` (a negative ARMOR total is hindering), and
+  `stackedConditions`, each with its `source`, `amount`, `turnsRemaining` (`undefined` when
+  unlimited) and `contributesToTotal`. A host shows the total as the badge and the stacked
+  conditions as the detail, without copying the stacking rule. A type whose conditions cancel to 0
+  is left out.
 - `MissionEngine.getMissionObjectiveStatuses()` reports every objective, hidden ones included and
   marked `hidden`, with `isCompleted`, `hasGivenReward`, its `rewardTypes` (so a host can tell goals
   like `MISSION_ENDS` from cutscene triggers like `PLAY_MOVIE`), and one status per criterion:
@@ -343,13 +354,14 @@ The source controls how multiple conditions of the same type stack:
 - **Same type, different sources**: the effective amount is the sum of the dominant value per source
   (largest positive + largest negative per source, then summed across sources).
 
-The helper `effectiveConditionAmount` in `inBattleSquaddie.ts` implements this logic for all
-game-logic paths.
+`SquaddieConditionService.calculateEffectiveAmount` (`squaddieCondition.ts`) implements this logic
+for all game-logic paths. A binary condition counts as 1.
 
 #### Binary vs. Quantified Conditions
 
-- **Binary conditions** (ELUSIVE, HUSTLE): the `amount` field is `undefined`. The condition is
-  either active or not.
+- **Binary conditions** (ELUSIVE, HUSTLE, OFF_GUARD): the `amount` field is `undefined`. The
+  condition is either active or not; an `amount` given to one is ignored. OFF_GUARD always lowers
+  Armor by 1.
 - **Quantified conditions** (ARMOR, ABSORB, SLOWED): the `amount` field holds
   `{ current: number; base: number | undefined }`.
     - `current` is the value used in calculations. It decreases when the condition absorbs damage

@@ -33,7 +33,10 @@ export type TSquaddieConditionDecaysAt = EnumLike<
 const binaryTypes = new Set<TSquaddieConditionType>([
     SquaddieConditionType.ELUSIVE,
     SquaddieConditionType.HUSTLE,
+    SquaddieConditionType.OFF_GUARD,
 ])
+
+const BINARY_CONDITION_ACTIVE_AMOUNT = 1
 
 const helpfulTypes = new Set<TSquaddieConditionType>([
     SquaddieConditionType.ARMOR,
@@ -62,6 +65,11 @@ export interface SquaddieCondition {
             decaysAt: TSquaddieConditionDecaysAt
         }
     }
+}
+
+interface DominantAmounts {
+    strongestBonus: number
+    strongestPenalty: number
 }
 
 export const squaddieConditionSchema = z.object({
@@ -105,12 +113,30 @@ export const SquaddieConditionService = {
         helpfulTypes.has(squaddieCondition.type) &&
         (isBinary(squaddieCondition) || squaddieCondition.amount!.current > 0),
     isHindering: (squaddieCondition: SquaddieCondition): boolean =>
-        (hinderingTypes.has(squaddieCondition.type) &&
-            (isBinary(squaddieCondition) ||
-                squaddieCondition.amount!.current > 0)) ||
-        (helpfulTypes.has(squaddieCondition.type) &&
-            !isBinary(squaddieCondition) &&
-            squaddieCondition.amount!.current < 0),
+        isHinderingTotal({
+            type: squaddieCondition.type,
+            totalAmount: getActiveAmount(squaddieCondition),
+        }),
+    isBinaryType: (type: TSquaddieConditionType): boolean =>
+        binaryTypes.has(type),
+    isHinderingTotal: ({
+        type,
+        totalAmount,
+    }: {
+        type: TSquaddieConditionType
+        totalAmount: number
+    }): boolean => isHinderingTotal({ type, totalAmount }),
+    calculateEffectiveAmount: (
+        conditions: SquaddieCondition[] | undefined
+    ): number => calculateEffectiveAmount(conditions),
+    isContributingToEffectiveAmount: ({
+        condition,
+        conditionsOfSameType,
+    }: {
+        condition: SquaddieCondition
+        conditionsOfSameType: SquaddieCondition[]
+    }): boolean =>
+        isContributingToEffectiveAmount({ condition, conditionsOfSameType }),
     clone: (original: SquaddieCondition): SquaddieCondition => ({
         type: original.type,
         source: original.source,
@@ -151,6 +177,76 @@ export const SquaddieConditionService = {
 
 const isBinary = (squaddieCondition: SquaddieCondition): boolean =>
     binaryTypes.has(squaddieCondition.type)
+
+const isHinderingTotal = ({
+    type,
+    totalAmount,
+}: {
+    type: TSquaddieConditionType
+    totalAmount: number
+}): boolean =>
+    (hinderingTypes.has(type) && totalAmount > 0) ||
+    (helpfulTypes.has(type) && totalAmount < 0)
+
+const getActiveAmount = (condition: SquaddieCondition): number =>
+    isBinary(condition)
+        ? BINARY_CONDITION_ACTIVE_AMOUNT
+        : (condition.amount?.current ?? 0)
+
+const calculateDominantAmountsBySource = (
+    conditions: SquaddieCondition[]
+): Map<TSquaddieConditionSource, DominantAmounts> => {
+    const dominantAmountsBySource = new Map<
+        TSquaddieConditionSource,
+        DominantAmounts
+    >()
+    for (const condition of conditions) {
+        const amount = getActiveAmount(condition)
+        const existing = dominantAmountsBySource.get(condition.source) ?? {
+            strongestBonus: 0,
+            strongestPenalty: 0,
+        }
+        dominantAmountsBySource.set(condition.source, {
+            strongestBonus: Math.max(existing.strongestBonus, amount, 0),
+            strongestPenalty: Math.min(existing.strongestPenalty, amount, 0),
+        })
+    }
+    return dominantAmountsBySource
+}
+
+const calculateEffectiveAmount = (
+    conditions: SquaddieCondition[] | undefined
+): number => {
+    if (conditions == undefined || conditions.length === 0) return 0
+
+    let total = 0
+    for (const {
+        strongestBonus,
+        strongestPenalty,
+    } of calculateDominantAmountsBySource(conditions).values()) {
+        total += strongestBonus + strongestPenalty
+    }
+    return total
+}
+
+const isContributingToEffectiveAmount = ({
+    condition,
+    conditionsOfSameType,
+}: {
+    condition: SquaddieCondition
+    conditionsOfSameType: SquaddieCondition[]
+}): boolean => {
+    const amount = getActiveAmount(condition)
+    if (amount === 0) return false
+    const dominantAmounts = calculateDominantAmountsBySource([
+        condition,
+        ...conditionsOfSameType,
+    ]).get(condition.source)!
+    return (
+        amount === dominantAmounts.strongestBonus ||
+        amount === dominantAmounts.strongestPenalty
+    )
+}
 
 const newSquaddieCondition = ({
     type,

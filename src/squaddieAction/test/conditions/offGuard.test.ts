@@ -44,7 +44,7 @@ describe("OFF_GUARD condition", () => {
             conditions: [
                 SquaddieConditionService.new({
                     type: SquaddieConditionType.OFF_GUARD,
-                    amount: { amount: 1 },
+                    amount: undefined,
                     duration: {
                         duration: 1,
                         decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -132,7 +132,7 @@ describe("OFF_GUARD condition", () => {
                             add: [
                                 SquaddieConditionService.new({
                                     type: SquaddieConditionType.OFF_GUARD,
-                                    amount: { amount: 1 },
+                                    amount: undefined,
                                     duration: {
                                         duration: 1,
                                         decaysAt:
@@ -170,13 +170,6 @@ describe("OFF_GUARD condition", () => {
                 outOfBattleSquaddieId: target.outOfBattleSquaddieId,
             })
             expect(conditions.has(SquaddieConditionType.OFF_GUARD)).toBe(true)
-            expect(conditions.get(SquaddieConditionType.OFF_GUARD)).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining({
-                        amount: expect.objectContaining({ current: 1 }),
-                    }),
-                ])
-            )
         })
 
         it("does not apply OFF_GUARD when the attack fails", () => {
@@ -405,6 +398,23 @@ describe("OFF_GUARD condition", () => {
             return result.targetResults.get(targetKey)?.degreeOfSuccess
         }
 
+        const getFlankingActorSuccessBreakdown = () =>
+            SquaddieActionResultCalculator.calculateForecastedResults({
+                actor,
+                targets: [target],
+                action: { id: weaponAction.id, manager: actionManager },
+                inBattleSquaddieManager,
+                map: {
+                    mapId: MAP_ID,
+                    manager: coordinateMapCollectionManager,
+                },
+            }).find(
+                (forecast) =>
+                    forecast.battleSquaddieId.inBattleSquaddieId ===
+                        target.inBattleSquaddieId &&
+                    forecast.degreeOfSuccess === DegreeOfSuccess.SUCCESS
+            )?.modifierBreakdown
+
         beforeEach(() => {
             weaponAction = SquaddieActionService.new({
                 id: "weaponAttack",
@@ -487,7 +497,7 @@ describe("OFF_GUARD condition", () => {
                 conditions: [
                     SquaddieConditionService.new({
                         type: SquaddieConditionType.OFF_GUARD,
-                        amount: { amount: 1 },
+                        amount: undefined,
                         duration: {
                             duration: 1,
                             decaysAt: SquaddieConditionDecaysAt.TURN_END,
@@ -523,6 +533,14 @@ describe("OFF_GUARD condition", () => {
             )
         })
 
+        it("does not count the flank as making an Off-Guard target Off-Guard", () => {
+            addOffGuardToTarget()
+
+            const breakdown = getFlankingActorSuccessBreakdown()
+
+            expect(breakdown?.isTargetOffGuardByFlanking).toBe(false)
+        })
+
         it("non-flanking actor does not benefit", () => {
             expect(
                 getDegreeForActor(
@@ -552,6 +570,12 @@ describe("OFF_GUARD condition", () => {
                     target.inBattleSquaddieId
             )
             expect(anyResult?.modifierBreakdown?.isFlankingTarget).toBe(true)
+        })
+
+        it("reports that the flank made the target Off-Guard", () => {
+            const breakdown = getFlankingActorSuccessBreakdown()
+
+            expect(breakdown?.isTargetOffGuardByFlanking).toBe(true)
         })
     })
 

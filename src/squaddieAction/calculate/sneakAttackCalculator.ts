@@ -8,7 +8,10 @@ import {
     ProficiencyType,
     type TProficiencyType,
 } from "../../proficiency/proficiencyLevel.js"
-import { SquaddieConditionType } from "../../proficiency/squaddieCondition.js"
+import {
+    SquaddieConditionService,
+    SquaddieConditionType,
+} from "../../proficiency/squaddieCondition.js"
 import { FlankingService } from "../../coordinateMap/flankingService.js"
 
 const weaponProficiencyTypes = new Set<TProficiencyType>([
@@ -69,9 +72,10 @@ const isVulnerable = ({
     map?: { mapId: string; manager: CoordinateMapCollectionManager }
 }): boolean => {
     const conditions = inBattleSquaddieManager.getSquaddieConditions(target)
-    const hasActiveOffGuard = (
-        conditions.get(SquaddieConditionType.OFF_GUARD) ?? []
-    ).some((c) => (c.amount?.current ?? 0) > 0)
+    const hasActiveOffGuard =
+        SquaddieConditionService.calculateEffectiveAmount(
+            conditions.get(SquaddieConditionType.OFF_GUARD)
+        ) > 0
     if (hasActiveOffGuard) return true
 
     if (map == undefined) return false

@@ -88,12 +88,20 @@ export const SquaddieActionForecastCalculator = {
                           inBattleSquaddieManager,
                       })
 
+            const isTargetOffGuardByFlanking =
+                ProficiencyCalculator.isTargetOffGuardByFlanking({
+                    target,
+                    squaddieAction,
+                    inBattleSquaddieManager,
+                    isActorFlankingTarget,
+                })
+
             const targetDefensiveBonus =
                 ProficiencyCalculator.getTargetDefensiveBonus({
                     target,
                     squaddieAction,
                     inBattleSquaddieManager,
-                    isActorFlankingTarget,
+                    isTargetOffGuardByFlanking,
                 })
 
             const modifier = ProficiencyCalculator.calculateModifierDifference({

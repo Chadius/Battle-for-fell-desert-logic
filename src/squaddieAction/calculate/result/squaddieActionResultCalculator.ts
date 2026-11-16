@@ -74,6 +74,7 @@ export interface ActionModifierBreakdown {
     multipleAttackPenalty: number
     netModifier: number
     isFlankingTarget: boolean
+    isTargetOffGuardByFlanking: boolean
     sneakAttackDamage?: number
     actorFrightenedPenalty?: number
     targetFrightenedPenalty?: number
@@ -1668,11 +1669,19 @@ const computeModifierBreakdown = ({
                   inBattleSquaddieManager,
               })
 
+    const isTargetOffGuardByFlanking =
+        ProficiencyCalculator.isTargetOffGuardByFlanking({
+            target,
+            squaddieAction,
+            inBattleSquaddieManager,
+            isActorFlankingTarget: isFlankingTarget,
+        })
+
     const targetDefensiveBonus = ProficiencyCalculator.getTargetDefensiveBonus({
         target,
         squaddieAction,
         inBattleSquaddieManager,
-        isActorFlankingTarget: isFlankingTarget,
+        isTargetOffGuardByFlanking,
     })
 
     const netModifier =
@@ -1712,6 +1721,7 @@ const computeModifierBreakdown = ({
         multipleAttackPenalty,
         netModifier,
         isFlankingTarget,
+        isTargetOffGuardByFlanking,
         sneakAttackDamage:
             sneakAttackDamage > 0 ? sneakAttackDamage : undefined,
         actorFrightenedPenalty:
@@ -1994,12 +2004,20 @@ const calculateWithActorRoll = ({
                   })
                 : false
 
+        const isTargetOffGuardByFlanking =
+            ProficiencyCalculator.isTargetOffGuardByFlanking({
+                target,
+                squaddieAction,
+                inBattleSquaddieManager: managers.inBattleSquaddieManager,
+                isActorFlankingTarget,
+            })
+
         const targetDefensiveBonus =
             ProficiencyCalculator.getTargetDefensiveBonus({
                 target,
                 squaddieAction,
                 inBattleSquaddieManager: managers.inBattleSquaddieManager,
-                isActorFlankingTarget,
+                isTargetOffGuardByFlanking,
             })
 
         const modifierDifference =

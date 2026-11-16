@@ -115,7 +115,9 @@ export const InBattleSquaddieService = {
         squaddie: InBattleSquaddie
         conditionType: TSquaddieConditionType
     }): number => {
-        return effectiveConditionAmount(squaddie.conditions.get(conditionType))
+        return SquaddieConditionService.calculateEffectiveAmount(
+            squaddie.conditions.get(conditionType)
+        )
     },
     dealDamageToSquaddie({
         squaddie,
@@ -133,7 +135,7 @@ export const InBattleSquaddieService = {
         const newSquaddie: InBattleSquaddie = clone(squaddie)
         const conditions = getAllConditions(newSquaddie)
 
-        let damageReduction = effectiveConditionAmount(
+        let damageReduction = SquaddieConditionService.calculateEffectiveAmount(
             conditions.get(SquaddieConditionType.ABSORB)
         )
 
@@ -1074,36 +1076,6 @@ const drainAbsorbConditionsBySource = ({
     }
 }
 
-const BINARY_CONDITION_ACTIVE_AMOUNT = 1
-
-const effectiveConditionAmount = (
-    conditions: Omit<SquaddieCondition, TSquaddieConditionType>[] | undefined
-): number => {
-    if (conditions == undefined || conditions.length === 0) return 0
-
-    const bySource = new Map<
-        TSquaddieConditionSource,
-        { maxPos: number; maxNeg: number }
-    >()
-    for (const condition of conditions) {
-        const source = condition.source
-        const amount = SquaddieConditionService.isBinary(condition)
-            ? BINARY_CONDITION_ACTIVE_AMOUNT
-            : (condition.amount?.current ?? 0)
-        const existing = bySource.get(source) ?? { maxPos: 0, maxNeg: 0 }
-        bySource.set(source, {
-            maxPos: Math.max(existing.maxPos, amount, 0),
-            maxNeg: Math.min(existing.maxNeg, amount, 0),
-        })
-    }
-
-    let total = 0
-    for (const { maxPos, maxNeg } of bySource.values()) {
-        total += maxPos + maxNeg
-    }
-    return total
-}
-
 const getAttributeScore = ({
     attributeSheet,
     type,
@@ -1267,19 +1239,20 @@ const calculateConditionAmount = (
     let conditionBonus: number = 0
     let conditionPenalty: number = 0
     if (type == ProficiencyType.ARMOR) {
-        const armorAmount = effectiveConditionAmount(
+        const armorAmount = SquaddieConditionService.calculateEffectiveAmount(
             squaddie.conditions.get(SquaddieConditionType.ARMOR)
         )
         if (armorAmount > 0) conditionBonus = armorAmount
         if (armorAmount < 0) conditionPenalty = armorAmount
 
-        const offGuardAmount = effectiveConditionAmount(
-            squaddie.conditions.get(SquaddieConditionType.OFF_GUARD)
-        )
+        const offGuardAmount =
+            SquaddieConditionService.calculateEffectiveAmount(
+                squaddie.conditions.get(SquaddieConditionType.OFF_GUARD)
+            )
         if (offGuardAmount > 0) conditionPenalty -= offGuardAmount
     }
 
-    const frightenedAmount = effectiveConditionAmount(
+    const frightenedAmount = SquaddieConditionService.calculateEffectiveAmount(
         squaddie.conditions.get(SquaddieConditionType.FRIGHTENED)
     )
     if (frightenedAmount > 0) conditionPenalty -= frightenedAmount

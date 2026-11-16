@@ -3,6 +3,10 @@ import type {
     SquaddieCondition,
     TSquaddieConditionType,
 } from "../../proficiency/squaddieCondition.js"
+import {
+    type SquaddieConditionTotal,
+    SquaddieConditionTotalService,
+} from "../../proficiency/squaddieConditionTotal.js"
 
 export interface SquaddieInfo {
     affiliation: TSquaddieAffiliation
@@ -12,6 +16,7 @@ export interface SquaddieInfo {
     currentActionPoints: number
     maximumActionPoints: number
     conditions: SquaddieCondition[]
+    conditionTotals: SquaddieConditionTotal[]
     isDefeated: boolean
     canAct: boolean
     attackContributionThisTurn: number
@@ -58,6 +63,8 @@ export const SquaddieInfoService = {
             currentActionPoints,
             maximumActionPoints,
             conditions: flattenConditionsMap(conditions),
+            conditionTotals:
+                SquaddieConditionTotalService.calculateTotals(conditions),
             isDefeated,
             canAct,
             attackContributionThisTurn,

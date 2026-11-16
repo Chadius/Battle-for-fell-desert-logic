@@ -4,7 +4,13 @@ import {
     ProficiencyLevelConst,
     ProficiencyType,
 } from "../../proficiency/proficiencyLevel.js"
-import { SquaddieConditionType } from "../../proficiency/squaddieCondition.js"
+import {
+    SquaddieConditionService,
+    SquaddieConditionType,
+} from "../../proficiency/squaddieCondition.js"
+import type { BattleSquaddieId } from "../../squaddie/inBattle/battleSquaddieId.js"
+
+const FLANKING_DEFENSE_PENALTY = 1
 
 export const ProficiencyCalculator = {
     getActorProficiencyBonus: ({
@@ -30,15 +36,12 @@ export const ProficiencyCalculator = {
         target,
         squaddieAction,
         inBattleSquaddieManager,
-        isActorFlankingTarget,
+        isTargetOffGuardByFlanking,
     }: {
-        target: {
-            inBattleSquaddieId: number
-            outOfBattleSquaddieId: string
-        }
+        target: BattleSquaddieId
         squaddieAction: SquaddieAction
         inBattleSquaddieManager: InBattleSquaddieManager
-        isActorFlankingTarget?: boolean
+        isTargetOffGuardByFlanking?: boolean
     }): number => {
         const defensiveProficiencyType =
             ProficiencyLevelConst.defendingProficiencyTypeByProficiencyType.get(
@@ -53,26 +56,28 @@ export const ProficiencyCalculator = {
             type: defensiveProficiencyType,
         }).total
 
-        if (
-            isActorFlankingTarget &&
-            defensiveProficiencyType === ProficiencyType.ARMOR
-        ) {
-            const targetConditions =
-                inBattleSquaddieManager.getSquaddieConditions({
-                    inBattleSquaddieId: target.inBattleSquaddieId,
-                    outOfBattleSquaddieId: target.outOfBattleSquaddieId,
-                })
-            const hasActiveOffGuard = (
-                targetConditions.get(SquaddieConditionType.OFF_GUARD) ?? []
-            ).some((c) => (c.amount?.current ?? 0) > 0)
-
-            if (!hasActiveOffGuard) {
-                return baseDefense - 1
-            }
-        }
-
-        return baseDefense
+        return isTargetOffGuardByFlanking
+            ? baseDefense - FLANKING_DEFENSE_PENALTY
+            : baseDefense
     },
+
+    isTargetOffGuardByFlanking: ({
+        target,
+        squaddieAction,
+        inBattleSquaddieManager,
+        isActorFlankingTarget,
+    }: {
+        target: BattleSquaddieId
+        squaddieAction: SquaddieAction
+        inBattleSquaddieManager: InBattleSquaddieManager
+        isActorFlankingTarget: boolean
+    }): boolean =>
+        isTargetOffGuardByFlanking({
+            target,
+            squaddieAction,
+            inBattleSquaddieManager,
+            isActorFlankingTarget,
+        }),
 
     calculateModifierDifference: ({
         rollingSquaddieBonus,
@@ -98,4 +103,34 @@ export const ProficiencyCalculator = {
         if (attackContributionThisTurn === 1) return 3
         return 6
     },
+}
+
+const isTargetOffGuardByFlanking = ({
+    target,
+    squaddieAction,
+    inBattleSquaddieManager,
+    isActorFlankingTarget,
+}: {
+    target: BattleSquaddieId
+    squaddieAction: SquaddieAction
+    inBattleSquaddieManager: InBattleSquaddieManager
+    isActorFlankingTarget: boolean
+}): boolean => {
+    if (!isActorFlankingTarget) return false
+
+    const defensiveProficiencyType =
+        ProficiencyLevelConst.defendingProficiencyTypeByProficiencyType.get(
+            squaddieAction.proficiency
+        )
+    if (defensiveProficiencyType !== ProficiencyType.ARMOR) return false
+
+    const targetConditions = inBattleSquaddieManager.getSquaddieConditions({
+        inBattleSquaddieId: target.inBattleSquaddieId,
+        outOfBattleSquaddieId: target.outOfBattleSquaddieId,
+    })
+    const isAlreadyOffGuard =
+        SquaddieConditionService.calculateEffectiveAmount(
+            targetConditions.get(SquaddieConditionType.OFF_GUARD)
+        ) > 0
+    return !isAlreadyOffGuard
 }
